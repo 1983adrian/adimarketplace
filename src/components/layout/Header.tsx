@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Heart, MessageCircle, User, Plus, LogOut, ShoppingBag } from 'lucide-react';
+import { Search, Menu, X, Heart, MessageCircle, User, Plus, LogOut, ShoppingBag, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -106,6 +106,12 @@ export const Header: React.FC = () => {
                         Favorites
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/settings" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
                       <LogOut className="mr-2 h-4 w-4" />
@@ -188,6 +194,13 @@ export const Header: React.FC = () => {
                       <Link to="/messages">
                         <MessageCircle className="mr-2 h-4 w-4" />
                         Messages
+                      </Link>
+                    </Button>
+
+                    <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                      <Link to="/settings">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
                       </Link>
                     </Button>
                     
