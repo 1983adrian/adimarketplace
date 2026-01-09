@@ -23,8 +23,7 @@ export const HeroSection: React.FC = () => {
       <div className="container mx-auto px-4 relative">
         <div className="max-w-3xl mx-auto text-center space-y-8">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight animate-fade-up">
-            Buy & Sell
-            <span className="text-primary block mt-2">Anything, Anywhere</span>
+            Buy and sell
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-up" style={{ animationDelay: '0.1s' }}>

@@ -1,0 +1,188 @@
+import React, { useState } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Search, Filter, X, MapPin, Heart } from 'lucide-react';
+import { Layout } from '@/components/layout/Layout';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Label } from '@/components/ui/label';
+import { Slider } from '@/components/ui/slider';
+import { sampleListings } from '@/data/sampleListings';
+import { useCategories } from '@/hooks/useCategories';
+
+const conditionLabels: Record<string, string> = {
+  new: 'New',
+  like_new: 'Like New',
+  good: 'Good',
+  fair: 'Fair',
+  poor: 'Poor',
+};
+
+const Browse = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
+  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [selectedCondition, setSelectedCondition] = useState<string>('');
+  const [sortBy, setSortBy] = useState('newest');
+  const { data: categories } = useCategories();
+
+  const selectedCategory = searchParams.get('category') || '';
+
+  const filteredListings = sampleListings.filter((listing) => {
+    const matchesSearch = !searchQuery || 
+      listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      listing.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !selectedCategory || listing.category === selectedCategory;
+    const matchesPrice = listing.price >= priceRange[0] && listing.price <= priceRange[1];
+    const matchesCondition = !selectedCondition || listing.condition === selectedCondition;
+    return matchesSearch && matchesCategory && matchesPrice && matchesCondition;
+  });
+
+  const sortedListings = [...filteredListings].sort((a, b) => {
+    switch (sortBy) {
+      case 'price_asc': return a.price - b.price;
+      case 'price_desc': return b.price - a.price;
+      default: return 0;
+    }
+  });
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearchParams(prev => {
+      if (searchQuery) prev.set('search', searchQuery);
+      else prev.delete('search');
+      return prev;
+    });
+  };
+
+  const clearFilters = () => {
+    setSearchQuery('');
+    setPriceRange([0, 1000]);
+    setSelectedCondition('');
+    setSortBy('newest');
+    setSearchParams({});
+  };
+
+  const FiltersContent = () => (
+    <div className="space-y-6">
+      <div>
+        <Label className="mb-2 block">Category</Label>
+        <Select value={selectedCategory} onValueChange={(value) => setSearchParams(prev => { if (value) prev.set('category', value); else prev.delete('category'); return prev; })}>
+          <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">All Categories</SelectItem>
+            {categories?.map((cat) => (
+              <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label className="mb-2 block">Price Range: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}</Label>
+        <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={1000} step={10} className="mt-4" />
+      </div>
+      <div>
+        <Label className="mb-2 block">Condition</Label>
+        <Select value={selectedCondition} onValueChange={setSelectedCondition}>
+          <SelectTrigger><SelectValue placeholder="Any Condition" /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Any Condition</SelectItem>
+            <SelectItem value="new">New</SelectItem>
+            <SelectItem value="like_new">Like New</SelectItem>
+            <SelectItem value="good">Good</SelectItem>
+            <SelectItem value="fair">Fair</SelectItem>
+            <SelectItem value="poor">Poor</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Button variant="outline" className="w-full" onClick={clearFilters}>
+        <X className="h-4 w-4 mr-2" /> Clear Filters
+      </Button>
+    </div>
+  );
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <form onSubmit={handleSearch} className="flex-1 flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input type="search" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+            </div>
+            <Button type="submit">Search</Button>
+          </form>
+          <div className="flex gap-2">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Newest First</SelectItem>
+                <SelectItem value="price_asc">Price: Low to High</SelectItem>
+                <SelectItem value="price_desc">Price: High to Low</SelectItem>
+              </SelectContent>
+            </Select>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="md:hidden"><Filter className="h-4 w-4 mr-2" /> Filters</Button>
+              </SheetTrigger>
+              <SheetContent><SheetHeader><SheetTitle>Filters</SheetTitle></SheetHeader><div className="mt-6"><FiltersContent /></div></SheetContent>
+            </Sheet>
+          </div>
+        </div>
+
+        <div className="flex gap-8">
+          <aside className="hidden md:block w-64 shrink-0">
+            <div className="sticky top-24 bg-card rounded-lg border p-6">
+              <h3 className="font-semibold mb-4">Filters</h3>
+              <FiltersContent />
+            </div>
+          </aside>
+
+          <div className="flex-1">
+            <p className="text-muted-foreground mb-4">{sortedListings.length} items found</p>
+            {sortedListings.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No listings found matching your criteria</p>
+                <Button variant="link" onClick={clearFilters}>Clear all filters</Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {sortedListings.map((listing) => (
+                  <Link key={listing.id} to={`/listing/${listing.id}`}>
+                    <Card className="group overflow-hidden hover-lift cursor-pointer border-border/50 hover:border-primary/30">
+                      <div className="relative aspect-square overflow-hidden bg-muted">
+                        <img src={listing.image} alt={listing.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background">
+                          <Heart className="h-5 w-5" />
+                        </Button>
+                        <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">{conditionLabels[listing.condition]}</Badge>
+                      </div>
+                      <CardContent className="p-4">
+                        <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">{listing.title}</h3>
+                        <p className="text-2xl font-bold text-primary mt-1">{formatPrice(listing.price)}</p>
+                        {listing.location && (
+                          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-2">
+                            <MapPin className="h-3 w-3" />{listing.location}
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default Browse;
