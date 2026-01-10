@@ -12,6 +12,7 @@ import ListingDetail from "./pages/ListingDetail";
 import CreateListing from "./pages/CreateListing";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
+import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/sell" element={<CreateListing />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/checkout" element={<Checkout />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
