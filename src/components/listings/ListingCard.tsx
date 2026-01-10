@@ -1,12 +1,13 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, MapPin } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Heart, MapPin, ShoppingCart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ListingWithImages, ItemCondition } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 interface ListingCardProps {
@@ -31,8 +32,23 @@ const conditionColors: Record<ItemCondition, string> = {
 
 export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const { data: isFavorite } = useIsFavorite(listing.id, user?.id);
   const toggleFavorite = useToggleFavorite();
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast({ title: 'Please log in to purchase', description: 'You need an account to buy items' });
+      navigate('/login');
+      return;
+    }
+    
+    navigate(`/listing/${listing.id}?buy=true`);
+  };
 
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
   const imageUrl = primaryImage?.image_url || '/placeholder.svg';
@@ -89,9 +105,19 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">
             {listing.title}
           </h3>
-          <p className="text-2xl font-bold text-primary mt-1">
-            {formatPrice(listing.price)}
-          </p>
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xl font-bold text-primary">
+              {formatPrice(listing.price)}
+            </p>
+            <Button 
+              size="sm" 
+              className="gap-1.5"
+              onClick={handleBuyNow}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Buy
+            </Button>
+          </div>
           {listing.location && (
             <p className="text-sm text-muted-foreground flex items-center gap-1 mt-2">
               <MapPin className="h-3 w-3" />
