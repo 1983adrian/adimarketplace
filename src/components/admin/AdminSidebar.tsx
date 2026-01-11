@@ -10,7 +10,8 @@ import {
   Shield,
   FileText,
   AlertTriangle,
-  Crown
+  Crown,
+  Key
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -35,6 +36,7 @@ const menuItems = [
   { title: 'Messages', url: '/admin/messages', icon: MessageCircle },
   { title: 'Disputes', url: '/admin/disputes', icon: AlertTriangle },
   { title: 'Fees & Pricing', url: '/admin/fees', icon: DollarSign },
+  { title: 'API Settings', url: '/admin/api-settings', icon: Key },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Platform Settings', url: '/admin/settings', icon: Settings },
 ];

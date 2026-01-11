@@ -27,6 +27,7 @@ import AdminFees from "./pages/admin/AdminFees";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminDisputes from "./pages/admin/AdminDisputes";
 import OwnerDashboard from "./pages/admin/OwnerDashboard";
+import AdminApiSettings from "./pages/admin/AdminApiSettings";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
                 <Route path="/admin/orders" element={<AdminOrders />} />
                 <Route path="/admin/fees" element={<AdminFees />} />
                 <Route path="/admin/messages" element={<AdminMessages />} />
+                <Route path="/admin/api-settings" element={<AdminApiSettings />} />
                 <Route path="/admin/disputes" element={<AdminDisputes />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
