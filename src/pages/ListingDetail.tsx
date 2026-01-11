@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Share2, MapPin, MessageCircle, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Heart, Share2, MapPin, Shield } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { sampleListings } from '@/data/sampleListings';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { PayPalButton } from '@/components/payments/PayPalButton';
 
 const conditionLabels: Record<string, string> = {
   new: 'New',
@@ -49,7 +50,8 @@ const ListingDetail = () => {
       navigate('/login');
       return;
     }
-    toast({ title: 'Message sent!', description: 'The seller will respond soon.' });
+    // Navigate to messages or open message modal
+    toast({ title: 'Coming soon', description: 'Messaging feature is coming soon!' });
   };
 
   const handleShare = async () => {
@@ -90,9 +92,14 @@ const ListingDetail = () => {
               </p>
             )}
 
+            {/* PayPal Buy Now Button */}
+            <div className="mb-4">
+              <PayPalButton listingId={listing.id} className="w-full" />
+            </div>
+
             <div className="flex gap-3">
-              <Button className="flex-1" size="lg" onClick={handleContact}>
-                <MessageCircle className="h-5 w-5 mr-2" /> Contact Seller
+              <Button variant="outline" className="flex-1" size="lg" onClick={handleContact}>
+                Contact Seller
               </Button>
               <Button variant="outline" size="lg" onClick={() => setIsFavorite(!isFavorite)}>
                 <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current text-destructive' : ''}`} />
@@ -130,7 +137,7 @@ const ListingDetail = () => {
 
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4" />
-              <span>Secure payments through MarketPlace</span>
+              <span>Secure payments through PayPal</span>
             </div>
           </div>
         </div>
