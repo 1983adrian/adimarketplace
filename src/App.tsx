@@ -23,6 +23,7 @@ import AdminOrders from "./pages/admin/AdminOrders";
 import AdminFees from "./pages/admin/AdminFees";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminDisputes from "./pages/admin/AdminDisputes";
+import OwnerDashboard from "./pages/admin/OwnerDashboard";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/owner" element={<OwnerDashboard />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/listings" element={<AdminListings />} />
               <Route path="/admin/orders" element={<AdminOrders />} />
