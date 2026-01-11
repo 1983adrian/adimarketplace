@@ -99,8 +99,8 @@ const CreateListing = () => {
           <Crown className="h-16 w-16 mx-auto mb-6 text-primary" />
           <h1 className="text-2xl font-bold mb-4">Become a Seller</h1>
           <p className="text-muted-foreground mb-6">
-            To list items for sale, you need an active seller subscription. 
-            It's only £1/month, and you only pay a 20% commission when you make a sale.
+            To list items for sale, you need to pay a monthly platform access fee. 
+            It's only £1/month (charged automatically from your card), plus a 15% commission when you make a sale.
           </p>
           <div className="space-y-3">
             <Button 
@@ -110,7 +110,7 @@ const CreateListing = () => {
               disabled={createSubscription.isPending}
             >
               <Crown className="h-4 w-4" />
-              {createSubscription.isPending ? 'Loading...' : 'Subscribe for £1/month'}
+              {createSubscription.isPending ? 'Loading...' : 'Activate Access - £1/month'}
             </Button>
             <Button variant="outline" className="w-full" asChild>
               <Link to="/dashboard">Back to Dashboard</Link>
