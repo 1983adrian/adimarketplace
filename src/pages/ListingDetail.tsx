@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { useToast } from '@/hooks/use-toast';
 import { PayPalButton } from '@/components/payments/PayPalButton';
 import { StarRating } from '@/components/reviews/StarRating';
@@ -31,6 +32,7 @@ const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { formatPrice } = useCurrency();
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0);
   const { data: favorites } = useFavorites(user?.id);
@@ -108,9 +110,6 @@ const ListingDetail = () => {
     );
   }
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0 }).format(price);
-  };
 
   const handleContact = () => {
     if (!user) {

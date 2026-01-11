@@ -13,9 +13,11 @@ import { Slider } from '@/components/ui/slider';
 import { sampleListings } from '@/data/sampleListings';
 import { useCategories } from '@/hooks/useCategories';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const Browse = () => {
   const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [priceRange, setPriceRange] = useState([0, 1000]);
@@ -45,10 +47,6 @@ const Browse = () => {
       default: return 0;
     }
   });
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0 }).format(price);
-  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

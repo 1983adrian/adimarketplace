@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { sampleListings } from '@/data/sampleListings';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const conditionLabels: Record<string, string> = {
   new: 'New',
@@ -15,13 +16,7 @@ const conditionLabels: Record<string, string> = {
 };
 
 export const FeaturedListings: React.FC = () => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const { formatPrice } = useCurrency();
 
   return (
     <section className="py-12 md:py-16 bg-secondary/30">

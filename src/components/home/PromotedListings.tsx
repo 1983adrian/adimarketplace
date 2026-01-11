@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePromotedListings } from '@/hooks/usePromotions';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const conditionLabels: Record<string, string> = {
   new: 'New',
@@ -16,14 +17,7 @@ const conditionLabels: Record<string, string> = {
 
 export const PromotedListings: React.FC = () => {
   const { data: promotedListings, isLoading } = usePromotedListings();
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP',
-      minimumFractionDigits: 0,
-    }).format(price);
-  };
+  const { formatPrice } = useCurrency();
 
   if (isLoading) {
     return (
