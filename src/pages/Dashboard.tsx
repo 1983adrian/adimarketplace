@@ -1,20 +1,39 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign, CreditCard, Crown } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyListings } from '@/hooks/useListings';
 import { useFavorites } from '@/hooks/useFavorites';
+import { useSellerSubscription, useCreateSellerSubscription, useSellerPortal } from '@/hooks/useSellerSubscription';
 import { ListingGrid } from '@/components/listings/ListingGrid';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
   const { data: myListings, isLoading: listingsLoading } = useMyListings(user?.id);
   const { data: favorites, isLoading: favoritesLoading } = useFavorites(user?.id);
+  const { data: subscription, isLoading: subscriptionLoading, refetch: refetchSubscription } = useSellerSubscription();
+  const createSubscription = useCreateSellerSubscription();
+  const openPortal = useSellerPortal();
+
+  // Handle subscription success/cancel from URL params
+  React.useEffect(() => {
+    const subscriptionStatus = searchParams.get('subscription');
+    if (subscriptionStatus === 'success') {
+      toast({ title: 'Subscription activated!', description: 'You can now create listings.' });
+      refetchSubscription();
+    } else if (subscriptionStatus === 'canceled') {
+      toast({ title: 'Subscription canceled', description: 'You can subscribe anytime.', variant: 'destructive' });
+    }
+  }, [searchParams, toast, refetchSubscription]);
 
   React.useEffect(() => {
     if (!loading && !user) {
@@ -37,6 +56,8 @@ const Dashboard = () => {
   const totalViews = myListings?.reduce((acc, l) => acc + l.views_count, 0) || 0;
   const totalEarnings = soldListings.reduce((acc, l) => acc + l.price, 0);
 
+  const isSubscribed = subscription?.subscribed || false;
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
@@ -50,17 +71,36 @@ const Dashboard = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl font-bold">{profile?.display_name || 'Welcome!'}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold">{profile?.display_name || 'Welcome!'}</h1>
+                {isSubscribed && (
+                  <Badge variant="secondary" className="gap-1">
+                    <Crown className="h-3 w-3" />
+                    Seller
+                  </Badge>
+                )}
+              </div>
               <p className="text-muted-foreground">{user?.email}</p>
             </div>
           </div>
           <div className="flex gap-3">
-            <Button asChild>
-              <Link to="/sell" className="gap-2">
-                <Plus className="h-4 w-4" />
-                New Listing
-              </Link>
-            </Button>
+            {isSubscribed ? (
+              <Button asChild>
+                <Link to="/sell" className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  New Listing
+                </Link>
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => createSubscription.mutate()} 
+                disabled={createSubscription.isPending}
+                className="gap-2"
+              >
+                <Crown className="h-4 w-4" />
+                {createSubscription.isPending ? 'Loading...' : 'Become a Seller (£1/mo)'}
+              </Button>
+            )}
             <Button variant="outline" asChild>
               <Link to="/settings" className="gap-2">
                 <Settings className="h-4 w-4" />
@@ -69,6 +109,53 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
+
+        {/* Seller Subscription Card */}
+        {!subscriptionLoading && (
+          <Card className={`mb-8 ${isSubscribed ? 'border-primary/50 bg-primary/5' : ''}`}>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Crown className={`h-6 w-6 ${isSubscribed ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <div>
+                    <CardTitle className="text-lg">Seller Subscription</CardTitle>
+                    <CardDescription>
+                      {isSubscribed 
+                        ? `Active until ${subscription?.subscription_end ? new Date(subscription.subscription_end).toLocaleDateString() : 'N/A'}`
+                        : 'Subscribe to list items for sale (£1/month)'
+                      }
+                    </CardDescription>
+                  </div>
+                </div>
+                {isSubscribed ? (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => openPortal.mutate()}
+                    disabled={openPortal.isPending}
+                    className="gap-2"
+                  >
+                    <CreditCard className="h-4 w-4" />
+                    {openPortal.isPending ? 'Loading...' : 'Manage Subscription'}
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => createSubscription.mutate()}
+                    disabled={createSubscription.isPending}
+                  >
+                    {createSubscription.isPending ? 'Loading...' : 'Subscribe Now'}
+                  </Button>
+                )}
+              </div>
+            </CardHeader>
+            {!isSubscribed && (
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground">
+                  Seller benefits: Create unlimited listings, 20% commission on sales (only when you sell).
+                </p>
+              </CardContent>
+            )}
+          </Card>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -110,7 +197,7 @@ const Dashboard = () => {
               <div className="flex items-center gap-3">
                 <DollarSign className="h-8 w-8 text-muted-foreground" />
                 <div>
-                  <p className="text-2xl font-bold">${totalEarnings.toLocaleString()}</p>
+                  <p className="text-2xl font-bold">£{totalEarnings.toLocaleString()}</p>
                   <p className="text-sm text-muted-foreground">Total Earned</p>
                 </div>
               </div>
@@ -153,9 +240,11 @@ const Dashboard = () => {
         <div>
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold">My Listings</h2>
-            <Button variant="ghost" asChild>
-              <Link to="/sell">View All</Link>
-            </Button>
+            {isSubscribed && (
+              <Button variant="ghost" asChild>
+                <Link to="/sell">View All</Link>
+              </Button>
+            )}
           </div>
           {activeListings.length > 0 ? (
             <ListingGrid listings={activeListings.slice(0, 4)} isLoading={listingsLoading} />
@@ -164,10 +253,24 @@ const Dashboard = () => {
               <CardContent className="py-12 text-center">
                 <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="font-semibold mb-2">No listings yet</h3>
-                <p className="text-muted-foreground mb-4">Start selling by creating your first listing</p>
-                <Button asChild>
-                  <Link to="/sell">Create Listing</Link>
-                </Button>
+                <p className="text-muted-foreground mb-4">
+                  {isSubscribed 
+                    ? 'Start selling by creating your first listing'
+                    : 'Subscribe to become a seller and create listings'
+                  }
+                </p>
+                {isSubscribed ? (
+                  <Button asChild>
+                    <Link to="/sell">Create Listing</Link>
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => createSubscription.mutate()}
+                    disabled={createSubscription.isPending}
+                  >
+                    {createSubscription.isPending ? 'Loading...' : 'Become a Seller'}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           )}
