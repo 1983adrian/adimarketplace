@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Image, Type, Layout, Eye, Plus, Trash2, GripVertical, ExternalLink } from 'lucide-react';
+import { Save, Image, Type, Layout, Eye, Plus, Trash2, GripVertical, ExternalLink, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface HeroSettings {
   title: string;
@@ -70,28 +72,117 @@ const defaultConfig: HomepageConfig = {
 
 export default function AdminHomepageEditor() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [config, setConfig] = useState<HomepageConfig>(defaultConfig);
-  const [isSaving, setIsSaving] = useState(false);
+
+  const { data: homepageData, isLoading } = useQuery({
+    queryKey: ['homepage-content'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('homepage_content')
+        .select('*')
+        .order('sort_order');
+      if (error) throw error;
+      return data;
+    },
+  });
 
   useEffect(() => {
-    const saved = localStorage.getItem('homepage_config');
-    if (saved) {
-      setConfig(JSON.parse(saved));
-    }
-  }, []);
+    if (homepageData && homepageData.length > 0) {
+      const heroData = homepageData.find(h => h.section_key === 'hero');
+      const sectionsData = homepageData.find(h => h.section_key === 'sections');
+      const bannersData = homepageData.filter(h => h.section_key === 'banner');
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      localStorage.setItem('homepage_config', JSON.stringify(config));
-      toast({ title: 'Homepage saved', description: 'Changes will appear on the homepage.' });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } finally {
-      setIsSaving(false);
+      if (heroData) {
+        setConfig(prev => ({
+          ...prev,
+          hero: {
+            title: heroData.title || defaultConfig.hero.title,
+            subtitle: heroData.subtitle || defaultConfig.hero.subtitle,
+            ctaText: heroData.button_text || defaultConfig.hero.ctaText,
+            ctaLink: heroData.button_url || defaultConfig.hero.ctaLink,
+            backgroundImage: heroData.image_url || '',
+            showSearchBar: heroData.is_active ?? true,
+          },
+        }));
+      }
+
+      if (sectionsData?.description) {
+        try {
+          const parsed = JSON.parse(sectionsData.description);
+          setConfig(prev => ({ ...prev, sections: { ...defaultConfig.sections, ...parsed } }));
+        } catch {}
+      }
+
+      if (bannersData.length > 0) {
+        const banners: Banner[] = bannersData.map(b => ({
+          id: b.id,
+          title: b.title || '',
+          description: b.description || '',
+          imageUrl: b.image_url || '',
+          linkUrl: b.button_url || '',
+          isActive: b.is_active,
+          position: b.sort_order,
+        }));
+        setConfig(prev => ({ ...prev, banners }));
+      }
     }
-  };
+  }, [homepageData]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      // Save hero
+      const { error: heroError } = await supabase
+        .from('homepage_content')
+        .upsert({
+          section_key: 'hero',
+          title: config.hero.title,
+          subtitle: config.hero.subtitle,
+          button_text: config.hero.ctaText,
+          button_url: config.hero.ctaLink,
+          image_url: config.hero.backgroundImage,
+          is_active: config.hero.showSearchBar,
+          sort_order: 0,
+        }, { onConflict: 'section_key' });
+      if (heroError) throw heroError;
+
+      // Save sections config
+      const { error: sectionsError } = await supabase
+        .from('homepage_content')
+        .upsert({
+          section_key: 'sections',
+          description: JSON.stringify(config.sections),
+          is_active: true,
+          sort_order: 1,
+        }, { onConflict: 'section_key' });
+      if (sectionsError) throw sectionsError;
+
+      // Delete old banners and insert new ones
+      await supabase.from('homepage_content').delete().eq('section_key', 'banner');
+      
+      for (const banner of config.banners) {
+        const { error } = await supabase.from('homepage_content').insert({
+          section_key: 'banner',
+          title: banner.title,
+          description: banner.description,
+          image_url: banner.imageUrl,
+          button_url: banner.linkUrl,
+          is_active: banner.isActive,
+          sort_order: banner.position + 10,
+        });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['homepage-content'] });
+      toast({ title: 'Homepage saved', description: 'Changes will appear on the homepage.' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const handleSave = () => saveMutation.mutate();
 
   const updateHero = (key: keyof HeroSettings, value: any) => {
     setConfig(prev => ({ ...prev, hero: { ...prev.hero, [key]: value } }));
@@ -143,7 +234,7 @@ export default function AdminHomepageEditor() {
                 Preview
               </a>
             </Button>
-            <Button onClick={handleSave} disabled={isSaving} className="gap-2">
+            <Button onClick={handleSave} disabled={saveMutation.isPending} className="gap-2">
               <Save className="h-4 w-4" />
               Save Changes
             </Button>
