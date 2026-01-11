@@ -31,6 +31,12 @@ import AdminApiSettings from "./pages/admin/AdminApiSettings";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminPlatformSettings from "./pages/admin/AdminPlatformSettings";
 import AdminPolicies from "./pages/admin/AdminPolicies";
+import AdminHomepageEditor from "./pages/admin/AdminHomepageEditor";
+import AdminCategories from "./pages/admin/AdminCategories";
+import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
+import AdminSEO from "./pages/admin/AdminSEO";
+import AdminMaintenance from "./pages/admin/AdminMaintenance";
+import AdminAuditLog from "./pages/admin/AdminAuditLog";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +75,12 @@ const App = () => (
                 <Route path="/admin/analytics" element={<AdminAnalytics />} />
                 <Route path="/admin/settings" element={<AdminPlatformSettings />} />
                 <Route path="/admin/policies" element={<AdminPolicies />} />
+                <Route path="/admin/homepage" element={<AdminHomepageEditor />} />
+                <Route path="/admin/categories" element={<AdminCategories />} />
+                <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
+                <Route path="/admin/seo" element={<AdminSEO />} />
+                <Route path="/admin/maintenance" element={<AdminMaintenance />} />
+                <Route path="/admin/audit-log" element={<AdminAuditLog />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

@@ -11,7 +11,13 @@ import {
   FileText,
   AlertTriangle,
   Crown,
-  Key
+  Key,
+  Home,
+  FolderTree,
+  Mail,
+  Search,
+  Wrench,
+  ClipboardList
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -39,6 +45,18 @@ const menuItems = [
   { title: 'API Settings', url: '/admin/api-settings', icon: Key },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Platform Settings', url: '/admin/settings', icon: Settings },
+];
+
+const contentItems = [
+  { title: 'Homepage Editor', url: '/admin/homepage', icon: Home },
+  { title: 'Categorii', url: '/admin/categories', icon: FolderTree },
+  { title: 'Template-uri Email', url: '/admin/email-templates', icon: Mail },
+  { title: 'SEO Settings', url: '/admin/seo', icon: Search },
+];
+
+const systemItems = [
+  { title: 'Mentenanță', url: '/admin/maintenance', icon: Wrench },
+  { title: 'Audit Log', url: '/admin/audit-log', icon: ClipboardList },
 ];
 
 export function AdminSidebar() {
@@ -79,6 +97,28 @@ export function AdminSidebar() {
         </SidebarGroup>
 
         <SidebarGroup>
+          <SidebarGroupLabel>Conținut</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {contentItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url}
+                      className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium"
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
           <SidebarGroupLabel>Legal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -94,6 +134,28 @@ export function AdminSidebar() {
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Sistem</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url}
+                      className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium"
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
