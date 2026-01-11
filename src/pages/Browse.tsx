@@ -70,10 +70,17 @@ const Browse = () => {
     <div className="space-y-6">
       <div>
         <Label className="mb-2 block">{t('browse.category')}</Label>
-        <Select value={selectedCategory} onValueChange={(value) => setSearchParams(prev => { if (value) prev.set('category', value); else prev.delete('category'); return prev; })}>
+        <Select 
+          value={selectedCategory || "all"} 
+          onValueChange={(value) => setSearchParams(prev => { 
+            if (value && value !== "all") prev.set('category', value); 
+            else prev.delete('category'); 
+            return prev; 
+          })}
+        >
           <SelectTrigger><SelectValue placeholder={t('browse.allCategories')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t('browse.allCategories')}</SelectItem>
+            <SelectItem value="all">{t('browse.allCategories')}</SelectItem>
             {categories?.map((cat) => (
               <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
             ))}
@@ -88,10 +95,10 @@ const Browse = () => {
       
       <div>
         <Label className="mb-2 block">{t('browse.condition')}</Label>
-        <Select value={selectedCondition} onValueChange={setSelectedCondition}>
+        <Select value={selectedCondition || "any"} onValueChange={(value) => setSelectedCondition(value === "any" ? "" : value)}>
           <SelectTrigger><SelectValue placeholder={t('browse.anyCondition')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t('browse.anyCondition')}</SelectItem>
+            <SelectItem value="any">{t('browse.anyCondition')}</SelectItem>
             <SelectItem value="new">{t('condition.new')}</SelectItem>
             <SelectItem value="like_new">{t('condition.like_new')}</SelectItem>
             <SelectItem value="good">{t('condition.good')}</SelectItem>
