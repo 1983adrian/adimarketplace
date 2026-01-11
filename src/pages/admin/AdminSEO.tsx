@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Search, Globe, Image, Share2 } from 'lucide-react';
+import { Save, Search, Globe, Image, Share2, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,8 @@ import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 interface PageSEO {
   title: string;
@@ -111,28 +113,133 @@ Sitemap: https://yoursite.com/sitemap.xml`,
 
 export default function AdminSEO() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [settings, setSettings] = useState<SEOSettings>(defaultSettings);
-  const [isSaving, setIsSaving] = useState(false);
+
+  const { data: seoData, isLoading } = useQuery({
+    queryKey: ['seo-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('seo_settings').select('*');
+      if (error) throw error;
+      return data;
+    },
+  });
 
   useEffect(() => {
-    const saved = localStorage.getItem('seo_settings');
-    if (saved) {
-      setSettings(JSON.parse(saved));
-    }
-  }, []);
+    if (seoData && seoData.length > 0) {
+      const globalData = seoData.find(s => s.page_key === 'global');
+      const socialData = seoData.find(s => s.page_key === 'social');
+      const robotsData = seoData.find(s => s.page_key === 'robots');
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      localStorage.setItem('seo_settings', JSON.stringify(settings));
-      toast({ title: 'SEO settings saved' });
-    } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } finally {
-      setIsSaving(false);
+      if (globalData) {
+        setSettings(prev => ({
+          ...prev,
+          global: {
+            siteName: globalData.meta_title || defaultSettings.global.siteName,
+            siteTagline: globalData.og_title || defaultSettings.global.siteTagline,
+            defaultDescription: globalData.meta_description || defaultSettings.global.defaultDescription,
+            defaultKeywords: globalData.keywords?.join(', ') || defaultSettings.global.defaultKeywords,
+            googleAnalyticsId: globalData.og_image || '',
+            googleSearchConsoleId: globalData.og_description || '',
+          },
+        }));
+      }
+
+      if (socialData) {
+        setSettings(prev => ({
+          ...prev,
+          social: {
+            ogTitle: socialData.og_title || defaultSettings.social.ogTitle,
+            ogDescription: socialData.og_description || defaultSettings.social.ogDescription,
+            ogImage: socialData.og_image || '',
+            twitterCard: 'summary_large_image',
+            twitterTitle: socialData.meta_title || defaultSettings.social.twitterTitle,
+            twitterDescription: socialData.meta_description || defaultSettings.social.twitterDescription,
+            twitterImage: socialData.og_image || '',
+          },
+        }));
+      }
+
+      if (robotsData?.meta_description) {
+        setSettings(prev => ({
+          ...prev,
+          robots: {
+            ...prev.robots,
+            robotsTxt: robotsData.meta_description,
+          },
+        }));
+      }
+
+      // Load page-specific SEO
+      const pageKeys = ['home', 'browse', 'login', 'signup', 'sell'] as const;
+      pageKeys.forEach(pageKey => {
+        const pageData = seoData.find(s => s.page_key === pageKey);
+        if (pageData) {
+          setSettings(prev => ({
+            ...prev,
+            pages: {
+              ...prev.pages,
+              [pageKey]: {
+                title: pageData.meta_title || defaultSettings.pages[pageKey].title,
+                description: pageData.meta_description || defaultSettings.pages[pageKey].description,
+                keywords: pageData.keywords?.join(', ') || defaultSettings.pages[pageKey].keywords,
+              },
+            },
+          }));
+        }
+      });
     }
-  };
+  }, [seoData]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      // Save global settings
+      await supabase.from('seo_settings').upsert({
+        page_key: 'global',
+        meta_title: settings.global.siteName,
+        og_title: settings.global.siteTagline,
+        meta_description: settings.global.defaultDescription,
+        keywords: settings.global.defaultKeywords.split(',').map(k => k.trim()),
+        og_image: settings.global.googleAnalyticsId,
+        og_description: settings.global.googleSearchConsoleId,
+      }, { onConflict: 'page_key' });
+
+      // Save social settings
+      await supabase.from('seo_settings').upsert({
+        page_key: 'social',
+        og_title: settings.social.ogTitle,
+        og_description: settings.social.ogDescription,
+        og_image: settings.social.ogImage,
+        meta_title: settings.social.twitterTitle,
+        meta_description: settings.social.twitterDescription,
+      }, { onConflict: 'page_key' });
+
+      // Save robots
+      await supabase.from('seo_settings').upsert({
+        page_key: 'robots',
+        meta_description: settings.robots.robotsTxt,
+      }, { onConflict: 'page_key' });
+
+      // Save page-specific SEO
+      for (const [pageKey, pageSettings] of Object.entries(settings.pages)) {
+        await supabase.from('seo_settings').upsert({
+          page_key: pageKey,
+          meta_title: pageSettings.title,
+          meta_description: pageSettings.description,
+          keywords: pageSettings.keywords.split(',').map(k => k.trim()),
+        }, { onConflict: 'page_key' });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seo-settings'] });
+      toast({ title: 'SEO settings saved' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const handleSave = () => saveMutation.mutate();
 
   const updateGlobal = (key: keyof SEOSettings['global'], value: string) => {
     setSettings(prev => ({ ...prev, global: { ...prev.global, [key]: value } }));
@@ -164,7 +271,7 @@ export default function AdminSEO() {
             <h1 className="text-3xl font-bold">SEO Settings</h1>
             <p className="text-muted-foreground">Optimize your site for search engines</p>
           </div>
-          <Button onClick={handleSave} disabled={isSaving} className="gap-2">
+          <Button onClick={handleSave} disabled={saveMutation.isPending} className="gap-2">
             <Save className="h-4 w-4" />
             Save Settings
           </Button>
