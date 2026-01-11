@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Heart, MessageCircle, User, Plus, LogOut, ShoppingBag, Settings, Package } from 'lucide-react';
+import { Search, Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package } from 'lucide-react';
+import logo from '@/assets/logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -41,9 +42,8 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
-            <ShoppingBag className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold font-serif">MarketPlace</span>
+          <Link to="/" className="flex items-center">
+            <img src={logo} alt="AdiMarket" className="h-12 w-auto" />
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -102,7 +102,7 @@ export const Header: React.FC = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard/listings" className="cursor-pointer">
-                        <ShoppingBag className="mr-2 h-4 w-4" />
+                        <Package className="mr-2 h-4 w-4" />
                         {t('header.listings')}
                       </Link>
                     </DropdownMenuItem>
