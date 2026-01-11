@@ -292,38 +292,62 @@ export type Database = {
       orders: {
         Row: {
           amount: number
+          buyer_fee: number | null
           buyer_id: string
+          carrier: string | null
           created_at: string
+          delivery_confirmed_at: string | null
           id: string
           listing_id: string | null
+          payout_amount: number | null
+          payout_at: string | null
+          payout_status: string | null
+          seller_commission: number | null
           seller_id: string
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id: string | null
+          tracking_number: string | null
           updated_at: string
         }
         Insert: {
           amount: number
+          buyer_fee?: number | null
           buyer_id: string
+          carrier?: string | null
           created_at?: string
+          delivery_confirmed_at?: string | null
           id?: string
           listing_id?: string | null
+          payout_amount?: number | null
+          payout_at?: string | null
+          payout_status?: string | null
+          seller_commission?: number | null
           seller_id: string
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id?: string | null
+          tracking_number?: string | null
           updated_at?: string
         }
         Update: {
           amount?: number
+          buyer_fee?: number | null
           buyer_id?: string
+          carrier?: string | null
           created_at?: string
+          delivery_confirmed_at?: string | null
           id?: string
           listing_id?: string | null
+          payout_amount?: number | null
+          payout_at?: string | null
+          payout_status?: string | null
+          seller_commission?: number | null
           seller_id?: string
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
           stripe_payment_intent_id?: string | null
+          tracking_number?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -332,6 +356,59 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          buyer_fee: number
+          created_at: string
+          gross_amount: number
+          id: string
+          net_amount: number
+          order_id: string
+          paypal_payout_id: string | null
+          processed_at: string | null
+          seller_commission: number
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_fee?: number
+          created_at?: string
+          gross_amount: number
+          id?: string
+          net_amount: number
+          order_id: string
+          paypal_payout_id?: string | null
+          processed_at?: string | null
+          seller_commission?: number
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_fee?: number
+          created_at?: string
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          order_id?: string
+          paypal_payout_id?: string | null
+          processed_at?: string | null
+          seller_commission?: number
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
