@@ -14,6 +14,12 @@ import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminUsers from "./pages/admin/AdminUsers";
+import AdminListings from "./pages/admin/AdminListings";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminFees from "./pages/admin/AdminFees";
+import AdminMessages from "./pages/admin/AdminMessages";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +40,13 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/checkout" element={<Checkout />} />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsers />} />
+            <Route path="/admin/listings" element={<AdminListings />} />
+            <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/fees" element={<AdminFees />} />
+            <Route path="/admin/messages" element={<AdminMessages />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
