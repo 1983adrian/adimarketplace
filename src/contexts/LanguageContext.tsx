@@ -24,6 +24,18 @@ const translations: Record<Language, Record<string, string>> = {
     'header.signout': 'Sign Out',
     'header.sellItem': 'Sell an Item',
     
+    // Search
+    'search.title': 'Search Products',
+    'search.placeholder': 'What are you looking for?',
+    'search.or': 'or search by image',
+    'search.imageSearchDesc': 'Take a photo or upload an image to find similar products',
+    'search.takePhoto': 'Take Photo',
+    'search.uploadImage': 'Upload Image',
+    'search.searchByImage': 'Search by Image',
+    'search.analyzing': 'Analyzing...',
+    'search.analyzingImage': 'Analyzing image...',
+    'search.invalidImage': 'Please select a valid image file',
+    
     // Home
     'home.hero.tagline': 'Buy & Sell Smart',
     'home.hero.subtitle': 'Join millions of people discovering great deals on unique items. From electronics to fashion, find what you\'re looking for.',
@@ -200,6 +212,18 @@ const translations: Record<Language, Record<string, string>> = {
     'header.settings': 'Setări',
     'header.signout': 'Deconectare',
     'header.sellItem': 'Vinde un Articol',
+    
+    // Search
+    'search.title': 'Caută Produse',
+    'search.placeholder': 'Ce cauți?',
+    'search.or': 'sau caută după imagine',
+    'search.imageSearchDesc': 'Fă o poză sau încarcă o imagine pentru a găsi produse similare',
+    'search.takePhoto': 'Fă Poză',
+    'search.uploadImage': 'Încarcă Imagine',
+    'search.searchByImage': 'Caută după Imagine',
+    'search.analyzing': 'Analizez...',
+    'search.analyzingImage': 'Analizez imaginea...',
+    'search.invalidImage': 'Selectează un fișier imagine valid',
     
     // Home
     'home.hero.tagline': 'Cumpără și Vinde Inteligent',

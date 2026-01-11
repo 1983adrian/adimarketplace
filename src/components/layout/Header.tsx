@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package } from 'lucide-react';
+import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search } from 'lucide-react';
 import logo from '@/assets/logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
 import { CurrencySelector } from './CurrencySelector';
+import { SearchDialog } from './SearchDialog';
 
 export const Header: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -29,6 +30,7 @@ export const Header: React.FC = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+      setMobileMenuOpen(false);
     }
   };
 
@@ -46,22 +48,9 @@ export const Header: React.FC = () => {
             <img src={logo} alt="AdiMarket" className="h-12 w-auto" />
           </Link>
 
-          {/* Search Bar - Desktop */}
-          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder={t('header.search')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 w-full"
-              />
-            </div>
-          </form>
-
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-2">
+            <SearchDialog />
             <CurrencySelector />
             <LanguageSelector />
             {user ? (
@@ -146,6 +135,7 @@ export const Header: React.FC = () => {
 
           {/* Mobile Menu Toggle */}
           <div className="flex items-center gap-2 md:hidden">
+            <SearchDialog />
             <CurrencySelector />
             <LanguageSelector />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
