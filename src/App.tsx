@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
+import Orders from "./pages/Orders";
 import SellerAnalytics from "./pages/SellerAnalytics";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/seller-analytics" element={<SellerAnalytics />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/orders" element={<Orders />} />
               {/* Admin Routes */}
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/owner" element={<OwnerDashboard />} />
