@@ -28,6 +28,9 @@ import AdminMessages from "./pages/admin/AdminMessages";
 import AdminDisputes from "./pages/admin/AdminDisputes";
 import OwnerDashboard from "./pages/admin/OwnerDashboard";
 import AdminApiSettings from "./pages/admin/AdminApiSettings";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminPlatformSettings from "./pages/admin/AdminPlatformSettings";
+import AdminPolicies from "./pages/admin/AdminPolicies";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +66,9 @@ const App = () => (
                 <Route path="/admin/messages" element={<AdminMessages />} />
                 <Route path="/admin/api-settings" element={<AdminApiSettings />} />
                 <Route path="/admin/disputes" element={<AdminDisputes />} />
+                <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                <Route path="/admin/settings" element={<AdminPlatformSettings />} />
+                <Route path="/admin/policies" element={<AdminPolicies />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
