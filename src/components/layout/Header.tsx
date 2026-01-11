@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Menu, X, Heart, MessageCircle, User, Plus, LogOut, ShoppingBag, Settings } from 'lucide-react';
+import { Search, Menu, X, Heart, MessageCircle, User, Plus, LogOut, ShoppingBag, Settings, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -105,6 +105,12 @@ export const Header: React.FC = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
+                      <Link to="/orders" className="cursor-pointer">
+                        <Package className="mr-2 h-4 w-4" />
+                        {t('header.orders')}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
                       <Link to="/favorites" className="cursor-pointer">
                         <Heart className="mr-2 h-4 w-4" />
                         {t('header.favorites')}
@@ -193,6 +199,13 @@ export const Header: React.FC = () => {
                         <Link to="/favorites">
                           <Heart className="mr-2 h-4 w-4" />
                           {t('header.favorites')}
+                        </Link>
+                      </Button>
+                      
+                      <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                        <Link to="/orders">
+                          <Package className="mr-2 h-4 w-4" />
+                          {t('header.orders')}
                         </Link>
                       </Button>
                       
