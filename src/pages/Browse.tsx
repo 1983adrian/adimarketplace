@@ -12,21 +12,16 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { sampleListings } from '@/data/sampleListings';
 import { useCategories } from '@/hooks/useCategories';
-
-const conditionLabels: Record<string, string> = {
-  new: 'New',
-  like_new: 'Like New',
-  good: 'Good',
-  fair: 'Fair',
-  poor: 'Poor',
-};
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Browse = () => {
+  const { t } = useLanguage();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [priceRange, setPriceRange] = useState([0, 1000]);
   const [selectedCondition, setSelectedCondition] = useState<string>('');
   const [sortBy, setSortBy] = useState('newest');
+  const [locationFilter, setLocationFilter] = useState('');
   const { data: categories } = useCategories();
 
   const selectedCategory = searchParams.get('category') || '';
@@ -38,7 +33,9 @@ const Browse = () => {
     const matchesCategory = !selectedCategory || listing.category === selectedCategory;
     const matchesPrice = listing.price >= priceRange[0] && listing.price <= priceRange[1];
     const matchesCondition = !selectedCondition || listing.condition === selectedCondition;
-    return matchesSearch && matchesCategory && matchesPrice && matchesCondition;
+    const matchesLocation = !locationFilter || 
+      (listing.location && listing.location.toLowerCase().includes(locationFilter.toLowerCase()));
+    return matchesSearch && matchesCategory && matchesPrice && matchesCondition && matchesLocation;
   });
 
   const sortedListings = [...filteredListings].sort((a, b) => {
@@ -50,7 +47,7 @@ const Browse = () => {
   });
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(price);
+    return new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP', minimumFractionDigits: 0 }).format(price);
   };
 
   const handleSearch = (e: React.FormEvent) => {
@@ -66,6 +63,7 @@ const Browse = () => {
     setSearchQuery('');
     setPriceRange([0, 1000]);
     setSelectedCondition('');
+    setLocationFilter('');
     setSortBy('newest');
     setSearchParams({});
   };
@@ -73,37 +71,53 @@ const Browse = () => {
   const FiltersContent = () => (
     <div className="space-y-6">
       <div>
-        <Label className="mb-2 block">Category</Label>
+        <Label className="mb-2 block">{t('browse.category')}</Label>
         <Select value={selectedCategory} onValueChange={(value) => setSearchParams(prev => { if (value) prev.set('category', value); else prev.delete('category'); return prev; })}>
-          <SelectTrigger><SelectValue placeholder="All Categories" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t('browse.allCategories')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Categories</SelectItem>
+            <SelectItem value="">{t('browse.allCategories')}</SelectItem>
             {categories?.map((cat) => (
               <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
+      
       <div>
-        <Label className="mb-2 block">Price Range: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}</Label>
+        <Label className="mb-2 block">{t('browse.priceRange')}: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}</Label>
         <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={1000} step={10} className="mt-4" />
       </div>
+      
       <div>
-        <Label className="mb-2 block">Condition</Label>
+        <Label className="mb-2 block">{t('browse.condition')}</Label>
         <Select value={selectedCondition} onValueChange={setSelectedCondition}>
-          <SelectTrigger><SelectValue placeholder="Any Condition" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder={t('browse.anyCondition')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Any Condition</SelectItem>
-            <SelectItem value="new">New</SelectItem>
-            <SelectItem value="like_new">Like New</SelectItem>
-            <SelectItem value="good">Good</SelectItem>
-            <SelectItem value="fair">Fair</SelectItem>
-            <SelectItem value="poor">Poor</SelectItem>
+            <SelectItem value="">{t('browse.anyCondition')}</SelectItem>
+            <SelectItem value="new">{t('condition.new')}</SelectItem>
+            <SelectItem value="like_new">{t('condition.like_new')}</SelectItem>
+            <SelectItem value="good">{t('condition.good')}</SelectItem>
+            <SelectItem value="fair">{t('condition.fair')}</SelectItem>
+            <SelectItem value="poor">{t('condition.poor')}</SelectItem>
           </SelectContent>
         </Select>
       </div>
+
+      <div>
+        <Label className="mb-2 block">{t('settings.location')}</Label>
+        <div className="relative">
+          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="London, Manchester..."
+            value={locationFilter}
+            onChange={(e) => setLocationFilter(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+      
       <Button variant="outline" className="w-full" onClick={clearFilters}>
-        <X className="h-4 w-4 mr-2" /> Clear Filters
+        <X className="h-4 w-4 mr-2" /> {t('browse.clearFilters')}
       </Button>
     </div>
   );
@@ -115,24 +129,24 @@ const Browse = () => {
           <form onSubmit={handleSearch} className="flex-1 flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input type="search" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
+              <Input type="search" placeholder={t('browse.search')} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
             </div>
-            <Button type="submit">Search</Button>
+            <Button type="submit">{t('common.search')}</Button>
           </form>
           <div className="flex gap-2">
             <Select value={sortBy} onValueChange={setSortBy}>
               <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="price_asc">Price: Low to High</SelectItem>
-                <SelectItem value="price_desc">Price: High to Low</SelectItem>
+                <SelectItem value="newest">{t('browse.newest')}</SelectItem>
+                <SelectItem value="price_asc">{t('browse.priceLow')}</SelectItem>
+                <SelectItem value="price_desc">{t('browse.priceHigh')}</SelectItem>
               </SelectContent>
             </Select>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" className="md:hidden"><Filter className="h-4 w-4 mr-2" /> Filters</Button>
+                <Button variant="outline" className="md:hidden"><Filter className="h-4 w-4 mr-2" /> {t('browse.filters')}</Button>
               </SheetTrigger>
-              <SheetContent><SheetHeader><SheetTitle>Filters</SheetTitle></SheetHeader><div className="mt-6"><FiltersContent /></div></SheetContent>
+              <SheetContent><SheetHeader><SheetTitle>{t('browse.filters')}</SheetTitle></SheetHeader><div className="mt-6"><FiltersContent /></div></SheetContent>
             </Sheet>
           </div>
         </div>
@@ -140,17 +154,17 @@ const Browse = () => {
         <div className="flex gap-8">
           <aside className="hidden md:block w-64 shrink-0">
             <div className="sticky top-24 bg-card rounded-lg border p-6">
-              <h3 className="font-semibold mb-4">Filters</h3>
+              <h3 className="font-semibold mb-4">{t('browse.filters')}</h3>
               <FiltersContent />
             </div>
           </aside>
 
           <div className="flex-1">
-            <p className="text-muted-foreground mb-4">{sortedListings.length} items found</p>
+            <p className="text-muted-foreground mb-4">{sortedListings.length} {t('browse.itemsFound')}</p>
             {sortedListings.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">No listings found matching your criteria</p>
-                <Button variant="link" onClick={clearFilters}>Clear all filters</Button>
+                <p className="text-muted-foreground">{t('browse.noListings')}</p>
+                <Button variant="link" onClick={clearFilters}>{t('browse.clearFilters')}</Button>
               </div>
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -162,7 +176,7 @@ const Browse = () => {
                         <Button variant="ghost" size="icon" className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background">
                           <Heart className="h-5 w-5" />
                         </Button>
-                        <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">{conditionLabels[listing.condition]}</Badge>
+                        <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">{t(`condition.${listing.condition}`)}</Badge>
                       </div>
                       <CardContent className="p-4">
                         <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">{listing.title}</h3>
