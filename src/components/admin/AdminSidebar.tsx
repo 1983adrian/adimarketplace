@@ -9,7 +9,8 @@ import {
   BarChart3,
   Shield,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Crown
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -26,6 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 
 const menuItems = [
+  { title: 'Owner Dashboard', url: '/admin/owner', icon: Crown },
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Listings', url: '/admin/listings', icon: Package },
