@@ -1,23 +1,25 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Crown, MapPin, Heart, Sparkles } from 'lucide-react';
+import { Crown, MapPin, Heart, Sparkles, ShoppingCart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePromotedListings } from '@/hooks/usePromotions';
 import { useCurrency } from '@/contexts/CurrencyContext';
-
-const conditionLabels: Record<string, string> = {
-  new: 'New',
-  like_new: 'Like New',
-  good: 'Good',
-  fair: 'Fair',
-  poor: 'Poor',
-};
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const PromotedListings: React.FC = () => {
   const { data: promotedListings, isLoading } = usePromotedListings();
   const { formatPrice } = useCurrency();
+  const { t } = useLanguage();
+
+  const conditionLabels: Record<string, string> = {
+    new: t('condition.new'),
+    like_new: t('condition.like_new'),
+    good: t('condition.good'),
+    fair: t('condition.fair'),
+    poor: t('condition.poor'),
+  };
 
   if (isLoading) {
     return (
@@ -25,9 +27,9 @@ export const PromotedListings: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-2 mb-6">
             <Crown className="h-6 w-6 text-primary" />
-            <h2 className="text-2xl font-bold">Featured Listings</h2>
+            <h2 className="text-2xl font-bold">{t('home.featured')}</h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[...Array(5)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <div className="aspect-square bg-muted" />
@@ -62,16 +64,16 @@ export const PromotedListings: React.FC = () => {
             </div>
             <div>
               <h2 className="text-2xl font-bold flex items-center gap-2">
-                Featured Listings
+                {t('home.featured')}
                 <Crown className="h-5 w-5 text-yellow-500" />
               </h2>
-              <p className="text-sm text-muted-foreground">Top picks from our sellers</p>
+              <p className="text-sm text-muted-foreground">{t('home.hero.subtitle').substring(0, 40)}...</p>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {promotedListings.slice(0, 10).map((listing) => {
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {promotedListings.slice(0, 8).map((listing) => {
             const primaryImage = listing.listing_images?.find(img => img.is_primary) || listing.listing_images?.[0];
             
             return (
@@ -81,7 +83,7 @@ export const PromotedListings: React.FC = () => {
                   <div className="absolute top-2 left-2 z-10">
                     <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg">
                       <Crown className="h-3 w-3 mr-1" />
-                      Featured
+                      {t('home.featured')}
                     </Badge>
                   </div>
                   
@@ -104,8 +106,8 @@ export const PromotedListings: React.FC = () => {
                     </Badge>
                   </div>
                   
-                  <CardContent className="p-3">
-                    <h3 className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
+                  <CardContent className="p-3 flex-1 flex flex-col">
+                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
                       {listing.title}
                     </h3>
                     <p className="text-lg font-bold text-primary mt-1">
@@ -117,6 +119,17 @@ export const PromotedListings: React.FC = () => {
                         {listing.location}
                       </p>
                     )}
+                    <Button 
+                      size="sm" 
+                      className="w-full gap-2 mt-auto pt-2"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.location.href = `/checkout/${listing.id}`;
+                      }}
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      {t('listing.buyNow')}
+                    </Button>
                   </CardContent>
                 </Card>
               </Link>
