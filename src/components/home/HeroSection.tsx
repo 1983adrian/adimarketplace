@@ -1,22 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/contexts/LanguageContext';
 import logo from '@/assets/logo.jpeg';
 
 export const HeroSection: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('');
   const navigate = useNavigate();
   const { t } = useLanguage();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
 
   return (
     <section className="relative bg-gradient-to-br from-primary/10 via-background to-accent/10 py-12 md:py-20 lg:py-28 overflow-hidden">
@@ -43,28 +33,7 @@ export const HeroSection: React.FC = () => {
             {t('home.hero.subtitle')}
           </p>
 
-          <form onSubmit={handleSearch} className="max-w-xl mx-auto animate-fade-up" style={{ animationDelay: '0.3s' }}>
-            <div className="relative flex items-center">
-              <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder={t('home.hero.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 pr-32 h-14 text-lg rounded-full border-2 focus-visible:ring-0 focus-visible:border-primary"
-              />
-              <Button 
-                type="submit" 
-                size="lg" 
-                className="absolute right-2 rounded-full px-6"
-              >
-                {t('common.search')}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </form>
-
-          <div className="flex flex-wrap justify-center gap-2 text-sm text-muted-foreground animate-fade-up" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-wrap justify-center gap-2 text-sm text-muted-foreground animate-fade-up" style={{ animationDelay: '0.3s' }}>
             <span>{t('home.hero.popular')}:</span>
             <Button variant="link" className="p-0 h-auto" onClick={() => navigate('/browse?search=iphone')}>iPhone</Button>
             <Button variant="link" className="p-0 h-auto" onClick={() => navigate('/browse?search=laptop')}>Laptop</Button>
