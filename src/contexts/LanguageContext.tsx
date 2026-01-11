@@ -25,8 +25,12 @@ const translations: Record<Language, Record<string, string>> = {
     'header.sellItem': 'Sell an Item',
     
     // Home
+    'home.hero.tagline': 'Buy & Sell Smart',
+    'home.hero.subtitle': 'Join millions of people discovering great deals on unique items. From electronics to fashion, find what you\'re looking for.',
+    'home.hero.searchPlaceholder': 'What are you looking for?',
+    'home.hero.popular': 'Popular',
+    'home.hero.furniture': 'Furniture',
     'home.hero.title': 'Buy & Sell Locally',
-    'home.hero.subtitle': 'Discover amazing deals in your community',
     'home.hero.cta': 'Start Browsing',
     'home.categories': 'Categories',
     'home.featured': 'Featured Listings',
@@ -198,8 +202,12 @@ const translations: Record<Language, Record<string, string>> = {
     'header.sellItem': 'Vinde un Articol',
     
     // Home
+    'home.hero.tagline': 'Cumpără și Vinde Inteligent',
+    'home.hero.subtitle': 'Alătură-te milioanelor de oameni care descoperă oferte extraordinare. De la electronice la modă, găsește ceea ce cauți.',
+    'home.hero.searchPlaceholder': 'Ce cauți?',
+    'home.hero.popular': 'Popular',
+    'home.hero.furniture': 'Mobilă',
     'home.hero.title': 'Cumpără și Vinde Local',
-    'home.hero.subtitle': 'Descoperă oferte extraordinare în comunitatea ta',
     'home.hero.cta': 'Începe să Cauți',
     'home.categories': 'Categorii',
     'home.featured': 'Anunțuri Promovate',
