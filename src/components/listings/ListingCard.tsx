@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Heart, MapPin } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Heart, MapPin, ShoppingCart } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { ListingWithImages, ItemCondition } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { cn } from '@/lib/utils';
 
 interface ListingCardProps {
@@ -35,6 +36,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const { data: isFavorite } = useIsFavorite(listing.id, user?.id);
   const toggleFavorite = useToggleFavorite();
   const { formatPrice } = useCurrency();
+  const { t } = useLanguage();
+  const navigate = useNavigate();
 
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
   const imageUrl = primaryImage?.image_url || '/placeholder.svg';
@@ -52,9 +55,15 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
     });
   };
 
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/checkout/${listing.id}`);
+  };
+
   return (
     <Link to={`/listing/${listing.id}`}>
-      <Card className="group overflow-hidden hover-lift cursor-pointer border-border/50 hover:border-primary/30">
+      <Card className="group overflow-hidden hover-lift cursor-pointer border-border/50 hover:border-primary/30 h-full flex flex-col">
         <div className="relative aspect-square overflow-hidden bg-muted">
           <img
             src={imageUrl}
@@ -78,29 +87,34 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {conditionLabels[listing.condition]}
           </Badge>
         </div>
-        <CardContent className="p-4">
-          <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">
+        <CardContent className="p-3 flex-1 flex flex-col">
+          <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors">
             {listing.title}
           </h3>
-          <div className="flex items-center justify-between mt-2">
-            <p className="text-xl font-bold text-primary">
-              {formatPrice(listing.price)}
+          {listing.description && (
+            <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+              {listing.description}
             </p>
-            <Button 
-              size="sm" 
-              asChild
-            >
-              <Link to={`/listing/${listing.id}`}>
-                View
-              </Link>
-            </Button>
-          </div>
+          )}
           {listing.location && (
-            <p className="text-sm text-muted-foreground flex items-center gap-1 mt-2">
+            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
               <MapPin className="h-3 w-3" />
               {listing.location}
             </p>
           )}
+          <div className="mt-auto pt-3 space-y-2">
+            <p className="text-lg md:text-xl font-bold text-primary">
+              {formatPrice(listing.price)}
+            </p>
+            <Button 
+              size="sm" 
+              className="w-full gap-2"
+              onClick={handleBuyNow}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              {t('listing.buyNow')}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </Link>
