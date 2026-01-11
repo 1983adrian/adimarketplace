@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, FileText, Eye, Edit2, Plus, Trash2, ExternalLink } from 'lucide-react';
+import { Save, FileText, Eye, Edit2, Plus, Trash2, ExternalLink, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,174 +7,25 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
-
-interface Policy {
-  id: string;
-  title: string;
-  slug: string;
-  content: string;
-  version: string;
-  isActive: boolean;
-  lastUpdated: string;
-}
-
-const defaultPolicies: Policy[] = [
-  {
-    id: '1',
-    title: 'Terms of Service',
-    slug: 'terms-of-service',
-    content: `# Terms of Service
-
-## 1. Introduction
-Welcome to our marketplace. By using our services, you agree to these terms.
-
-## 2. User Accounts
-- You must be at least 18 years old to use this service.
-- You are responsible for maintaining the security of your account.
-- You must provide accurate and complete information.
-
-## 3. Buying and Selling
-- All sales are final unless otherwise stated.
-- Sellers must accurately describe their items.
-- Buyers must pay within the specified timeframe.
-
-## 4. Prohibited Items
-The following items are not allowed:
-- Illegal goods
-- Counterfeit products
-- Hazardous materials
-
-## 5. Fees
-- Buyers pay a service fee on each purchase.
-- Sellers pay a commission on each sale.
-- All fees are non-refundable.
-
-## 6. Disputes
-- Contact our support team for any disputes.
-- We will mediate between buyers and sellers.
-- Our decision is final.
-
-## 7. Changes to Terms
-We may update these terms at any time. Continued use of the service constitutes acceptance of new terms.`,
-    version: '1.0',
-    isActive: true,
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: '2',
-    title: 'Privacy Policy',
-    slug: 'privacy-policy',
-    content: `# Privacy Policy
-
-## 1. Information We Collect
-We collect information you provide directly:
-- Account information (name, email, password)
-- Profile information
-- Transaction history
-- Communications with us
-
-## 2. How We Use Information
-We use your information to:
-- Provide our services
-- Process transactions
-- Send notifications
-- Improve our platform
-
-## 3. Information Sharing
-We may share information with:
-- Other users (as necessary for transactions)
-- Service providers
-- Legal authorities (when required)
-
-## 4. Data Security
-We implement security measures to protect your data:
-- Encryption in transit and at rest
-- Regular security audits
-- Access controls
-
-## 5. Your Rights
-You have the right to:
-- Access your data
-- Correct inaccurate data
-- Delete your account
-- Export your data
-
-## 6. Cookies
-We use cookies to:
-- Keep you logged in
-- Remember preferences
-- Analyze usage
-
-## 7. Contact Us
-For privacy concerns, contact: privacy@marketplace.com`,
-    version: '1.0',
-    isActive: true,
-    lastUpdated: new Date().toISOString()
-  },
-  {
-    id: '3',
-    title: 'Refund Policy',
-    slug: 'refund-policy',
-    content: `# Refund Policy
-
-## 1. General Policy
-Refunds are available under specific circumstances as outlined below.
-
-## 2. Eligible Refunds
-- Item not received
-- Item significantly different from description
-- Item damaged during shipping
-
-## 3. Refund Process
-1. Contact seller within 48 hours of delivery
-2. Provide photos/evidence if applicable
-3. Wait for seller response (24-48 hours)
-4. If unresolved, open a dispute
-
-## 4. Timeframes
-- Request refund: Within 7 days of delivery
-- Processing time: 5-10 business days
-- Bank processing: Additional 3-5 days
-
-## 5. Non-Refundable
-- Change of mind
-- Minor variations in color/size
-- Items marked as "final sale"
-
-## 6. Partial Refunds
-May be offered when:
-- Item is returned in different condition
-- Only part of order is affected`,
-    version: '1.0',
-    isActive: true,
-    lastUpdated: new Date().toISOString()
-  }
-];
+import { usePoliciesContent, useUpdatePolicy } from '@/hooks/useAdminSettings';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function AdminPolicies() {
   const { toast } = useToast();
-  const [policies, setPolicies] = useState<Policy[]>(defaultPolicies);
-  const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
+  const { data: policies, isLoading, refetch } = usePoliciesContent();
+  const updatePolicy = useUpdatePolicy();
+  
+  const [selectedPolicy, setSelectedPolicy] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
   const [editTitle, setEditTitle] = useState('');
   const [isPreview, setIsPreview] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('admin_policies');
-    if (saved) {
-      setPolicies(JSON.parse(saved));
-    }
-  }, []);
-
-  const handleEdit = (policy: Policy) => {
+  const handleEdit = (policy: any) => {
     setSelectedPolicy(policy);
     setEditContent(policy.content);
     setEditTitle(policy.title);
@@ -185,32 +36,20 @@ export default function AdminPolicies() {
   const handleSave = async () => {
     if (!selectedPolicy) return;
 
-    setIsSaving(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      const updatedPolicies = policies.map(p => 
-        p.id === selectedPolicy.id 
-          ? { 
-              ...p, 
-              title: editTitle, 
-              content: editContent, 
-              lastUpdated: new Date().toISOString(),
-              version: incrementVersion(p.version)
-            } 
-          : p
-      );
-
-      setPolicies(updatedPolicies);
-      localStorage.setItem('admin_policies', JSON.stringify(updatedPolicies));
+      await updatePolicy.mutateAsync({
+        policy_key: selectedPolicy.policy_key,
+        title: editTitle,
+        content: editContent,
+        version: incrementVersion(selectedPolicy.version),
+        is_published: selectedPolicy.is_published,
+      });
       
       toast({ title: 'Policy saved', description: `${editTitle} has been updated.` });
       setIsEditing(false);
       setSelectedPolicy(null);
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -220,38 +59,53 @@ export default function AdminPolicies() {
     return `${parts[0]}.${minor}`;
   };
 
-  const handleToggleActive = (policyId: string) => {
-    const updatedPolicies = policies.map(p =>
-      p.id === policyId ? { ...p, isActive: !p.isActive } : p
-    );
-    setPolicies(updatedPolicies);
-    localStorage.setItem('admin_policies', JSON.stringify(updatedPolicies));
-    toast({ title: 'Status updated' });
+  const handleTogglePublished = async (policy: any) => {
+    try {
+      await updatePolicy.mutateAsync({
+        policy_key: policy.policy_key,
+        title: policy.title,
+        content: policy.content,
+        version: policy.version,
+        is_published: !policy.is_published,
+      });
+      toast({ title: 'Status updated' });
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
   };
 
-  const handleAddPolicy = () => {
-    const newPolicy: Policy = {
-      id: Date.now().toString(),
-      title: 'New Policy',
-      slug: 'new-policy',
-      content: '# New Policy\n\nAdd your policy content here...',
-      version: '1.0',
-      isActive: false,
-      lastUpdated: new Date().toISOString()
-    };
-    setPolicies([...policies, newPolicy]);
-    handleEdit(newPolicy);
+  const handleAddPolicy = async () => {
+    const newPolicyKey = `new-policy-${Date.now()}`;
+    try {
+      await updatePolicy.mutateAsync({
+        policy_key: newPolicyKey,
+        title: 'New Policy',
+        content: '# New Policy\n\nAdd your policy content here...',
+        version: '1.0',
+        is_published: false,
+      });
+      refetch();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
   };
 
-  const handleDelete = (policyId: string) => {
-    const updatedPolicies = policies.filter(p => p.id !== policyId);
-    setPolicies(updatedPolicies);
-    localStorage.setItem('admin_policies', JSON.stringify(updatedPolicies));
-    toast({ title: 'Policy deleted' });
+  const handleDelete = async (policyKey: string) => {
+    try {
+      const { error } = await supabase
+        .from('policies_content')
+        .delete()
+        .eq('policy_key', policyKey);
+      
+      if (error) throw error;
+      toast({ title: 'Policy deleted' });
+      refetch();
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
   };
 
   const renderMarkdown = (content: string) => {
-    // Simple markdown rendering
     return content
       .split('\n')
       .map((line, index) => {
@@ -276,6 +130,16 @@ export default function AdminPolicies() {
         return <p key={index} className="my-1">{line}</p>;
       });
   };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </AdminLayout>
+    );
+  }
 
   return (
     <AdminLayout>
@@ -311,7 +175,7 @@ export default function AdminPolicies() {
                   <Button variant="outline" onClick={() => setIsEditing(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={handleSave} disabled={isSaving} className="gap-2">
+                  <Button onClick={handleSave} disabled={updatePolicy.isPending} className="gap-2">
                     <Save className="h-4 w-4" />
                     Save Changes
                   </Button>
@@ -350,8 +214,8 @@ export default function AdminPolicies() {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {policies.map((policy) => (
-              <Card key={policy.id} className={!policy.isActive ? 'opacity-60' : ''}>
+            {policies?.map((policy) => (
+              <Card key={policy.id} className={!policy.is_published ? 'opacity-60' : ''}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
@@ -359,17 +223,17 @@ export default function AdminPolicies() {
                         <FileText className="h-5 w-5" />
                         {policy.title}
                       </CardTitle>
-                      <CardDescription>/{policy.slug}</CardDescription>
+                      <CardDescription>/{policy.policy_key}</CardDescription>
                     </div>
-                    <Badge variant={policy.isActive ? 'default' : 'secondary'}>
-                      {policy.isActive ? 'Active' : 'Draft'}
+                    <Badge variant={policy.is_published ? 'default' : 'secondary'}>
+                      {policy.is_published ? 'Published' : 'Draft'}
                     </Badge>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="text-sm text-muted-foreground space-y-1">
                     <p>Version: {policy.version}</p>
-                    <p>Last updated: {format(new Date(policy.lastUpdated), 'MMM dd, yyyy')}</p>
+                    <p>Last updated: {format(new Date(policy.updated_at), 'MMM dd, yyyy')}</p>
                   </div>
 
                   <div className="flex gap-2">
@@ -385,9 +249,9 @@ export default function AdminPolicies() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleToggleActive(policy.id)}
+                      onClick={() => handleTogglePublished(policy)}
                     >
-                      {policy.isActive ? 'Deactivate' : 'Activate'}
+                      {policy.is_published ? 'Unpublish' : 'Publish'}
                     </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -404,7 +268,7 @@ export default function AdminPolicies() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(policy.id)}>
+                          <AlertDialogAction onClick={() => handleDelete(policy.policy_key)}>
                             Delete
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -421,11 +285,11 @@ export default function AdminPolicies() {
         <Card>
           <CardHeader>
             <CardTitle>Public Policy Links</CardTitle>
-            <CardDescription>Links to active policies visible to users</CardDescription>
+            <CardDescription>Links to published policies visible to users</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-2 md:grid-cols-3">
-              {policies.filter(p => p.isActive).map((policy) => (
+              {policies?.filter(p => p.is_published).map((policy) => (
                 <div key={policy.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                   <span className="font-medium">{policy.title}</span>
                   <Button variant="ghost" size="sm" className="gap-1">
