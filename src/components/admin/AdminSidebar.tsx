@@ -8,7 +8,8 @@ import {
   MessageCircle,
   BarChart3,
   Shield,
-  FileText
+  FileText,
+  AlertTriangle
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -30,6 +31,7 @@ const menuItems = [
   { title: 'Listings', url: '/admin/listings', icon: Package },
   { title: 'Orders', url: '/admin/orders', icon: ShoppingCart },
   { title: 'Messages', url: '/admin/messages', icon: MessageCircle },
+  { title: 'Disputes', url: '/admin/disputes', icon: AlertTriangle },
   { title: 'Fees & Pricing', url: '/admin/fees', icon: DollarSign },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Platform Settings', url: '/admin/settings', icon: Settings },
@@ -44,7 +46,7 @@ export function AdminSidebar() {
       <SidebarHeader className="border-b p-4">
         <div className="flex items-center gap-2">
           <Shield className="h-6 w-6 text-primary" />
-          {!collapsed && <span className="font-bold text-lg">Admin Panel</span>}
+          {!collapsed && <span className="font-bold text-lg">Panou Admin</span>}
         </div>
       </SidebarHeader>
 
@@ -84,7 +86,7 @@ export function AdminSidebar() {
                     activeClassName="bg-primary/10 text-primary font-medium"
                   >
                     <FileText className="h-4 w-4 flex-shrink-0" />
-                    {!collapsed && <span>Policies</span>}
+                    {!collapsed && <span>Politici</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>
