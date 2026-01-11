@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ListingWithImages, ItemCondition } from '@/types/database';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { cn } from '@/lib/utils';
 
 interface ListingCardProps {
@@ -33,6 +34,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const { user } = useAuth();
   const { data: isFavorite } = useIsFavorite(listing.id, user?.id);
   const toggleFavorite = useToggleFavorite();
+  const { formatPrice } = useCurrency();
 
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
   const imageUrl = primaryImage?.image_url || '/placeholder.svg';
@@ -48,15 +50,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
       userId: user.id,
       isFavorite: !!isFavorite,
     });
-  };
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
   };
 
   return (

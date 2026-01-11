@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Package, Truck, CheckCircle, Clock, AlertCircle, ExternalLink } from 'lucide-react';
 import { useMyOrders, useUpdateTracking, useConfirmDelivery, Order } from '@/hooks/useOrders';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
@@ -39,6 +40,7 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
   const [trackingNumber, setTrackingNumber] = useState('');
   const [carrier, setCarrier] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const { formatPrice } = useCurrency();
 
   const updateTracking = useUpdateTracking();
   const confirmDelivery = useConfirmDelivery();
@@ -92,7 +94,7 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
             </div>
 
             <div className="mt-2 flex items-center justify-between">
-              <p className="font-semibold">£{Number(order.amount).toFixed(2)}</p>
+              <p className="font-semibold">{formatPrice(Number(order.amount))}</p>
               
               <div className="flex gap-2">
                 {/* Seller: Add tracking when order is paid */}

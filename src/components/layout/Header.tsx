@@ -15,6 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
+import { CurrencySelector } from './CurrencySelector';
 
 export const Header: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -61,6 +62,7 @@ export const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-2">
+            <CurrencySelector />
             <LanguageSelector />
             {user ? (
               <>
@@ -144,6 +146,7 @@ export const Header: React.FC = () => {
 
           {/* Mobile Menu Toggle */}
           <div className="flex items-center gap-2 md:hidden">
+            <CurrencySelector />
             <LanguageSelector />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
