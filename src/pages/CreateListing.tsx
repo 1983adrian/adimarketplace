@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Upload, X, ImagePlus } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { X, ImagePlus, Crown } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,12 +11,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useSellerSubscription, useCreateSellerSubscription } from '@/hooks/useSellerSubscription';
 
 const CreateListing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: categories } = useCategories();
+  const { data: subscription, isLoading: subscriptionLoading } = useSellerSubscription();
+  const createSubscription = useCreateSellerSubscription();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -26,6 +29,8 @@ const CreateListing = () => {
   const [location, setLocation] = useState('');
   const [images, setImages] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isSubscribed = subscription?.subscribed || false;
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -55,6 +60,11 @@ const CreateListing = () => {
       return;
     }
 
+    if (!isSubscribed) {
+      toast({ title: 'Subscription required', description: 'You need an active seller subscription to create listings', variant: 'destructive' });
+      return;
+    }
+
     if (!title || !price || !condition || !category) {
       toast({ title: 'Missing fields', description: 'Please fill in all required fields', variant: 'destructive' });
       return;
@@ -76,6 +86,46 @@ const CreateListing = () => {
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Please log in to sell</h1>
           <Button onClick={() => navigate('/login')}>Log In</Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Show subscription required screen
+  if (!subscriptionLoading && !isSubscribed) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 max-w-md text-center">
+          <Crown className="h-16 w-16 mx-auto mb-6 text-primary" />
+          <h1 className="text-2xl font-bold mb-4">Become a Seller</h1>
+          <p className="text-muted-foreground mb-6">
+            To list items for sale, you need an active seller subscription. 
+            It's only £1/month, and you only pay a 20% commission when you make a sale.
+          </p>
+          <div className="space-y-3">
+            <Button 
+              size="lg" 
+              className="w-full gap-2"
+              onClick={() => createSubscription.mutate()}
+              disabled={createSubscription.isPending}
+            >
+              <Crown className="h-4 w-4" />
+              {createSubscription.isPending ? 'Loading...' : 'Subscribe for £1/month'}
+            </Button>
+            <Button variant="outline" className="w-full" asChild>
+              <Link to="/dashboard">Back to Dashboard</Link>
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (subscriptionLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <p className="text-muted-foreground">Checking subscription status...</p>
         </div>
       </Layout>
     );
@@ -171,7 +221,7 @@ const CreateListing = () => {
               <div>
                 <Label htmlFor="price">Price *</Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
                   <Input id="price" type="number" placeholder="0" value={price} onChange={(e) => setPrice(e.target.value)} className="pl-8" min="0" step="0.01" />
                 </div>
               </div>
