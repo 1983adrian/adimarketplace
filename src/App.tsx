@@ -19,8 +19,19 @@ import Settings from "./pages/Settings";
 import Checkout from "./pages/Checkout";
 import NotFound from "./pages/NotFound";
 import Orders from "./pages/Orders";
+import Messages from "./pages/Messages";
 import SellerProfile from "./pages/SellerProfile";
 import SellerAnalytics from "./pages/SellerAnalytics";
+// Public pages
+import AboutUs from "./pages/AboutUs";
+import Contact from "./pages/Contact";
+import FAQ from "./pages/FAQ";
+import HelpCenter from "./pages/HelpCenter";
+import SafetyTips from "./pages/SafetyTips";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CookiePolicy from "./pages/CookiePolicy";
+// Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminListings from "./pages/admin/AdminListings";
@@ -65,7 +76,17 @@ const App = () => (
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/orders" element={<Orders />} />
+                <Route path="/messages" element={<Messages />} />
                 <Route path="/seller/:id" element={<SellerProfile />} />
+                {/* Public Informational Pages */}
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/help" element={<HelpCenter />} />
+                <Route path="/safety" element={<SafetyTips />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/cookies" element={<CookiePolicy />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/owner" element={<OwnerDashboard />} />
