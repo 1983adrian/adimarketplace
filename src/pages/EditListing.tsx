@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { X, ImagePlus, Loader2, Truck, ArrowLeft, Trash2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,15 +8,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useSellerSubscription, useCreateSellerSubscription } from '@/hooks/useSellerSubscription';
-import { useListingLimit } from '@/hooks/useListingLimit';
-import { useCreateListing } from '@/hooks/useListings';
+import { useListing, useUpdateListing, useDeleteListing } from '@/hooks/useListings';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
@@ -33,16 +31,16 @@ const CARRIERS = [
   { value: 'other', label: 'Altul (specifică)' },
 ];
 
-const CreateListing = () => {
+const EditListing = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const { data: categories } = useCategories();
-  const { data: subscription, isLoading: subscriptionLoading } = useSellerSubscription();
-  const { data: listingLimit, isLoading: limitLoading } = useListingLimit();
-  const createSubscription = useCreateSellerSubscription();
-  const createListing = useCreateListing();
-  const { uploadMultipleImages, uploading } = useImageUpload();
+  const { data: listing, isLoading: listingLoading } = useListing(id || '');
+  const updateListing = useUpdateListing();
+  const deleteListing = useDeleteListing();
+  const { uploadMultipleImages, deleteImage, uploading } = useImageUpload();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -50,129 +48,172 @@ const CreateListing = () => {
   const [condition, setCondition] = useState<ItemCondition>('good');
   const [category, setCategory] = useState('');
   const [location, setLocation] = useState('');
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [existingImages, setExistingImages] = useState<{ id: string; url: string; is_primary: boolean }[]>([]);
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [isActive, setIsActive] = useState(true);
+  const [isSold, setIsSold] = useState(false);
   
   // Shipping settings
   const [preferredCarrier, setPreferredCarrier] = useState('');
   const [customCarrier, setCustomCarrier] = useState('');
   const [shippingNotes, setShippingNotes] = useState('');
 
-  const isSubscribed = subscription?.subscribed || false;
-  const canCreateMore = listingLimit?.canCreateMore ?? true;
+  // Load listing data
+  useEffect(() => {
+    if (listing) {
+      setTitle(listing.title);
+      setDescription(listing.description || '');
+      setPrice(listing.price.toString());
+      setCondition(listing.condition);
+      setCategory(listing.category_id || '');
+      setLocation(listing.location || '');
+      setIsActive(listing.is_active);
+      setIsSold(listing.is_sold);
+      
+      // Load existing images
+      if (listing.listing_images) {
+        setExistingImages(listing.listing_images.map((img: any) => ({
+          id: img.id,
+          url: img.image_url,
+          is_primary: img.is_primary
+        })));
+      }
+    }
+  }, [listing]);
+
+  // Verify ownership
+  useEffect(() => {
+    if (listing && user && listing.seller_id !== user.id) {
+      toast({ title: 'Acces interzis', description: 'Nu ai permisiunea să editezi acest produs', variant: 'destructive' });
+      navigate('/dashboard');
+    }
+  }, [listing, user, navigate, toast]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
     
+    const totalImages = existingImages.length + newImageFiles.length + files.length;
+    if (totalImages > 8) {
+      toast({ title: 'Prea multe imagini', description: 'Poți avea maximum 8 imagini', variant: 'destructive' });
+      return;
+    }
+    
     Array.from(files).forEach((file) => {
-      // Add file to files array
-      setImageFiles((prev) => [...prev, file]);
+      setNewImageFiles((prev) => [...prev, file]);
       
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
-          setImagePreviews((prev) => [...prev, e.target!.result as string]);
+          setNewImagePreviews((prev) => [...prev, e.target!.result as string]);
         }
       };
       reader.readAsDataURL(file);
     });
   };
 
-  const removeImage = (index: number) => {
-    setImageFiles((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  const removeExistingImage = async (imageId: string, imageUrl: string) => {
+    try {
+      // Delete from storage
+      await deleteImage(imageUrl);
+      
+      // Delete from database
+      const { error } = await supabase
+        .from('listing_images')
+        .delete()
+        .eq('id', imageId);
+      
+      if (error) throw error;
+      
+      setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+      toast({ title: 'Imagine ștearsă' });
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const removeNewImage = (index: number) => {
+    setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
-      toast({ title: 'Te rugăm să te autentifici', description: 'Trebuie să fii autentificat pentru a crea o listare', variant: 'destructive' });
-      navigate('/login');
-      return;
-    }
+    if (!id || !user) return;
 
-    if (!isSubscribed) {
-      toast({ title: 'Abonament necesar', description: 'Ai nevoie de un abonament activ de vânzător pentru a crea listări', variant: 'destructive' });
-      return;
-    }
-
-    if (!canCreateMore) {
-      toast({ 
-        title: 'Limită atinsă', 
-        description: `Ai atins limita maximă de ${listingLimit?.maxListings} produse.`, 
-        variant: 'destructive' 
-      });
-      return;
-    }
-
-    if (!title || !price || !condition || !category) {
+    if (!title || !price || !condition) {
       toast({ title: 'Câmpuri lipsă', description: 'Te rugăm să completezi toate câmpurile obligatorii', variant: 'destructive' });
-      return;
-    }
-
-    if (imageFiles.length === 0) {
-      toast({ title: 'Imagine necesară', description: 'Te rugăm să adaugi cel puțin o imagine', variant: 'destructive' });
       return;
     }
 
     setLoading(true);
     
     try {
-      // 1. Create listing in database
-      const listingData = {
-        seller_id: user.id,
+      // 1. Update listing in database
+      await updateListing.mutateAsync({
+        id,
         title,
         description,
         price: parseFloat(price),
-        condition: condition as ItemCondition,
-        category_id: category,
+        condition,
+        category_id: category || null,
         location,
         is_active: isActive,
-        is_sold: false,
-      };
-
-      const newListing = await createListing.mutateAsync(listingData);
+        is_sold: isSold,
+      });
       
-      // 2. Upload images to storage
-      const imageUrls = await uploadMultipleImages(imageFiles, newListing.id);
-      
-      // 3. Save image URLs to listing_images table
-      if (imageUrls.length > 0) {
-        const imageRecords = imageUrls.map((url, index) => ({
-          listing_id: newListing.id,
-          image_url: url,
-          is_primary: index === 0,
-          sort_order: index,
-        }));
+      // 2. Upload new images if any
+      if (newImageFiles.length > 0) {
+        const imageUrls = await uploadMultipleImages(newImageFiles, id);
+        
+        if (imageUrls.length > 0) {
+          const startOrder = existingImages.length;
+          const imageRecords = imageUrls.map((url, index) => ({
+            listing_id: id,
+            image_url: url,
+            is_primary: existingImages.length === 0 && index === 0,
+            sort_order: startOrder + index,
+          }));
 
-        const { error: imagesError } = await supabase
-          .from('listing_images')
-          .insert(imageRecords);
+          const { error: imagesError } = await supabase
+            .from('listing_images')
+            .insert(imageRecords);
 
-        if (imagesError) {
-          console.error('Error saving image records:', imagesError);
+          if (imagesError) {
+            console.error('Error saving image records:', imagesError);
+          }
         }
       }
 
-      toast({ 
-        title: 'Produs creat cu succes!', 
-        description: isActive ? 'Produsul tău este acum live.' : 'Produsul a fost salvat ca draft.'
-      });
+      toast({ title: 'Produs actualizat cu succes!' });
       navigate('/dashboard');
     } catch (error: any) {
-      console.error('Error creating listing:', error);
-      toast({ 
-        title: 'Eroare', 
-        description: error.message || 'Nu s-a putut crea listarea', 
-        variant: 'destructive' 
-      });
+      console.error('Error updating listing:', error);
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    
+    try {
+      // Delete all images from storage first
+      for (const img of existingImages) {
+        await deleteImage(img.url);
+      }
+      
+      // Delete listing (will cascade delete listing_images)
+      await deleteListing.mutateAsync(id);
+      
+      toast({ title: 'Produs șters cu succes' });
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -180,91 +221,55 @@ const CreateListing = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Te rugăm să te autentifici pentru a vinde</h1>
+          <h1 className="text-2xl font-bold mb-4">Te rugăm să te autentifici</h1>
           <Button onClick={() => navigate('/login')}>Autentificare</Button>
         </div>
       </Layout>
     );
   }
 
-  // Show subscription required screen
-  if (!subscriptionLoading && !isSubscribed) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-16 max-w-md text-center">
-          <Crown className="h-16 w-16 mx-auto mb-6 text-primary" />
-          <h1 className="text-2xl font-bold mb-4">Devino Vânzător</h1>
-          <p className="text-muted-foreground mb-6">
-            Pentru a lista produse spre vânzare, trebuie să plătești o taxă lunară de acces la platformă. 
-            Este doar £1/lună (debitată automat de pe card), plus un comision de 15% când faci o vânzare.
-          </p>
-          <div className="space-y-3">
-            <Button 
-              size="lg" 
-              className="w-full gap-2"
-              onClick={() => createSubscription.mutate()}
-              disabled={createSubscription.isPending}
-            >
-              <Crown className="h-4 w-4" />
-              {createSubscription.isPending ? 'Se încarcă...' : 'Activează Accesul - £1/lună'}
-            </Button>
-            <Button variant="outline" className="w-full" asChild>
-              <Link to="/dashboard">Înapoi la Dashboard</Link>
-            </Button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  if (subscriptionLoading || limitLoading) {
+  if (listingLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Se verifică statusul contului...</p>
+          <p className="text-muted-foreground">Se încarcă produsul...</p>
         </div>
       </Layout>
     );
   }
 
-  // Show screen when limit is reached
-  if (!canCreateMore) {
+  if (!listing) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16 max-w-md text-center">
-          <Package className="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
-          <h1 className="text-2xl font-bold mb-4">Limită Atinsă</h1>
-          <p className="text-muted-foreground mb-6">
-            Ai atins limita maximă de <span className="font-bold text-foreground">{listingLimit?.maxListings} produse</span>.
-            Șterge un produs existent pentru a adăuga altul nou.
-          </p>
-          <Alert className="text-left mb-6">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Produse active: {listingLimit?.currentCount}/{listingLimit?.maxListings}</AlertTitle>
-            <AlertDescription>
-              Vânzările sunt nelimitate! Poți vinde oricâte produse, dar poți avea maxim {listingLimit?.maxListings} listări active simultan.
-            </AlertDescription>
-          </Alert>
-          <div className="space-y-3">
-            <Button variant="outline" className="w-full" asChild>
-              <Link to="/dashboard">Gestionează Produsele</Link>
-            </Button>
-          </div>
+        <div className="container mx-auto px-4 py-16 text-center">
+          <h1 className="text-2xl font-bold mb-4">Produsul nu a fost găsit</h1>
+          <Button asChild>
+            <Link to="/dashboard">Înapoi la Dashboard</Link>
+          </Button>
         </div>
       </Layout>
     );
   }
+
+  const totalImages = existingImages.length + newImagePreviews.length;
 
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Vinde un Produs</h1>
-          <Badge variant="outline" className="gap-1">
-            <Package className="h-3 w-3" />
-            {listingLimit?.currentCount}/{listingLimit?.maxListings} produse
-          </Badge>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/dashboard">
+                <ArrowLeft className="h-5 w-5" />
+              </Link>
+            </Button>
+            <h1 className="text-3xl font-bold">Editează Produsul</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            {isSold && <Badge variant="secondary">Vândut</Badge>}
+            {!isActive && <Badge variant="outline">Draft</Badge>}
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -272,28 +277,48 @@ const CreateListing = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Fotografii</CardTitle>
-              <CardDescription>Adaugă până la 8 fotografii ale produsului tău</CardDescription>
+              <CardDescription>Gestionează fotografiile produsului ({totalImages}/8)</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
-                {imagePreviews.map((img, index) => (
-                  <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                {/* Existing images */}
+                {existingImages.map((img, index) => (
+                  <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                    <img src={img.url} alt="" className="w-full h-full object-cover" />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-1 right-1 h-6 w-6"
+                      onClick={() => removeExistingImage(img.id, img.url)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                    {img.is_primary && (
+                      <Badge className="absolute bottom-1 left-1 text-xs">Principal</Badge>
+                    )}
+                  </div>
+                ))}
+                
+                {/* New image previews */}
+                {newImagePreviews.map((img, index) => (
+                  <div key={`new-${index}`} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
                     <img src={img} alt="" className="w-full h-full object-cover" />
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
                       className="absolute top-1 right-1 h-6 w-6"
-                      onClick={() => removeImage(index)}
+                      onClick={() => removeNewImage(index)}
                     >
                       <X className="h-4 w-4" />
                     </Button>
-                    {index === 0 && (
-                      <Badge className="absolute bottom-1 left-1 text-xs">Principal</Badge>
-                    )}
+                    <Badge variant="secondary" className="absolute bottom-1 left-1 text-xs">Nou</Badge>
                   </div>
                 ))}
-                {imagePreviews.length < 8 && (
+                
+                {/* Add button */}
+                {totalImages < 8 && (
                   <label className="aspect-square rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary">
                     <ImagePlus className="h-8 w-8" />
                     <span className="text-xs">Adaugă Poză</span>
@@ -332,7 +357,7 @@ const CreateListing = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="category">Categorie *</Label>
+                  <Label htmlFor="category">Categorie</Label>
                   <Select value={category} onValueChange={setCategory}>
                     <SelectTrigger><SelectValue placeholder="Selectează categoria" /></SelectTrigger>
                     <SelectContent>
@@ -400,7 +425,7 @@ const CreateListing = () => {
                 <Truck className="h-5 w-5" />
                 Setări Livrare
               </CardTitle>
-              <CardDescription>Alege cum vei livra produsele</CardDescription>
+              <CardDescription>Alege cum vei livra produsul</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -431,7 +456,7 @@ const CreateListing = () => {
                 <Label htmlFor="shippingNotes">Note pentru Livrare</Label>
                 <Textarea 
                   id="shippingNotes" 
-                  placeholder="Informații adiționale despre livrare (ex: timp estimat, costuri, zone disponibile)..." 
+                  placeholder="Informații adiționale despre livrare..." 
                   value={shippingNotes} 
                   onChange={(e) => setShippingNotes(e.target.value)} 
                   rows={3} 
@@ -440,17 +465,17 @@ const CreateListing = () => {
             </CardContent>
           </Card>
 
-          {/* Publish Settings */}
+          {/* Status Settings */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Setări Publicare</CardTitle>
+              <CardTitle className="text-lg">Status Produs</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="space-y-0.5">
-                  <Label>Publică Imediat</Label>
+                  <Label>Activ (Vizibil)</Label>
                   <p className="text-sm text-muted-foreground">
-                    {isActive ? 'Produsul va fi vizibil imediat' : 'Produsul va fi salvat ca draft'}
+                    {isActive ? 'Produsul este vizibil pentru cumpărători' : 'Produsul este ascuns (draft)'}
                   </p>
                 </div>
                 <Switch
@@ -458,23 +483,60 @@ const CreateListing = () => {
                   onCheckedChange={setIsActive}
                 />
               </div>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label>Marcat ca Vândut</Label>
+                  <p className="text-sm text-muted-foreground">
+                    {isSold ? 'Produsul a fost vândut' : 'Produsul este încă disponibil'}
+                  </p>
+                </div>
+                <Switch
+                  checked={isSold}
+                  onCheckedChange={setIsSold}
+                />
+              </div>
             </CardContent>
           </Card>
 
-          <Button type="submit" size="lg" className="w-full" disabled={loading || uploading}>
-            {loading || uploading ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                {uploading ? 'Se încarcă imaginile...' : 'Se creează...'}
-              </>
-            ) : (
-              isActive ? 'Publică Produsul' : 'Salvează ca Draft'
-            )}
-          </Button>
+          {/* Actions */}
+          <div className="flex gap-4">
+            <Button type="submit" size="lg" className="flex-1" disabled={loading || uploading}>
+              {loading || uploading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {uploading ? 'Se încarcă imaginile...' : 'Se salvează...'}
+                </>
+              ) : (
+                'Salvează Modificările'
+              )}
+            </Button>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button type="button" variant="destructive" size="lg">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Șterge produsul?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Această acțiune nu poate fi anulată. Produsul și toate imaginile asociate vor fi șterse permanent.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Anulează</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+                    Șterge
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </form>
       </div>
     </Layout>
   );
 };
 
-export default CreateListing;
+export default EditListing;

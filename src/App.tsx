@@ -14,6 +14,7 @@ import ResetPassword from "./pages/ResetPassword";
 import Browse from "./pages/Browse";
 import ListingDetail from "./pages/ListingDetail";
 import CreateListing from "./pages/CreateListing";
+import EditListing from "./pages/EditListing";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Checkout from "./pages/Checkout";
@@ -71,6 +72,7 @@ const App = () => (
                 <Route path="/browse" element={<Browse />} />
                 <Route path="/listing/:id" element={<ListingDetail />} />
                 <Route path="/sell" element={<CreateListing />} />
+                <Route path="/listing/:id/edit" element={<EditListing />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/seller-analytics" element={<SellerAnalytics />} />
                 <Route path="/settings" element={<Settings />} />
