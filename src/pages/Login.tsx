@@ -60,11 +60,16 @@ const Login = () => {
                 </Button>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Signing in...' : 'Sign In'}</Button>
+            <div className="flex justify-end">
+              <Link to="/forgot-password" className="text-sm text-primary hover:underline">
+                Ai uitat parola?
+              </Link>
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>{loading ? 'Se autentifică...' : 'Autentificare'}</Button>
           </form>
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Don't have an account?{' '}
-            <Link to="/signup" className="text-primary hover:underline font-medium">Sign up</Link>
+            Nu ai cont?{' '}
+            <Link to="/signup" className="text-primary hover:underline font-medium">Înregistrează-te</Link>
           </p>
         </CardContent>
       </Card>

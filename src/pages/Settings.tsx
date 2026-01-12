@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   User, Store, Bell, Shield, CreditCard, MapPin, Save, 
   Wallet, Truck, Package, Building2, Banknote, Plus, Check,
-  DollarSign, Globe
+  DollarSign, Globe, Eye, EyeOff
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -13,12 +13,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { AvatarUpload } from '@/components/settings/AvatarUpload';
+import { PasswordReset } from '@/components/settings/PasswordReset';
 
 const shippingCarriers = [
   { id: 'usps', name: 'USPS', logo: '📮', description: 'Serviciu Poștal SUA' },
@@ -163,15 +164,14 @@ const Settings = () => {
                   <CardDescription>Actualizează informațiile personale vizibile pentru alți utilizatori</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-6">
-                    <Avatar className="h-20 w-20">
-                      <AvatarImage src={profile?.avatar_url || undefined} />
-                      <AvatarFallback className="text-2xl">
-                        {displayName?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <Button variant="outline">Schimbă Avatar</Button>
-                  </div>
+                  <AvatarUpload
+                    currentAvatarUrl={profile?.avatar_url || null}
+                    displayName={displayName || user?.email || 'User'}
+                    userId={user?.id || ''}
+                    onAvatarChange={(url) => {
+                      // Profile se va actualiza automat prin refetch
+                    }}
+                  />
                   
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
@@ -226,13 +226,22 @@ const Settings = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Telefon</Label>
+                      <Label htmlFor="phone" className="flex items-center gap-2">
+                        Telefon
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <EyeOff className="h-3 w-3" />
+                          Privat
+                        </Badge>
+                      </Label>
                       <Input 
                         id="phone" 
                         value={phone} 
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="0712 345 678"
                       />
+                      <p className="text-xs text-muted-foreground">
+                        Numărul tău de telefon este vizibil doar pentru tine și nu va fi partajat cu alți utilizatori.
+                      </p>
                     </div>
                   </div>
 
@@ -838,13 +847,9 @@ const Settings = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div>
-                        <p className="font-medium">Schimbă Parola</p>
-                        <p className="text-sm text-muted-foreground">Actualizează parola contului</p>
-                      </div>
-                      <Button variant="outline" size="sm">Schimbă</Button>
-                    </div>
+                    {/* Componenta pentru resetare/schimbare parolă */}
+                    <PasswordReset userEmail={user?.email || ''} />
+
                     <div className="flex items-center justify-between p-4 rounded-lg border">
                       <div>
                         <p className="font-medium">Autentificare în Doi Pași</p>
@@ -859,6 +864,23 @@ const Settings = () => {
                       </div>
                       <Button variant="outline" size="sm">Vizualizează</Button>
                     </div>
+
+                    {/* Informații date private */}
+                    <Card className="border-primary/20 bg-primary/5">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <EyeOff className="h-5 w-5 text-primary mt-0.5" />
+                          <div>
+                            <p className="font-medium">Protecția Datelor Personale</p>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Numărul tău de telefon și adresa sunt vizibile doar pentru tine. 
+                              Aceste informații nu sunt partajate cu alți utilizatori sau vânzători fără acordul tău explicit.
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
                     <div className="flex items-center justify-between p-4 rounded-lg border border-destructive/50">
                       <div>
                         <p className="font-medium text-destructive">Șterge Contul</p>
