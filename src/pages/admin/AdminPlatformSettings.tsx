@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Globe, Palette, Bell, Shield, Mail, Upload } from 'lucide-react';
+import { Save, Globe, Palette, Bell, Shield, Mail, Upload, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useAdminSettings';
 
 interface PlatformSettings {
   general: {
@@ -50,9 +51,9 @@ interface PlatformSettings {
 
 const defaultSettings: PlatformSettings = {
   general: {
-    siteName: 'Marketplace',
-    siteDescription: 'Your trusted online marketplace',
-    supportEmail: 'support@marketplace.com',
+    siteName: 'AdiMarket',
+    siteDescription: 'Your trusted online marketplace - Buy & Sell Smart',
+    supportEmail: 'support@adimarket.com',
     logoUrl: '',
     faviconUrl: '',
   },
@@ -86,24 +87,39 @@ const defaultSettings: PlatformSettings = {
 
 export default function AdminPlatformSettings() {
   const { toast } = useToast();
+  const { data: dbSettings, isLoading } = usePlatformSettings();
+  const updateSetting = useUpdatePlatformSetting();
   const [settings, setSettings] = useState<PlatformSettings>(defaultSettings);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Load settings from database when available
   useEffect(() => {
-    const saved = localStorage.getItem('platform_settings');
-    if (saved) {
-      setSettings(JSON.parse(saved));
+    if (dbSettings) {
+      const loadedSettings: PlatformSettings = {
+        general: dbSettings['general'] || defaultSettings.general,
+        localization: dbSettings['localization'] || defaultSettings.localization,
+        notifications: dbSettings['notifications'] || defaultSettings.notifications,
+        security: dbSettings['security'] || defaultSettings.security,
+        marketplace: dbSettings['marketplace'] || defaultSettings.marketplace,
+      };
+      setSettings(loadedSettings);
     }
-  }, []);
+  }, [dbSettings]);
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      localStorage.setItem('platform_settings', JSON.stringify(settings));
-      toast({ title: 'Settings saved', description: 'Platform settings have been updated.' });
+      // Save each category as a separate setting
+      await Promise.all([
+        updateSetting.mutateAsync({ key: 'general', value: settings.general, category: 'platform' }),
+        updateSetting.mutateAsync({ key: 'localization', value: settings.localization, category: 'platform' }),
+        updateSetting.mutateAsync({ key: 'notifications', value: settings.notifications, category: 'platform' }),
+        updateSetting.mutateAsync({ key: 'security', value: settings.security, category: 'platform' }),
+        updateSetting.mutateAsync({ key: 'marketplace', value: settings.marketplace, category: 'platform' }),
+      ]);
+      toast({ title: 'Setări salvate', description: 'Setările platformei au fost actualizate în baza de date.' });
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -129,17 +145,28 @@ export default function AdminPlatformSettings() {
     setSettings(prev => ({ ...prev, marketplace: { ...prev.marketplace, [key]: value } }));
   };
 
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2">Se încarcă setările...</span>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Platform Settings</h1>
-            <p className="text-muted-foreground">Configure global platform settings</p>
+            <h1 className="text-3xl font-bold">Setări Platformă</h1>
+            <p className="text-muted-foreground">Configurează setările globale ale platformei (salvate în baza de date)</p>
           </div>
           <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-            <Save className="h-4 w-4" />
-            Save All Settings
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Salvează Setările
           </Button>
         </div>
 
@@ -151,15 +178,15 @@ export default function AdminPlatformSettings() {
             </TabsTrigger>
             <TabsTrigger value="localization" className="gap-2">
               <Palette className="h-4 w-4" />
-              Localization
+              Localizare
             </TabsTrigger>
             <TabsTrigger value="notifications" className="gap-2">
               <Bell className="h-4 w-4" />
-              Notifications
+              Notificări
             </TabsTrigger>
             <TabsTrigger value="security" className="gap-2">
               <Shield className="h-4 w-4" />
-              Security
+              Securitate
             </TabsTrigger>
             <TabsTrigger value="marketplace" className="gap-2">
               <Mail className="h-4 w-4" />
@@ -170,36 +197,36 @@ export default function AdminPlatformSettings() {
           <TabsContent value="general">
             <Card>
               <CardHeader>
-                <CardTitle>General Settings</CardTitle>
-                <CardDescription>Basic platform information and branding</CardDescription>
+                <CardTitle>Setări Generale</CardTitle>
+                <CardDescription>Informații de bază și branding al platformei</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>Site Name</Label>
+                    <Label>Nume Site</Label>
                     <Input
                       value={settings.general.siteName}
                       onChange={(e) => updateGeneral('siteName', e.target.value)}
-                      placeholder="Your Marketplace"
+                      placeholder="AdiMarket"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Support Email</Label>
+                    <Label>Email Suport</Label>
                     <Input
                       type="email"
                       value={settings.general.supportEmail}
                       onChange={(e) => updateGeneral('supportEmail', e.target.value)}
-                      placeholder="support@example.com"
+                      placeholder="support@adimarket.com"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Site Description</Label>
+                  <Label>Descriere Site</Label>
                   <Textarea
                     value={settings.general.siteDescription}
                     onChange={(e) => updateGeneral('siteDescription', e.target.value)}
-                    placeholder="Describe your marketplace..."
+                    placeholder="Descrie marketplace-ul tău..."
                     rows={3}
                   />
                 </div>
@@ -208,7 +235,7 @@ export default function AdminPlatformSettings() {
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>Logo URL</Label>
+                    <Label>URL Logo</Label>
                     <div className="flex gap-2">
                       <Input
                         value={settings.general.logoUrl}
@@ -221,7 +248,7 @@ export default function AdminPlatformSettings() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Favicon URL</Label>
+                    <Label>URL Favicon</Label>
                     <div className="flex gap-2">
                       <Input
                         value={settings.general.faviconUrl}
@@ -241,13 +268,13 @@ export default function AdminPlatformSettings() {
           <TabsContent value="localization">
             <Card>
               <CardHeader>
-                <CardTitle>Localization Settings</CardTitle>
-                <CardDescription>Language and currency preferences</CardDescription>
+                <CardTitle>Setări Localizare</CardTitle>
+                <CardDescription>Preferințe pentru limbă și monedă</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>Default Language</Label>
+                    <Label>Limba Implicită</Label>
                     <Select
                       value={settings.localization.defaultLanguage}
                       onValueChange={(value) => updateLocalization('defaultLanguage', value)}
@@ -265,7 +292,7 @@ export default function AdminPlatformSettings() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Default Currency</Label>
+                    <Label>Moneda Implicită</Label>
                     <Select
                       value={settings.localization.defaultCurrency}
                       onValueChange={(value) => updateLocalization('defaultCurrency', value)}
@@ -274,10 +301,10 @@ export default function AdminPlatformSettings() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="GBP">British Pound (£)</SelectItem>
+                        <SelectItem value="GBP">Liră Sterlină (£)</SelectItem>
                         <SelectItem value="EUR">Euro (€)</SelectItem>
-                        <SelectItem value="USD">US Dollar ($)</SelectItem>
-                        <SelectItem value="RON">Romanian Leu (RON)</SelectItem>
+                        <SelectItem value="USD">Dolar American ($)</SelectItem>
+                        <SelectItem value="RON">Leu Românesc (RON)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -289,15 +316,15 @@ export default function AdminPlatformSettings() {
           <TabsContent value="notifications">
             <Card>
               <CardHeader>
-                <CardTitle>Notification Settings</CardTitle>
-                <CardDescription>Configure email and alert preferences</CardDescription>
+                <CardTitle>Setări Notificări</CardTitle>
+                <CardDescription>Configurează preferințele de email și alerte</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Email Notifications</Label>
-                      <p className="text-sm text-muted-foreground">Enable all email notifications</p>
+                      <Label>Notificări Email</Label>
+                      <p className="text-sm text-muted-foreground">Activează toate notificările prin email</p>
                     </div>
                     <Switch
                       checked={settings.notifications.emailNotifications}
@@ -309,8 +336,8 @@ export default function AdminPlatformSettings() {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Order Confirmations</Label>
-                      <p className="text-sm text-muted-foreground">Send confirmation emails for new orders</p>
+                      <Label>Confirmări Comenzi</Label>
+                      <p className="text-sm text-muted-foreground">Trimite email de confirmare pentru comenzi noi</p>
                     </div>
                     <Switch
                       checked={settings.notifications.orderConfirmation}
@@ -320,8 +347,8 @@ export default function AdminPlatformSettings() {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Shipping Updates</Label>
-                      <p className="text-sm text-muted-foreground">Notify users about shipping status changes</p>
+                      <Label>Actualizări Livrare</Label>
+                      <p className="text-sm text-muted-foreground">Notifică utilizatorii despre schimbările de status livrare</p>
                     </div>
                     <Switch
                       checked={settings.notifications.shippingUpdates}
@@ -331,8 +358,8 @@ export default function AdminPlatformSettings() {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Promotional Emails</Label>
-                      <p className="text-sm text-muted-foreground">Send marketing and promotional content</p>
+                      <Label>Emailuri Promoționale</Label>
+                      <p className="text-sm text-muted-foreground">Trimite conținut de marketing și promoții</p>
                     </div>
                     <Switch
                       checked={settings.notifications.promotionalEmails}
@@ -342,8 +369,8 @@ export default function AdminPlatformSettings() {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Admin Alerts</Label>
-                      <p className="text-sm text-muted-foreground">Receive alerts for important platform events</p>
+                      <Label>Alerte Admin</Label>
+                      <p className="text-sm text-muted-foreground">Primește alerte pentru evenimente importante ale platformei</p>
                     </div>
                     <Switch
                       checked={settings.notifications.adminAlerts}
@@ -358,15 +385,15 @@ export default function AdminPlatformSettings() {
           <TabsContent value="security">
             <Card>
               <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
-                <CardDescription>Authentication and security configuration</CardDescription>
+                <CardTitle>Setări Securitate</CardTitle>
+                <CardDescription>Configurare autentificare și securitate</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Require Email Verification</Label>
-                      <p className="text-sm text-muted-foreground">Users must verify email before accessing features</p>
+                      <Label>Verificare Email Obligatorie</Label>
+                      <p className="text-sm text-muted-foreground">Utilizatorii trebuie să verifice emailul înainte de a accesa funcționalitățile</p>
                     </div>
                     <Switch
                       checked={settings.security.requireEmailVerification}
@@ -376,8 +403,8 @@ export default function AdminPlatformSettings() {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Two-Factor Authentication</Label>
-                      <p className="text-sm text-muted-foreground">Enable 2FA for enhanced security</p>
+                      <Label>Autentificare în Doi Pași</Label>
+                      <p className="text-sm text-muted-foreground">Activează 2FA pentru securitate sporită</p>
                     </div>
                     <Switch
                       checked={settings.security.twoFactorAuth}
@@ -389,7 +416,7 @@ export default function AdminPlatformSettings() {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label>Session Timeout (minutes)</Label>
+                      <Label>Timeout Sesiune (minute)</Label>
                       <Input
                         type="number"
                         value={settings.security.sessionTimeout}
@@ -399,7 +426,7 @@ export default function AdminPlatformSettings() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Max Login Attempts</Label>
+                      <Label>Încercări Maxime Autentificare</Label>
                       <Input
                         type="number"
                         value={settings.security.maxLoginAttempts}
@@ -417,15 +444,15 @@ export default function AdminPlatformSettings() {
           <TabsContent value="marketplace">
             <Card>
               <CardHeader>
-                <CardTitle>Marketplace Settings</CardTitle>
-                <CardDescription>Configure marketplace behavior and rules</CardDescription>
+                <CardTitle>Setări Marketplace</CardTitle>
+                <CardDescription>Configurează comportamentul și regulile marketplace-ului</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Allow Guest Checkout</Label>
-                      <p className="text-sm text-muted-foreground">Allow purchases without account creation</p>
+                      <Label>Permite Checkout Oaspeți</Label>
+                      <p className="text-sm text-muted-foreground">Permite achiziții fără crearea unui cont</p>
                     </div>
                     <Switch
                       checked={settings.marketplace.allowGuestCheckout}
@@ -435,8 +462,8 @@ export default function AdminPlatformSettings() {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Require Seller Verification</Label>
-                      <p className="text-sm text-muted-foreground">Sellers must be verified before listing</p>
+                      <Label>Verificare Vânzători Obligatorie</Label>
+                      <p className="text-sm text-muted-foreground">Vânzătorii trebuie verificați înainte de a lista produse</p>
                     </div>
                     <Switch
                       checked={settings.marketplace.requireSellerVerification}
@@ -446,8 +473,8 @@ export default function AdminPlatformSettings() {
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label>Auto-Approve Listings</Label>
-                      <p className="text-sm text-muted-foreground">Automatically approve new listings</p>
+                      <Label>Aprobare Automată Listări</Label>
+                      <p className="text-sm text-muted-foreground">Aprobă automat listările noi fără revizuire manuală</p>
                     </div>
                     <Switch
                       checked={settings.marketplace.autoApproveListings}
@@ -459,7 +486,7 @@ export default function AdminPlatformSettings() {
 
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label>Max Images per Listing</Label>
+                      <Label>Imagini Maxime per Listare</Label>
                       <Input
                         type="number"
                         value={settings.marketplace.maxImagesPerListing}
@@ -469,12 +496,13 @@ export default function AdminPlatformSettings() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Max Listing Price (£)</Label>
+                      <Label>Preț Maxim Listare (£)</Label>
                       <Input
                         type="number"
                         value={settings.marketplace.maxListingPrice}
                         onChange={(e) => updateMarketplace('maxListingPrice', parseInt(e.target.value))}
                         min={100}
+                        max={10000000}
                       />
                     </div>
                   </div>
