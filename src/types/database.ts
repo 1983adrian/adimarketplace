@@ -11,6 +11,9 @@ export interface Profile {
   bio: string | null;
   location: string | null;
   phone: string | null;
+  store_name: string | null;
+  is_seller: boolean;
+  max_listings: number;
   created_at: string;
   updated_at: string;
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,10 +8,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useSellerSubscription, useCreateSellerSubscription } from '@/hooks/useSellerSubscription';
+import { useListingLimit } from '@/hooks/useListingLimit';
 
 const CreateListing = () => {
   const navigate = useNavigate();
@@ -19,6 +22,7 @@ const CreateListing = () => {
   const { toast } = useToast();
   const { data: categories } = useCategories();
   const { data: subscription, isLoading: subscriptionLoading } = useSellerSubscription();
+  const { data: listingLimit, isLoading: limitLoading } = useListingLimit();
   const createSubscription = useCreateSellerSubscription();
 
   const [title, setTitle] = useState('');
@@ -31,6 +35,7 @@ const CreateListing = () => {
   const [loading, setLoading] = useState(false);
 
   const isSubscribed = subscription?.subscribed || false;
+  const canCreateMore = listingLimit?.canCreateMore ?? true;
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -61,7 +66,16 @@ const CreateListing = () => {
     }
 
     if (!isSubscribed) {
-      toast({ title: 'Subscription required', description: 'You need an active seller subscription to create listings', variant: 'destructive' });
+      toast({ title: 'Abonament necesar', description: 'Ai nevoie de un abonament activ de vânzător pentru a crea listări', variant: 'destructive' });
+      return;
+    }
+
+    if (!canCreateMore) {
+      toast({ 
+        title: 'Limită atinsă', 
+        description: `Ai atins limita maximă de ${listingLimit?.maxListings} produse. Șterge un produs existent pentru a adăuga altul nou.`, 
+        variant: 'destructive' 
+      });
       return;
     }
 
@@ -121,11 +135,39 @@ const CreateListing = () => {
     );
   }
 
-  if (subscriptionLoading) {
+  if (subscriptionLoading || limitLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
-          <p className="text-muted-foreground">Checking subscription status...</p>
+          <p className="text-muted-foreground">Se verifică statusul contului...</p>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Arată ecran când limita este atinsă
+  if (!canCreateMore) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 max-w-md text-center">
+          <Package className="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
+          <h1 className="text-2xl font-bold mb-4">Limită Atinsă</h1>
+          <p className="text-muted-foreground mb-6">
+            Ai atins limita maximă de <span className="font-bold text-foreground">{listingLimit?.maxListings} produse</span>.
+            Șterge un produs existent pentru a adăuga altul nou.
+          </p>
+          <Alert className="text-left mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Produse active: {listingLimit?.currentCount}/{listingLimit?.maxListings}</AlertTitle>
+            <AlertDescription>
+              Vânzările sunt nelimitate! Poți vinde oricâte produse, dar poți avea maxim {listingLimit?.maxListings} listări active simultan.
+            </AlertDescription>
+          </Alert>
+          <div className="space-y-3">
+            <Button variant="outline" className="w-full" asChild>
+              <Link to="/dashboard">Gestionează Produsele</Link>
+            </Button>
+          </div>
         </div>
       </Layout>
     );
@@ -134,7 +176,13 @@ const CreateListing = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <h1 className="text-3xl font-bold mb-8">Sell an Item</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">Vinde un Produs</h1>
+          <Badge variant="outline" className="gap-1">
+            <Package className="h-3 w-3" />
+            {listingLimit?.currentCount}/{listingLimit?.maxListings} produse
+          </Badge>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Photos */}

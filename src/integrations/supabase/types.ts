@@ -639,8 +639,11 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          is_seller: boolean | null
           location: string | null
+          max_listings: number | null
           phone: string | null
+          store_name: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -651,8 +654,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_seller?: boolean | null
           location?: string | null
+          max_listings?: number | null
           phone?: string | null
+          store_name?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -663,8 +669,11 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          is_seller?: boolean | null
           location?: string | null
+          max_listings?: number | null
           phone?: string | null
+          store_name?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null

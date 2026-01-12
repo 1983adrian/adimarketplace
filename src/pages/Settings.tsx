@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   User, Store, Bell, Shield, CreditCard, MapPin, Save, 
   Wallet, Truck, Package, Building2, Banknote, Plus, Check,
-  DollarSign, Globe, Eye, EyeOff
+  DollarSign, Globe, Eye, EyeOff, AlertCircle
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,12 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
+import { supabase } from '@/integrations/supabase/client';
 
 const shippingCarriers = [
   { id: 'usps', name: 'USPS', logo: '📮', description: 'Serviciu Poștal SUA' },
@@ -41,6 +43,8 @@ const Settings = () => {
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
   const [phone, setPhone] = useState('');
+  const [storeName, setStoreName] = useState('');
+  const [isSeller, setIsSeller] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Setări notificări
@@ -80,6 +84,8 @@ const Settings = () => {
       setBio(profile.bio || '');
       setLocation(profile.location || '');
       setPhone(profile.phone || '');
+      setStoreName((profile as any).store_name || '');
+      setIsSeller((profile as any).is_seller || false);
     }
   }, [user, profile, loading, navigate]);
 
@@ -91,12 +97,32 @@ const Settings = () => {
       bio,
       location,
       phone,
-    });
+    } as any);
     setSaving(false);
     if (error) {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Profil actualizat cu succes' });
+    }
+  };
+
+  const handleSaveSellerSettings = async () => {
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          store_name: storeName,
+          is_seller: isSeller,
+        })
+        .eq('user_id', user?.id);
+
+      if (error) throw error;
+      toast({ title: 'Setări vânzător salvate cu succes' });
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -714,20 +740,46 @@ const Settings = () => {
                       <p className="font-medium">Mod Vânzător</p>
                       <p className="text-sm text-muted-foreground">Activează pentru a lista articole de vânzare</p>
                     </div>
-                    <Switch defaultChecked />
+                    <Switch 
+                      checked={isSeller} 
+                      onCheckedChange={setIsSeller}
+                    />
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-medium">Setări Magazin</h4>
+                    <h4 className="font-medium flex items-center gap-2">
+                      <Store className="h-4 w-4" />
+                      Setări Magazin
+                    </h4>
                     <div className="space-y-2">
-                      <Label>Nume Magazin</Label>
-                      <Input placeholder="Magazinul Meu Super" />
+                      <Label htmlFor="storeName">Nume Magazin *</Label>
+                      <Input 
+                        id="storeName"
+                        value={storeName}
+                        onChange={(e) => setStoreName(e.target.value)}
+                        placeholder="Magazinul Meu Super" 
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Acest nume va fi afișat pe toate produsele tale
+                      </p>
                     </div>
                     <div className="space-y-2">
                       <Label>Descriere Magazin</Label>
-                      <Textarea placeholder="Spune-le cumpărătorilor despre magazinul tău..." rows={3} />
+                      <Textarea 
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Spune-le cumpărătorilor despre magazinul tău..." 
+                        rows={3} 
+                      />
                     </div>
                   </div>
+
+                  <Alert>
+                    <Package className="h-4 w-4" />
+                    <AlertDescription>
+                      <strong>Limită produse:</strong> Poți avea maxim 10 produse active simultan. Vânzările sunt nelimitate!
+                    </AlertDescription>
+                  </Alert>
 
                   <div className="space-y-4">
                     <h4 className="font-medium">Preferințe Listare</h4>
@@ -755,6 +807,11 @@ const Settings = () => {
                       </div>
                     </div>
                   </div>
+
+                  <Button onClick={handleSaveSellerSettings} disabled={saving} className="gap-2">
+                    <Save className="h-4 w-4" />
+                    {saving ? 'Se salvează...' : 'Salvează Setările Magazinului'}
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>
