@@ -59,6 +59,21 @@ export const useMyOrders = (type: 'buying' | 'selling') => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      // Fetch seller profiles for buyer orders
+      if (type === 'buying' && data && data.length > 0) {
+        const sellerIds = [...new Set(data.map(o => o.seller_id))];
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, username')
+          .in('user_id', sellerIds);
+        
+        return data.map(order => ({
+          ...order,
+          seller_profile: profiles?.find(p => p.user_id === order.seller_id),
+        })) as Order[];
+      }
+      
       return data as Order[];
     },
     enabled: !!user,

@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageBubble } from './MessageBubble';
 import { useMessages, useSendMessage, useMarkMessagesRead } from '@/hooks/useConversations';
+import { useRealTimeMessages } from '@/hooks/useRealTimeNotifications';
 import { Send, ArrowLeft, ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Profile } from '@/types/database';
@@ -29,6 +30,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const { data: messages, isLoading } = useMessages(conversation?.id);
   const sendMessage = useSendMessage();
   const markRead = useMarkMessagesRead();
+  
+  // Enable real-time updates for this conversation
+  useRealTimeMessages(conversation?.id);
 
   const otherUser = conversation?.buyer_id === currentUserId
     ? conversation?.seller
