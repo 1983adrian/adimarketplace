@@ -7,6 +7,9 @@ interface SubscriptionStatus {
   status: string;
   subscription_end: string | null;
   canCreateListings: boolean;
+  isTrialPeriod?: boolean;
+  trialDaysRemaining?: number;
+  trialExpired?: boolean;
 }
 
 export const useSellerSubscription = () => {

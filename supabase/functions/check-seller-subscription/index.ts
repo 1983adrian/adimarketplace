@@ -12,6 +12,9 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SELLER-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
+// 3 month free trial period in milliseconds
+const TRIAL_PERIOD_MS = 90 * 24 * 60 * 60 * 1000; // 90 days
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -41,18 +44,67 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
+    // First check when the user account was created
+    const { data: profileData } = await supabaseClient
+      .from("profiles")
+      .select("created_at")
+      .eq("user_id", user.id)
+      .single();
+
+    const accountCreatedAt = profileData?.created_at ? new Date(profileData.created_at) : new Date();
+    const now = new Date();
+    const accountAgeMs = now.getTime() - accountCreatedAt.getTime();
+    const isInTrialPeriod = accountAgeMs < TRIAL_PERIOD_MS;
+    const trialEndsAt = new Date(accountCreatedAt.getTime() + TRIAL_PERIOD_MS);
+    const trialDaysRemaining = Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / (24 * 60 * 60 * 1000)));
+
+    logStep("Account age check", { 
+      accountCreatedAt: accountCreatedAt.toISOString(), 
+      isInTrialPeriod, 
+      trialDaysRemaining 
+    });
+
+    // If user is in trial period, they can create listings without subscription
+    if (isInTrialPeriod) {
+      logStep("User is in free trial period");
+      
+      // Update local subscription record with trial status
+      await supabaseClient
+        .from("seller_subscriptions")
+        .upsert({
+          user_id: user.id,
+          status: "trial",
+          stripe_customer_id: null,
+          stripe_subscription_id: null,
+          current_period_end: trialEndsAt.toISOString(),
+        }, { onConflict: "user_id" });
+
+      return new Response(JSON.stringify({ 
+        subscribed: true,
+        status: "trial",
+        subscription_end: trialEndsAt.toISOString(),
+        canCreateListings: true,
+        isTrialPeriod: true,
+        trialDaysRemaining,
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
+    // After trial, check for active Stripe subscription
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
-      logStep("No customer found, user has no subscription");
+      logStep("No customer found, trial expired, user needs subscription");
       
       // Update local subscription record
       await supabaseClient
         .from("seller_subscriptions")
         .upsert({
           user_id: user.id,
-          status: "inactive",
+          status: "trial_expired",
           stripe_customer_id: null,
           stripe_subscription_id: null,
           current_period_end: null,
@@ -60,8 +112,9 @@ serve(async (req) => {
 
       return new Response(JSON.stringify({ 
         subscribed: false,
-        status: "inactive",
-        canCreateListings: false 
+        status: "trial_expired",
+        canCreateListings: false,
+        trialExpired: true,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,

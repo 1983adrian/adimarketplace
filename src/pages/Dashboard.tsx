@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign, CreditCard, Crown, TrendingUp, ShoppingCart } from 'lucide-react';
+import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign, CreditCard, Crown, TrendingUp, ShoppingCart, Pencil } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,6 +59,8 @@ const Dashboard = () => {
   const totalEarnings = soldListings.reduce((acc, l) => acc + l.price, 0);
 
   const isSubscribed = subscription?.subscribed || false;
+  const isTrialPeriod = subscription?.isTrialPeriod || false;
+  const trialDaysRemaining = subscription?.trialDaysRemaining || 0;
 
   return (
     <Layout>
@@ -120,16 +122,26 @@ const Dashboard = () => {
                 <div className="flex items-center gap-3">
                   <Crown className={`h-6 w-6 ${isSubscribed ? 'text-primary' : 'text-muted-foreground'}`} />
                   <div>
-                    <CardTitle className="text-lg">{t('dashboard.subscription')}</CardTitle>
+                    <CardTitle className="text-lg">
+                      {isTrialPeriod ? 'Free Trial' : t('dashboard.subscription')}
+                    </CardTitle>
                     <CardDescription>
-                      {isSubscribed 
-                        ? `${t('dashboard.subscribed')} ${subscription?.subscription_end ? new Date(subscription.subscription_end).toLocaleDateString() : 'N/A'}`
-                        : `${t('dashboard.subscribe')} (£1/month)`
+                      {isTrialPeriod 
+                        ? `${trialDaysRemaining} days remaining in your free trial`
+                        : isSubscribed 
+                          ? `${t('dashboard.subscribed')} ${subscription?.subscription_end ? new Date(subscription.subscription_end).toLocaleDateString() : 'N/A'}`
+                          : subscription?.trialExpired 
+                            ? 'Your free trial has expired'
+                            : `${t('dashboard.subscribe')} (£1/month after 3 months free)`
                       }
                     </CardDescription>
                   </div>
                 </div>
-                {isSubscribed ? (
+                {isTrialPeriod ? (
+                  <Badge variant="secondary" className="gap-1 bg-green-100 text-green-800">
+                    Trial Active
+                  </Badge>
+                ) : isSubscribed ? (
                   <Button 
                     variant="outline" 
                     onClick={() => openPortal.mutate()}
@@ -149,10 +161,20 @@ const Dashboard = () => {
                 )}
               </div>
             </CardHeader>
-            {!isSubscribed && (
+            {isTrialPeriod && (
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground">
-                  {t('dashboard.sellerBenefits')}
+                  Enjoy free access to all seller features. After 3 months, a £1/month subscription is required to continue listing items.
+                </p>
+              </CardContent>
+            )}
+            {!isSubscribed && !isTrialPeriod && (
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground">
+                  {subscription?.trialExpired 
+                    ? 'Subscribe now to continue creating listings and selling on the platform.'
+                    : t('dashboard.sellerBenefits')
+                  }
                 </p>
               </CardContent>
             )}
@@ -208,7 +230,7 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Links */}
-        <div className="grid md:grid-cols-4 gap-4 mb-8">
+        <div className="grid md:grid-cols-5 gap-4 mb-8">
           <Link to="/favorites">
             <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
               <CardHeader className="pb-3">
@@ -224,6 +246,15 @@ const Dashboard = () => {
                 <MessageCircle className="h-6 w-6 mb-2" />
                 <CardTitle className="text-lg">{t('header.messages')}</CardTitle>
                 <CardDescription>{t('dashboard.chatWithUsers')}</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+          <Link to="/orders">
+            <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
+              <CardHeader className="pb-3">
+                <Package className="h-6 w-6 mb-2" />
+                <CardTitle className="text-lg">Orders</CardTitle>
+                <CardDescription>Track your orders</CardDescription>
               </CardHeader>
             </Card>
           </Link>
@@ -258,7 +289,39 @@ const Dashboard = () => {
             )}
           </div>
           {activeListings.length > 0 ? (
-            <ListingGrid listings={activeListings.slice(0, 4)} isLoading={listingsLoading} />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {activeListings.slice(0, 4).map((listing) => (
+                <Card key={listing.id} className="overflow-hidden">
+                  <div className="relative aspect-square bg-muted">
+                    {listing.listing_images?.[0] && (
+                      <img 
+                        src={listing.listing_images[0].image_url} 
+                        alt={listing.title}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                    <Link 
+                      to={`/edit-listing/${listing.id}`}
+                      className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm p-2 rounded-full hover:bg-background transition-colors"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Link>
+                  </div>
+                  <CardContent className="p-3">
+                    <h3 className="font-medium text-sm truncate">{listing.title}</h3>
+                    <p className="text-primary font-bold">£{listing.price}</p>
+                    <div className="flex gap-2 mt-2">
+                      <Badge variant={listing.is_active ? "default" : "secondary"} className="text-xs">
+                        {listing.is_active ? 'Active' : 'Draft'}
+                      </Badge>
+                      {listing.is_sold && (
+                        <Badge variant="destructive" className="text-xs">Sold</Badge>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           ) : (
             <Card>
               <CardContent className="py-12 text-center">
