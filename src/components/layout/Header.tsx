@@ -18,6 +18,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
 import { CurrencySelector } from './CurrencySelector';
 import { SearchDialog } from './SearchDialog';
+import { NotificationBell } from './NotificationBell';
+import { useRealTimeNotifications, useRealTimeOrders } from '@/hooks/useRealTimeNotifications';
 
 export const Header: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -25,6 +27,10 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Initialize real-time subscriptions
+  useRealTimeNotifications();
+  useRealTimeOrders();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +71,7 @@ export const Header: React.FC = () => {
                     <MessageCircle className="h-5 w-5" />
                   </Link>
                 </Button>
+                <NotificationBell />
                 <Button asChild className="gap-2">
                   <Link to="/sell">
                     <Plus className="h-4 w-4" />

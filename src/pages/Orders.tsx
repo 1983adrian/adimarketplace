@@ -8,12 +8,13 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Package, Truck, CheckCircle, Clock, AlertCircle, ExternalLink } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, AlertCircle, ExternalLink, Star } from 'lucide-react';
 import { useMyOrders, useUpdateTracking, useConfirmDelivery, Order } from '@/hooks/useOrders';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
+import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 
 const CARRIERS = [
   { value: 'royal_mail', label: 'Royal Mail' },
@@ -216,6 +217,22 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                 <p className="text-xs text-green-600">
                   Commission deducted: £{Number(order.seller_commission || 0).toFixed(2)}
                 </p>
+              </div>
+            )}
+
+            {/* Review button for buyer after delivery */}
+            {type === 'buying' && order.status === 'delivered' && (
+              <div className="mt-3">
+                <ReviewDialog 
+                  orderId={order.id} 
+                  sellerId={order.seller_id}
+                  sellerName={order.seller_profile?.display_name || order.seller_profile?.username}
+                >
+                  <Button size="sm" variant="outline" className="gap-2">
+                    <Star className="h-4 w-4" />
+                    Lasă o recenzie
+                  </Button>
+                </ReviewDialog>
               </div>
             )}
           </div>
