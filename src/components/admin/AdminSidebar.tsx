@@ -17,7 +17,8 @@ import {
   Mail,
   Search,
   Wrench,
-  ClipboardList
+  ClipboardList,
+  Brain
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -35,6 +36,7 @@ import {
 
 const menuItems = [
   { title: 'Owner Dashboard', url: '/admin/owner', icon: Crown },
+  { title: 'AI Sales Manager', url: '/admin/ai-sales', icon: Brain },
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Listings', url: '/admin/listings', icon: Package },
