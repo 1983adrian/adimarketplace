@@ -52,6 +52,7 @@ import AdminSEO from "./pages/admin/AdminSEO";
 import AdminMaintenance from "./pages/admin/AdminMaintenance";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
 import AdminAISales from "./pages/admin/AdminAISales";
+import AdminAIManager from "./pages/admin/AdminAIManager";
 
 const queryClient = new QueryClient();
 
@@ -94,6 +95,7 @@ const App = () => (
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/owner" element={<OwnerDashboard />} />
+                <Route path="/admin/ai-manager" element={<AdminAIManager />} />
                 <Route path="/admin/ai-sales" element={<AdminAISales />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/listings" element={<AdminListings />} />
