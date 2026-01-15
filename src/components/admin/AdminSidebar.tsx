@@ -18,7 +18,8 @@ import {
   Search,
   Wrench,
   ClipboardList,
-  Brain
+  Brain,
+  Truck
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -42,6 +43,7 @@ const menuItems = [
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Listings', url: '/admin/listings', icon: Package },
   { title: 'Orders', url: '/admin/orders', icon: ShoppingCart },
+  { title: 'Livrări', url: '/admin/deliveries', icon: Truck },
   { title: 'Messages', url: '/admin/messages', icon: MessageCircle },
   { title: 'Disputes', url: '/admin/disputes', icon: AlertTriangle },
   { title: 'Fees & Pricing', url: '/admin/fees', icon: DollarSign },
