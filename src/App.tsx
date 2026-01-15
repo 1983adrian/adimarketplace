@@ -53,6 +53,7 @@ import AdminMaintenance from "./pages/admin/AdminMaintenance";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
 import AdminAISales from "./pages/admin/AdminAISales";
 import AdminAIManager from "./pages/admin/AdminAIManager";
+import AdminDeliveryManagement from "./pages/admin/AdminDeliveryManagement";
 
 const queryClient = new QueryClient();
 
@@ -100,6 +101,7 @@ const App = () => (
                 <Route path="/admin/users" element={<AdminUsers />} />
                 <Route path="/admin/listings" element={<AdminListings />} />
                 <Route path="/admin/orders" element={<AdminOrders />} />
+                <Route path="/admin/deliveries" element={<AdminDeliveryManagement />} />
                 <Route path="/admin/fees" element={<AdminFees />} />
                 <Route path="/admin/messages" element={<AdminMessages />} />
                 <Route path="/admin/api-settings" element={<AdminApiSettings />} />
