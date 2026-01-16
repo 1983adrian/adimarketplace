@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, ShoppingCart } from 'lucide-react';
+import { Heart, MapPin, ShoppingCart, Star, Truck } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,11 +23,11 @@ const conditionLabels: Record<ItemCondition, string> = {
   poor: 'Poor',
 };
 
-const conditionColors: Record<ItemCondition, string> = {
+const conditionStyles: Record<ItemCondition, string> = {
   new: 'bg-success text-success-foreground',
   like_new: 'bg-primary text-primary-foreground',
   good: 'bg-secondary text-secondary-foreground',
-  fair: 'bg-accent text-accent-foreground',
+  fair: 'bg-muted text-muted-foreground',
   poor: 'bg-muted text-muted-foreground',
 };
 
@@ -45,9 +45,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
     if (!user) return;
-    
     toggleFavorite.mutate({
       listingId: listing.id,
       userId: user.id,
@@ -63,19 +61,23 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
 
   return (
     <Link to={`/listing/${listing.id}`}>
-      <Card className="group overflow-hidden hover-lift cursor-pointer border-border/50 hover:border-primary/30 h-full flex flex-col">
+      <Card className="group overflow-hidden hover-scale cursor-pointer border-border/50 hover:border-primary/30 hover:shadow-card-hover h-full flex flex-col bg-card transition-all duration-300">
+        {/* Image Container */}
         <div className="relative aspect-square overflow-hidden bg-muted">
           <img
             src={imageUrl}
             alt={listing.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            loading="lazy"
           />
+          
+          {/* Favorite Button */}
           {user && (
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                'absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background',
+                'absolute top-2 right-2 h-9 w-9 rounded-full bg-card/90 backdrop-blur-sm shadow-sm hover:bg-card transition-all',
                 isFavorite && 'text-destructive'
               )}
               onClick={handleToggleFavorite}
@@ -83,32 +85,67 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               <Heart className={cn('h-5 w-5', isFavorite && 'fill-current')} />
             </Button>
           )}
-          <Badge className={cn('absolute bottom-2 left-2', conditionColors[listing.condition])}>
+          
+          {/* Condition Badge */}
+          <Badge className={cn('absolute bottom-2 left-2 font-medium', conditionStyles[listing.condition])}>
             {conditionLabels[listing.condition]}
           </Badge>
+          
+          {/* Free Shipping Badge */}
+          <div className="absolute top-2 left-2 flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
+            <Truck className="h-3 w-3" />
+            Free Shipping
+          </div>
         </div>
-        <CardContent className="p-3 flex-1 flex flex-col">
-          <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors">
+        
+        {/* Content */}
+        <CardContent className="p-4 flex-1 flex flex-col gap-2">
+          {/* Title */}
+          <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors leading-tight">
             {listing.title}
           </h3>
-          {listing.description && (
-            <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
-              {listing.description}
-            </p>
-          )}
+          
+          {/* Rating (mock for now) */}
+          <div className="flex items-center gap-1">
+            <div className="flex items-center">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star 
+                  key={star} 
+                  className={cn(
+                    'h-3.5 w-3.5',
+                    star <= 4 ? 'text-accent fill-accent' : 'text-muted-foreground'
+                  )} 
+                />
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground">(42)</span>
+          </div>
+          
+          {/* Location */}
           {listing.location && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-              <MapPin className="h-3 w-3" />
-              {listing.location}
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <MapPin className="h-3 w-3 shrink-0" />
+              <span className="truncate">{listing.location}</span>
             </p>
           )}
+          
+          {/* Price & Buy Button */}
           <div className="mt-auto pt-3 space-y-2">
-            <p className="text-lg md:text-xl font-bold text-primary">
-              {formatPrice(listing.price)}
-            </p>
+            <div className="flex items-baseline gap-2">
+              <p className="text-xl md:text-2xl font-bold text-foreground">
+                {formatPrice(listing.price)}
+              </p>
+              {/* Optional crossed-out original price */}
+              {listing.price > 50 && (
+                <span className="text-sm text-muted-foreground line-through">
+                  {formatPrice(listing.price * 1.2)}
+                </span>
+              )}
+            </div>
+            
             <Button 
               size="sm" 
-              className="w-full gap-2"
+              className="w-full gap-2 gradient-primary text-primary-foreground font-medium"
               onClick={handleBuyNow}
             >
               <ShoppingCart className="h-4 w-4" />

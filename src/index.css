@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,68 +6,79 @@
 
 @layer base {
   :root {
-    --background: 215 30% 14%;
-    --foreground: 0 0% 98%;
-    --card: 215 30% 18%;
-    --card-foreground: 0 0% 98%;
-    --popover: 215 30% 16%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 142 76% 46%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 215 30% 22%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 215 25% 24%;
-    --muted-foreground: 215 15% 60%;
-    --accent: 215 30% 26%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    --border: 215 25% 22%;
-    --input: 215 25% 20%;
-    --ring: 142 76% 46%;
-    --radius: 0.5rem;
-    --sidebar-background: 215 30% 12%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 142 76% 46%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 215 30% 20%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 215 25% 22%;
-    --sidebar-ring: 142 76% 46%;
+    /* Modern eBay/Amazon inspired palette */
+    --background: 220 14% 96%;
+    --foreground: 220 25% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 220 25% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 25% 10%;
+    --primary: 220 90% 56%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 220 25% 20%;
+    --muted: 220 14% 90%;
+    --muted-foreground: 220 10% 46%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 220 25% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 25% 10%;
+    --border: 220 14% 88%;
+    --input: 220 14% 92%;
+    --ring: 220 90% 56%;
+    --radius: 0.75rem;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 25% 10%;
+    --sidebar-primary: 220 90% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 25% 10%;
+    --sidebar-border: 220 14% 88%;
+    --sidebar-ring: 220 90% 56%;
+    
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(220, 90%, 56%) 0%, hsl(270, 70%, 55%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(45, 100%, 51%) 0%, hsl(35, 100%, 50%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(160, 84%, 39%) 0%, hsl(160, 84%, 30%) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(220, 90%, 56%, 0.05) 0%, transparent 50%);
   }
 
   .dark {
-    --background: 215 30% 14%;
+    --background: 220 20% 8%;
     --foreground: 0 0% 98%;
-    --card: 215 30% 18%;
+    --card: 220 20% 12%;
     --card-foreground: 0 0% 98%;
-    --popover: 215 30% 16%;
+    --popover: 220 20% 10%;
     --popover-foreground: 0 0% 98%;
-    --primary: 142 76% 46%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 215 30% 22%;
+    --primary: 220 90% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 18%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 215 25% 24%;
-    --muted-foreground: 215 15% 60%;
-    --accent: 215 30% 26%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 0 0% 98%;
-    --success: 142 76% 36%;
-    --success-foreground: 0 0% 98%;
-    --border: 215 25% 22%;
-    --input: 215 25% 20%;
-    --ring: 142 76% 46%;
-    --sidebar-background: 215 30% 12%;
+    --muted: 220 20% 20%;
+    --muted-foreground: 220 10% 60%;
+    --accent: 45 100% 51%;
+    --accent-foreground: 220 25% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 84% 45%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 25% 10%;
+    --border: 220 20% 18%;
+    --input: 220 20% 15%;
+    --ring: 220 90% 60%;
+    --sidebar-background: 220 20% 10%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 142 76% 46%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 215 30% 20%;
+    --sidebar-primary: 220 90% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 20% 15%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 215 25% 22%;
-    --sidebar-ring: 142 76% 46%;
+    --sidebar-border: 220 20% 18%;
+    --sidebar-ring: 220 90% 60%;
   }
 }
 
@@ -77,25 +88,113 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-  h1, h2, h3 {
-    font-family: 'Playfair Display', serif;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+    @apply font-semibold tracking-tight;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-background/90 backdrop-blur-md border border-border/50;
+    @apply bg-card/95 backdrop-blur-xl border border-border/50 shadow-sm;
   }
+  
   .hover-lift {
-    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
   }
+  
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+  
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .text-gradient-primary {
+    @apply bg-clip-text text-transparent;
+    background-image: var(--gradient-primary);
+  }
+  
   .animate-fade-up {
-    animation: fadeUp 0.5s ease-out forwards;
+    animation: fadeUp 0.6s ease-out forwards;
   }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+  
+  .animate-slide-in-right {
+    animation: slideInRight 0.4s ease-out forwards;
+  }
+  
+  .card-shadow {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+  
+  .card-shadow-hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 0, 0, 0.06);
+  }
+  
+  .deal-badge {
+    @apply bg-destructive text-destructive-foreground font-bold text-xs px-2 py-0.5 rounded-full uppercase tracking-wide;
+  }
+  
+  .prime-badge {
+    @apply bg-primary text-primary-foreground font-semibold text-xs px-2 py-0.5 rounded;
+  }
+  
   @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
+    from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse-slow 3s ease-in-out infinite;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted/50 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full hover:bg-muted-foreground/30 transition-colors;
+}
+
+/* Selection */
+::selection {
+  @apply bg-primary/20 text-foreground;
 }

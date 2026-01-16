@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search } from 'lucide-react';
+import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, ShoppingCart, Bell } from 'lucide-react';
 import logo from '@/assets/logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,6 @@ export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Initialize real-time subscriptions
   useRealTimeNotifications();
   useRealTimeOrders();
 
@@ -46,22 +45,39 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 glass border-b">
+    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
+        {/* Main Header Row */}
+        <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={logo} alt="AdiMarket" className="h-12 w-auto" />
+          <Link to="/" className="flex items-center shrink-0">
+            <img src={logo} alt="AdiMarket" className="h-10 md:h-11 w-auto rounded-lg" />
           </Link>
 
+          {/* Desktop Search Bar */}
+          <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-4">
+            <div className="relative w-full flex shadow-sm rounded-lg overflow-hidden border border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+              <Input
+                type="search"
+                placeholder={t('header.search')}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-10 border-0 bg-background focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
+              />
+              <Button type="submit" size="sm" className="h-10 px-4 rounded-none gradient-primary">
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+          </form>
+
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-2">
-            <SearchDialog />
+          <nav className="hidden md:flex items-center gap-1">
             <CurrencySelector />
             <LanguageSelector />
+            
             {user ? (
               <>
-                <Button variant="ghost" size="icon" asChild>
+                <Button variant="ghost" size="icon" className="relative" asChild>
                   <Link to="/favorites">
                     <Heart className="h-5 w-5" />
                   </Link>
@@ -72,7 +88,7 @@ export const Header: React.FC = () => {
                   </Link>
                 </Button>
                 <NotificationBell />
-                <Button asChild className="gap-2">
+                <Button asChild className="gap-2 ml-2 gradient-primary text-primary-foreground font-medium">
                   <Link to="/sell">
                     <Plus className="h-4 w-4" />
                     {t('header.sell')}
@@ -80,48 +96,52 @@ export const Header: React.FC = () => {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full">
-                      <Avatar className="h-8 w-8">
+                    <Button variant="ghost" size="icon" className="rounded-full ml-1">
+                      <Avatar className="h-8 w-8 border-2 border-primary/20">
                         <AvatarImage src={profile?.avatar_url || undefined} />
-                        <AvatarFallback>
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                           {profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link to="/dashboard" className="cursor-pointer">
+                  <DropdownMenuContent align="end" className="w-52 shadow-dropdown">
+                    <div className="px-2 py-2 border-b border-border">
+                      <p className="font-medium text-sm">{profile?.display_name || 'User'}</p>
+                      <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/dashboard">
                         <User className="mr-2 h-4 w-4" />
                         {t('header.dashboard')}
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/dashboard/listings" className="cursor-pointer">
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/dashboard/listings">
                         <Package className="mr-2 h-4 w-4" />
                         {t('header.listings')}
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/orders" className="cursor-pointer">
-                        <Package className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/orders">
+                        <ShoppingCart className="mr-2 h-4 w-4" />
                         {t('header.orders')}
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/favorites" className="cursor-pointer">
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/favorites">
                         <Heart className="mr-2 h-4 w-4" />
                         {t('header.favorites')}
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/settings" className="cursor-pointer">
+                    <DropdownMenuItem asChild className="cursor-pointer">
+                      <Link to="/settings">
                         <Settings className="mr-2 h-4 w-4" />
                         {t('header.settings')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive">
+                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
                       <LogOut className="mr-2 h-4 w-4" />
                       {t('header.signout')}
                     </DropdownMenuItem>
@@ -129,115 +149,132 @@ export const Header: React.FC = () => {
                 </DropdownMenu>
               </>
             ) : (
-              <>
-                <Button variant="ghost" asChild>
+              <div className="flex items-center gap-2 ml-2">
+                <Button variant="ghost" asChild className="font-medium">
                   <Link to="/login">{t('header.login')}</Link>
                 </Button>
-                <Button asChild>
+                <Button asChild className="gradient-primary text-primary-foreground font-medium">
                   <Link to="/signup">{t('header.signup')}</Link>
                 </Button>
-              </>
+              </div>
             )}
           </nav>
 
           {/* Mobile Menu Toggle */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-1 md:hidden">
             <SearchDialog />
             <CurrencySelector />
-            <LanguageSelector />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-6 w-6" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80">
-                <div className="flex flex-col gap-6 mt-6">
-                  <form onSubmit={handleSearch}>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        type="search"
-                        placeholder={t('header.search')}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </form>
-
-                  {user ? (
-                    <div className="flex flex-col gap-2">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-                        <Avatar>
-                          <AvatarImage src={profile?.avatar_url || undefined} />
-                          <AvatarFallback>
-                            {profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{profile?.display_name || 'User'}</p>
-                          <p className="text-sm text-muted-foreground">{user.email}</p>
-                        </div>
+              <SheetContent side="right" className="w-80 p-0">
+                <div className="flex flex-col h-full">
+                  <div className="p-4 border-b border-border">
+                    <img src={logo} alt="AdiMarket" className="h-10 rounded-lg" />
+                  </div>
+                  
+                  <div className="p-4">
+                    <form onSubmit={handleSearch}>
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="search"
+                          placeholder={t('header.search')}
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-10"
+                        />
                       </div>
-                      
-                      <Button asChild className="w-full gap-2" onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/sell">
-                          <Plus className="h-4 w-4" />
-                          {t('header.sellItem')}
-                        </Link>
-                      </Button>
-                      
-                      <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/dashboard">
-                          <User className="mr-2 h-4 w-4" />
-                          {t('header.dashboard')}
-                        </Link>
-                      </Button>
-                      
-                      <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/favorites">
-                          <Heart className="mr-2 h-4 w-4" />
-                          {t('header.favorites')}
-                        </Link>
-                      </Button>
-                      
-                      <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/orders">
-                          <Package className="mr-2 h-4 w-4" />
-                          {t('header.orders')}
-                        </Link>
-                      </Button>
-                      
-                      <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/messages">
-                          <MessageCircle className="mr-2 h-4 w-4" />
-                          {t('header.messages')}
-                        </Link>
-                      </Button>
+                    </form>
+                  </div>
 
-                      <Button variant="ghost" className="justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/settings">
-                          <Settings className="mr-2 h-4 w-4" />
-                          {t('header.settings')}
-                        </Link>
-                      </Button>
-                      
-                      <Button variant="ghost" className="justify-start text-destructive" onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        {t('header.signout')}
-                      </Button>
+                  <div className="flex-1 overflow-auto p-4 space-y-2">
+                    {user ? (
+                      <>
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/50 mb-4">
+                          <Avatar className="h-12 w-12 border-2 border-primary/20">
+                            <AvatarImage src={profile?.avatar_url || undefined} />
+                            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                              {profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold truncate">{profile?.display_name || 'User'}</p>
+                            <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                          </div>
+                        </div>
+                        
+                        <Button asChild className="w-full gap-2 gradient-primary" onClick={() => setMobileMenuOpen(false)}>
+                          <Link to="/sell">
+                            <Plus className="h-4 w-4" />
+                            {t('header.sellItem')}
+                          </Link>
+                        </Button>
+                        
+                        <div className="space-y-1 pt-2">
+                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/dashboard">
+                              <User className="mr-3 h-4 w-4" />
+                              {t('header.dashboard')}
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/favorites">
+                              <Heart className="mr-3 h-4 w-4" />
+                              {t('header.favorites')}
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/orders">
+                              <Package className="mr-3 h-4 w-4" />
+                              {t('header.orders')}
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/messages">
+                              <MessageCircle className="mr-3 h-4 w-4" />
+                              {t('header.messages')}
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/settings">
+                              <Settings className="mr-3 h-4 w-4" />
+                              {t('header.settings')}
+                            </Link>
+                          </Button>
+                        </div>
+                        
+                        <div className="pt-4 border-t border-border mt-4">
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10" 
+                            onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}
+                          >
+                            <LogOut className="mr-3 h-4 w-4" />
+                            {t('header.signout')}
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="space-y-3">
+                        <Button asChild className="w-full gradient-primary" onClick={() => setMobileMenuOpen(false)}>
+                          <Link to="/signup">{t('header.signup')}</Link>
+                        </Button>
+                        <Button variant="outline" className="w-full" asChild onClick={() => setMobileMenuOpen(false)}>
+                          <Link to="/login">{t('header.login')}</Link>
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="p-4 border-t border-border">
+                    <div className="flex items-center justify-center gap-2">
+                      <LanguageSelector />
                     </div>
-                  ) : (
-                    <div className="flex flex-col gap-2">
-                      <Button asChild onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/signup">{t('header.signup')}</Link>
-                      </Button>
-                      <Button variant="outline" asChild onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/login">{t('header.login')}</Link>
-                      </Button>
-                    </div>
-                  )}
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

@@ -11,6 +11,79 @@ const logStep = (step: string, details?: any) => {
   console.log(`[PROCESS-PAYOUT] ${step}${detailsStr}`);
 };
 
+// PayPal API helpers
+async function getPayPalAccessToken(): Promise<string> {
+  const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
+  const clientSecret = Deno.env.get("PAYPAL_SECRET");
+  
+  if (!clientId || !clientSecret) {
+    throw new Error("PayPal credentials not configured");
+  }
+
+  const auth = btoa(`${clientId}:${clientSecret}`);
+  const response = await fetch("https://api-m.paypal.com/v1/oauth2/token", {
+    method: "POST",
+    headers: {
+      "Authorization": `Basic ${auth}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    logStep("PayPal auth error", { status: response.status, error });
+    throw new Error("Failed to authenticate with PayPal");
+  }
+
+  const data = await response.json();
+  return data.access_token;
+}
+
+async function sendPayPalPayout(accessToken: string, payout: {
+  recipientEmail: string;
+  amount: number;
+  currency: string;
+  payoutId: string;
+  note: string;
+}): Promise<{ payoutBatchId: string }> {
+  const response = await fetch("https://api-m.paypal.com/v1/payments/payouts", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      sender_batch_header: {
+        sender_batch_id: payout.payoutId,
+        email_subject: "AdiMarket - Your payment has arrived!",
+        email_message: "You have received a payment from AdiMarket for your sale.",
+      },
+      items: [
+        {
+          recipient_type: "EMAIL",
+          amount: {
+            value: payout.amount.toFixed(2),
+            currency: payout.currency,
+          },
+          receiver: payout.recipientEmail,
+          note: payout.note,
+          sender_item_id: payout.payoutId,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    logStep("PayPal payout error", { status: response.status, error });
+    throw new Error(`PayPal payout failed: ${error}`);
+  }
+
+  const data = await response.json();
+  return { payoutBatchId: data.batch_header.payout_batch_id };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -35,9 +108,9 @@ serve(async (req) => {
     if (!user) throw new Error("User not authenticated");
     logStep("User authenticated", { userId: user.id });
 
-    const { order_id } = await req.json();
+    const { order_id, auto_payout = false } = await req.json();
     if (!order_id) throw new Error("Order ID is required");
-    logStep("Processing order", { orderId: order_id });
+    logStep("Processing order", { orderId: order_id, autoPayout: auto_payout });
 
     // Fetch order details
     const { data: order, error: orderError } = await supabaseClient
@@ -78,7 +151,7 @@ serve(async (req) => {
     let sellerCommission = 0;
 
     for (const fee of fees || []) {
-      if (fee.fee_type === "buyer_service_fee") {
+      if (fee.fee_type === "buyer_fee" || fee.fee_type === "buyer_service_fee") {
         buyerFee = fee.is_percentage ? (grossAmount * Number(fee.amount) / 100) : Number(fee.amount);
       } else if (fee.fee_type === "seller_commission") {
         sellerCommission = fee.is_percentage ? (grossAmount * Number(fee.amount) / 100) : Number(fee.amount);
@@ -86,7 +159,6 @@ serve(async (req) => {
     }
 
     // Net amount to seller = gross - seller commission
-    // Buyer fee was already added to the total at checkout
     const netAmount = grossAmount - sellerCommission;
     logStep("Fees calculated", { grossAmount, buyerFee, sellerCommission, netAmount });
 
@@ -108,6 +180,10 @@ serve(async (req) => {
     }
     logStep("Order updated to delivered");
 
+    // Get seller's email for PayPal payout
+    const { data: sellerAuth } = await supabaseClient.auth.admin.getUserById(order.seller_id);
+    const sellerEmail = sellerAuth?.user?.email;
+
     // Create payout record
     const { data: payout, error: payoutError } = await supabaseClient
       .from("payouts")
@@ -128,19 +204,79 @@ serve(async (req) => {
     }
     logStep("Payout record created", { payoutId: payout.id });
 
-    // TODO: In a real scenario, you would trigger a PayPal payout here
-    // For now, we mark it as pending for manual processing by admin
+    // Attempt automatic PayPal payout if seller email exists
+    let paypalPayoutId: string | null = null;
+    let payoutStatus = "pending";
+
+    if (sellerEmail) {
+      try {
+        logStep("Attempting automatic PayPal payout", { sellerEmail, amount: netAmount });
+        
+        const accessToken = await getPayPalAccessToken();
+        const paypalResult = await sendPayPalPayout(accessToken, {
+          recipientEmail: sellerEmail,
+          amount: netAmount,
+          currency: "GBP",
+          payoutId: payout.id,
+          note: `Payment for order ${order_id.slice(0, 8)} - ${order.listings?.title || 'Item'}`,
+        });
+
+        paypalPayoutId = paypalResult.payoutBatchId;
+        payoutStatus = "processing";
+        logStep("PayPal payout initiated", { paypalPayoutId });
+
+        // Update payout record with PayPal batch ID
+        await supabaseClient
+          .from("payouts")
+          .update({
+            paypal_payout_id: paypalPayoutId,
+            status: "processing",
+          })
+          .eq("id", payout.id);
+
+        // Update order payout status
+        await supabaseClient
+          .from("orders")
+          .update({
+            payout_status: "processing",
+          })
+          .eq("id", order_id);
+
+      } catch (paypalError) {
+        logStep("PayPal payout failed, will retry manually", { 
+          error: paypalError instanceof Error ? paypalError.message : String(paypalError) 
+        });
+        // Don't throw - payout will be processed manually
+      }
+    } else {
+      logStep("No seller email found, payout will be processed manually");
+    }
+
+    // Create notification for seller
+    await supabaseClient.from("notifications").insert({
+      user_id: order.seller_id,
+      type: "payout",
+      title: payoutStatus === "processing" ? "Payment Processing" : "Delivery Confirmed",
+      message: payoutStatus === "processing" 
+        ? `Your payment of £${netAmount.toFixed(2)} is being processed and will arrive shortly.`
+        : `Delivery confirmed! Your payment of £${netAmount.toFixed(2)} is pending processing.`,
+      data: { orderId: order_id, payoutId: payout.id, amount: netAmount },
+    });
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Delivery confirmed, payout pending",
+        message: payoutStatus === "processing" 
+          ? "Delivery confirmed, PayPal payout initiated"
+          : "Delivery confirmed, payout pending",
         payout: {
           id: payout.id,
           gross_amount: grossAmount,
           buyer_fee: buyerFee,
           seller_commission: sellerCommission,
           net_amount: netAmount,
+          status: payoutStatus,
+          paypal_payout_id: paypalPayoutId,
         },
       }),
       {
