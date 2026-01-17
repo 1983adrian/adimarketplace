@@ -415,6 +415,7 @@ export type Database = {
       listings: {
         Row: {
           auction_end_date: string | null
+          bid_increment: number | null
           buy_now_price: number | null
           category_id: string | null
           condition: Database["public"]["Enums"]["item_condition"]
@@ -435,6 +436,7 @@ export type Database = {
         }
         Insert: {
           auction_end_date?: string | null
+          bid_increment?: number | null
           buy_now_price?: number | null
           category_id?: string | null
           condition?: Database["public"]["Enums"]["item_condition"]
@@ -455,6 +457,7 @@ export type Database = {
         }
         Update: {
           auction_end_date?: string | null
+          bid_increment?: number | null
           buy_now_price?: number | null
           category_id?: string | null
           condition?: Database["public"]["Enums"]["item_condition"]
