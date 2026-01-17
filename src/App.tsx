@@ -23,6 +23,7 @@ import Orders from "./pages/Orders";
 import Messages from "./pages/Messages";
 import SellerProfile from "./pages/SellerProfile";
 import SellerAnalytics from "./pages/SellerAnalytics";
+import Favorites from "./pages/Favorites";
 // Public pages
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
@@ -54,6 +55,7 @@ import AdminAuditLog from "./pages/admin/AdminAuditLog";
 import AdminAISales from "./pages/admin/AdminAISales";
 import AdminAIManager from "./pages/admin/AdminAIManager";
 import AdminDeliveryManagement from "./pages/admin/AdminDeliveryManagement";
+import AdminReturns from "./pages/admin/AdminReturns";
 
 const queryClient = new QueryClient();
 
@@ -83,6 +85,7 @@ const App = () => (
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/favorites" element={<Favorites />} />
                 <Route path="/seller/:id" element={<SellerProfile />} />
                 {/* Public Informational Pages */}
                 <Route path="/about" element={<AboutUs />} />
@@ -115,6 +118,7 @@ const App = () => (
                 <Route path="/admin/seo" element={<AdminSEO />} />
                 <Route path="/admin/maintenance" element={<AdminMaintenance />} />
                 <Route path="/admin/audit-log" element={<AdminAuditLog />} />
+                <Route path="/admin/returns" element={<AdminReturns />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

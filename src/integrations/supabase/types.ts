@@ -53,6 +53,41 @@ export type Database = {
         }
         Relationships: []
       }
+      bids: {
+        Row: {
+          amount: number
+          bidder_id: string
+          created_at: string
+          id: string
+          is_winning: boolean | null
+          listing_id: string
+        }
+        Insert: {
+          amount: number
+          bidder_id: string
+          created_at?: string
+          id?: string
+          is_winning?: boolean | null
+          listing_id: string
+        }
+        Update: {
+          amount?: number
+          bidder_id?: string
+          created_at?: string
+          id?: string
+          is_winning?: boolean | null
+          listing_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -286,6 +321,62 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          buyer_fee: number | null
+          buyer_id: string
+          created_at: string
+          id: string
+          invoice_number: string
+          issued_at: string
+          order_id: string
+          paid_at: string | null
+          seller_commission: number | null
+          seller_id: string
+          status: string
+          subtotal: number
+          total: number
+        }
+        Insert: {
+          buyer_fee?: number | null
+          buyer_id: string
+          created_at?: string
+          id?: string
+          invoice_number: string
+          issued_at?: string
+          order_id: string
+          paid_at?: string | null
+          seller_commission?: number | null
+          seller_id: string
+          status?: string
+          subtotal: number
+          total: number
+        }
+        Update: {
+          buyer_fee?: number | null
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          invoice_number?: string
+          issued_at?: string
+          order_id?: string
+          paid_at?: string | null
+          seller_commission?: number | null
+          seller_id?: string
+          status?: string
+          subtotal?: number
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listing_images: {
         Row: {
           created_at: string
@@ -323,6 +414,8 @@ export type Database = {
       }
       listings: {
         Row: {
+          auction_end_date: string | null
+          buy_now_price: number | null
           category_id: string | null
           condition: Database["public"]["Enums"]["item_condition"]
           created_at: string
@@ -330,14 +423,19 @@ export type Database = {
           id: string
           is_active: boolean
           is_sold: boolean
+          listing_type: string | null
           location: string | null
           price: number
+          reserve_price: number | null
           seller_id: string
+          starting_bid: number | null
           title: string
           updated_at: string
           views_count: number
         }
         Insert: {
+          auction_end_date?: string | null
+          buy_now_price?: number | null
           category_id?: string | null
           condition?: Database["public"]["Enums"]["item_condition"]
           created_at?: string
@@ -345,14 +443,19 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_sold?: boolean
+          listing_type?: string | null
           location?: string | null
           price: number
+          reserve_price?: number | null
           seller_id: string
+          starting_bid?: number | null
           title: string
           updated_at?: string
           views_count?: number
         }
         Update: {
+          auction_end_date?: string | null
+          buy_now_price?: number | null
           category_id?: string | null
           condition?: Database["public"]["Enums"]["item_condition"]
           created_at?: string
@@ -360,9 +463,12 @@ export type Database = {
           id?: string
           is_active?: boolean
           is_sold?: boolean
+          listing_type?: string | null
           location?: string | null
           price?: number
+          reserve_price?: number | null
           seller_id?: string
+          starting_bid?: number | null
           title?: string
           updated_at?: string
           views_count?: number
@@ -458,6 +564,7 @@ export type Database = {
           payout_amount: number | null
           payout_at: string | null
           payout_status: string | null
+          saved_address_id: string | null
           seller_commission: number | null
           seller_id: string
           shipping_address: string | null
@@ -478,6 +585,7 @@ export type Database = {
           payout_amount?: number | null
           payout_at?: string | null
           payout_status?: string | null
+          saved_address_id?: string | null
           seller_commission?: number | null
           seller_id: string
           shipping_address?: string | null
@@ -498,6 +606,7 @@ export type Database = {
           payout_amount?: number | null
           payout_at?: string | null
           payout_status?: string | null
+          saved_address_id?: string | null
           seller_commission?: number | null
           seller_id?: string
           shipping_address?: string | null
@@ -512,6 +621,13 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_saved_address_id_fkey"
+            columns: ["saved_address_id"]
+            isOneToOne: false
+            referencedRelation: "saved_addresses"
             referencedColumns: ["id"]
           },
         ]
@@ -673,13 +789,17 @@ export type Database = {
           display_name: string | null
           id: string
           is_seller: boolean | null
+          is_verified: boolean | null
           location: string | null
           max_listings: number | null
+          paypal_email: string | null
           phone: string | null
           store_name: string | null
           updated_at: string
           user_id: string
           username: string | null
+          verification_documents: Json | null
+          verified_at: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -688,13 +808,17 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_seller?: boolean | null
+          is_verified?: boolean | null
           location?: string | null
           max_listings?: number | null
+          paypal_email?: string | null
           phone?: string | null
           store_name?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
+          verification_documents?: Json | null
+          verified_at?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -703,15 +827,75 @@ export type Database = {
           display_name?: string | null
           id?: string
           is_seller?: boolean | null
+          is_verified?: boolean | null
           location?: string | null
           max_listings?: number | null
+          paypal_email?: string | null
           phone?: string | null
           store_name?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
+          verification_documents?: Json | null
+          verified_at?: string | null
         }
         Relationships: []
+      }
+      returns: {
+        Row: {
+          admin_notes: string | null
+          buyer_id: string
+          created_at: string
+          description: string | null
+          id: string
+          order_id: string
+          reason: string
+          refund_amount: number | null
+          resolved_at: string | null
+          seller_id: string
+          status: string
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          buyer_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id: string
+          reason: string
+          refund_amount?: number | null
+          resolved_at?: string | null
+          seller_id: string
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          buyer_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_id?: string
+          reason?: string
+          refund_amount?: number | null
+          resolved_at?: string | null
+          seller_id?: string
+          status?: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "returns_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
@@ -750,6 +934,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      saved_addresses: {
+        Row: {
+          address: string
+          apartment: string | null
+          city: string
+          country: string
+          created_at: string
+          first_name: string
+          id: string
+          is_default: boolean | null
+          label: string
+          last_name: string
+          phone: string | null
+          postal_code: string
+          state: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          apartment?: string | null
+          city: string
+          country?: string
+          created_at?: string
+          first_name: string
+          id?: string
+          is_default?: boolean | null
+          label?: string
+          last_name: string
+          phone?: string | null
+          postal_code: string
+          state?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          apartment?: string | null
+          city?: string
+          country?: string
+          created_at?: string
+          first_name?: string
+          id?: string
+          is_default?: boolean | null
+          label?: string
+          last_name?: string
+          phone?: string | null
+          postal_code?: string
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       seller_subscriptions: {
         Row: {
