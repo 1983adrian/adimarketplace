@@ -54,9 +54,16 @@ const menuItems = [
   { title: 'Retururi', url: '/admin/returns', icon: RotateCcw },
   { title: 'Messages', url: '/admin/messages', icon: MessageCircle },
   { title: 'Disputes', url: '/admin/disputes', icon: AlertTriangle },
+];
+
+const financeItems = [
+  { title: 'Stripe Plăți', url: '/admin/stripe', icon: DollarSign },
   { title: 'Fees & Pricing', url: '/admin/fees', icon: DollarSign },
   { title: 'API Settings', url: '/admin/api-settings', icon: Key },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
+];
+
+const settingsItems = [
   { title: 'Platform Settings', url: '/admin/settings', icon: Settings },
   { title: 'Securitate Avansată', url: '/admin/security', icon: Shield },
 ];
@@ -97,6 +104,50 @@ export function AdminSidebar() {
                     <NavLink 
                       to={item.url} 
                       end={item.url === '/admin'}
+                      className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium"
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Finanțe & Plăți</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {financeItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url}
+                      className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted/50 transition-colors"
+                      activeClassName="bg-primary/10 text-primary font-medium"
+                    >
+                      <item.icon className="h-4 w-4 flex-shrink-0" />
+                      {!collapsed && <span>{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Setări</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {settingsItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <NavLink 
+                      to={item.url}
                       className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted/50 transition-colors"
                       activeClassName="bg-primary/10 text-primary font-medium"
                     >
