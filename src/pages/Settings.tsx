@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
 import { SellerVerification } from '@/components/settings/SellerVerification';
+import { StripeConnectSection } from '@/components/settings/StripeConnectSection';
 import { supabase } from '@/integrations/supabase/client';
 
 const shippingCarriers = [
@@ -445,164 +446,9 @@ const Settings = () => {
               </div>
             </TabsContent>
 
-            {/* Tab Încasări (Vânzător) */}
+            {/* Tab Încasări (Vânzător) - Stripe Connect */}
             <TabsContent value="payouts">
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Wallet className="h-5 w-5" />
-                      Setări Încasări
-                    </CardTitle>
-                    <CardDescription>Configurează cum primești plățile din vânzări</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Sold Disponibil</p>
-                          <p className="text-3xl font-bold text-primary">0.00 RON</p>
-                        </div>
-                        <Button>Retrage</Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Metodă de Încasare</h4>
-                      
-                      <div 
-                        className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer ${payoutMethod === 'stripe' ? 'border-primary bg-primary/5' : ''}`}
-                        onClick={() => setPayoutMethod('stripe')}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-5 h-5 bg-[#635BFF] rounded flex items-center justify-center text-white text-xs font-bold">S</div>
-                          <div>
-                            <p className="font-medium">Stripe</p>
-                            <p className="text-sm text-muted-foreground">Transfer automat în contul tău Stripe (1-2 zile)</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {stripeAccountConnected ? (
-                            <Badge className="bg-green-500 text-white">Conectat</Badge>
-                          ) : null}
-                          {payoutMethod === 'stripe' && <Check className="h-5 w-5 text-primary" />}
-                        </div>
-                      </div>
-
-                      {payoutMethod === 'stripe' && (
-                        <div className="p-4 rounded-lg bg-muted/50 space-y-4">
-                          {stripeAccountConnected ? (
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2 text-green-600">
-                                <Check className="h-5 w-5" />
-                                <p className="font-medium">Contul Stripe este conectat!</p>
-                              </div>
-                              <p className="text-sm text-muted-foreground">
-                                Plățile vor fi transferate automat în contul tău Stripe după confirmarea livrării.
-                              </p>
-                            </div>
-                          ) : (
-                            <>
-                              <p className="text-sm text-muted-foreground">
-                                Conectează-ți contul Stripe pentru a primi plățile din vânzări.
-                              </p>
-                              <Button 
-                                onClick={handleConnectStripe} 
-                                disabled={saving}
-                                className="gap-2"
-                              >
-                                <CreditCard className="h-4 w-4" />
-                                {saving ? 'Se procesează...' : 'Conectează Stripe'}
-                              </Button>
-                            </>
-                          )}
-                          
-                          <Alert>
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>
-                              <strong>Important:</strong> După confirmarea livrării de către cumpărător, banii vor fi transferați automat în contul tău Stripe (minus comisionul platformei de 10%).
-                            </AlertDescription>
-                          </Alert>
-                        </div>
-                      )}
-
-                      <div 
-                        className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer ${payoutMethod === 'bank' ? 'border-primary bg-primary/5' : ''}`}
-                        onClick={() => setPayoutMethod('bank')}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Banknote className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <p className="font-medium">Instant pe Card de Debit</p>
-                            <p className="text-sm text-muted-foreground">Primești în minute (taxă 1.5%)</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">Adaugă Card</Button>
-                          {payoutMethod === 'debit' && <Check className="h-5 w-5 text-primary" />}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Program Încasări</h4>
-                      <Select value={payoutSchedule} onValueChange={setPayoutSchedule}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="daily">Zilnic</SelectItem>
-                          <SelectItem value="weekly">Săptămânal (În fiecare Luni)</SelectItem>
-                          <SelectItem value="biweekly">Bi-Săptămânal</SelectItem>
-                          <SelectItem value="monthly">Lunar</SelectItem>
-                          <SelectItem value="manual">Doar Manual</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h4 className="font-medium">Sumă Minimă pentru Încasare</h4>
-                      <Select value={minimumPayout} onValueChange={setMinimumPayout}>
-                        <SelectTrigger className="w-48">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="0">Fără minim</SelectItem>
-                          <SelectItem value="25">25 RON</SelectItem>
-                          <SelectItem value="50">50 RON</SelectItem>
-                          <SelectItem value="100">100 RON</SelectItem>
-                          <SelectItem value="250">250 RON</SelectItem>
-                          <SelectItem value="500">500 RON</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-sm text-muted-foreground">Încasările vor fi efectuate doar când soldul depășește această sumă</p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Informații Fiscale</CardTitle>
-                    <CardDescription>Necesare pentru vânzătorii cu venituri semnificative</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div>
-                        <p className="font-medium">Declarație Fiscală</p>
-                        <p className="text-sm text-muted-foreground">Identificare fiscală pentru vânzători</p>
-                      </div>
-                      <Button variant="outline" size="sm">Trimite</Button>
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div>
-                        <p className="font-medium">Documente Fiscale Anuale</p>
-                        <p className="text-sm text-muted-foreground">Vizualizează documentele fiscale anuale</p>
-                      </div>
-                      <Button variant="outline" size="sm">Vizualizează</Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <StripeConnectSection />
             </TabsContent>
 
             {/* Tab Livrare */}
