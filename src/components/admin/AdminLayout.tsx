@@ -1,20 +1,30 @@
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from './AdminSidebar';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Shield, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { user, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const { data: isAdmin, isLoading: adminLoading } = useIsAdmin();
   const navigate = useNavigate();
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  // Mesaj "Bine ai venit înapoi" pentru 2 secunde
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -48,18 +58,41 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       <div className="min-h-screen flex w-full bg-background">
         <AdminSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 border-b flex items-center justify-between px-4 bg-card">
+          {/* Welcome Message - Green, fades after 2 seconds */}
+          {showWelcome && (
+            <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-fade-in">
+              <div className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl shadow-lg">
+                <Sparkles className="h-5 w-5" />
+                <span className="font-semibold">Bine ai venit înapoi, {profile?.display_name || 'Admin'}!</span>
+                <Shield className="h-5 w-5" />
+              </div>
+            </div>
+          )}
+          
+          <header className="h-16 border-b flex items-center justify-between px-6 bg-gradient-to-r from-card to-card/80 backdrop-blur-sm">
             <div className="flex items-center gap-4">
-              <SidebarTrigger />
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/" className="gap-2">
+              <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                asChild
+                className="gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary transition-all duration-200"
+              >
+                <Link to="/">
                   <ArrowLeft className="h-4 w-4" />
-                  Back to Site
+                  Înapoi la Site
                 </Link>
               </Button>
             </div>
-            <div className="text-sm text-muted-foreground">
-              Logged in as Admin
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-full border border-amber-500/20">
+                <Shield className="h-4 w-4 text-amber-500" />
+                <span className="text-sm font-medium text-amber-600">Admin Panel</span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/5 rounded-lg">
+                <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="text-sm text-muted-foreground hidden sm:inline">{profile?.display_name || user?.email}</span>
+              </div>
             </div>
           </header>
           <main className="flex-1 p-6 overflow-auto">

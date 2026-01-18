@@ -81,39 +81,40 @@ interface SecuritySettings {
   };
 }
 
+// MAXIMUM SECURITY - Toate opțiunile activate implicit
 const defaultSecuritySettings: SecuritySettings = {
   authentication: {
-    leakedPasswordProtection: false,
-    requireEmailVerification: false,
-    twoFactorAuth: false,
-    allowAnonymousSignups: false,
-    sessionTimeout: 60,
-    maxLoginAttempts: 5,
-    lockoutDuration: 30,
-    passwordMinLength: 8,
+    leakedPasswordProtection: true, // ACTIVAT - Protecție parole compromise
+    requireEmailVerification: true, // ACTIVAT - Verificare email
+    twoFactorAuth: true, // ACTIVAT - Autentificare 2FA
+    allowAnonymousSignups: false, // DEZACTIVAT - Nu permite anonimi
+    sessionTimeout: 30, // 30 min timeout
+    maxLoginAttempts: 3, // Max 3 încercări
+    lockoutDuration: 60, // Blocare 1 oră
+    passwordMinLength: 12, // Min 12 caractere
     passwordRequireUppercase: true,
     passwordRequireNumbers: true,
-    passwordRequireSymbols: false,
+    passwordRequireSymbols: true, // ACTIVAT - Necesită simboluri
   },
   rateLimit: {
-    enabled: true,
-    maxRequestsPerMinute: 100,
-    maxLoginAttemptsPerHour: 10,
-    blockDurationMinutes: 60,
+    enabled: true, // ACTIVAT
+    maxRequestsPerMinute: 60, // Limită mai strictă
+    maxLoginAttemptsPerHour: 5, // Max 5 pe oră
+    blockDurationMinutes: 120, // Blocare 2 ore
   },
   ipSecurity: {
-    enableIpBlocking: false,
+    enableIpBlocking: true, // ACTIVAT
     blockedIps: '',
     allowedIps: '',
-    geoBlocking: false,
+    geoBlocking: true, // ACTIVAT
     blockedCountries: [],
   },
   sessionSecurity: {
     forceHttps: true,
     secureCookies: true,
-    singleSessionPerUser: false,
+    singleSessionPerUser: true, // ACTIVAT - O singură sesiune
     logoutInactiveUsers: true,
-    inactivityTimeout: 30,
+    inactivityTimeout: 15, // 15 min inactivitate
   },
   notifications: {
     alertOnSuspiciousLogin: true,
