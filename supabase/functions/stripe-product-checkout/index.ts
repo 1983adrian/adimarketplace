@@ -67,14 +67,19 @@ serve(async (req) => {
     const sellerCommissionConfig = fees?.find(f => f.fee_type === "seller_commission");
 
     const buyerFee = buyerFeeConfig?.amount ?? 2; // £2 buyer fee
-    const sellerCommissionRate = sellerCommissionConfig?.amount ?? 10; // 10% commission
+    // Check if commission is percentage or fixed amount
+    const isPercentageCommission = sellerCommissionConfig?.is_percentage ?? false;
+    const commissionValue = sellerCommissionConfig?.amount ?? 1; // Default £1 fixed commission
 
     // Calculate shipping cost
     const shippingCost = shippingMethod === 'express' ? 14.99 : 
                          shippingMethod === 'overnight' ? 29.99 : 5.99;
 
     const itemPrice = listing.price;
-    const sellerCommission = itemPrice * (sellerCommissionRate / 100);
+    // Calculate seller commission based on whether it's percentage or fixed
+    const sellerCommission = isPercentageCommission 
+      ? itemPrice * (commissionValue / 100) 
+      : commissionValue; // Fixed £1 per sale
     const payoutAmount = itemPrice - sellerCommission;
     const totalAmount = itemPrice + shippingCost + buyerFee;
 
@@ -83,6 +88,7 @@ serve(async (req) => {
       buyerFee, 
       shippingCost,
       sellerCommission,
+      isPercentageCommission,
       payoutAmount,
       totalAmount 
     });

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { LocationProvider } from "@/contexts/LocationContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -65,11 +66,12 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <LanguageProvider>
-        <CurrencyProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
+      <LocationProvider>
+        <LanguageProvider>
+          <CurrencyProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -129,8 +131,9 @@ const App = () => (
               </Routes>
             </BrowserRouter>
           </TooltipProvider>
-        </CurrencyProvider>
-      </LanguageProvider>
+          </CurrencyProvider>
+        </LanguageProvider>
+      </LocationProvider>
     </AuthProvider>
   </QueryClientProvider>
 );

@@ -2,10 +2,25 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 export type Language = 'ro' | 'en';
 
+// Country to language mapping
+const COUNTRY_LANGUAGE: Record<string, Language> = {
+  RO: 'ro', MD: 'ro',
+  GB: 'en', US: 'en', AU: 'en', CA: 'en', IE: 'en', NZ: 'en',
+  DE: 'en', AT: 'en', CH: 'en',
+  FR: 'en', BE: 'en',
+  ES: 'en',
+  IT: 'en',
+  PL: 'en',
+  HU: 'en',
+  BG: 'en',
+  NL: 'en',
+};
+
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
+  detectedFromLocation: boolean;
 }
 
 const translations: Record<Language, Record<string, string>> = {
@@ -88,7 +103,7 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.subscribe': 'Pay monthly fee to list items for sale',
     'dashboard.manageSubscription': 'Manage Payment',
     'dashboard.subscribeNow': 'Activate Access (£1/month)',
-    'dashboard.sellerBenefits': 'Seller benefits: Create unlimited listings, 15% commission on sales (only when you sell). £1 is charged automatically each month.',
+    'dashboard.sellerBenefits': 'Seller benefits: Create unlimited listings, £1 commission per sale. £1 is charged automatically each month.',
     'dashboard.activeListings': 'Active Listings',
     'dashboard.totalViews': 'Total Views',
     'dashboard.totalEarned': 'Total Earned',
@@ -277,7 +292,7 @@ const translations: Record<Language, Record<string, string>> = {
     'dashboard.subscribe': 'Plătește taxa lunară pentru a lista articole',
     'dashboard.manageSubscription': 'Gestionează Plata',
     'dashboard.subscribeNow': 'Activează Accesul (£1/lună)',
-    'dashboard.sellerBenefits': 'Beneficii vânzător: Creează anunțuri nelimitate, comision 15% la vânzări (doar când vinzi). £1 se încasează automat în fiecare lună.',
+    'dashboard.sellerBenefits': 'Beneficii vânzător: Creează anunțuri nelimitate, comision £1 la fiecare vânzare. £1 se încasează automat în fiecare lună.',
     'dashboard.activeListings': 'Anunțuri Active',
     'dashboard.totalViews': 'Total Vizualizări',
     'dashboard.totalEarned': 'Total Câștigat',
@@ -401,14 +416,29 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (browserLang.startsWith('ro')) return 'ro';
     return 'en';
   });
+  const [detectedFromLocation, setDetectedFromLocation] = useState(false);
+
+  // Auto-detect language from location
+  useEffect(() => {
+    const savedLang = localStorage.getItem('language');
+    if (savedLang) return; // User has set preference, don't auto-detect
+
+    const detectedCountry = localStorage.getItem('detectedCountry');
+    if (detectedCountry) {
+      const langForCountry = COUNTRY_LANGUAGE[detectedCountry] || 'en';
+      setLanguageState(langForCountry);
+      setDetectedFromLocation(true);
+    }
+  }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem('language', lang);
+    setDetectedFromLocation(false);
   };
 
   const t = (key: string): string => {
-    return translations[language][key] || key;
+    return translations[language][key] || translations['en'][key] || key;
   };
 
   useEffect(() => {
@@ -416,7 +446,7 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, detectedFromLocation }}>
       {children}
     </LanguageContext.Provider>
   );
