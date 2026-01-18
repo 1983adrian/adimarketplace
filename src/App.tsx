@@ -62,6 +62,7 @@ import AdminReturns from "./pages/admin/AdminReturns";
 import AdminSellerVerifications from "./pages/admin/AdminSellerVerifications";
 import AdminAuctions from "./pages/admin/AdminAuctions";
 import AdminMarketing from "./pages/admin/AdminMarketing";
+import AdminSecuritySettings from "./pages/admin/AdminSecuritySettings";
 
 const queryClient = new QueryClient();
 
@@ -131,6 +132,7 @@ const App = () => (
                 <Route path="/admin/seller-verifications" element={<AdminSellerVerifications />} />
                 <Route path="/admin/auctions" element={<AdminAuctions />} />
                 <Route path="/admin/marketing" element={<AdminMarketing />} />
+                <Route path="/admin/security" element={<AdminSecuritySettings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

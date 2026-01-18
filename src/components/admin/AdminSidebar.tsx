@@ -58,6 +58,7 @@ const menuItems = [
   { title: 'API Settings', url: '/admin/api-settings', icon: Key },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
   { title: 'Platform Settings', url: '/admin/settings', icon: Settings },
+  { title: 'Securitate Avansată', url: '/admin/security', icon: Shield },
 ];
 
 const contentItems = [
