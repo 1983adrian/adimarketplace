@@ -22,7 +22,8 @@ import {
   Truck,
   Gavel,
   UserCheck,
-  RotateCcw
+  RotateCcw,
+  Megaphone
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -42,6 +43,7 @@ const menuItems = [
   { title: 'Owner Dashboard', url: '/admin/owner', icon: Crown },
   { title: 'AI Manager', url: '/admin/ai-manager', icon: Brain },
   { title: 'AI Sales Manager', url: '/admin/ai-sales', icon: Brain },
+  { title: 'AI Marketing', url: '/admin/marketing', icon: Megaphone },
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Verificări Vânzători', url: '/admin/seller-verifications', icon: UserCheck },
