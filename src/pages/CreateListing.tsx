@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin, BookOpen } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,8 @@ import { useLocation, COUNTRY_CARRIERS } from '@/contexts/LocationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
 import { addDays } from 'date-fns';
+import { SellerVideoTutorial, useSellerTutorial } from '@/components/seller/SellerVideoTutorial';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Default carriers for unknown locations
 const DEFAULT_CARRIERS = [
@@ -37,6 +39,7 @@ const CreateListing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { language } = useLanguage();
   const { data: categories } = useCategories();
   const { data: subscription, isLoading: subscriptionLoading } = useSellerSubscription();
   const { data: listingLimit, isLoading: limitLoading } = useListingLimit();
@@ -44,17 +47,31 @@ const CreateListing = () => {
   const createListing = useCreateListing();
   const { uploadMultipleImages, uploading } = useImageUpload();
   const { location: userLocation, carriers: locationCarriers } = useLocation();
+  
+  // Tutorial state
+  const { shouldShow: showTutorial, setShouldShow: setShowTutorial } = useSellerTutorial();
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+
+  const isSubscribed = subscription?.subscribed || false;
+  const canCreateMore = listingLimit?.canCreateMore ?? true;
+
+  // Show tutorial when page loads for first time
+  useEffect(() => {
+    if (showTutorial && isSubscribed && !subscriptionLoading) {
+      setTutorialOpen(true);
+    }
+  }, [showTutorial, isSubscribed, subscriptionLoading]);
 
   // Generate carriers list based on user's location
   const CARRIERS = useMemo(() => {
     if (locationCarriers && locationCarriers.length > 0) {
       return [
         ...locationCarriers.map(c => ({ value: c.toLowerCase().replace(/\s+/g, '_'), label: c })),
-        { value: 'other', label: 'Altul (specifică)' }
+        { value: 'other', label: language === 'ro' ? 'Altul (specifică)' : 'Other (specify)' }
       ];
     }
     return DEFAULT_CARRIERS;
-  }, [locationCarriers]);
+  }, [locationCarriers, language]);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -78,9 +95,6 @@ const CreateListing = () => {
   const [reservePrice, setReservePrice] = useState('');
   const [bidIncrement, setBidIncrement] = useState('1');
   const [auctionDuration, setAuctionDuration] = useState('7');
-
-  const isSubscribed = subscription?.subscribed || false;
-  const canCreateMore = listingLimit?.canCreateMore ?? true;
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -287,13 +301,34 @@ const CreateListing = () => {
 
   return (
     <Layout>
+      {/* Seller Video Tutorial */}
+      <SellerVideoTutorial 
+        open={tutorialOpen} 
+        onOpenChange={setTutorialOpen}
+        onComplete={() => setShowTutorial(false)}
+      />
+      
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">Vinde un Produs</h1>
-          <Badge variant="outline" className="gap-1">
-            <Package className="h-3 w-3" />
-            {listingLimit?.currentCount}/{listingLimit?.maxListings} produse
-          </Badge>
+          <h1 className="text-3xl font-bold">
+            {language === 'ro' ? 'Vinde un Produs' : 'Sell a Product'}
+          </h1>
+          <div className="flex items-center gap-2">
+            <Button 
+              type="button" 
+              variant="outline" 
+              size="sm"
+              onClick={() => setTutorialOpen(true)}
+              className="gap-1"
+            >
+              <BookOpen className="h-4 w-4" />
+              {language === 'ro' ? 'Tutorial' : 'Tutorial'}
+            </Button>
+            <Badge variant="outline" className="gap-1">
+              <Package className="h-3 w-3" />
+              {listingLimit?.currentCount}/{listingLimit?.maxListings} {language === 'ro' ? 'produse' : 'products'}
+            </Badge>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
