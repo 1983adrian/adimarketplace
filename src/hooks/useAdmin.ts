@@ -2,14 +2,23 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+// Admin email - recognized by system
+const ADMIN_EMAIL = 'adrianchirita01@gmail.com';
+
 export const useIsAdmin = () => {
   const { user } = useAuth();
 
   return useQuery({
-    queryKey: ['is-admin', user?.id],
+    queryKey: ['is-admin', user?.id, user?.email],
     queryFn: async () => {
       if (!user?.id) return false;
       
+      // Check by email first (primary method for owner)
+      if (user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+        return true;
+      }
+      
+      // Fallback: check user_roles table
       const { data, error } = await supabase
         .rpc('has_role', { _user_id: user.id, _role: 'admin' });
       

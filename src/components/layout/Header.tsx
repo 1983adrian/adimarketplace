@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, ShoppingCart, Bell } from 'lucide-react';
+import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, ShoppingCart, Shield, Crown, CreditCard } from 'lucide-react';
 import logo from '@/assets/logo.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,9 +20,11 @@ import { CurrencySelector } from './CurrencySelector';
 import { SearchDialog } from './SearchDialog';
 import { NotificationBell } from './NotificationBell';
 import { useRealTimeNotifications, useRealTimeOrders } from '@/hooks/useRealTimeNotifications';
+import { useIsAdmin } from '@/hooks/useAdmin';
 
 export const Header: React.FC = () => {
   const { user, profile, signOut } = useAuth();
+  const { data: isAdmin } = useIsAdmin();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -140,6 +142,29 @@ export const Header: React.FC = () => {
                         {t('header.settings')}
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild className="cursor-pointer bg-gradient-to-r from-amber-500/10 to-orange-500/10">
+                          <Link to="/admin/owner" className="flex items-center">
+                            <Crown className="mr-2 h-4 w-4 text-amber-500" />
+                            <span className="text-amber-600 font-medium">Owner Dashboard</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <Link to="/admin">
+                            <Shield className="mr-2 h-4 w-4 text-primary" />
+                            Panou Admin
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="cursor-pointer">
+                          <Link to="/admin/fees">
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Plăți & Taxe
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
                       <LogOut className="mr-2 h-4 w-4" />
@@ -246,6 +271,33 @@ export const Header: React.FC = () => {
                             </Link>
                           </Button>
                         </div>
+                        
+                        {isAdmin && (
+                          <div className="pt-4 border-t border-border mt-4 space-y-1">
+                            <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide px-3 py-1 flex items-center gap-2">
+                              <Crown className="h-3 w-3" />
+                              Admin / Owner
+                            </p>
+                            <Button variant="ghost" className="w-full justify-start bg-gradient-to-r from-amber-500/10 to-orange-500/10" asChild onClick={() => setMobileMenuOpen(false)}>
+                              <Link to="/admin/owner">
+                                <Crown className="mr-3 h-4 w-4 text-amber-500" />
+                                <span className="text-amber-600 font-medium">Owner Dashboard</span>
+                              </Link>
+                            </Button>
+                            <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                              <Link to="/admin">
+                                <Shield className="mr-3 h-4 w-4 text-primary" />
+                                Panou Admin
+                              </Link>
+                            </Button>
+                            <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                              <Link to="/admin/fees">
+                                <CreditCard className="mr-3 h-4 w-4" />
+                                Plăți & Taxe
+                              </Link>
+                            </Button>
+                          </div>
+                        )}
                         
                         <div className="pt-4 border-t border-border mt-4">
                           <Button 
