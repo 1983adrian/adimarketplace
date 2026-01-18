@@ -88,6 +88,44 @@ export type Database = {
           },
         ]
       }
+      campaign_sends: {
+        Row: {
+          campaign_id: string | null
+          clicked_at: string | null
+          email: string
+          id: string
+          opened_at: string | null
+          sent_at: string
+          status: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          clicked_at?: string | null
+          email: string
+          id?: string
+          opened_at?: string | null
+          sent_at?: string
+          status?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          clicked_at?: string | null
+          email?: string
+          id?: string
+          opened_at?: string | null
+          sent_at?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_sends_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -486,6 +524,60 @@ export type Database = {
           },
         ]
       }
+      marketing_campaigns: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          emails_clicked: number | null
+          emails_opened: number | null
+          emails_sent: number | null
+          id: string
+          name: string
+          scheduled_at: string | null
+          sent_at: string | null
+          social_content: string | null
+          status: string | null
+          subject: string
+          target_audience: string | null
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          emails_clicked?: number | null
+          emails_opened?: number | null
+          emails_sent?: number | null
+          id?: string
+          name: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          social_content?: string | null
+          status?: string | null
+          subject: string
+          target_audience?: string | null
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          emails_clicked?: number | null
+          emails_opened?: number | null
+          emails_sent?: number | null
+          id?: string
+          name?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          social_content?: string | null
+          status?: string | null
+          subject?: string
+          target_audience?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
@@ -520,6 +612,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      newsletter_subscribers: {
+        Row: {
+          email: string
+          id: string
+          is_active: boolean
+          name: string | null
+          source: string | null
+          subscribed_at: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          source?: string | null
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          is_active?: boolean
+          name?: string | null
+          source?: string | null
+          subscribed_at?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
       }
       notifications: {
         Row: {
