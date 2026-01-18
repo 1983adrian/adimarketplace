@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +21,7 @@ import { useCreateListing } from '@/hooks/useListings';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
+import { addDays } from 'date-fns';
 
 const CARRIERS = [
   { value: 'royal_mail', label: 'Royal Mail' },
@@ -59,6 +61,13 @@ const CreateListing = () => {
   const [preferredCarrier, setPreferredCarrier] = useState('');
   const [customCarrier, setCustomCarrier] = useState('');
   const [shippingNotes, setShippingNotes] = useState('');
+  
+  // Auction settings
+  const [listingType, setListingType] = useState<'buy_now' | 'auction' | 'both'>('buy_now');
+  const [startingBid, setStartingBid] = useState('');
+  const [reservePrice, setReservePrice] = useState('');
+  const [bidIncrement, setBidIncrement] = useState('1');
+  const [auctionDuration, setAuctionDuration] = useState('7');
 
   const isSubscribed = subscription?.subscribed || false;
   const canCreateMore = listingLimit?.canCreateMore ?? true;
@@ -124,16 +133,26 @@ const CreateListing = () => {
     
     try {
       // 1. Create listing in database
+      const auctionEndDate = listingType !== 'buy_now' 
+        ? addDays(new Date(), parseInt(auctionDuration)).toISOString()
+        : null;
+      
       const listingData = {
         seller_id: user.id,
         title,
         description,
-        price: parseFloat(price),
+        price: listingType === 'auction' ? parseFloat(startingBid) : parseFloat(price),
         condition: condition as ItemCondition,
         category_id: category,
         location,
         is_active: isActive,
         is_sold: false,
+        listing_type: listingType,
+        starting_bid: listingType !== 'buy_now' ? parseFloat(startingBid) : null,
+        reserve_price: reservePrice ? parseFloat(reservePrice) : null,
+        buy_now_price: listingType !== 'auction' ? parseFloat(price) : null,
+        bid_increment: listingType !== 'buy_now' ? parseFloat(bidIncrement) : null,
+        auction_end_date: auctionEndDate,
       };
 
       const newListing = await createListing.mutateAsync(listingData);
@@ -359,28 +378,158 @@ const CreateListing = () => {
             </CardContent>
           </Card>
 
+          {/* Listing Type & Auction Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Gavel className="h-5 w-5" />
+                Tip Vânzare
+              </CardTitle>
+              <CardDescription>Alege cum vrei să vinzi produsul</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <RadioGroup 
+                value={listingType} 
+                onValueChange={(v) => setListingType(v as 'buy_now' | 'auction' | 'both')}
+                className="space-y-3"
+              >
+                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
+                  <RadioGroupItem value="buy_now" id="buy_now" />
+                  <Label htmlFor="buy_now" className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-4 w-4" />
+                      <span className="font-medium">Preț Fix (Buy Now)</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Vinde la un preț fix stabilit de tine</p>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
+                  <RadioGroupItem value="auction" id="auction" />
+                  <Label htmlFor="auction" className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <Gavel className="h-4 w-4" />
+                      <span className="font-medium">Licitație</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Lasă cumpărătorii să liciteze</p>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer">
+                  <RadioGroupItem value="both" id="both" />
+                  <Label htmlFor="both" className="flex-1 cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      <Gavel className="h-4 w-4" />
+                      <Tag className="h-4 w-4" />
+                      <span className="font-medium">Licitație + Buy Now</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Permite ambele opțiuni</p>
+                  </Label>
+                </div>
+              </RadioGroup>
+
+              {/* Auction-specific settings */}
+              {listingType !== 'buy_now' && (
+                <div className="space-y-4 pt-4 border-t">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="startingBid">Preț de Pornire *</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                        <Input 
+                          id="startingBid" 
+                          type="number" 
+                          placeholder="1.00" 
+                          value={startingBid} 
+                          onChange={(e) => setStartingBid(e.target.value)} 
+                          className="pl-8" 
+                          min="0.01" 
+                          step="0.01" 
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="bidIncrement">Pas Licitare</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                        <Input 
+                          id="bidIncrement" 
+                          type="number" 
+                          placeholder="1.00" 
+                          value={bidIncrement} 
+                          onChange={(e) => setBidIncrement(e.target.value)} 
+                          className="pl-8" 
+                          min="0.01" 
+                          step="0.01" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="reservePrice">Preț de Rezervă (opțional)</Label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                        <Input 
+                          id="reservePrice" 
+                          type="number" 
+                          placeholder="Minim acceptat" 
+                          value={reservePrice} 
+                          onChange={(e) => setReservePrice(e.target.value)} 
+                          className="pl-8" 
+                          min="0" 
+                          step="0.01" 
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Dacă licitația nu atinge acest preț, nu ești obligat să vinzi
+                      </p>
+                    </div>
+                    <div>
+                      <Label htmlFor="auctionDuration">Durată Licitație</Label>
+                      <Select value={auctionDuration} onValueChange={setAuctionDuration}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1 zi</SelectItem>
+                          <SelectItem value="3">3 zile</SelectItem>
+                          <SelectItem value="5">5 zile</SelectItem>
+                          <SelectItem value="7">7 zile</SelectItem>
+                          <SelectItem value="10">10 zile</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Price & Location */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Preț și Locație</CardTitle>
+              <CardTitle className="text-lg">
+                {listingType === 'auction' ? 'Locație' : 'Preț și Locație'}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="price">Preț *</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
-                  <Input 
-                    id="price" 
-                    type="number" 
-                    placeholder="0" 
-                    value={price} 
-                    onChange={(e) => setPrice(e.target.value)} 
-                    className="pl-8" 
-                    min="0" 
-                    step="0.01" 
-                  />
+              {listingType !== 'auction' && (
+                <div>
+                  <Label htmlFor="price">
+                    {listingType === 'both' ? 'Preț Buy Now *' : 'Preț *'}
+                  </Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                    <Input 
+                      id="price" 
+                      type="number" 
+                      placeholder="0" 
+                      value={price} 
+                      onChange={(e) => setPrice(e.target.value)} 
+                      className="pl-8" 
+                      min="0" 
+                      step="0.01" 
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
               <div>
                 <Label htmlFor="location">Locație</Label>
                 <Input 
