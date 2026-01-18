@@ -57,6 +57,11 @@ const Dashboard = () => {
   const soldListings = myListings?.filter(l => l.is_sold) || [];
   const totalViews = myListings?.reduce((acc, l) => acc + l.views_count, 0) || 0;
   const totalEarnings = soldListings.reduce((acc, l) => acc + l.price, 0);
+  
+  // Potential earnings calculation (price - £1 platform commission per item)
+  const potentialGrossEarnings = activeListings.reduce((acc, l) => acc + l.price, 0);
+  const platformCommission = activeListings.length * 1; // £1 per item
+  const potentialNetEarnings = potentialGrossEarnings - platformCommission;
 
   const isSubscribed = subscription?.subscribed || false;
   const isTrialPeriod = subscription?.isTrialPeriod || false;
@@ -228,6 +233,46 @@ const Dashboard = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Potential Earnings Motivational Card */}
+        {activeListings.length > 0 && (
+          <Card className="mb-8 border-green-500/50 bg-gradient-to-r from-green-500/10 to-emerald-500/10">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-full bg-green-500/20">
+                  <TrendingUp className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-lg text-green-700 dark:text-green-400">
+                    💰 Potențial de Câștig
+                  </CardTitle>
+                  <CardDescription>
+                    Dacă vinzi toate produsele active, vei încasa:
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-background/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Valoare Totală Produse</p>
+                  <p className="text-2xl font-bold text-foreground">£{potentialGrossEarnings.toLocaleString()}</p>
+                </div>
+                <div className="text-center p-4 bg-background/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Comision Platformă (£1/produs)</p>
+                  <p className="text-2xl font-bold text-orange-600">-£{platformCommission.toLocaleString()}</p>
+                </div>
+                <div className="text-center p-4 bg-green-500/20 rounded-lg border-2 border-green-500/30">
+                  <p className="text-sm text-green-700 dark:text-green-400 mb-1 font-medium">Tu Vei Încasa</p>
+                  <p className="text-3xl font-bold text-green-600">£{potentialNetEarnings.toLocaleString()}</p>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-4 text-center">
+                * Suma netă după deducerea comisionului de £1 per produs vândut. Banii vor fi transferați în contul tău Stripe după confirmarea livrării.
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Quick Links */}
         <div className="grid md:grid-cols-6 gap-4 mb-8">
