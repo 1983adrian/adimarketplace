@@ -116,45 +116,8 @@ const Checkout = () => {
     setProcessing(true);
 
     try {
-      // Get platform fees
-      const { data: fees } = await supabase
-        .from('platform_fees')
-        .select('*')
-        .eq('is_active', true);
-
-      const buyerFeeConfig = fees?.find(f => f.fee_type === 'buyer_fee');
-      const sellerCommissionConfig = fees?.find(f => f.fee_type === 'seller_commission');
-
-      const buyerFee = buyerFeeConfig?.amount || 2;
-      const sellerCommissionRate = sellerCommissionConfig?.amount || 15;
-
-      const shippingCost = shippingMethod === 'express' ? 14.99 : shippingMethod === 'overnight' ? 29.99 : 5.99;
-      const subtotal = listing.price;
-      const sellerCommission = subtotal * (sellerCommissionRate / 100);
-      const payoutAmount = subtotal - sellerCommission;
-      const total = subtotal + shippingCost + buyerFee;
-
+      // Build shipping address string
       const shippingAddress = `${shipping.firstName} ${shipping.lastName}, ${shipping.address}${shipping.apartment ? `, ${shipping.apartment}` : ''}, ${shipping.city}, ${shipping.state} ${shipping.zipCode}, Tel: ${shipping.phone}`;
-
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          listing_id: listing.id,
-          buyer_id: user.id,
-          seller_id: listing.seller_id,
-          amount: total,
-          buyer_fee: buyerFee,
-          seller_commission: sellerCommission,
-          payout_amount: payoutAmount,
-          shipping_address: shippingAddress,
-          status: 'pending',
-          payout_status: 'pending',
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
 
       // Save address if requested
       if (saveAddress) {
@@ -173,74 +136,25 @@ const Checkout = () => {
         });
       }
 
-      // Notify seller
-      const sellerProfile = (listing as any).profiles;
-      if (sellerProfile) {
-        // Create in-app notification
-        await supabase.from('notifications').insert({
-          user_id: listing.seller_id,
-          type: 'new_order',
-          title: 'Comandă Nouă!',
-          message: `Ai primit o comandă pentru "${listing.title}" în valoare de ${formatPrice(total)}`,
-          data: { orderId: order.id, listingId: listing.id },
-        });
+      // Call Stripe checkout
+      const { data, error } = await supabase.functions.invoke('stripe-product-checkout', {
+        body: { 
+          listingId: listing.id,
+          shippingAddress,
+          shippingMethod,
+        },
+      });
 
-        // Get seller profile for phone and email
-        const { data: sellerData } = await supabase
-          .from('profiles')
-          .select('phone, paypal_email')
-          .eq('user_id', listing.seller_id)
-          .single();
-
-        // Send SMS notification to seller if phone exists
-        if (sellerData?.phone) {
-          try {
-            await supabase.functions.invoke('send-notification', {
-              body: {
-                type: 'sms',
-                to: sellerData.phone,
-                message: `🎉 Comandă nouă AdiMarket! "${listing.title}" - ${formatPrice(total)}. Verifică dashboard-ul pentru detalii.`,
-              },
-            });
-          } catch (smsError) {
-            console.log('SMS notification failed:', smsError);
-          }
-        }
-
-        // Send email notification
-        const sellerEmail = sellerData?.paypal_email || sellerProfile.paypal_email;
-        if (sellerEmail) {
-          try {
-            await supabase.functions.invoke('send-notification', {
-              body: {
-                type: 'email',
-                to: sellerEmail,
-                subject: `🎉 Comandă nouă: ${listing.title}`,
-                message: `
-                  <h1>🎉 Ai o comandă nouă!</h1>
-                  <p>Produsul tău "${listing.title}" a fost comandat.</p>
-                  <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
-                    <p><strong>Produs:</strong> ${listing.title}</p>
-                    <p><strong>Total:</strong> ${formatPrice(total)}</p>
-                    <p><strong>Adresa livrare:</strong> ${shippingAddress}</p>
-                  </div>
-                  <p>Accesează dashboard-ul pentru a procesa comanda.</p>
-                `,
-              },
-            });
-          } catch (emailError) {
-            console.log('Email notification failed:', emailError);
-          }
-        }
+      if (error) {
+        throw new Error(error.message);
       }
 
-      // Redirect to PayPal payment
-      navigate(`/listing/${listing.id}?payment=pending&order=${order.id}`);
-
-      toast({
-        title: 'Comandă creată!',
-        description: 'Te redirecționăm către plată...',
-      });
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
     } catch (error: any) {
       console.error('Order error:', error);
       toast({
@@ -248,7 +162,6 @@ const Checkout = () => {
         description: error.message || 'Nu am putut procesa comanda.',
         variant: 'destructive',
       });
-    } finally {
       setProcessing(false);
     }
   };

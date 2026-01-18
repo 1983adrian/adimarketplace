@@ -18,6 +18,7 @@ import EditListing from "./pages/EditListing";
 import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Checkout from "./pages/Checkout";
+import CheckoutSuccess from "./pages/CheckoutSuccess";
 import NotFound from "./pages/NotFound";
 import Orders from "./pages/Orders";
 import Messages from "./pages/Messages";
@@ -85,6 +86,7 @@ const App = () => (
                 <Route path="/seller-analytics" element={<SellerAnalytics />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/checkout/success" element={<CheckoutSuccess />} />
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/favorites" element={<Favorites />} />
