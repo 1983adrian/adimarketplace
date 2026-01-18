@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   User, Store, Bell, Shield, CreditCard, MapPin, Save, 
   Wallet, Truck, Package, Building2, Banknote, Plus, Check,
-  DollarSign, Globe, Eye, EyeOff, AlertCircle
+  DollarSign, Globe, Eye, EyeOff, AlertCircle, FileText
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
+import { SellerVerification } from '@/components/settings/SellerVerification';
 import { supabase } from '@/integrations/supabase/client';
 
 const shippingCarriers = [
@@ -151,10 +152,14 @@ const Settings = () => {
           <h1 className="text-3xl font-bold mb-8">Setări</h1>
           
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:inline-grid">
               <TabsTrigger value="profile" className="gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden lg:inline">Profil</span>
+              </TabsTrigger>
+              <TabsTrigger value="verification" className="gap-2">
+                <FileText className="h-4 w-4" />
+                <span className="hidden lg:inline">Verificare</span>
               </TabsTrigger>
               <TabsTrigger value="payments" className="gap-2">
                 <CreditCard className="h-4 w-4" />
@@ -181,6 +186,11 @@ const Settings = () => {
                 <span className="hidden lg:inline">Securitate</span>
               </TabsTrigger>
             </TabsList>
+
+            {/* Tab Verificare */}
+            <TabsContent value="verification">
+              <SellerVerification />
+            </TabsContent>
 
             {/* Tab Profil */}
             <TabsContent value="profile">

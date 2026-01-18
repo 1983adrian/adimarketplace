@@ -19,7 +19,10 @@ import {
   Wrench,
   ClipboardList,
   Brain,
-  Truck
+  Truck,
+  Gavel,
+  UserCheck,
+  RotateCcw
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -41,9 +44,12 @@ const menuItems = [
   { title: 'AI Sales Manager', url: '/admin/ai-sales', icon: Brain },
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
+  { title: 'Verificări Vânzători', url: '/admin/seller-verifications', icon: UserCheck },
   { title: 'Listings', url: '/admin/listings', icon: Package },
+  { title: 'Licitații', url: '/admin/auctions', icon: Gavel },
   { title: 'Orders', url: '/admin/orders', icon: ShoppingCart },
   { title: 'Livrări', url: '/admin/deliveries', icon: Truck },
+  { title: 'Retururi', url: '/admin/returns', icon: RotateCcw },
   { title: 'Messages', url: '/admin/messages', icon: MessageCircle },
   { title: 'Disputes', url: '/admin/disputes', icon: AlertTriangle },
   { title: 'Fees & Pricing', url: '/admin/fees', icon: DollarSign },
