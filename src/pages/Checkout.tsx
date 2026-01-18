@@ -176,6 +176,7 @@ const Checkout = () => {
       // Notify seller
       const sellerProfile = (listing as any).profiles;
       if (sellerProfile) {
+        // Create in-app notification
         await supabase.from('notifications').insert({
           user_id: listing.seller_id,
           type: 'new_order',
@@ -184,28 +185,52 @@ const Checkout = () => {
           data: { orderId: order.id, listingId: listing.id },
         });
 
+        // Get seller profile for phone and email
+        const { data: sellerData } = await supabase
+          .from('profiles')
+          .select('phone, paypal_email')
+          .eq('user_id', listing.seller_id)
+          .single();
+
+        // Send SMS notification to seller if phone exists
+        if (sellerData?.phone) {
+          try {
+            await supabase.functions.invoke('send-notification', {
+              body: {
+                type: 'sms',
+                to: sellerData.phone,
+                message: `🎉 Comandă nouă AdiMarket! "${listing.title}" - ${formatPrice(total)}. Verifică dashboard-ul pentru detalii.`,
+              },
+            });
+          } catch (smsError) {
+            console.log('SMS notification failed:', smsError);
+          }
+        }
+
         // Send email notification
-        const sellerEmail = sellerProfile.user_id ? 
-          (await supabase.auth.admin?.getUserById(sellerProfile.user_id))?.data?.user?.email : null;
-        
-        if (sellerEmail || sellerProfile.paypal_email) {
-          await supabase.functions.invoke('send-notification', {
-            body: {
-              type: 'email',
-              to: sellerProfile.paypal_email || sellerEmail,
-              subject: `🎉 Comandă nouă: ${listing.title}`,
-              message: `
-                <h1>🎉 Ai o comandă nouă!</h1>
-                <p>Produsul tău "${listing.title}" a fost comandat.</p>
-                <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
-                  <p><strong>Produs:</strong> ${listing.title}</p>
-                  <p><strong>Total:</strong> ${formatPrice(total)}</p>
-                  <p><strong>Adresa livrare:</strong> ${shippingAddress}</p>
-                </div>
-                <p>Accesează dashboard-ul pentru a procesa comanda.</p>
-              `,
-            },
-          });
+        const sellerEmail = sellerData?.paypal_email || sellerProfile.paypal_email;
+        if (sellerEmail) {
+          try {
+            await supabase.functions.invoke('send-notification', {
+              body: {
+                type: 'email',
+                to: sellerEmail,
+                subject: `🎉 Comandă nouă: ${listing.title}`,
+                message: `
+                  <h1>🎉 Ai o comandă nouă!</h1>
+                  <p>Produsul tău "${listing.title}" a fost comandat.</p>
+                  <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                    <p><strong>Produs:</strong> ${listing.title}</p>
+                    <p><strong>Total:</strong> ${formatPrice(total)}</p>
+                    <p><strong>Adresa livrare:</strong> ${shippingAddress}</p>
+                  </div>
+                  <p>Accesează dashboard-ul pentru a procesa comanda.</p>
+                `,
+              },
+            });
+          } catch (emailError) {
+            console.log('Email notification failed:', emailError);
+          }
         }
       }
 

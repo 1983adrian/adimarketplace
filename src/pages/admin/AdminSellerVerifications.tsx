@@ -71,9 +71,52 @@ const AdminSellerVerifications = () => {
       await supabase.from('notifications').insert({
         user_id: userId,
         type: 'verification_approved',
-        title: 'Verificare Aprobată',
-        message: 'Contul tău de vânzător a fost verificat cu succes!',
+        title: 'Verificare Aprobată ✅',
+        message: 'Contul tău de vânzător a fost verificat cu succes! Acum ai bifa albastră.',
       });
+
+      // Get user profile for SMS notification
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('phone, paypal_email')
+        .eq('user_id', userId)
+        .single();
+
+      // Send SMS notification
+      if (profile?.phone) {
+        try {
+          await supabase.functions.invoke('send-notification', {
+            body: {
+              type: 'sms',
+              to: profile.phone,
+              message: '✅ Felicitări! Contul tău AdiMarket a fost verificat. Acum ai bifa albastră pe profil!',
+            },
+          });
+        } catch (smsError) {
+          console.log('SMS notification failed:', smsError);
+        }
+      }
+
+      // Send email notification
+      if (profile?.paypal_email) {
+        try {
+          await supabase.functions.invoke('send-notification', {
+            body: {
+              type: 'email',
+              to: profile.paypal_email,
+              subject: '✅ Contul tău a fost verificat!',
+              message: `
+                <h1>🎉 Felicitări!</h1>
+                <p>Contul tău de vânzător pe AdiMarket a fost verificat cu succes.</p>
+                <p>Acum ai bifa albastră pe profil, ceea ce înseamnă că cumpărătorii vor avea mai multă încredere în tine.</p>
+                <p>Poți continua să vinzi pe platformă.</p>
+              `,
+            },
+          });
+        } catch (emailError) {
+          console.log('Email notification failed:', emailError);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-verifications'] });

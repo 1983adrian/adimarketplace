@@ -180,9 +180,16 @@ serve(async (req) => {
     }
     logStep("Order updated to delivered");
 
-    // Get seller's email for PayPal payout
+    // Get seller's PayPal email from profile (preferred) or auth email
+    const { data: sellerProfile } = await supabaseClient
+      .from('profiles')
+      .select('paypal_email')
+      .eq('user_id', order.seller_id)
+      .single();
+    
     const { data: sellerAuth } = await supabaseClient.auth.admin.getUserById(order.seller_id);
-    const sellerEmail = sellerAuth?.user?.email;
+    const sellerEmail = sellerProfile?.paypal_email || sellerAuth?.user?.email;
+    logStep("Seller payout email", { paypalEmail: sellerProfile?.paypal_email, authEmail: sellerAuth?.user?.email, using: sellerEmail });
 
     // Create payout record
     const { data: payout, error: payoutError } = await supabaseClient
