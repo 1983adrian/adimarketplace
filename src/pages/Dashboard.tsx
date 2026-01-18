@@ -247,19 +247,23 @@ const Dashboard = () => {
                     💰 Potențial de Câștig
                   </CardTitle>
                   <CardDescription>
-                    Dacă vinzi toate produsele active, vei încasa:
+                    Ai <strong>{activeListings.length} {activeListings.length === 1 ? 'produs activ' : 'produse active'}</strong>. Dacă le vinzi pe toate:
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-background/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Valoare Totală Produse</p>
+                  <p className="text-sm text-muted-foreground mb-1">Produse Active</p>
+                  <p className="text-2xl font-bold text-foreground">{activeListings.length}</p>
+                </div>
+                <div className="text-center p-4 bg-background/50 rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-1">Valoare Totală</p>
                   <p className="text-2xl font-bold text-foreground">£{potentialGrossEarnings.toLocaleString()}</p>
                 </div>
                 <div className="text-center p-4 bg-background/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Comision Platformă (£1/produs)</p>
+                  <p className="text-sm text-muted-foreground mb-1">Comision ({activeListings.length} × £1)</p>
                   <p className="text-2xl font-bold text-orange-600">-£{platformCommission.toLocaleString()}</p>
                 </div>
                 <div className="text-center p-4 bg-green-500/20 rounded-lg border-2 border-green-500/30">
@@ -267,8 +271,24 @@ const Dashboard = () => {
                   <p className="text-3xl font-bold text-green-600">£{potentialNetEarnings.toLocaleString()}</p>
                 </div>
               </div>
+              
+              {/* Detailed breakdown per product */}
+              {activeListings.length <= 10 && (
+                <div className="mt-4 p-3 bg-background/50 rounded-lg">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Detalii per produs:</p>
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {activeListings.map((listing, index) => (
+                      <div key={listing.id} className="flex justify-between text-xs">
+                        <span className="truncate max-w-[200px]">{index + 1}. {listing.title}</span>
+                        <span className="font-medium">£{listing.price} - £1 = <span className="text-green-600">£{listing.price - 1}</span></span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
               <p className="text-xs text-muted-foreground mt-4 text-center">
-                * Suma netă după deducerea comisionului de £1 per produs vândut. Banii vor fi transferați în contul tău Stripe după confirmarea livrării.
+                * Calcul real bazat pe prețurile produselor tale. Banii se transferă automat în contul tău Stripe după confirmarea livrării.
               </p>
             </CardContent>
           </Card>
