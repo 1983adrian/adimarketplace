@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, TrendingUp, Shield, Truck, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import logo from '@/assets/logo.jpeg';
+import heroImage from '@/assets/marketplace-hero.jpeg';
 
 export const HeroSection: React.FC = () => {
   const navigate = useNavigate();
@@ -30,38 +30,44 @@ export const HeroSection: React.FC = () => {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2" />
       <div className="absolute top-20 right-1/4 w-72 h-72 bg-accent/20 rounded-full blur-3xl" />
       
-      <div className="container mx-auto px-4 py-12 md:py-20 lg:py-28 relative">
-        <div className="max-w-5xl mx-auto text-center space-y-8">
-          {/* Logo & Brand */}
-          <div className="animate-fade-up flex flex-col items-center gap-4">
+      <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16 relative">
+        <div className="max-w-6xl mx-auto text-center space-y-6">
+          {/* Hero Image - Centered, seamless blend */}
+          <div className="animate-fade-up flex justify-center">
             <img 
-              src={logo} 
-              alt="AdiMarket" 
-              className="h-20 md:h-28 lg:h-36 w-auto drop-shadow-lg rounded-2xl"
+              src={heroImage} 
+              alt="MarketPlace" 
+              className="w-full max-w-4xl h-auto object-contain"
+              style={{
+                mixBlendMode: 'multiply',
+                filter: 'drop-shadow(0 0 0 transparent)',
+              }}
             />
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-accent/20 text-accent-foreground rounded-full text-sm font-medium flex items-center gap-1.5">
-                <TrendingUp className="h-3.5 w-3.5" />
-                Over 10,000 items
-              </span>
-            </div>
+          </div>
+
+          {/* Trending Badge */}
+          <div className="flex justify-center animate-fade-up" style={{ animationDelay: '0.1s' }}>
+            <span className="px-3 py-1 bg-accent/20 text-accent-foreground rounded-full text-sm font-medium flex items-center gap-1.5">
+              <TrendingUp className="h-3.5 w-3.5" />
+              Peste 10,000 produse
+            </span>
           </div>
           
           {/* Headline */}
-          <div className="space-y-4 animate-fade-up" style={{ animationDelay: '0.1s' }}>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground font-display">
+          <div className="space-y-3 animate-fade-up" style={{ animationDelay: '0.2s' }}>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground font-display">
               {t('home.hero.tagline')}
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               {t('home.hero.subtitle')}
             </p>
           </div>
 
-          {/* Search Bar - Amazon/eBay Style */}
+          {/* Search Bar */}
           <form 
             onSubmit={handleSearch} 
             className="animate-fade-up max-w-3xl mx-auto" 
-            style={{ animationDelay: '0.2s' }}
+            style={{ animationDelay: '0.3s' }}
           >
             <div className="relative flex shadow-card-hover rounded-xl overflow-hidden bg-card border border-border">
               <div className="relative flex-1">
@@ -86,7 +92,7 @@ export const HeroSection: React.FC = () => {
           </form>
 
           {/* Popular Searches */}
-          <div className="flex flex-wrap justify-center gap-2 animate-fade-up" style={{ animationDelay: '0.3s' }}>
+          <div className="flex flex-wrap justify-center gap-2 animate-fade-up" style={{ animationDelay: '0.4s' }}>
             <span className="text-sm text-muted-foreground">{t('home.hero.popular')}:</span>
             {['iPhone 15', 'MacBook', 'Nike Air Max', 'PlayStation 5', 'Samsung TV'].map((term) => (
               <Button 
@@ -102,7 +108,7 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Trust Badges */}
-          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto pt-8 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto pt-6 animate-fade-up" style={{ animationDelay: '0.5s' }}>
             {features.map(({ icon: Icon, text, subtext }) => (
               <div key={text} className="flex flex-col items-center gap-2 text-center">
                 <div className="p-3 rounded-xl bg-primary/10">

@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { 
   CreditCard, Lock, Truck, MapPin, ChevronLeft, 
-  Check, ShieldCheck, Package
+  Check, ShieldCheck, Package, Loader2
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -16,41 +16,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { sampleListings } from '@/data/sampleListings';
+import { useListing } from '@/hooks/useListings';
+import { supabase } from '@/integrations/supabase/client';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 // Validation schemas
 const shippingSchema = z.object({
-  firstName: z.string().trim().min(1, 'First name is required').max(50, 'First name too long'),
-  lastName: z.string().trim().min(1, 'Last name is required').max(50, 'Last name too long'),
-  address: z.string().trim().min(5, 'Address is required').max(200, 'Address too long'),
-  apartment: z.string().max(50, 'Apartment too long').optional(),
-  city: z.string().trim().min(2, 'City is required').max(100, 'City too long'),
-  state: z.string().min(2, 'State is required'),
-  zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code'),
-  phone: z.string().regex(/^\(\d{3}\) \d{3}-\d{4}$|^\d{10}$/, 'Invalid phone number'),
-});
-
-const paymentSchema = z.object({
-  cardNumber: z.string().regex(/^\d{4} \d{4} \d{4} \d{4}$|^\d{16}$/, 'Invalid card number'),
-  expiry: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Invalid expiry (MM/YY)'),
-  cvc: z.string().regex(/^\d{3,4}$/, 'Invalid CVC'),
-  nameOnCard: z.string().trim().min(2, 'Name is required').max(100, 'Name too long'),
+  firstName: z.string().trim().min(1, 'Prenumele este obligatoriu').max(50, 'Prenume prea lung'),
+  lastName: z.string().trim().min(1, 'Numele este obligatoriu').max(50, 'Nume prea lung'),
+  address: z.string().trim().min(5, 'Adresa este obligatorie').max(200, 'Adresă prea lungă'),
+  apartment: z.string().max(50, 'Text prea lung').optional(),
+  city: z.string().trim().min(2, 'Orașul este obligatoriu').max(100, 'Oraș prea lung'),
+  state: z.string().min(2, 'Județul este obligatoriu'),
+  zipCode: z.string().min(4, 'Codul poștal este obligatoriu'),
+  phone: z.string().min(10, 'Numărul de telefon este obligatoriu'),
 });
 
 const Checkout = () => {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading, profile } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
+  const { formatPrice } = useCurrency();
   
   const listingId = searchParams.get('listing');
-  const listing = sampleListings.find(l => l.id === listingId) || sampleListings[0];
+  const { data: listing, isLoading: listingLoading } = useListing(listingId || '');
 
-  const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
+  const [step, setStep] = useState<'shipping' | 'review'>('shipping');
   const [processing, setProcessing] = useState(false);
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [saveAddress, setSaveAddress] = useState(true);
-  const [saveCard, setSaveCard] = useState(false);
 
   // Shipping form state
   const [shipping, setShipping] = useState({
@@ -65,48 +60,34 @@ const Checkout = () => {
   });
   const [shippingErrors, setShippingErrors] = useState<Record<string, string>>({});
 
-  // Payment form state
-  const [payment, setPayment] = useState({
-    cardNumber: '',
-    expiry: '',
-    cvc: '',
-    nameOnCard: '',
-  });
-  const [paymentErrors, setPaymentErrors] = useState<Record<string, string>>({});
-
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authLoading && !user) {
       navigate('/login');
     }
-  }, [user, loading, navigate]);
+  }, [user, authLoading, navigate]);
 
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
+  useEffect(() => {
+    if (!listingId) {
+      navigate('/browse');
     }
-    return parts.length ? parts.join(' ') : value;
-  };
+  }, [listingId, navigate]);
 
-  const formatExpiry = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    if (v.length >= 2) {
-      return v.substring(0, 2) + '/' + v.substring(2, 4);
+  // Pre-fill from profile
+  useEffect(() => {
+    if (profile) {
+      const displayName = (profile as any).display_name || '';
+      const nameParts = displayName.split(' ');
+      setShipping(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        phone: (profile as any).phone || '',
+      }));
     }
-    return v;
-  };
+  }, [profile]);
 
   const formatPhone = (value: string) => {
-    const v = value.replace(/\D/g, '');
-    if (v.length >= 6) {
-      return `(${v.substring(0, 3)}) ${v.substring(3, 6)}-${v.substring(6, 10)}`;
-    } else if (v.length >= 3) {
-      return `(${v.substring(0, 3)}) ${v.substring(3)}`;
-    }
-    return v;
+    return value.replace(/\D/g, '').slice(0, 15);
   };
 
   const validateShipping = () => {
@@ -123,67 +104,159 @@ const Checkout = () => {
     return true;
   };
 
-  const validatePayment = () => {
-    const result = paymentSchema.safeParse(payment);
-    if (!result.success) {
-      const errors: Record<string, string> = {};
-      result.error.errors.forEach(err => {
-        if (err.path[0]) errors[err.path[0] as string] = err.message;
-      });
-      setPaymentErrors(errors);
-      return false;
-    }
-    setPaymentErrors({});
-    return true;
-  };
-
-  const handleContinueToPayment = () => {
-    if (validateShipping()) {
-      setStep('payment');
-    }
-  };
-
   const handleContinueToReview = () => {
-    if (validatePayment()) {
+    if (validateShipping()) {
       setStep('review');
     }
   };
 
   const handlePlaceOrder = async () => {
+    if (!listing || !user) return;
+    
     setProcessing(true);
-    
-    // Simulate payment processing
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    toast({
-      title: 'Order Placed Successfully!',
-      description: 'You will receive a confirmation email shortly.',
-    });
-    
-    navigate('/dashboard?tab=orders');
+
+    try {
+      // Get platform fees
+      const { data: fees } = await supabase
+        .from('platform_fees')
+        .select('*')
+        .eq('is_active', true);
+
+      const buyerFeeConfig = fees?.find(f => f.fee_type === 'buyer_fee');
+      const sellerCommissionConfig = fees?.find(f => f.fee_type === 'seller_commission');
+
+      const buyerFee = buyerFeeConfig?.amount || 2;
+      const sellerCommissionRate = sellerCommissionConfig?.amount || 15;
+
+      const shippingCost = shippingMethod === 'express' ? 14.99 : shippingMethod === 'overnight' ? 29.99 : 5.99;
+      const subtotal = listing.price;
+      const sellerCommission = subtotal * (sellerCommissionRate / 100);
+      const payoutAmount = subtotal - sellerCommission;
+      const total = subtotal + shippingCost + buyerFee;
+
+      const shippingAddress = `${shipping.firstName} ${shipping.lastName}, ${shipping.address}${shipping.apartment ? `, ${shipping.apartment}` : ''}, ${shipping.city}, ${shipping.state} ${shipping.zipCode}, Tel: ${shipping.phone}`;
+
+      // Create order
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          listing_id: listing.id,
+          buyer_id: user.id,
+          seller_id: listing.seller_id,
+          amount: total,
+          buyer_fee: buyerFee,
+          seller_commission: sellerCommission,
+          payout_amount: payoutAmount,
+          shipping_address: shippingAddress,
+          status: 'pending',
+          payout_status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Save address if requested
+      if (saveAddress) {
+        await supabase.from('saved_addresses').insert({
+          user_id: user.id,
+          first_name: shipping.firstName,
+          last_name: shipping.lastName,
+          address: shipping.address,
+          apartment: shipping.apartment,
+          city: shipping.city,
+          state: shipping.state,
+          postal_code: shipping.zipCode,
+          phone: shipping.phone,
+          label: 'Adresa principală',
+          is_default: true,
+        });
+      }
+
+      // Notify seller
+      const sellerProfile = (listing as any).profiles;
+      if (sellerProfile) {
+        await supabase.from('notifications').insert({
+          user_id: listing.seller_id,
+          type: 'new_order',
+          title: 'Comandă Nouă!',
+          message: `Ai primit o comandă pentru "${listing.title}" în valoare de ${formatPrice(total)}`,
+          data: { orderId: order.id, listingId: listing.id },
+        });
+
+        // Send email notification
+        const sellerEmail = sellerProfile.user_id ? 
+          (await supabase.auth.admin?.getUserById(sellerProfile.user_id))?.data?.user?.email : null;
+        
+        if (sellerEmail || sellerProfile.paypal_email) {
+          await supabase.functions.invoke('send-notification', {
+            body: {
+              type: 'email',
+              to: sellerProfile.paypal_email || sellerEmail,
+              subject: `🎉 Comandă nouă: ${listing.title}`,
+              message: `
+                <h1>🎉 Ai o comandă nouă!</h1>
+                <p>Produsul tău "${listing.title}" a fost comandat.</p>
+                <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                  <p><strong>Produs:</strong> ${listing.title}</p>
+                  <p><strong>Total:</strong> ${formatPrice(total)}</p>
+                  <p><strong>Adresa livrare:</strong> ${shippingAddress}</p>
+                </div>
+                <p>Accesează dashboard-ul pentru a procesa comanda.</p>
+              `,
+            },
+          });
+        }
+      }
+
+      // Redirect to PayPal payment
+      navigate(`/listing/${listing.id}?payment=pending&order=${order.id}`);
+
+      toast({
+        title: 'Comandă creată!',
+        description: 'Te redirecționăm către plată...',
+      });
+    } catch (error: any) {
+      console.error('Order error:', error);
+      toast({
+        title: 'Eroare',
+        description: error.message || 'Nu am putut procesa comanda.',
+        variant: 'destructive',
+      });
+    } finally {
+      setProcessing(false);
+    }
   };
 
   const shippingCost = shippingMethod === 'express' ? 14.99 : shippingMethod === 'overnight' ? 29.99 : 5.99;
   const subtotal = listing?.price || 0;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shippingCost + tax;
+  const buyerFee = 2; // £2 buyer fee
+  const total = subtotal + shippingCost + buyerFee;
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(price);
-  };
-
-  if (loading) {
+  if (authLoading || listingLoading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-12">
-          <p className="text-center text-muted-foreground">Loading...</p>
+        <div className="container mx-auto px-4 py-12 flex items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </Layout>
     );
   }
+
+  if (!listing) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-12 text-center">
+          <p className="text-muted-foreground">Produsul nu a fost găsit</p>
+          <Button onClick={() => navigate('/browse')} className="mt-4">
+            Înapoi la produse
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  const listingImage = (listing as any).listing_images?.[0]?.image_url || '/placeholder.svg';
 
   return (
     <Layout>
@@ -195,28 +268,28 @@ const Checkout = () => {
               <ChevronLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-bold">Checkout</h1>
-              <p className="text-muted-foreground">Complete your purchase securely</p>
+              <h1 className="text-3xl font-bold">Finalizare Comandă</h1>
+              <p className="text-muted-foreground">Completează detaliile pentru livrare</p>
             </div>
           </div>
 
           {/* Progress Steps */}
           <div className="flex items-center justify-center gap-4 mb-8">
-            {['shipping', 'payment', 'review'].map((s, i) => (
+            {['shipping', 'review'].map((s, i) => (
               <React.Fragment key={s}>
                 <div className="flex items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
                     step === s ? 'bg-primary text-primary-foreground' : 
-                    ['shipping', 'payment', 'review'].indexOf(step) > i ? 'bg-success text-success-foreground' : 
+                    ['shipping', 'review'].indexOf(step) > i ? 'bg-green-500 text-white' : 
                     'bg-muted text-muted-foreground'
                   }`}>
-                    {['shipping', 'payment', 'review'].indexOf(step) > i ? <Check className="h-4 w-4" /> : i + 1}
+                    {['shipping', 'review'].indexOf(step) > i ? <Check className="h-4 w-4" /> : i + 1}
                   </div>
                   <span className={`hidden sm:inline text-sm font-medium ${step === s ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                    {s === 'shipping' ? 'Livrare' : 'Confirmare'}
                   </span>
                 </div>
-                {i < 2 && <div className="w-12 h-0.5 bg-border" />}
+                {i < 1 && <div className="w-12 h-0.5 bg-border" />}
               </React.Fragment>
             ))}
           </div>
@@ -230,14 +303,14 @@ const Checkout = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <MapPin className="h-5 w-5" />
-                      Shipping Address
+                      Adresa de Livrare
                     </CardTitle>
-                    <CardDescription>Where should we deliver your order?</CardDescription>
+                    <CardDescription>Unde să livrăm comanda?</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name *</Label>
+                        <Label htmlFor="firstName">Prenume *</Label>
                         <Input
                           id="firstName"
                           value={shipping.firstName}
@@ -247,7 +320,7 @@ const Checkout = () => {
                         {shippingErrors.firstName && <p className="text-xs text-destructive">{shippingErrors.firstName}</p>}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name *</Label>
+                        <Label htmlFor="lastName">Nume *</Label>
                         <Input
                           id="lastName"
                           value={shipping.lastName}
@@ -259,30 +332,30 @@ const Checkout = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="address">Street Address *</Label>
+                      <Label htmlFor="address">Adresa *</Label>
                       <Input
                         id="address"
                         value={shipping.address}
                         onChange={(e) => setShipping(s => ({ ...s, address: e.target.value }))}
-                        placeholder="123 Main Street"
+                        placeholder="Strada, număr"
                         className={shippingErrors.address ? 'border-destructive' : ''}
                       />
                       {shippingErrors.address && <p className="text-xs text-destructive">{shippingErrors.address}</p>}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="apartment">Apartment, Suite, etc.</Label>
+                      <Label htmlFor="apartment">Apartament, Bloc, Scară</Label>
                       <Input
                         id="apartment"
                         value={shipping.apartment}
                         onChange={(e) => setShipping(s => ({ ...s, apartment: e.target.value }))}
-                        placeholder="Apt 4B"
+                        placeholder="Bloc 4, Scara B, Apt 12"
                       />
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-3">
                       <div className="space-y-2">
-                        <Label htmlFor="city">City *</Label>
+                        <Label htmlFor="city">Oraș *</Label>
                         <Input
                           id="city"
                           value={shipping.city}
@@ -292,29 +365,23 @@ const Checkout = () => {
                         {shippingErrors.city && <p className="text-xs text-destructive">{shippingErrors.city}</p>}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="state">State *</Label>
-                        <Select value={shipping.state} onValueChange={(v) => setShipping(s => ({ ...s, state: v }))}>
-                          <SelectTrigger className={shippingErrors.state ? 'border-destructive' : ''}>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="AL">Alabama</SelectItem>
-                            <SelectItem value="CA">California</SelectItem>
-                            <SelectItem value="FL">Florida</SelectItem>
-                            <SelectItem value="NY">New York</SelectItem>
-                            <SelectItem value="TX">Texas</SelectItem>
-                            <SelectItem value="WA">Washington</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Label htmlFor="state">Județ *</Label>
+                        <Input
+                          id="state"
+                          value={shipping.state}
+                          onChange={(e) => setShipping(s => ({ ...s, state: e.target.value }))}
+                          placeholder="București"
+                          className={shippingErrors.state ? 'border-destructive' : ''}
+                        />
                         {shippingErrors.state && <p className="text-xs text-destructive">{shippingErrors.state}</p>}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="zipCode">ZIP Code *</Label>
+                        <Label htmlFor="zipCode">Cod Poștal *</Label>
                         <Input
                           id="zipCode"
                           value={shipping.zipCode}
-                          onChange={(e) => setShipping(s => ({ ...s, zipCode: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
-                          placeholder="10001"
+                          onChange={(e) => setShipping(s => ({ ...s, zipCode: e.target.value }))}
+                          placeholder="010101"
                           className={shippingErrors.zipCode ? 'border-destructive' : ''}
                         />
                         {shippingErrors.zipCode && <p className="text-xs text-destructive">{shippingErrors.zipCode}</p>}
@@ -322,12 +389,12 @@ const Checkout = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number *</Label>
+                      <Label htmlFor="phone">Telefon *</Label>
                       <Input
                         id="phone"
                         value={shipping.phone}
                         onChange={(e) => setShipping(s => ({ ...s, phone: formatPhone(e.target.value) }))}
-                        placeholder="(555) 123-4567"
+                        placeholder="0721234567"
                         className={shippingErrors.phone ? 'border-destructive' : ''}
                       />
                       {shippingErrors.phone && <p className="text-xs text-destructive">{shippingErrors.phone}</p>}
@@ -335,7 +402,7 @@ const Checkout = () => {
 
                     <div className="flex items-center gap-2">
                       <Checkbox id="saveAddress" checked={saveAddress} onCheckedChange={(c) => setSaveAddress(!!c)} />
-                      <Label htmlFor="saveAddress" className="text-sm font-normal">Save this address for future orders</Label>
+                      <Label htmlFor="saveAddress" className="text-sm font-normal">Salvează adresa pentru comenzi viitoare</Label>
                     </div>
 
                     <Separator />
@@ -343,131 +410,45 @@ const Checkout = () => {
                     <div className="space-y-4">
                       <h4 className="font-medium flex items-center gap-2">
                         <Truck className="h-4 w-4" />
-                        Shipping Method
+                        Metodă de Livrare
                       </h4>
                       <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
                         <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('standard')}>
                           <div className="flex items-center gap-3">
                             <RadioGroupItem value="standard" id="standard" />
                             <div>
-                              <Label htmlFor="standard" className="cursor-pointer font-medium">Standard Shipping</Label>
-                              <p className="text-sm text-muted-foreground">5-7 business days</p>
+                              <Label htmlFor="standard" className="cursor-pointer font-medium">Livrare Standard</Label>
+                              <p className="text-sm text-muted-foreground">5-7 zile lucrătoare</p>
                             </div>
                           </div>
-                          <span className="font-medium">$5.99</span>
+                          <span className="font-medium">{formatPrice(5.99)}</span>
                         </div>
                         <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('express')}>
                           <div className="flex items-center gap-3">
                             <RadioGroupItem value="express" id="express" />
                             <div>
-                              <Label htmlFor="express" className="cursor-pointer font-medium">Express Shipping</Label>
-                              <p className="text-sm text-muted-foreground">2-3 business days</p>
+                              <Label htmlFor="express" className="cursor-pointer font-medium">Livrare Express</Label>
+                              <p className="text-sm text-muted-foreground">2-3 zile lucrătoare</p>
                             </div>
                           </div>
-                          <span className="font-medium">$14.99</span>
+                          <span className="font-medium">{formatPrice(14.99)}</span>
                         </div>
                         <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('overnight')}>
                           <div className="flex items-center gap-3">
                             <RadioGroupItem value="overnight" id="overnight" />
                             <div>
-                              <Label htmlFor="overnight" className="cursor-pointer font-medium">Overnight Shipping</Label>
-                              <p className="text-sm text-muted-foreground">Next business day</p>
+                              <Label htmlFor="overnight" className="cursor-pointer font-medium">Livrare în 24h</Label>
+                              <p className="text-sm text-muted-foreground">Ziua lucrătoare următoare</p>
                             </div>
                           </div>
-                          <span className="font-medium">$29.99</span>
+                          <span className="font-medium">{formatPrice(29.99)}</span>
                         </div>
                       </RadioGroup>
                     </div>
 
-                    <Button className="w-full" size="lg" onClick={handleContinueToPayment}>
-                      Continue to Payment
+                    <Button className="w-full" size="lg" onClick={handleContinueToReview}>
+                      Continuă la Confirmare
                     </Button>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Payment Step */}
-              {step === 'payment' && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CreditCard className="h-5 w-5" />
-                      Payment Information
-                    </CardTitle>
-                    <CardDescription>All transactions are secure and encrypted</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-success/10 text-success text-sm">
-                      <Lock className="h-4 w-4" />
-                      <span>Your payment information is encrypted and secure</span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="cardNumber">Card Number *</Label>
-                      <div className="relative">
-                        <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          id="cardNumber"
-                          value={payment.cardNumber}
-                          onChange={(e) => setPayment(p => ({ ...p, cardNumber: formatCardNumber(e.target.value) }))}
-                          placeholder="1234 5678 9012 3456"
-                          maxLength={19}
-                          className={`pl-10 ${paymentErrors.cardNumber ? 'border-destructive' : ''}`}
-                        />
-                      </div>
-                      {paymentErrors.cardNumber && <p className="text-xs text-destructive">{paymentErrors.cardNumber}</p>}
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="expiry">Expiry Date *</Label>
-                        <Input
-                          id="expiry"
-                          value={payment.expiry}
-                          onChange={(e) => setPayment(p => ({ ...p, expiry: formatExpiry(e.target.value) }))}
-                          placeholder="MM/YY"
-                          maxLength={5}
-                          className={paymentErrors.expiry ? 'border-destructive' : ''}
-                        />
-                        {paymentErrors.expiry && <p className="text-xs text-destructive">{paymentErrors.expiry}</p>}
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="cvc">CVC *</Label>
-                        <Input
-                          id="cvc"
-                          value={payment.cvc}
-                          onChange={(e) => setPayment(p => ({ ...p, cvc: e.target.value.replace(/\D/g, '').slice(0, 4) }))}
-                          placeholder="123"
-                          maxLength={4}
-                          className={paymentErrors.cvc ? 'border-destructive' : ''}
-                        />
-                        {paymentErrors.cvc && <p className="text-xs text-destructive">{paymentErrors.cvc}</p>}
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="nameOnCard">Name on Card *</Label>
-                      <Input
-                        id="nameOnCard"
-                        value={payment.nameOnCard}
-                        onChange={(e) => setPayment(p => ({ ...p, nameOnCard: e.target.value }))}
-                        placeholder="John Doe"
-                        className={paymentErrors.nameOnCard ? 'border-destructive' : ''}
-                      />
-                      {paymentErrors.nameOnCard && <p className="text-xs text-destructive">{paymentErrors.nameOnCard}</p>}
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Checkbox id="saveCard" checked={saveCard} onCheckedChange={(c) => setSaveCard(!!c)} />
-                      <Label htmlFor="saveCard" className="text-sm font-normal">Save this card for future purchases</Label>
-                    </div>
-
-                    <div className="flex gap-3">
-                      <Button variant="outline" onClick={() => setStep('shipping')}>Back</Button>
-                      <Button className="flex-1" size="lg" onClick={handleContinueToReview}>
-                        Review Order
-                      </Button>
-                    </div>
                   </CardContent>
                 </Card>
               )}
@@ -479,7 +460,7 @@ const Checkout = () => {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Package className="h-5 w-5" />
-                        Review Your Order
+                        Confirmă Comanda
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -488,30 +469,15 @@ const Checkout = () => {
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium flex items-center gap-2">
                             <MapPin className="h-4 w-4" />
-                            Shipping Address
+                            Adresa de Livrare
                           </h4>
-                          <Button variant="ghost" size="sm" onClick={() => setStep('shipping')}>Edit</Button>
+                          <Button variant="ghost" size="sm" onClick={() => setStep('shipping')}>Modifică</Button>
                         </div>
                         <p className="text-sm text-muted-foreground">
                           {shipping.firstName} {shipping.lastName}<br />
                           {shipping.address}{shipping.apartment && `, ${shipping.apartment}`}<br />
                           {shipping.city}, {shipping.state} {shipping.zipCode}<br />
-                          {shipping.phone}
-                        </p>
-                      </div>
-
-                      {/* Payment Summary */}
-                      <div className="p-4 rounded-lg bg-muted/50">
-                        <div className="flex items-center justify-between mb-2">
-                          <h4 className="font-medium flex items-center gap-2">
-                            <CreditCard className="h-4 w-4" />
-                            Payment Method
-                          </h4>
-                          <Button variant="ghost" size="sm" onClick={() => setStep('payment')}>Edit</Button>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Card ending in {payment.cardNumber.slice(-4)}<br />
-                          {payment.nameOnCard}
+                          Tel: {shipping.phone}
                         </p>
                       </div>
 
@@ -519,27 +485,44 @@ const Checkout = () => {
                       <div className="p-4 rounded-lg bg-muted/50">
                         <h4 className="font-medium flex items-center gap-2 mb-2">
                           <Truck className="h-4 w-4" />
-                          Shipping Method
+                          Metodă Livrare
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {shippingMethod === 'overnight' ? 'Overnight Shipping (Next business day)' :
-                           shippingMethod === 'express' ? 'Express Shipping (2-3 business days)' :
-                           'Standard Shipping (5-7 business days)'} - {formatPrice(shippingCost)}
+                          {shippingMethod === 'overnight' ? 'Livrare în 24h (Ziua următoare)' :
+                           shippingMethod === 'express' ? 'Livrare Express (2-3 zile)' :
+                           'Livrare Standard (5-7 zile)'} - {formatPrice(shippingCost)}
+                        </p>
+                      </div>
+
+                      {/* Payment Info */}
+                      <div className="p-4 rounded-lg bg-muted/50">
+                        <h4 className="font-medium flex items-center gap-2 mb-2">
+                          <CreditCard className="h-4 w-4" />
+                          Plată
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Plata se va face prin PayPal după confirmare
                         </p>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Button className="w-full gap-2" size="lg" onClick={handlePlaceOrder} disabled={processing}>
-                    {processing ? (
-                      <>Processing...</>
-                    ) : (
-                      <>
-                        <ShieldCheck className="h-5 w-5" />
-                        Place Order - {formatPrice(total)}
-                      </>
-                    )}
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button variant="outline" onClick={() => setStep('shipping')}>Înapoi</Button>
+                    <Button className="flex-1 gap-2" size="lg" onClick={handlePlaceOrder} disabled={processing}>
+                      {processing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Se procesează...
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="h-5 w-5" />
+                          Plasează Comanda - {formatPrice(total)}
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -548,21 +531,21 @@ const Checkout = () => {
             <div className="lg:col-span-1">
               <Card className="sticky top-24">
                 <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
+                  <CardTitle>Sumar Comandă</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Product */}
                   <div className="flex gap-4">
                     <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted">
                       <img 
-                        src={listing?.image || '/placeholder.svg'} 
-                        alt={listing?.title}
+                        src={listingImage} 
+                        alt={listing.title}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium line-clamp-2">{listing?.title}</h4>
-                      <p className="text-sm text-muted-foreground capitalize">{listing?.condition?.replace('_', ' ')}</p>
+                      <h4 className="font-medium line-clamp-2">{listing.title}</h4>
+                      <p className="text-sm text-muted-foreground capitalize">{listing.condition?.replace('_', ' ')}</p>
                     </div>
                   </div>
 
@@ -575,12 +558,12 @@ const Checkout = () => {
                       <span>{formatPrice(subtotal)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="text-muted-foreground">Livrare</span>
                       <span>{formatPrice(shippingCost)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Estimated Tax</span>
-                      <span>{formatPrice(tax)}</span>
+                      <span className="text-muted-foreground">Taxă cumpărător</span>
+                      <span>{formatPrice(buyerFee)}</span>
                     </div>
                   </div>
 
@@ -592,8 +575,8 @@ const Checkout = () => {
                   </div>
 
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <ShieldCheck className="h-4 w-4 text-success" />
-                    <span>Buyer Protection Guarantee</span>
+                    <ShieldCheck className="h-4 w-4 text-green-500" />
+                    <span>Protecție Cumpărător Garantată</span>
                   </div>
                 </CardContent>
               </Card>
