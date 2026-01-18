@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign, CreditCard, Crown, TrendingUp, ShoppingCart, Pencil } from 'lucide-react';
+import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign, CreditCard, Crown, TrendingUp, ShoppingCart, Pencil, BookOpen } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -230,7 +230,16 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Links */}
-        <div className="grid md:grid-cols-5 gap-4 mb-8">
+        <div className="grid md:grid-cols-6 gap-4 mb-8">
+          <Link to="/seller-guide">
+            <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full border-primary/30 bg-primary/5">
+              <CardHeader className="pb-3">
+                <BookOpen className="h-6 w-6 mb-2 text-primary" />
+                <CardTitle className="text-lg">Ghid Vânzător</CardTitle>
+                <CardDescription>Tutorial complet pas cu pas</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
           <Link to="/favorites">
             <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
               <CardHeader className="pb-3">
