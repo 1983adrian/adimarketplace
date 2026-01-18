@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, Filter, X, MapPin, Heart } from 'lucide-react';
+import { Search, Filter, X, MapPin, Heart, Package, ShoppingCart } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,17 +10,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { sampleListings } from '@/data/sampleListings';
 import { useCategories } from '@/hooks/useCategories';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const Browse = () => {
   const { t } = useLanguage();
   const { formatPrice } = useCurrency();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [priceRange, setPriceRange] = useState([0, 1000]);
+  const [priceRange, setPriceRange] = useState([0, 10000]);
   const [selectedCondition, setSelectedCondition] = useState<string>('');
   const [sortBy, setSortBy] = useState('newest');
   const [locationFilter, setLocationFilter] = useState('');
@@ -28,23 +29,59 @@ const Browse = () => {
 
   const selectedCategory = searchParams.get('category') || '';
 
-  const filteredListings = sampleListings.filter((listing) => {
+  // Fetch real listings from database
+  const { data: listings = [], isLoading } = useQuery({
+    queryKey: ['browse-listings', selectedCategory],
+    queryFn: async () => {
+      let query = supabase
+        .from('listings')
+        .select(`
+          *,
+          listing_images (
+            id,
+            image_url,
+            is_primary,
+            sort_order
+          ),
+          categories (
+            id,
+            name,
+            slug
+          )
+        `)
+        .eq('is_active', true)
+        .eq('is_sold', false);
+
+      if (selectedCategory) {
+        const category = categories?.find(c => c.slug === selectedCategory);
+        if (category) {
+          query = query.eq('category_id', category.id);
+        }
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const filteredListings = listings.filter((listing) => {
     const matchesSearch = !searchQuery || 
       listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      listing.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = !selectedCategory || listing.category === selectedCategory;
+      (listing.description && listing.description.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesPrice = listing.price >= priceRange[0] && listing.price <= priceRange[1];
     const matchesCondition = !selectedCondition || listing.condition === selectedCondition;
     const matchesLocation = !locationFilter || 
       (listing.location && listing.location.toLowerCase().includes(locationFilter.toLowerCase()));
-    return matchesSearch && matchesCategory && matchesPrice && matchesCondition && matchesLocation;
+    return matchesSearch && matchesPrice && matchesCondition && matchesLocation;
   });
 
   const sortedListings = [...filteredListings].sort((a, b) => {
     switch (sortBy) {
       case 'price_asc': return a.price - b.price;
       case 'price_desc': return b.price - a.price;
-      default: return 0;
+      case 'newest': 
+      default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     }
   });
 
@@ -59,7 +96,7 @@ const Browse = () => {
 
   const clearFilters = () => {
     setSearchQuery('');
-    setPriceRange([0, 1000]);
+    setPriceRange([0, 10000]);
     setSelectedCondition('');
     setLocationFilter('');
     setSortBy('newest');
@@ -90,7 +127,7 @@ const Browse = () => {
       
       <div>
         <Label className="mb-2 block">{t('browse.priceRange')}: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}</Label>
-        <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={1000} step={10} className="mt-4" />
+        <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={10000} step={10} className="mt-4" />
       </div>
       
       <div>
@@ -166,35 +203,79 @@ const Browse = () => {
 
           <div className="flex-1">
             <p className="text-muted-foreground mb-4">{sortedListings.length} {t('browse.itemsFound')}</p>
-            {sortedListings.length === 0 ? (
+            
+            {isLoading ? (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {[...Array(8)].map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <div className="aspect-square bg-muted" />
+                    <CardContent className="p-4">
+                      <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                      <div className="h-6 bg-muted rounded w-1/2" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : sortedListings.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-muted-foreground">{t('browse.noListings')}</p>
+                <Package className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+                <p className="text-muted-foreground text-lg">{t('browse.noListings')}</p>
                 <Button variant="link" onClick={clearFilters}>{t('browse.clearFilters')}</Button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {sortedListings.map((listing) => (
-                  <Link key={listing.id} to={`/listing/${listing.id}`}>
-                    <Card className="group overflow-hidden hover-lift cursor-pointer border-border/50 hover:border-primary/30">
-                      <div className="relative aspect-square overflow-hidden bg-muted">
-                        <img src={listing.image} alt={listing.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                        <Button variant="ghost" size="icon" className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background">
-                          <Heart className="h-5 w-5" />
-                        </Button>
-                        <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">{t(`condition.${listing.condition}`)}</Badge>
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-lg truncate group-hover:text-primary transition-colors">{listing.title}</h3>
-                        <p className="text-2xl font-bold text-primary mt-1">{formatPrice(listing.price)}</p>
-                        {listing.location && (
-                          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-2">
-                            <MapPin className="h-3 w-3" />{listing.location}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {sortedListings.map((listing) => {
+                  const primaryImage = listing.listing_images?.find((img: any) => img.is_primary) || listing.listing_images?.[0];
+                  
+                  return (
+                    <Link key={listing.id} to={`/listing/${listing.id}`}>
+                      <Card className="group overflow-hidden hover-lift cursor-pointer border-border/50 hover:border-primary/30 h-full flex flex-col">
+                        <div className="relative aspect-square overflow-hidden bg-muted">
+                          <img 
+                            src={primaryImage?.image_url || '/placeholder.svg'} 
+                            alt={listing.title} 
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+                          />
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background"
+                            onClick={(e) => e.preventDefault()}
+                          >
+                            <Heart className="h-5 w-5" />
+                          </Button>
+                          <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">
+                            {t(`condition.${listing.condition}`)}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-3 flex-1 flex flex-col">
+                          <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors">
+                            {listing.title}
+                          </h3>
+                          <p className="text-lg md:text-xl font-bold text-primary mt-1">
+                            {formatPrice(listing.price)}
                           </p>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
+                          {listing.location && (
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                              <MapPin className="h-3 w-3" />{listing.location}
+                            </p>
+                          )}
+                          <Button 
+                            size="sm" 
+                            className="w-full gap-2 mt-auto pt-2"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = `/checkout/${listing.id}`;
+                            }}
+                          >
+                            <ShoppingCart className="h-4 w-4" />
+                            {t('listing.buyNow')}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>
