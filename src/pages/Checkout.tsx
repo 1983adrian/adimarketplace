@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { z } from 'zod';
 import { 
   CreditCard, Lock, Truck, MapPin, ChevronLeft, 
-  Check, ShieldCheck, Package, Loader2
+  Check, ShieldCheck, Package, Loader2, Trash2
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useListing } from '@/hooks/useListings';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,6 +25,7 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 const shippingSchema = z.object({
   firstName: z.string().trim().min(1, 'Prenumele este obligatoriu').max(50, 'Prenume prea lung'),
   lastName: z.string().trim().min(1, 'Numele este obligatoriu').max(50, 'Nume prea lung'),
+  email: z.string().trim().email('Email invalid').max(255, 'Email prea lung'),
   address: z.string().trim().min(5, 'Adresa este obligatorie').max(200, 'Adresă prea lungă'),
   apartment: z.string().max(50, 'Text prea lung').optional(),
   city: z.string().trim().min(2, 'Orașul este obligatoriu').max(100, 'Oraș prea lung'),
@@ -34,23 +36,26 @@ const shippingSchema = z.object({
 
 const Checkout = () => {
   const { user, loading: authLoading, profile } = useAuth();
+  const { items, removeItem, total: cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { formatPrice } = useCurrency();
   
+  // Support both cart checkout and single item checkout
   const listingId = searchParams.get('listing');
-  const { data: listing, isLoading: listingLoading } = useListing(listingId || '');
+  const { data: singleListing, isLoading: listingLoading } = useListing(listingId || '');
 
   const [step, setStep] = useState<'shipping' | 'review'>('shipping');
   const [processing, setProcessing] = useState(false);
   const [shippingMethod, setShippingMethod] = useState('standard');
-  const [saveAddress, setSaveAddress] = useState(true);
+  const [saveAddress, setSaveAddress] = useState(!!user);
 
-  // Shipping form state
+  // Shipping form state - now includes email for guests
   const [shipping, setShipping] = useState({
     firstName: '',
     lastName: '',
+    email: '',
     address: '',
     apartment: '',
     city: '',
@@ -60,31 +65,29 @@ const Checkout = () => {
   });
   const [shippingErrors, setShippingErrors] = useState<Record<string, string>>({});
 
+  // Redirect if no items in cart and no single listing
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/login');
-    }
-  }, [user, authLoading, navigate]);
-
-  useEffect(() => {
-    if (!listingId) {
+    if (!listingId && items.length === 0) {
       navigate('/browse');
     }
-  }, [listingId, navigate]);
+  }, [listingId, items, navigate]);
 
-  // Pre-fill from profile
+  // Pre-fill from profile if logged in
   useEffect(() => {
+    if (user?.email) {
+      setShipping(prev => ({ ...prev, email: user.email || '' }));
+    }
     if (profile) {
       const displayName = (profile as any).display_name || '';
       const nameParts = displayName.split(' ');
       setShipping(prev => ({
         ...prev,
-        firstName: nameParts[0] || '',
-        lastName: nameParts.slice(1).join(' ') || '',
-        phone: (profile as any).phone || '',
+        firstName: nameParts[0] || prev.firstName,
+        lastName: nameParts.slice(1).join(' ') || prev.lastName,
+        phone: (profile as any).phone || prev.phone,
       }));
     }
-  }, [profile]);
+  }, [profile, user]);
 
   const formatPhone = (value: string) => {
     return value.replace(/\D/g, '').slice(0, 15);
@@ -111,7 +114,12 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (!listing || !user) return;
+    // Get checkout items - either from cart or single listing
+    const checkoutItems = listingId && singleListing 
+      ? [{ id: singleListing.id, title: singleListing.title, price: singleListing.price, seller_id: singleListing.seller_id }]
+      : items;
+    
+    if (checkoutItems.length === 0) return;
     
     setProcessing(true);
 
@@ -119,8 +127,8 @@ const Checkout = () => {
       // Build shipping address string
       const shippingAddress = `${shipping.firstName} ${shipping.lastName}, ${shipping.address}${shipping.apartment ? `, ${shipping.apartment}` : ''}, ${shipping.city}, ${shipping.state} ${shipping.zipCode}, Tel: ${shipping.phone}`;
 
-      // Save address if requested
-      if (saveAddress) {
+      // Save address if user is logged in and requested
+      if (user && saveAddress) {
         await supabase.from('saved_addresses').insert({
           user_id: user.id,
           first_name: shipping.firstName,
@@ -136,12 +144,13 @@ const Checkout = () => {
         });
       }
 
-      // Call Stripe checkout
+      // Call Stripe checkout - pass all items
       const { data, error } = await supabase.functions.invoke('stripe-product-checkout', {
         body: { 
-          listingId: listing.id,
+          items: checkoutItems.map(item => ({ listingId: item.id, price: item.price })),
           shippingAddress,
           shippingMethod,
+          guestEmail: !user ? shipping.email : undefined,
         },
       });
 
@@ -150,6 +159,8 @@ const Checkout = () => {
       }
 
       if (data?.url) {
+        // Clear cart on successful checkout redirect
+        clearCart();
         // Redirect to Stripe Checkout
         window.location.href = data.url;
       } else {
@@ -166,12 +177,17 @@ const Checkout = () => {
     }
   };
 
+  // Calculate totals based on cart or single listing
+  const checkoutItems = listingId && singleListing 
+    ? [{ id: singleListing.id, title: singleListing.title, price: singleListing.price, image_url: (singleListing as any).listing_images?.[0]?.image_url || '/placeholder.svg', seller_id: singleListing.seller_id }]
+    : items;
+  
   const shippingCost = shippingMethod === 'express' ? 14.99 : shippingMethod === 'overnight' ? 29.99 : 5.99;
-  const subtotal = listing?.price || 0;
+  const subtotal = checkoutItems.reduce((sum, item) => sum + item.price, 0);
   const buyerFee = 2; // £2 buyer fee
   const total = subtotal + shippingCost + buyerFee;
 
-  if (authLoading || listingLoading) {
+  if (listingLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12 flex items-center justify-center">
@@ -181,11 +197,11 @@ const Checkout = () => {
     );
   }
 
-  if (!listing) {
+  if (checkoutItems.length === 0) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12 text-center">
-          <p className="text-muted-foreground">Produsul nu a fost găsit</p>
+          <p className="text-muted-foreground">Coșul este gol</p>
           <Button onClick={() => navigate('/browse')} className="mt-4">
             Înapoi la produse
           </Button>
@@ -194,7 +210,7 @@ const Checkout = () => {
     );
   }
 
-  const listingImage = (listing as any).listing_images?.[0]?.image_url || '/placeholder.svg';
+  
 
   return (
     <Layout>
@@ -268,6 +284,23 @@ const Checkout = () => {
                         {shippingErrors.lastName && <p className="text-xs text-destructive">{shippingErrors.lastName}</p>}
                       </div>
                     </div>
+
+                    {/* Email for guest checkout */}
+                    {!user && (
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={shipping.email}
+                          onChange={(e) => setShipping(s => ({ ...s, email: e.target.value }))}
+                          placeholder="email@exemplu.ro"
+                          className={shippingErrors.email ? 'border-destructive' : ''}
+                        />
+                        {shippingErrors.email && <p className="text-xs text-destructive">{shippingErrors.email}</p>}
+                        <p className="text-xs text-muted-foreground">Vei primi confirmarea comenzii pe acest email</p>
+                      </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label htmlFor="address">Adresa *</Label>
@@ -472,20 +505,32 @@ const Checkout = () => {
                   <CardTitle>Sumar Comandă</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Product */}
-                  <div className="flex gap-4">
-                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted">
-                      <img 
-                        src={listingImage} 
-                        alt={listing.title}
-                        className="w-full h-full object-cover"
-                      />
+                  {/* Products */}
+                  {checkoutItems.map((item) => (
+                    <div key={item.id} className="flex gap-4">
+                      <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted">
+                        <img 
+                          src={item.image_url || '/placeholder.svg'} 
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-medium line-clamp-2">{item.title}</h4>
+                        <p className="text-primary font-semibold">{formatPrice(item.price)}</p>
+                      </div>
+                      {!listingId && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-destructive hover:bg-destructive/10"
+                          onClick={() => removeItem(item.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium line-clamp-2">{listing.title}</h4>
-                      <p className="text-sm text-muted-foreground capitalize">{listing.condition?.replace('_', ' ')}</p>
-                    </div>
-                  </div>
+                  ))}
 
                   <Separator />
 
