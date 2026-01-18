@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -10,79 +11,6 @@ const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
   console.log(`[PROCESS-PAYOUT] ${step}${detailsStr}`);
 };
-
-// PayPal API helpers
-async function getPayPalAccessToken(): Promise<string> {
-  const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
-  const clientSecret = Deno.env.get("PAYPAL_SECRET");
-  
-  if (!clientId || !clientSecret) {
-    throw new Error("PayPal credentials not configured");
-  }
-
-  const auth = btoa(`${clientId}:${clientSecret}`);
-  const response = await fetch("https://api-m.paypal.com/v1/oauth2/token", {
-    method: "POST",
-    headers: {
-      "Authorization": `Basic ${auth}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: "grant_type=client_credentials",
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    logStep("PayPal auth error", { status: response.status, error });
-    throw new Error("Failed to authenticate with PayPal");
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
-
-async function sendPayPalPayout(accessToken: string, payout: {
-  recipientEmail: string;
-  amount: number;
-  currency: string;
-  payoutId: string;
-  note: string;
-}): Promise<{ payoutBatchId: string }> {
-  const response = await fetch("https://api-m.paypal.com/v1/payments/payouts", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      sender_batch_header: {
-        sender_batch_id: payout.payoutId,
-        email_subject: "AdiMarket - Your payment has arrived!",
-        email_message: "You have received a payment from AdiMarket for your sale.",
-      },
-      items: [
-        {
-          recipient_type: "EMAIL",
-          amount: {
-            value: payout.amount.toFixed(2),
-            currency: payout.currency,
-          },
-          receiver: payout.recipientEmail,
-          note: payout.note,
-          sender_item_id: payout.payoutId,
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    logStep("PayPal payout error", { status: response.status, error });
-    throw new Error(`PayPal payout failed: ${error}`);
-  }
-
-  const data = await response.json();
-  return { payoutBatchId: data.batch_header.payout_batch_id };
-}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -97,6 +25,11 @@ serve(async (req) => {
 
   try {
     logStep("Function started");
+
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY not configured");
+
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header provided");
@@ -180,16 +113,18 @@ serve(async (req) => {
     }
     logStep("Order updated to delivered");
 
-    // Get seller's PayPal email from profile (preferred) or auth email
+    // Get seller's Stripe account ID from profile
     const { data: sellerProfile } = await supabaseClient
       .from('profiles')
-      .select('paypal_email')
+      .select('stripe_account_id')
       .eq('user_id', order.seller_id)
       .single();
     
     const { data: sellerAuth } = await supabaseClient.auth.admin.getUserById(order.seller_id);
-    const sellerEmail = sellerProfile?.paypal_email || sellerAuth?.user?.email;
-    logStep("Seller payout email", { paypalEmail: sellerProfile?.paypal_email, authEmail: sellerAuth?.user?.email, using: sellerEmail });
+    logStep("Seller info", { 
+      stripeAccountId: sellerProfile?.stripe_account_id, 
+      email: sellerAuth?.user?.email 
+    });
 
     // Create payout record
     const { data: payout, error: payoutError } = await supabaseClient
@@ -211,33 +146,41 @@ serve(async (req) => {
     }
     logStep("Payout record created", { payoutId: payout.id });
 
-    // Attempt automatic PayPal payout if seller email exists
-    let paypalPayoutId: string | null = null;
+    // Attempt automatic Stripe Transfer if seller has Stripe account
+    let stripeTransferId: string | null = null;
     let payoutStatus = "pending";
 
-    if (sellerEmail) {
+    if (sellerProfile?.stripe_account_id) {
       try {
-        logStep("Attempting automatic PayPal payout", { sellerEmail, amount: netAmount });
+        logStep("Attempting Stripe Transfer", { 
+          stripeAccountId: sellerProfile.stripe_account_id, 
+          amount: Math.round(netAmount * 100) // Convert to pence
+        });
         
-        const accessToken = await getPayPalAccessToken();
-        const paypalResult = await sendPayPalPayout(accessToken, {
-          recipientEmail: sellerEmail,
-          amount: netAmount,
-          currency: "GBP",
-          payoutId: payout.id,
-          note: `Payment for order ${order_id.slice(0, 8)} - ${order.listings?.title || 'Item'}`,
+        // Create a transfer to the connected account
+        const transfer = await stripe.transfers.create({
+          amount: Math.round(netAmount * 100), // Amount in pence
+          currency: "gbp",
+          destination: sellerProfile.stripe_account_id,
+          transfer_group: `ORDER_${order_id}`,
+          metadata: {
+            order_id: order_id,
+            payout_id: payout.id,
+            listing_title: order.listings?.title || 'Item',
+          },
         });
 
-        paypalPayoutId = paypalResult.payoutBatchId;
-        payoutStatus = "processing";
-        logStep("PayPal payout initiated", { paypalPayoutId });
+        stripeTransferId = transfer.id;
+        payoutStatus = "completed";
+        logStep("Stripe transfer completed", { transferId: transfer.id });
 
-        // Update payout record with PayPal batch ID
+        // Update payout record with Stripe transfer ID
         await supabaseClient
           .from("payouts")
           .update({
-            paypal_payout_id: paypalPayoutId,
-            status: "processing",
+            stripe_transfer_id: stripeTransferId,
+            status: "completed",
+            processed_at: new Date().toISOString(),
           })
           .eq("id", payout.id);
 
@@ -245,37 +188,38 @@ serve(async (req) => {
         await supabaseClient
           .from("orders")
           .update({
-            payout_status: "processing",
+            payout_status: "completed",
+            payout_at: new Date().toISOString(),
           })
           .eq("id", order_id);
 
-      } catch (paypalError) {
-        logStep("PayPal payout failed, will retry manually", { 
-          error: paypalError instanceof Error ? paypalError.message : String(paypalError) 
+      } catch (stripeError) {
+        logStep("Stripe transfer failed", { 
+          error: stripeError instanceof Error ? stripeError.message : String(stripeError) 
         });
-        // Don't throw - payout will be processed manually
+        // Don't throw - payout will be processed manually or seller needs to connect Stripe
       }
     } else {
-      logStep("No seller email found, payout will be processed manually");
+      logStep("Seller has no Stripe account connected, payout pending manual processing");
     }
 
     // Create notification for seller
     await supabaseClient.from("notifications").insert({
       user_id: order.seller_id,
       type: "payout",
-      title: payoutStatus === "processing" ? "Payment Processing" : "Delivery Confirmed",
-      message: payoutStatus === "processing" 
-        ? `Your payment of £${netAmount.toFixed(2)} is being processed and will arrive shortly.`
-        : `Delivery confirmed! Your payment of £${netAmount.toFixed(2)} is pending processing.`,
+      title: payoutStatus === "completed" ? "Plată Primită!" : "Livrare Confirmată",
+      message: payoutStatus === "completed" 
+        ? `Plata de £${netAmount.toFixed(2)} a fost transferată în contul tău Stripe.`
+        : `Livrarea a fost confirmată! Conectează-ți contul Stripe în Setări pentru a primi plata de £${netAmount.toFixed(2)}.`,
       data: { orderId: order_id, payoutId: payout.id, amount: netAmount },
     });
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: payoutStatus === "processing" 
-          ? "Delivery confirmed, PayPal payout initiated"
-          : "Delivery confirmed, payout pending",
+        message: payoutStatus === "completed" 
+          ? "Livrare confirmată, transfer Stripe efectuat"
+          : "Livrare confirmată, plata în așteptare (conectează Stripe)",
         payout: {
           id: payout.id,
           gross_amount: grossAmount,
@@ -283,7 +227,7 @@ serve(async (req) => {
           seller_commission: sellerCommission,
           net_amount: netAmount,
           status: payoutStatus,
-          paypal_payout_id: paypalPayoutId,
+          stripe_transfer_id: stripeTransferId,
         },
       }),
       {

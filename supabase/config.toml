@@ -1,4 +1,46 @@
 project_id = "pabdpeqliwnpbnbsawqe"
 
-[functions.paypal-checkout]
+[functions.stripe-product-checkout]
+verify_jwt = false
+
+[functions.stripe-payment-success]
+verify_jwt = false
+
+[functions.process-payout]
+verify_jwt = false
+
+[functions.auto-payout]
+verify_jwt = false
+
+[functions.create-stripe-connect-account]
+verify_jwt = false
+
+[functions.create-seller-subscription]
+verify_jwt = false
+
+[functions.check-seller-subscription]
+verify_jwt = false
+
+[functions.seller-customer-portal]
+verify_jwt = false
+
+[functions.send-notification]
+verify_jwt = false
+
+[functions.update-tracking]
+verify_jwt = false
+
+[functions.create-paid-promotion]
+verify_jwt = false
+
+[functions.create-social-promotion]
+verify_jwt = false
+
+[functions.promotion-webhook]
+verify_jwt = false
+
+[functions.ai-manager]
+verify_jwt = false
+
+[functions.ai-sales-manager]
 verify_jwt = false
