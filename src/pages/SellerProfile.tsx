@@ -109,10 +109,10 @@ const SellerProfile = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-2xl font-bold">{displayName}</h1>
-                  {stats && stats.total_sales >= 10 && (
-                    <Badge variant="secondary" className="gap-1">
+                  {seller.is_verified && (
+                    <Badge className="gap-1 bg-blue-500 hover:bg-blue-600">
                       <Shield className="h-3 w-3" />
-                      Verified Seller
+                      Verificat
                     </Badge>
                   )}
                 </div>
