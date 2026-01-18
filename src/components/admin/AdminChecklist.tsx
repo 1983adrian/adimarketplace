@@ -388,36 +388,48 @@ export const AdminChecklist: React.FC = () => {
 
             {categories.map(cat => (
               <TabsContent key={cat} value={cat}>
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {checklistData?.filter(item => item.category === cat).map((item) => (
                     <div
                       key={item.id}
-                      className="flex flex-col p-4 rounded-lg border bg-card hover:bg-muted/50 transition-colors"
+                      className="flex flex-col p-4 rounded-xl border-2 bg-card hover:border-primary/40 hover:shadow-md transition-all duration-200"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                      {/* Header cu status */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
                           {getStatusIcon(item.status)}
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className="font-semibold">{item.name}</p>
-                              {item.link && (
-                                <Link to={item.link}>
-                                  <ExternalLink className="h-3 w-3 text-muted-foreground hover:text-primary" />
-                                </Link>
-                              )}
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">{item.description}</p>
-                            {item.details && (
-                              <p className="text-xs text-primary font-medium mt-1">{item.details}</p>
-                            )}
-                            {item.ebayFeature && (
-                              <p className="text-xs text-green-600 dark:text-green-400 mt-1 flex items-center gap-1">
-                                <CheckCircle className="h-3 w-3" />
-                                {item.ebayFeature}
-                              </p>
-                            )}
-                          </div>
+                          <h3 className="font-bold text-sm">{item.name}</h3>
                         </div>
+                        {item.link && (
+                          <Link 
+                            to={item.link}
+                            className="p-1.5 rounded-lg hover:bg-primary/10 transition-colors"
+                          >
+                            <ExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                          </Link>
+                        )}
+                      </div>
+                      
+                      {/* Descriere */}
+                      <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{item.description}</p>
+                      
+                      {/* Detalii */}
+                      {item.details && (
+                        <p className="text-xs text-primary font-semibold mb-2 bg-primary/5 px-2 py-1 rounded-md inline-block">
+                          {item.details}
+                        </p>
+                      )}
+                      
+                      {/* eBay Feature */}
+                      {item.ebayFeature && (
+                        <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-auto pt-2 border-t border-border">
+                          <CheckCircle className="h-3 w-3 shrink-0" />
+                          <span className="truncate">{item.ebayFeature}</span>
+                        </p>
+                      )}
+                      
+                      {/* Badge status */}
+                      <div className="mt-3">
                         {getStatusBadge(item.status)}
                       </div>
                     </div>
