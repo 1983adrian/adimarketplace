@@ -2,9 +2,42 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Shield, Truck, Star } from 'lucide-react';
+import { Search, TrendingUp, Shield, Truck, Star, ShoppingCart } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import heroImage from '@/assets/marketplace-hero.jpeg';
+
+// MarketPlace colorful title component
+const MarketPlaceTitle: React.FC = () => (
+  <div className="flex items-center justify-center gap-2 md:gap-4 animate-fade-up">
+    {/* Shopping Cart Icon */}
+    <ShoppingCart className="h-10 w-10 md:h-16 md:w-16 lg:h-20 lg:w-20 text-primary" />
+    
+    {/* Colorful MarketPlace Text */}
+    <h1 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tight font-display select-none">
+      <span className="text-[hsl(220,90%,50%)]">M</span>
+      <span className="text-[hsl(220,90%,50%)]">a</span>
+      <span className="text-[hsl(220,90%,50%)]">r</span>
+      <span className="text-[hsl(220,90%,50%)]">k</span>
+      <span className="text-[hsl(220,90%,50%)]">e</span>
+      <span className="text-[hsl(220,90%,50%)]">t</span>
+      <span className="text-[hsl(0,80%,50%)]">P</span>
+      <span className="text-[hsl(45,100%,50%)]">l</span>
+      <span className="text-[hsl(45,100%,50%)]">a</span>
+      <span className="text-[hsl(160,84%,39%)]">c</span>
+      <span className="text-[hsl(160,84%,39%)]">e</span>
+    </h1>
+    
+    {/* Shopping Basket Icon */}
+    <div className="relative">
+      <svg className="h-10 w-10 md:h-16 md:w-16 lg:h-20 lg:w-20" viewBox="0 0 64 64" fill="none">
+        <path d="M8 24h48l-6 28H14L8 24z" fill="hsl(45, 100%, 50%)" />
+        <path d="M20 24V16a12 12 0 0124 0v8" stroke="hsl(220, 90%, 50%)" strokeWidth="4" fill="none" />
+        <circle cx="20" cy="56" r="4" fill="hsl(0, 80%, 50%)" />
+        <circle cx="44" cy="56" r="4" fill="hsl(160, 84%, 39%)" />
+      </svg>
+    </div>
+  </div>
+);
 
 export const HeroSection: React.FC = () => {
   const navigate = useNavigate();
@@ -31,12 +64,15 @@ export const HeroSection: React.FC = () => {
       <div className="absolute top-20 right-1/4 w-72 h-72 bg-accent/20 rounded-full blur-3xl" />
       
       <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16 relative">
-        <div className="max-w-6xl mx-auto text-center space-y-6">
-          {/* Hero Image - Centered, seamless blend */}
-          <div className="animate-fade-up flex justify-center">
+        <div className="max-w-6xl mx-auto text-center space-y-6 md:space-y-8">
+          {/* Large Colorful MarketPlace Title - Centered, no borders */}
+          <MarketPlaceTitle />
+
+          {/* Hero Image - Below the title */}
+          <div className="animate-fade-up flex justify-center" style={{ animationDelay: '0.1s' }}>
             <img 
               src={heroImage} 
-              alt="MarketPlace" 
+              alt="MarketPlace Products" 
               className="w-full max-w-4xl h-auto object-contain"
               style={{
                 mixBlendMode: 'multiply',
@@ -46,19 +82,19 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Trending Badge */}
-          <div className="flex justify-center animate-fade-up" style={{ animationDelay: '0.1s' }}>
-            <span className="px-3 py-1 bg-accent/20 text-accent-foreground rounded-full text-sm font-medium flex items-center gap-1.5">
-              <TrendingUp className="h-3.5 w-3.5" />
-              Peste 10,000 produse
+          <div className="flex justify-center animate-fade-up" style={{ animationDelay: '0.2s' }}>
+            <span className="px-4 py-2 bg-accent/20 text-accent-foreground rounded-full text-sm font-medium flex items-center gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Peste 10,000 produse disponibile
             </span>
           </div>
           
-          {/* Headline */}
-          <div className="space-y-3 animate-fade-up" style={{ animationDelay: '0.2s' }}>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground font-display">
+          {/* Subtitle */}
+          <div className="space-y-3 animate-fade-up" style={{ animationDelay: '0.3s' }}>
+            <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
               {t('home.hero.tagline')}
-            </h1>
-            <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            </p>
+            <p className="text-base md:text-lg text-muted-foreground/80 max-w-2xl mx-auto">
               {t('home.hero.subtitle')}
             </p>
           </div>
@@ -67,7 +103,7 @@ export const HeroSection: React.FC = () => {
           <form 
             onSubmit={handleSearch} 
             className="animate-fade-up max-w-3xl mx-auto" 
-            style={{ animationDelay: '0.3s' }}
+            style={{ animationDelay: '0.4s' }}
           >
             <div className="relative flex shadow-card-hover rounded-xl overflow-hidden bg-card border border-border">
               <div className="relative flex-1">
@@ -92,7 +128,7 @@ export const HeroSection: React.FC = () => {
           </form>
 
           {/* Popular Searches */}
-          <div className="flex flex-wrap justify-center gap-2 animate-fade-up" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-wrap justify-center gap-2 animate-fade-up" style={{ animationDelay: '0.5s' }}>
             <span className="text-sm text-muted-foreground">{t('home.hero.popular')}:</span>
             {['iPhone 15', 'MacBook', 'Nike Air Max', 'PlayStation 5', 'Samsung TV'].map((term) => (
               <Button 
@@ -108,7 +144,7 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Trust Badges */}
-          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto pt-6 animate-fade-up" style={{ animationDelay: '0.5s' }}>
+          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto pt-6 animate-fade-up" style={{ animationDelay: '0.6s' }}>
             {features.map(({ icon: Icon, text, subtext }) => (
               <div key={text} className="flex flex-col items-center gap-2 text-center">
                 <div className="p-3 rounded-xl bg-primary/10">
