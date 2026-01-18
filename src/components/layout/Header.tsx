@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, ShoppingCart, Shield, Crown, CreditCard } from 'lucide-react';
-import logo from '@/assets/logo.jpeg';
+import logo from '@/assets/marketplace-hero.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
