@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Key, Save, Eye, EyeOff, AlertTriangle, CheckCircle, ExternalLink } from 'lucide-react';
+import { Key, Save, Eye, EyeOff, AlertTriangle, CheckCircle, ExternalLink, Shield, ScanSearch } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AdminSettingsCheck } from '@/components/admin/AdminSettingsCheck';
+import { AIImageVerification } from '@/components/admin/AIImageVerification';
 
 interface ApiKeyConfig {
   key: string;
@@ -230,22 +232,22 @@ export default function AdminApiSettings() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">API Settings</h1>
+          <h1 className="text-3xl font-bold">API Settings & Verificări</h1>
           <p className="text-muted-foreground">
-            Configure external service integrations and API keys
+            Configurează API-uri, verifică serviciile și detectează imagini false
           </p>
         </div>
 
-        <Alert>
-          <Key className="h-4 w-4" />
-          <AlertDescription>
-            API keys are stored securely and encrypted. Never share these keys publicly.
-            Some features may be unavailable until required keys are configured.
-          </AlertDescription>
-        </Alert>
-
-        <Tabs defaultValue="payments" className="space-y-6">
-          <TabsList>
+        <Tabs defaultValue="status" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="status" className="gap-2">
+              <Shield className="h-4 w-4" />
+              Status Servicii
+            </TabsTrigger>
+            <TabsTrigger value="images" className="gap-2">
+              <ScanSearch className="h-4 w-4" />
+              Verificare Imagini AI
+            </TabsTrigger>
             <TabsTrigger value="payments" className="gap-2">
               Payment Services
               <Badge variant="secondary" className="ml-1">
@@ -260,13 +262,33 @@ export default function AdminApiSettings() {
             </TabsTrigger>
           </TabsList>
 
+          <TabsContent value="status">
+            <AdminSettingsCheck />
+          </TabsContent>
+
+          <TabsContent value="images">
+            <AIImageVerification />
+          </TabsContent>
+
           <TabsContent value="payments" className="space-y-4">
+            <Alert>
+              <Key className="h-4 w-4" />
+              <AlertDescription>
+                API keys are stored securely and encrypted. Never share these keys publicly.
+              </AlertDescription>
+            </Alert>
             <div className="grid gap-4 md:grid-cols-2">
               {API_CONFIGS.payments.map(renderApiKeyCard)}
             </div>
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-4">
+            <Alert>
+              <Key className="h-4 w-4" />
+              <AlertDescription>
+                Configure notification services for email and SMS alerts.
+              </AlertDescription>
+            </Alert>
             <div className="grid gap-4 md:grid-cols-2">
               {API_CONFIGS.notifications.map(renderApiKeyCard)}
             </div>
