@@ -63,9 +63,9 @@ const Settings = () => {
   const [defaultPaymentMethod, setDefaultPaymentMethod] = useState('card');
 
   // Setări încasări (vânzător)
-  const [payoutMethod, setPayoutMethod] = useState('bank');
-  const [bankAccountAdded, setBankAccountAdded] = useState(false);
-  const [paypalEmail, setPaypalEmail] = useState('');
+  const [payoutMethod, setPayoutMethod] = useState('stripe');
+  const [stripeAccountConnected, setStripeAccountConnected] = useState(false);
+  const [stripeAccountId, setStripeAccountId] = useState('');
   const [payoutSchedule, setPayoutSchedule] = useState('weekly');
   const [minimumPayout, setMinimumPayout] = useState('50');
 
@@ -87,24 +87,25 @@ const Settings = () => {
       setPhone(profile.phone || '');
       setStoreName((profile as any).store_name || '');
       setIsSeller((profile as any).is_seller || false);
-      setPaypalEmail((profile as any).paypal_email || '');
+      setStripeAccountId((profile as any).stripe_account_id || '');
+      setStripeAccountConnected(!!(profile as any).stripe_account_id);
     }
   }, [user, profile, loading, navigate]);
 
-  const handleSavePaypalEmail = async () => {
+  const handleConnectStripe = async () => {
     if (!user) return;
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ paypal_email: paypalEmail })
-        .eq('user_id', user.id);
+      const { data, error } = await supabase.functions.invoke('create-stripe-connect-account', {
+        body: {},
+      });
 
       if (error) throw error;
-      toast({ 
-        title: 'PayPal Email Salvat!',
-        description: 'Vei primi plățile pe acest email PayPal.',
-      });
+
+      if (data?.url) {
+        // Redirect to Stripe Connect onboarding
+        window.location.href = data.url;
+      }
     } catch (error: any) {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     } finally {
@@ -470,81 +471,64 @@ const Settings = () => {
                       <h4 className="font-medium">Metodă de Încasare</h4>
                       
                       <div 
-                        className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer ${payoutMethod === 'bank' ? 'border-primary bg-primary/5' : ''}`}
-                        onClick={() => setPayoutMethod('bank')}
+                        className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer ${payoutMethod === 'stripe' ? 'border-primary bg-primary/5' : ''}`}
+                        onClick={() => setPayoutMethod('stripe')}
                       >
                         <div className="flex items-center gap-3">
-                          <Building2 className="h-5 w-5 text-muted-foreground" />
+                          <div className="w-5 h-5 bg-[#635BFF] rounded flex items-center justify-center text-white text-xs font-bold">S</div>
                           <div>
-                            <p className="font-medium">Cont Bancar</p>
-                            <p className="text-sm text-muted-foreground">Transfer direct în bancă (2-3 zile)</p>
+                            <p className="font-medium">Stripe</p>
+                            <p className="text-sm text-muted-foreground">Transfer automat în contul tău Stripe (1-2 zile)</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {bankAccountAdded ? (
-                            <Badge className="bg-success">Conectat</Badge>
-                          ) : (
-                            <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setBankAccountAdded(true); }}>Adaugă</Button>
-                          )}
-                          {payoutMethod === 'bank' && <Check className="h-5 w-5 text-primary" />}
-                        </div>
-                      </div>
-
-                      <div 
-                        className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer ${payoutMethod === 'paypal' ? 'border-primary bg-primary/5' : ''}`}
-                        onClick={() => setPayoutMethod('paypal')}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">P</div>
-                          <div>
-                            <p className="font-medium">PayPal</p>
-                            <p className="text-sm text-muted-foreground">Transfer instant în PayPal (banii reali)</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {paypalEmail ? (
-                            <Badge className="bg-green-500 text-white">Conectat: {paypalEmail}</Badge>
+                          {stripeAccountConnected ? (
+                            <Badge className="bg-green-500 text-white">Conectat</Badge>
                           ) : null}
-                          {payoutMethod === 'paypal' && <Check className="h-5 w-5 text-primary" />}
+                          {payoutMethod === 'stripe' && <Check className="h-5 w-5 text-primary" />}
                         </div>
                       </div>
 
-                      {payoutMethod === 'paypal' && (
+                      {payoutMethod === 'stripe' && (
                         <div className="p-4 rounded-lg bg-muted/50 space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="paypalEmail" className="font-medium">Email PayPal pentru Încasări *</Label>
-                            <Input
-                              id="paypalEmail"
-                              type="email"
-                              value={paypalEmail}
-                              onChange={(e) => setPaypalEmail(e.target.value)}
-                              placeholder="adresa-ta@paypal.com"
-                            />
-                            <p className="text-xs text-muted-foreground">
-                              Acesta este email-ul contului PayPal unde vei primi plățile. Asigură-te că este corect!
-                            </p>
-                          </div>
-                          <Button 
-                            onClick={handleSavePaypalEmail} 
-                            disabled={saving || !paypalEmail}
-                            className="gap-2"
-                          >
-                            <Save className="h-4 w-4" />
-                            {saving ? 'Se salvează...' : 'Salvează Email PayPal'}
-                          </Button>
+                          {stripeAccountConnected ? (
+                            <div className="space-y-2">
+                              <div className="flex items-center gap-2 text-green-600">
+                                <Check className="h-5 w-5" />
+                                <p className="font-medium">Contul Stripe este conectat!</p>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                Plățile vor fi transferate automat în contul tău Stripe după confirmarea livrării.
+                              </p>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="text-sm text-muted-foreground">
+                                Conectează-ți contul Stripe pentru a primi plățile din vânzări.
+                              </p>
+                              <Button 
+                                onClick={handleConnectStripe} 
+                                disabled={saving}
+                                className="gap-2"
+                              >
+                                <CreditCard className="h-4 w-4" />
+                                {saving ? 'Se procesează...' : 'Conectează Stripe'}
+                              </Button>
+                            </>
+                          )}
                           
                           <Alert>
                             <AlertCircle className="h-4 w-4" />
                             <AlertDescription>
-                              <strong>Important:</strong> După confirmarea livrării de către cumpărător, banii vor fi transferați automat pe acest cont PayPal (minus comisionul platformei de 10%).
+                              <strong>Important:</strong> După confirmarea livrării de către cumpărător, banii vor fi transferați automat în contul tău Stripe (minus comisionul platformei de 10%).
                             </AlertDescription>
                           </Alert>
                         </div>
                       )}
 
                       <div 
-                        className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer ${payoutMethod === 'debit' ? 'border-primary bg-primary/5' : ''}`}
-                        onClick={() => setPayoutMethod('debit')}
+                        className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer ${payoutMethod === 'bank' ? 'border-primary bg-primary/5' : ''}`}
+                        onClick={() => setPayoutMethod('bank')}
                       >
                         <div className="flex items-center gap-3">
                           <Banknote className="h-5 w-5 text-muted-foreground" />

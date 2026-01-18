@@ -148,12 +148,12 @@ export const AdminChecklist: React.FC = () => {
 
         // === PAYMENTS ===
         {
-          id: 'paypal_real',
-          name: 'PayPal Plăți REALE',
-          description: 'PayPal SDK integrat, plăți în GBP, client ID configurat',
+          id: 'stripe_payments',
+          name: 'Stripe Plăți REALE',
+          description: 'Stripe Checkout integrat, plăți în GBP, secret key configurat',
           status: 'passed',
           link: '/admin/api-settings',
-          details: 'PAYPAL_CLIENT_ID ✓ | PAYPAL_SECRET ✓ | Currency: GBP',
+          details: 'STRIPE_SECRET_KEY ✓ | Currency: GBP | Checkout + Connect',
           category: 'payments',
           ebayFeature: EBAY_COMPARISON.payments,
         },
@@ -170,10 +170,10 @@ export const AdminChecklist: React.FC = () => {
         {
           id: 'payouts',
           name: 'Payouts Automate Vânzători',
-          description: 'Transfer PayPal automat după confirmare livrare',
+          description: 'Transfer Stripe automat după confirmare livrare',
           status: 'passed',
           link: '/settings',
-          details: `${payoutsResult.count || 0} plăți procesate | PayPal Payouts API ✓`,
+          details: `${payoutsResult.count || 0} plăți procesate | Stripe Transfers API ✓`,
           category: 'payments',
         },
         {

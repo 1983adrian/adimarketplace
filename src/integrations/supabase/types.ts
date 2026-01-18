@@ -648,6 +648,7 @@ export type Database = {
           seller_commission: number
           seller_id: string
           status: string
+          stripe_transfer_id: string | null
           updated_at: string
         }
         Insert: {
@@ -662,6 +663,7 @@ export type Database = {
           seller_commission?: number
           seller_id: string
           status?: string
+          stripe_transfer_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -676,6 +678,7 @@ export type Database = {
           seller_commission?: number
           seller_id?: string
           status?: string
+          stripe_transfer_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -798,6 +801,7 @@ export type Database = {
           paypal_email: string | null
           phone: string | null
           store_name: string | null
+          stripe_account_id: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -817,6 +821,7 @@ export type Database = {
           paypal_email?: string | null
           phone?: string | null
           store_name?: string | null
+          stripe_account_id?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -836,6 +841,7 @@ export type Database = {
           paypal_email?: string | null
           phone?: string | null
           store_name?: string | null
+          stripe_account_id?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null

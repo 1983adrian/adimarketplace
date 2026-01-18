@@ -22,26 +22,10 @@ interface ApiKeyConfig {
 const API_CONFIGS: Record<string, ApiKeyConfig[]> = {
   payments: [
     {
-      key: 'PAYPAL_CLIENT_ID',
-      name: 'PayPal Client ID',
-      description: 'Client ID for PayPal payments integration',
-      required: true,
-      docUrl: 'https://developer.paypal.com/dashboard/applications',
-      placeholder: 'Enter PayPal Client ID...'
-    },
-    {
-      key: 'PAYPAL_SECRET',
-      name: 'PayPal Secret Key',
-      description: 'Secret key for PayPal API authentication',
-      required: true,
-      docUrl: 'https://developer.paypal.com/dashboard/applications',
-      placeholder: 'Enter PayPal Secret...'
-    },
-    {
       key: 'STRIPE_SECRET_KEY',
       name: 'Stripe Secret Key',
-      description: 'Secret key for Stripe subscription payments (seller subscriptions)',
-      required: false,
+      description: 'Secret key for all Stripe payments (buyer payments + seller payouts)',
+      required: true,
       docUrl: 'https://dashboard.stripe.com/apikeys',
       placeholder: 'sk_live_...'
     },
@@ -62,6 +46,30 @@ const API_CONFIGS: Record<string, ApiKeyConfig[]> = {
       required: true,
       docUrl: 'https://resend.com/api-keys',
       placeholder: 're_...'
+    },
+    {
+      key: 'TWILIO_ACCOUNT_SID',
+      name: 'Twilio Account SID',
+      description: 'Twilio account identifier for SMS notifications',
+      required: false,
+      docUrl: 'https://console.twilio.com',
+      placeholder: 'AC...'
+    },
+    {
+      key: 'TWILIO_AUTH_TOKEN',
+      name: 'Twilio Auth Token',
+      description: 'Twilio authentication token for SMS',
+      required: false,
+      docUrl: 'https://console.twilio.com',
+      placeholder: 'Enter Twilio Auth Token...'
+    },
+    {
+      key: 'TWILIO_PHONE_NUMBER',
+      name: 'Twilio Phone Number',
+      description: 'Twilio phone number for sending SMS',
+      required: false,
+      docUrl: 'https://console.twilio.com/us1/develop/phone-numbers',
+      placeholder: '+1234567890'
     }
   ]
 };
@@ -275,23 +283,7 @@ export default function AdminApiSettings() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="p-4 rounded-lg bg-muted/50 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">PayPal Payments</span>
-                  {savedKeys['PAYPAL_CLIENT_ID'] && savedKeys['PAYPAL_SECRET'] ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {savedKeys['PAYPAL_CLIENT_ID'] && savedKeys['PAYPAL_SECRET'] 
-                    ? 'Ready to accept payments' 
-                    : 'Configure PayPal keys to enable payments'}
-                </p>
-              </div>
-              
-              <div className="p-4 rounded-lg bg-muted/50 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">Stripe Subscriptions</span>
+                  <span className="font-medium">Stripe Payments</span>
                   {savedKeys['STRIPE_SECRET_KEY'] ? (
                     <CheckCircle className="h-5 w-5 text-green-500" />
                   ) : (
@@ -300,8 +292,8 @@ export default function AdminApiSettings() {
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {savedKeys['STRIPE_SECRET_KEY'] 
-                    ? 'Seller subscriptions enabled' 
-                    : 'Optional: for seller subscription billing'}
+                    ? 'Ready to accept payments & process payouts' 
+                    : 'Configure Stripe key to enable payments'}
                 </p>
               </div>
               
@@ -318,6 +310,22 @@ export default function AdminApiSettings() {
                   {savedKeys['RESEND_API_KEY'] 
                     ? 'Email notifications active' 
                     : 'Configure Resend to send emails'}
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg bg-muted/50 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">SMS Notifications</span>
+                  {savedKeys['TWILIO_ACCOUNT_SID'] && savedKeys['TWILIO_AUTH_TOKEN'] ? (
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {savedKeys['TWILIO_ACCOUNT_SID'] && savedKeys['TWILIO_AUTH_TOKEN']
+                    ? 'SMS notifications active' 
+                    : 'Configure Twilio for SMS alerts'}
                 </p>
               </div>
             </div>
