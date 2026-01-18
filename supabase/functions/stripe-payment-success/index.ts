@@ -110,10 +110,30 @@ serve(async (req) => {
       data: { orderId: order.id, listingId: listingIdFromMeta },
     });
 
+    // Create notification for buyer
+    await supabaseClient.from("notifications").insert({
+      user_id: buyerId,
+      type: "order_confirmed",
+      title: "Comandă Confirmată! 🎉",
+      message: `Comanda ta în valoare de £${metadata.total_amount} a fost plasată cu succes. Vânzătorul va expedia în curând.`,
+      data: { orderId: order.id, listingId: listingIdFromMeta },
+    });
+
+    // Get listing details for email
+    const { data: listing } = await supabaseClient
+      .from("listings")
+      .select("title")
+      .eq("id", listingIdFromMeta)
+      .single();
+
+    // Get buyer email from auth
+    const { data: buyerAuth } = await supabaseClient.auth.admin.getUserById(buyerId);
+    const buyerEmail = buyerAuth?.user?.email;
+
     // Get seller profile for SMS/Email notifications
     const { data: sellerProfile } = await supabaseClient
       .from("profiles")
-      .select("phone, paypal_email")
+      .select("phone, paypal_email, display_name")
       .eq("user_id", sellerId)
       .single();
 
@@ -145,6 +165,7 @@ serve(async (req) => {
               <h1>🎉 Ai o comandă nouă!</h1>
               <p>Felicitări! Ai primit o nouă comandă.</p>
               <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                <p><strong>Produs:</strong> ${listing?.title || 'Item'}</p>
                 <p><strong>Total:</strong> £${metadata.total_amount}</p>
                 <p><strong>Comision platforma:</strong> £${metadata.seller_commission}</p>
                 <p><strong>Vei primi:</strong> £${metadata.payout_amount}</p>
@@ -157,6 +178,57 @@ serve(async (req) => {
         logStep("Email sent to seller");
       } catch (emailError) {
         logStep("Email failed", emailError);
+      }
+    }
+
+    // ✅ NEW: Send email to buyer with order confirmation
+    if (buyerEmail) {
+      try {
+        await supabaseClient.functions.invoke("send-notification", {
+          body: {
+            type: "email",
+            to: buyerEmail,
+            subject: "🎉 Comanda ta a fost confirmată - AdiMarket",
+            message: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h1 style="color: #16a34a;">🎉 Mulțumim pentru comandă!</h1>
+                <p>Comanda ta a fost procesată cu succes și vânzătorul a fost notificat.</p>
+                
+                <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                  <h3 style="margin-top: 0;">Detalii Comandă</h3>
+                  <p><strong>Produs:</strong> ${listing?.title || 'Item'}</p>
+                  <p><strong>Preț produs:</strong> £${metadata.item_price || '0'}</p>
+                  <p><strong>Taxă platformă:</strong> £${metadata.buyer_fee || '2'}</p>
+                  <p><strong>Livrare:</strong> £${metadata.shipping_cost || '0'}</p>
+                  <p><strong>Total plătit:</strong> £${metadata.total_amount}</p>
+                </div>
+
+                <div style="background: #e0f2fe; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                  <h3 style="margin-top: 0;">Adresa de Livrare</h3>
+                  <p>${metadata.shipping_address}</p>
+                </div>
+
+                <div style="background: #fef3c7; padding: 16px; border-radius: 8px; margin: 16px 0;">
+                  <h3 style="margin-top: 0;">📦 Ce urmează?</h3>
+                  <ol style="margin: 0; padding-left: 20px;">
+                    <li>Vânzătorul va împacheta și expedia produsul</li>
+                    <li>Vei primi un email cu numărul de tracking</li>
+                    <li>Când primești coletul, confirmă livrarea în cont</li>
+                  </ol>
+                </div>
+
+                <p><strong>Număr comandă:</strong> ${order.id.slice(0, 8).toUpperCase()}</p>
+                
+                <p style="color: #666; font-size: 14px;">
+                  Poți urmări statusul comenzii oricând în secțiunea "My Orders" din contul tău.
+                </p>
+              </div>
+            `,
+          },
+        });
+        logStep("Email sent to buyer");
+      } catch (emailError) {
+        logStep("Buyer email failed", emailError);
       }
     }
 
