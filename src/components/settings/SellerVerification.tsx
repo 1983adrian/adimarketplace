@@ -1,93 +1,78 @@
 import React, { useState } from 'react';
-import { Upload, FileText, CheckCircle, Clock, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Clock, XCircle, Camera, User, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
-interface VerificationDocument {
-  name: string;
-  url: string;
-  uploadedAt: string;
-  type: string;
+interface VerificationData {
+  idDocument?: string;
+  selfieWithId?: string;
+  uploadedAt?: string;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 export const SellerVerification = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState<'id' | 'selfie' | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [idDocument, setIdDocument] = useState<string | null>(null);
+  const [selfieWithId, setSelfieWithId] = useState<string | null>(null);
 
   const isVerified = (profile as any)?.is_verified || false;
   const verifiedAt = (profile as any)?.verified_at;
-  const documents: VerificationDocument[] = (profile as any)?.verification_documents || [];
+  const existingDocs = (profile as any)?.verification_documents as VerificationData | null;
+
+  // Check if already submitted
+  const hasSubmitted = existingDocs?.idDocument && existingDocs?.selfieWithId;
 
   const getVerificationStatus = () => {
     if (isVerified) return 'verified';
-    if (documents.length > 0) return 'pending';
+    if (hasSubmitted) return 'pending';
     return 'not_started';
   };
 
   const status = getVerificationStatus();
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0 || !user) return;
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, type: 'id' | 'selfie') => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
 
-    setUploading(true);
+    setUploading(type);
     setUploadProgress(0);
 
     try {
-      const uploadedDocs: VerificationDocument[] = [...documents];
-      const totalFiles = files.length;
-      let completed = 0;
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${type}-${Date.now()}.${fileExt}`;
+      
+      const { error } = await supabase.storage
+        .from('listings')
+        .upload(`verification/${fileName}`, file);
 
-      for (const file of Array.from(files)) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        
-        const { data, error } = await supabase.storage
-          .from('listings')
-          .upload(`verification/${fileName}`, file);
+      if (error) throw error;
 
-        if (error) throw error;
+      setUploadProgress(100);
 
-        const { data: publicUrl } = supabase.storage
-          .from('listings')
-          .getPublicUrl(`verification/${fileName}`);
+      const { data: publicUrl } = supabase.storage
+        .from('listings')
+        .getPublicUrl(`verification/${fileName}`);
 
-        uploadedDocs.push({
-          name: file.name,
-          url: publicUrl.publicUrl,
-          uploadedAt: new Date().toISOString(),
-          type: file.type,
-        });
-
-        completed++;
-        setUploadProgress((completed / totalFiles) * 100);
+      if (type === 'id') {
+        setIdDocument(publicUrl.publicUrl);
+      } else {
+        setSelfieWithId(publicUrl.publicUrl);
       }
 
-      // Update profile with new documents
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          verification_documents: uploadedDocs as any,
-        })
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
       toast({
-        title: 'Documente încărcate',
-        description: 'Documentele au fost trimise pentru verificare.',
+        title: type === 'id' ? 'Document ID încărcat' : 'Selfie încărcat',
+        description: 'Fișierul a fost încărcat cu succes.',
       });
-
-      // Refresh the page to show updated status
-      window.location.reload();
     } catch (error: any) {
       console.error('Upload error:', error);
       toast({
@@ -96,27 +81,51 @@ export const SellerVerification = () => {
         variant: 'destructive',
       });
     } finally {
-      setUploading(false);
+      setUploading(null);
       setUploadProgress(0);
     }
   };
 
-  const removeDocument = async (index: number) => {
-    if (!user) return;
+  const handleSubmitVerification = async () => {
+    if (!user || !idDocument || !selfieWithId) {
+      toast({
+        title: 'Documente incomplete',
+        description: 'Te rugăm să încarci atât documentul de identitate cât și selfie-ul.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     try {
-      const updatedDocs = documents.filter((_, i) => i !== index);
+      const verificationData: VerificationData = {
+        idDocument,
+        selfieWithId,
+        uploadedAt: new Date().toISOString(),
+        status: 'pending',
+      };
 
       const { error } = await supabase
         .from('profiles')
         .update({
-          verification_documents: updatedDocs as any,
+          verification_documents: verificationData as any,
         })
         .eq('user_id', user.id);
 
       if (error) throw error;
 
-      toast({ title: 'Document șters' });
+      // Create notification for admin
+      await supabase.from('notifications').insert({
+        user_id: user.id,
+        type: 'verification_submitted',
+        title: 'Cerere Verificare Trimisă',
+        message: 'Documentele tale au fost trimise pentru verificare. Vei primi o notificare când procesul este finalizat.',
+      });
+
+      toast({
+        title: 'Cerere trimisă!',
+        description: 'Documentele au fost trimise pentru verificare. Vei primi o notificare în 24-48 ore.',
+      });
+
       window.location.reload();
     } catch (error: any) {
       toast({
@@ -131,11 +140,11 @@ export const SellerVerification = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <FileText className="h-5 w-5" />
+          <User className="h-5 w-5" />
           Verificare Identitate Vânzător
         </CardTitle>
         <CardDescription>
-          Verifică-ți identitatea pentru a crește încrederea cumpărătorilor
+          Verificarea se face o singură dată pentru a crește încrederea cumpărătorilor
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -168,7 +177,7 @@ export const SellerVerification = () => {
             <AlertTitle className="text-green-800">Cont Verificat</AlertTitle>
             <AlertDescription className="text-green-700">
               Contul tău a fost verificat la {new Date(verifiedAt).toLocaleDateString('ro-RO')}.
-              Badge-ul de verificare este vizibil pe profilul tău.
+              Badge-ul de verificare este vizibil pe profilul și produsele tale.
             </AlertDescription>
           </Alert>
         )}
@@ -178,99 +187,131 @@ export const SellerVerification = () => {
             <Clock className="h-4 w-4" />
             <AlertTitle>Verificare în Curs</AlertTitle>
             <AlertDescription>
-              Documentele tale sunt în curs de verificare. Vei primi o notificare când procesul este finalizat.
+              Documentele tale sunt în curs de verificare de către admin. Vei primi o notificare când procesul este finalizat.
               Timpul estimat: 24-48 ore.
             </AlertDescription>
           </Alert>
         )}
 
-        {/* Required Documents Info */}
-        {!isVerified && (
-          <div className="space-y-4">
-            <h4 className="font-medium">Documente Necesare:</h4>
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                <span><strong>Act de identitate</strong> - Carte de identitate sau pașaport (față și verso)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                <span><strong>Dovada adresei</strong> - Factură utilități sau extras bancar (max. 3 luni)</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary">•</span>
-                <span><strong>Selfie cu actul</strong> - O fotografie cu tine ținând actul de identitate</span>
-              </li>
-            </ul>
-          </div>
-        )}
+        {/* Upload Section - Only show if not verified and not submitted */}
+        {!isVerified && !hasSubmitted && (
+          <div className="space-y-6">
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-medium mb-2">Documente Necesare:</h4>
+              <p className="text-sm text-muted-foreground">
+                Pentru verificare, ai nevoie de:
+              </p>
+              <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
+                <li>1. Document de identitate (CI/Pașaport) - față</li>
+                <li>2. Un selfie ținând documentul lângă față</li>
+              </ul>
+            </div>
 
-        {/* Uploaded Documents */}
-        {documents.length > 0 && (
-          <div className="space-y-3">
-            <h4 className="font-medium">Documente Încărcate:</h4>
-            {documents.map((doc, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 rounded-lg border bg-muted/50"
-              >
-                <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">{doc.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Încărcat la {new Date(doc.uploadedAt).toLocaleDateString('ro-RO')}
-                    </p>
-                  </div>
-                </div>
-                {!isVerified && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeDocument(index)}
-                    className="text-destructive hover:text-destructive"
+            {/* ID Document Upload */}
+            <div className="space-y-3">
+              <Label className="text-base font-medium flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                1. Document de Identitate
+              </Label>
+              
+              {idDocument ? (
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-green-50 border-green-200">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <span className="text-sm text-green-800">Document încărcat</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setIdDocument(null)}
+                    className="ml-auto text-destructive"
                   >
                     Șterge
                   </Button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Upload Section */}
-        {!isVerified && (
-          <div className="space-y-4">
-            {uploading && (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Se încarcă documentele...</span>
                 </div>
-                <Progress value={uploadProgress} className="h-2" />
-              </div>
-            )}
+              ) : (
+                <label className="block cursor-pointer">
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
+                    {uploading === 'id' ? (
+                      <div className="space-y-2">
+                        <Loader2 className="h-8 w-8 mx-auto animate-spin text-primary" />
+                        <Progress value={uploadProgress} className="h-2 max-w-xs mx-auto" />
+                        <p className="text-sm text-muted-foreground">Se încarcă...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm font-medium">Click pentru a încărca CI/Pașaport</p>
+                        <p className="text-xs text-muted-foreground mt-1">JPG, PNG (max 10MB)</p>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, 'id')}
+                      disabled={uploading !== null}
+                    />
+                  </div>
+                </label>
+              )}
+            </div>
 
-            <label className="block">
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary transition-colors cursor-pointer">
-                <Upload className="h-10 w-10 mx-auto mb-4 text-muted-foreground" />
-                <p className="font-medium mb-1">Încarcă Documente</p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Trage fișierele aici sau click pentru a selecta
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Acceptăm: PDF, JPG, PNG (max. 10MB per fișier)
-                </p>
-                <input
-                  type="file"
-                  multiple
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                  disabled={uploading}
-                />
-              </div>
-            </label>
+            {/* Selfie Upload */}
+            <div className="space-y-3">
+              <Label className="text-base font-medium flex items-center gap-2">
+                <Camera className="h-4 w-4" />
+                2. Selfie cu Documentul
+              </Label>
+              
+              {selfieWithId ? (
+                <div className="flex items-center gap-3 p-3 border rounded-lg bg-green-50 border-green-200">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <span className="text-sm text-green-800">Selfie încărcat</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => setSelfieWithId(null)}
+                    className="ml-auto text-destructive"
+                  >
+                    Șterge
+                  </Button>
+                </div>
+              ) : (
+                <label className="block cursor-pointer">
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors">
+                    {uploading === 'selfie' ? (
+                      <div className="space-y-2">
+                        <Loader2 className="h-8 w-8 mx-auto animate-spin text-primary" />
+                        <Progress value={uploadProgress} className="h-2 max-w-xs mx-auto" />
+                        <p className="text-sm text-muted-foreground">Se încarcă...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <Camera className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                        <p className="text-sm font-medium">Click pentru a încărca selfie</p>
+                        <p className="text-xs text-muted-foreground mt-1">Ține documentul lângă față</p>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleFileUpload(e, 'selfie')}
+                      disabled={uploading !== null}
+                    />
+                  </div>
+                </label>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <Button 
+              className="w-full" 
+              size="lg"
+              onClick={handleSubmitVerification}
+              disabled={!idDocument || !selfieWithId || uploading !== null}
+            >
+              Trimite pentru Verificare
+            </Button>
           </div>
         )}
 
@@ -289,10 +330,6 @@ export const SellerVerification = () => {
             <li className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-green-500" />
               Prioritate în rezultatele căutării
-            </li>
-            <li className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-500" />
-              Limite mai mari pentru listări și retrageri
             </li>
           </ul>
         </div>
