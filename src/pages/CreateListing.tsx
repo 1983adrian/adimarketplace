@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,19 +19,17 @@ import { useSellerSubscription, useCreateSellerSubscription } from '@/hooks/useS
 import { useListingLimit } from '@/hooks/useListingLimit';
 import { useCreateListing } from '@/hooks/useListings';
 import { useImageUpload } from '@/hooks/useImageUpload';
+import { useLocation, COUNTRY_CARRIERS } from '@/contexts/LocationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
 import { addDays } from 'date-fns';
 
-const CARRIERS = [
-  { value: 'royal_mail', label: 'Royal Mail' },
-  { value: 'parcelforce', label: 'Parcelforce' },
-  { value: 'dhl', label: 'DHL' },
+// Default carriers for unknown locations
+const DEFAULT_CARRIERS = [
+  { value: 'dhl', label: 'DHL Express' },
   { value: 'ups', label: 'UPS' },
   { value: 'fedex', label: 'FedEx' },
-  { value: 'hermes', label: 'Evri (Hermes)' },
-  { value: 'dpd', label: 'DPD' },
-  { value: 'yodel', label: 'Yodel' },
+  { value: 'ems', label: 'EMS' },
   { value: 'other', label: 'Altul (specifică)' },
 ];
 
@@ -45,6 +43,18 @@ const CreateListing = () => {
   const createSubscription = useCreateSellerSubscription();
   const createListing = useCreateListing();
   const { uploadMultipleImages, uploading } = useImageUpload();
+  const { location: userLocation, carriers: locationCarriers } = useLocation();
+
+  // Generate carriers list based on user's location
+  const CARRIERS = useMemo(() => {
+    if (locationCarriers && locationCarriers.length > 0) {
+      return [
+        ...locationCarriers.map(c => ({ value: c.toLowerCase().replace(/\s+/g, '_'), label: c })),
+        { value: 'other', label: 'Altul (specifică)' }
+      ];
+    }
+    return DEFAULT_CARRIERS;
+  }, [locationCarriers]);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -549,7 +559,14 @@ const CreateListing = () => {
                 <Truck className="h-5 w-5" />
                 Setări Livrare
               </CardTitle>
-              <CardDescription>Alege cum vei livra produsele</CardDescription>
+              <CardDescription className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                {userLocation ? (
+                  <span>Curieri disponibili în {userLocation.countryName}</span>
+                ) : (
+                  <span>Alege cum vei livra produsele</span>
+                )}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
