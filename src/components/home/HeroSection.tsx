@@ -52,9 +52,27 @@ export const HeroSection: React.FC = () => {
   };
 
   const features = [
-    { icon: Shield, text: 'Buyer Protection', subtext: 'Secure payments' },
-    { icon: Truck, text: 'Fast Delivery', subtext: 'Tracked shipping' },
-    { icon: Star, text: 'Trusted Sellers', subtext: 'Verified reviews' },
+    { 
+      icon: Shield, 
+      text: 'Buyer Protection', 
+      subtext: 'Plăți securizate',
+      color: 'text-primary',
+      bgColor: 'bg-primary/10',
+    },
+    { 
+      icon: Truck, 
+      text: 'Fast Delivery', 
+      subtext: 'Livrare cu tracking',
+      color: 'text-success',
+      bgColor: 'bg-success/10',
+    },
+    { 
+      icon: Star, 
+      text: 'Trusted Sellers', 
+      subtext: 'Recenzii verificate',
+      color: 'text-accent',
+      bgColor: 'bg-accent/10',
+    },
   ];
 
   return (
@@ -143,16 +161,19 @@ export const HeroSection: React.FC = () => {
             ))}
           </div>
 
-          {/* Trust Badges */}
-          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto pt-6 animate-fade-up" style={{ animationDelay: '0.6s' }}>
-            {features.map(({ icon: Icon, text, subtext }) => (
-              <div key={text} className="flex flex-col items-center gap-2 text-center">
-                <div className="p-3 rounded-xl bg-primary/10">
-                  <Icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+          {/* Trust Badges - Functional and Interactive */}
+          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-3xl mx-auto pt-6 animate-fade-up" style={{ animationDelay: '0.6s' }}>
+            {features.map(({ icon: Icon, text, subtext, color, bgColor }) => (
+              <div 
+                key={text} 
+                className="flex flex-col items-center gap-3 text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+              >
+                <div className={`p-4 rounded-2xl ${bgColor} group-hover:scale-110 transition-transform duration-300`}>
+                  <Icon className={`h-6 w-6 md:h-8 md:w-8 ${color}`} strokeWidth={2} />
                 </div>
                 <div>
-                  <p className="font-semibold text-sm md:text-base">{text}</p>
-                  <p className="text-xs text-muted-foreground hidden md:block">{subtext}</p>
+                  <p className="font-bold text-sm md:text-base text-foreground">{text}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground mt-1">{subtext}</p>
                 </div>
               </div>
             ))}
