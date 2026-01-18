@@ -87,8 +87,30 @@ const Settings = () => {
       setPhone(profile.phone || '');
       setStoreName((profile as any).store_name || '');
       setIsSeller((profile as any).is_seller || false);
+      setPaypalEmail((profile as any).paypal_email || '');
     }
   }, [user, profile, loading, navigate]);
+
+  const handleSavePaypalEmail = async () => {
+    if (!user) return;
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ paypal_email: paypalEmail })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      toast({ 
+        title: 'PayPal Email Salvat!',
+        description: 'Vei primi plățile pe acest email PayPal.',
+      });
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -476,18 +498,49 @@ const Settings = () => {
                           <div className="w-5 h-5 bg-blue-500 rounded flex items-center justify-center text-white text-xs font-bold">P</div>
                           <div>
                             <p className="font-medium">PayPal</p>
-                            <p className="text-sm text-muted-foreground">Transfer instant în PayPal (se aplică taxe)</p>
+                            <p className="text-sm text-muted-foreground">Transfer instant în PayPal (banii reali)</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {paypalEmail ? (
-                            <Badge className="bg-success">Conectat</Badge>
-                          ) : (
-                            <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); setPaypalEmail('user@email.com'); }}>Conectează</Button>
-                          )}
+                            <Badge className="bg-green-500 text-white">Conectat: {paypalEmail}</Badge>
+                          ) : null}
                           {payoutMethod === 'paypal' && <Check className="h-5 w-5 text-primary" />}
                         </div>
                       </div>
+
+                      {payoutMethod === 'paypal' && (
+                        <div className="p-4 rounded-lg bg-muted/50 space-y-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="paypalEmail" className="font-medium">Email PayPal pentru Încasări *</Label>
+                            <Input
+                              id="paypalEmail"
+                              type="email"
+                              value={paypalEmail}
+                              onChange={(e) => setPaypalEmail(e.target.value)}
+                              placeholder="adresa-ta@paypal.com"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Acesta este email-ul contului PayPal unde vei primi plățile. Asigură-te că este corect!
+                            </p>
+                          </div>
+                          <Button 
+                            onClick={handleSavePaypalEmail} 
+                            disabled={saving || !paypalEmail}
+                            className="gap-2"
+                          >
+                            <Save className="h-4 w-4" />
+                            {saving ? 'Se salvează...' : 'Salvează Email PayPal'}
+                          </Button>
+                          
+                          <Alert>
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>
+                              <strong>Important:</strong> După confirmarea livrării de către cumpărător, banii vor fi transferați automat pe acest cont PayPal (minus comisionul platformei de 10%).
+                            </AlertDescription>
+                          </Alert>
+                        </div>
+                      )}
 
                       <div 
                         className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer ${payoutMethod === 'debit' ? 'border-primary bg-primary/5' : ''}`}

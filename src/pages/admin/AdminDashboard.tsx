@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { usePlatformStats, usePlatformFees, useAllOrders } from '@/hooks/useAdmin';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminChecklist } from '@/components/admin/AdminChecklist';
 
 export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading } = usePlatformStats();
@@ -191,6 +192,8 @@ export default function AdminDashboard() {
             )}
           </CardContent>
         </Card>
+        {/* Admin Checklist */}
+        <AdminChecklist />
       </div>
     </AdminLayout>
   );

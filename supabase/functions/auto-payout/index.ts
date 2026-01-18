@@ -150,12 +150,18 @@ serve(async (req) => {
 
       for (const payout of pendingPayouts) {
         try {
-          // Get seller email
+          // Get seller PayPal email from profile (preferred) or auth email
+          const { data: sellerProfile } = await supabaseClient
+            .from('profiles')
+            .select('paypal_email, phone')
+            .eq('user_id', payout.seller_id)
+            .single();
+          
           const { data: sellerAuth } = await supabaseClient.auth.admin.getUserById(payout.seller_id);
-          const sellerEmail = sellerAuth?.user?.email;
+          const sellerEmail = sellerProfile?.paypal_email || sellerAuth?.user?.email;
 
           if (!sellerEmail) {
-            logStep("No seller email for payout", { payoutId: payout.id });
+            logStep("No seller PayPal email for payout", { payoutId: payout.id });
             failed++;
             continue;
           }
@@ -312,11 +318,18 @@ serve(async (req) => {
         throw new Error("Payout not found");
       }
 
+      // Get seller PayPal email from profile (preferred) or auth email
+      const { data: sellerProfile } = await supabaseClient
+        .from('profiles')
+        .select('paypal_email')
+        .eq('user_id', payout.seller_id)
+        .single();
+      
       const { data: sellerAuth } = await supabaseClient.auth.admin.getUserById(payout.seller_id);
-      const sellerEmail = sellerAuth?.user?.email;
+      const sellerEmail = sellerProfile?.paypal_email || sellerAuth?.user?.email;
 
       if (!sellerEmail) {
-        throw new Error("Seller email not found");
+        throw new Error("Seller PayPal email not configured. Please add your PayPal email in Settings.");
       }
 
       const accessToken = await getPayPalAccessToken();
