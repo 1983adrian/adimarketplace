@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, ShoppingCart, Star, Truck } from 'lucide-react';
+import { Heart, MapPin, ShoppingCart, Star, Truck, CheckCircle, Gavel, Clock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
 
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
   const imageUrl = primaryImage?.image_url || '/placeholder.svg';
+  const isAuction = (listing as any).listing_type === 'auction' || (listing as any).listing_type === 'both';
+  const isVerified = (listing as any).profiles?.is_verified;
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -91,10 +93,24 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {conditionLabels[listing.condition]}
           </Badge>
           
-          {/* Free Shipping Badge */}
-          <div className="absolute top-2 left-2 flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
-            <Truck className="h-3 w-3" />
-            Free Shipping
+          {/* Badges Row */}
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            <div className="flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
+              <Truck className="h-3 w-3" />
+              Free Shipping
+            </div>
+            {isAuction && (
+              <div className="flex items-center gap-1 bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                <Gavel className="h-3 w-3" />
+                Licitație
+              </div>
+            )}
+            {isVerified && (
+              <div className="flex items-center gap-1 bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+                <CheckCircle className="h-3 w-3" />
+                Verificat
+              </div>
+            )}
           </div>
         </div>
         

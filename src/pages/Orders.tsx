@@ -8,13 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Package, Truck, CheckCircle, Clock, AlertCircle, ExternalLink, Star } from 'lucide-react';
+import { Package, Truck, CheckCircle, Clock, AlertCircle, ExternalLink, Star, RotateCcw, AlertTriangle } from 'lucide-react';
 import { useMyOrders, useUpdateTracking, useConfirmDelivery, Order } from '@/hooks/useOrders';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ReviewDialog } from '@/components/reviews/ReviewDialog';
+import { ReturnRequestDialog } from '@/components/dashboard/ReturnRequestDialog';
 
 const CARRIERS = [
   { value: 'royal_mail', label: 'Royal Mail' },
@@ -222,7 +223,7 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
 
             {/* Review button for buyer after delivery */}
             {type === 'buying' && order.status === 'delivered' && (
-              <div className="mt-3">
+              <div className="mt-3 flex gap-2">
                 <ReviewDialog 
                   orderId={order.id} 
                   sellerId={order.seller_id}
@@ -233,6 +234,27 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                     Lasă o recenzie
                   </Button>
                 </ReviewDialog>
+                <ReturnRequestDialog
+                  orderId={order.id}
+                  buyerId={order.buyer_id}
+                  sellerId={order.seller_id}
+                  productTitle={order.listings?.title || 'Produs'}
+                >
+                  <Button size="sm" variant="ghost" className="gap-2">
+                    <RotateCcw className="h-4 w-4" />
+                    Solicită Retur
+                  </Button>
+                </ReturnRequestDialog>
+              </div>
+            )}
+
+            {/* Dispute button for problematic orders */}
+            {type === 'buying' && (order.status === 'shipped' || order.status === 'delivered') && (
+              <div className="mt-2">
+                <Button size="sm" variant="ghost" className="gap-2 text-muted-foreground">
+                  <AlertTriangle className="h-4 w-4" />
+                  Raportează o problemă
+                </Button>
               </div>
             )}
           </div>

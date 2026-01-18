@@ -1,9 +1,5 @@
-import laptopImg from '@/assets/laptop.jpg';
-import headphonesImg from '@/assets/headphones.jpg';
-import coatImg from '@/assets/coat.jpg';
-import phoneImg from '@/assets/phone.jpg';
-import drillImg from '@/assets/drill.jpg';
-import sneakersImg from '@/assets/sneakers.jpg';
+// Sample listings using placeholder images since real images were removed
+// These listings demonstrate the marketplace functionality
 
 export const sampleListings = [
   {
@@ -12,8 +8,8 @@ export const sampleListings = [
     description: 'Used MacBook Pro in great condition. 16GB RAM, 512GB SSD. Battery health at 89%. Comes with charger.',
     price: 899,
     condition: 'like_new' as const,
-    location: 'New York, NY',
-    image: laptopImg,
+    location: 'London, UK',
+    image: '/placeholder.svg',
     category: 'electronics',
   },
   {
@@ -22,8 +18,8 @@ export const sampleListings = [
     description: 'Premium noise cancelling headphones. Barely used, includes original case and cables.',
     price: 199,
     condition: 'like_new' as const,
-    location: 'Los Angeles, CA',
-    image: headphonesImg,
+    location: 'Manchester, UK',
+    image: '/placeholder.svg',
     category: 'electronics',
   },
   {
@@ -32,8 +28,8 @@ export const sampleListings = [
     description: 'Warm winter coat, perfect for cold weather. Worn only a few times last season.',
     price: 75,
     condition: 'good' as const,
-    location: 'Chicago, IL',
-    image: coatImg,
+    location: 'Birmingham, UK',
+    image: '/placeholder.svg',
     category: 'fashion',
   },
   {
@@ -42,8 +38,8 @@ export const sampleListings = [
     description: 'Unlocked iPhone 13 Pro in Space Gray. Minor scratches on back, screen is perfect.',
     price: 649,
     condition: 'good' as const,
-    location: 'Miami, FL',
-    image: phoneImg,
+    location: 'Liverpool, UK',
+    image: '/placeholder.svg',
     category: 'electronics',
   },
   {
@@ -52,8 +48,8 @@ export const sampleListings = [
     description: 'Professional grade cordless drill with 2 batteries and full bit set. Great for DIY projects.',
     price: 120,
     condition: 'good' as const,
-    location: 'Houston, TX',
-    image: drillImg,
+    location: 'Bristol, UK',
+    image: '/placeholder.svg',
     category: 'home-garden',
   },
   {
@@ -62,8 +58,8 @@ export const sampleListings = [
     description: 'Comfortable running shoes, lightly used. Great for jogging or casual wear.',
     price: 45,
     condition: 'fair' as const,
-    location: 'Seattle, WA',
-    image: sneakersImg,
+    location: 'Leeds, UK',
+    image: '/placeholder.svg',
     category: 'fashion',
   },
 ];
