@@ -9,6 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCart } from '@/contexts/CartContext';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 interface ListingCardProps {
@@ -37,6 +39,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const toggleFavorite = useToggleFavorite();
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
+  const { addItem } = useCart();
+  const { toast } = useToast();
   const navigate = useNavigate();
 
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
@@ -55,10 +59,24 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
     });
   };
 
-  const handleBuyNow = (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    navigate(`/checkout/${listing.id}`);
+    
+    const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
+    
+    addItem({
+      id: listing.id,
+      title: listing.title,
+      price: listing.price,
+      image_url: primaryImage?.image_url || '/placeholder.svg',
+      seller_id: listing.seller_id,
+    });
+    
+    toast({
+      title: "Adăugat în coș",
+      description: listing.title,
+    });
   };
 
   return (
@@ -162,10 +180,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             <Button 
               size="sm" 
               className="w-full gap-2 gradient-primary text-primary-foreground font-medium"
-              onClick={handleBuyNow}
+              onClick={handleAddToCart}
             >
               <ShoppingCart className="h-4 w-4" />
-              {t('listing.buyNow')}
+              {t('listing.addToCart')}
             </Button>
           </div>
         </CardContent>

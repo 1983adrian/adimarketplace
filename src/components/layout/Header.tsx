@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, ShoppingCart, Shield, Crown, CreditCard } from 'lucide-react';
+import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag } from 'lucide-react';
 import logo from '@/assets/marketplace-hero.jpeg';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { CurrencySelector } from './CurrencySelector';
 import { SearchDialog } from './SearchDialog';
 import { NotificationBell } from './NotificationBell';
+import { CartDropdown } from './CartDropdown';
 import { useRealTimeNotifications, useRealTimeOrders } from '@/hooks/useRealTimeNotifications';
 import { useIsAdmin } from '@/hooks/useAdmin';
 
@@ -74,6 +75,7 @@ export const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
+            <CartDropdown />
             <CurrencySelector />
             <LanguageSelector />
             
@@ -126,7 +128,7 @@ export const Header: React.FC = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer">
                       <Link to="/orders">
-                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        <ShoppingBag className="mr-2 h-4 w-4" />
                         {t('header.orders')}
                       </Link>
                     </DropdownMenuItem>
@@ -187,6 +189,7 @@ export const Header: React.FC = () => {
 
           {/* Mobile Menu Toggle */}
           <div className="flex items-center gap-1 md:hidden">
+            <CartDropdown />
             <SearchDialog />
             <CurrencySelector />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
