@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Play, ChevronRight, ChevronLeft, CheckCircle2, Camera, CreditCard, Package, Truck, BookOpen, ExternalLink } from 'lucide-react';
+import { X, Play, ChevronRight, ChevronLeft, CheckCircle2, Camera, CreditCard, Package, Truck, BookOpen, ExternalLink, Shield, ArrowRightLeft, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Link } from 'react-router-dom';
 
@@ -21,96 +22,88 @@ interface TutorialStep {
   description: { en: string; ro: string };
   details: { en: string[]; ro: string[] };
   tips: { en: string[]; ro: string[] };
+  timeEstimate: string; // Time to complete this step
 }
 
+// Tutorial optimizat pentru 3-4 minute total (5 pași x ~45 secunde fiecare)
 const TUTORIAL_STEPS: TutorialStep[] = [
   {
     id: 'stripe',
     icon: <CreditCard className="h-6 w-6" />,
     title: {
-      en: 'Step 1: Connect Stripe Account',
+      en: 'Step 1: Connect Your Stripe Account',
       ro: 'Pasul 1: Conectează Contul Stripe'
     },
     description: {
-      en: 'Set up your payment account to receive money from sales',
-      ro: 'Configurează contul de plăți pentru a primi banii din vânzări'
+      en: 'Required to receive payments automatically',
+      ro: 'Necesar pentru a primi plăți automat'
     },
     details: {
       en: [
-        'Go to Settings → Payouts section',
-        'Click "Connect Stripe Account"',
-        'Create a new Stripe account or log in to existing one',
-        'Fill in all required information: personal details, address, bank account',
-        'Verify your identity with a valid ID document',
-        'Once verified, you can receive payments directly to your bank'
+        '1. Go to Settings → Payouts',
+        '2. Click "Connect Stripe Account"',
+        '3. Enter your details: name, address, bank account',
+        '4. Upload ID for verification (passport/driving license)'
       ],
       ro: [
-        'Mergi la Setări → Secțiunea Încasări',
-        'Apasă "Conectează Cont Stripe"',
-        'Creează un cont Stripe nou sau autentifică-te în cel existent',
-        'Completează toate informațiile necesare: date personale, adresă, cont bancar',
-        'Verifică-ți identitatea cu un document de identitate valid',
-        'După verificare, poți primi plăți direct în contul tău bancar'
+        '1. Mergi la Setări → Încasări',
+        '2. Apasă "Conectează Cont Stripe"',
+        '3. Completează: nume, adresă, cont bancar',
+        '4. Încarcă act de identitate pentru verificare'
       ]
     },
     tips: {
       en: [
-        '✓ Have your ID ready (passport or driving license)',
-        '✓ Prepare bank account details (IBAN/Sort Code)',
-        '✓ Use your real address for verification',
-        '✓ Setup takes about 5-10 minutes'
+        '✓ Have ID & bank details ready (5-10 min setup)',
+        '✓ Your account links directly to the marketplace',
+        '✓ Payments transfer automatically after delivery'
       ],
       ro: [
-        '✓ Pregătește actul de identitate (pașaport sau permis)',
-        '✓ Pregătește detaliile contului bancar (IBAN)',
-        '✓ Folosește adresa ta reală pentru verificare',
-        '✓ Configurarea durează aproximativ 5-10 minute'
+        '✓ Pregătește actul de identitate și IBAN (5-10 min)',
+        '✓ Contul tău se conectează direct la marketplace',
+        '✓ Banii se transferă automat după livrare'
       ]
-    }
+    },
+    timeEstimate: '45s'
   },
   {
     id: 'photos',
     icon: <Camera className="h-6 w-6" />,
     title: {
-      en: 'Step 2: Take Great Photos',
+      en: 'Step 2: Take Quality Photos',
       ro: 'Pasul 2: Fotografii de Calitate'
     },
     description: {
-      en: 'Good photos sell products faster',
-      ro: 'Fotografiile bune vând produsele mai repede'
+      en: 'Good photos = faster sales',
+      ro: 'Fotografii bune = vânzări rapide'
     },
     details: {
       en: [
-        'Use natural light - photograph near a window',
-        'Use a clean, simple background (white or neutral)',
-        'Take photos from multiple angles (front, back, sides)',
-        'Show any defects or wear clearly',
-        'Include close-ups of details, labels, or serial numbers',
-        'Avoid blurry images - hold your phone steady'
+        '1. Use natural light (near a window)',
+        '2. Clean, neutral background (white/light)',
+        '3. Multiple angles: front, back, sides',
+        '4. Show any defects clearly'
       ],
       ro: [
-        'Folosește lumină naturală - fotografiază lângă o fereastră',
-        'Folosește un fundal curat și simplu (alb sau neutru)',
-        'Fă poze din mai multe unghiuri (față, spate, laterale)',
-        'Arată clar orice defecte sau uzură',
-        'Include detalii de aproape: etichete, numere de serie',
-        'Evită imaginile neclare - ține telefonul stabil'
+        '1. Lumină naturală (lângă fereastră)',
+        '2. Fundal curat, neutru (alb/deschis)',
+        '3. Mai multe unghiuri: față, spate, lateral',
+        '4. Arată clar orice defecte'
       ]
     },
     tips: {
       en: [
-        '📸 First photo is the main one buyers see',
-        '📸 Add at least 3-5 photos per product',
-        '📸 Show the product in use if possible',
-        '📸 Take photos in landscape for better viewing'
+        '📸 Add 3-5 photos per product',
+        '📸 First photo is what buyers see first',
+        '📸 Include labels/details close-up'
       ],
       ro: [
-        '📸 Prima fotografie este cea pe care o văd cumpărătorii',
-        '📸 Adaugă cel puțin 3-5 fotografii per produs',
-        '📸 Arată produsul în utilizare dacă e posibil',
-        '📸 Fă fotografii în format landscape pentru vizualizare mai bună'
+        '📸 Adaugă 3-5 fotografii per produs',
+        '📸 Prima fotografie e ce văd cumpărătorii',
+        '📸 Include etichete/detalii de aproape'
       ]
-    }
+    },
+    timeEstimate: '45s'
   },
   {
     id: 'listing',
@@ -120,129 +113,114 @@ const TUTORIAL_STEPS: TutorialStep[] = [
       ro: 'Pasul 3: Creează Anunțul'
     },
     description: {
-      en: 'Write a clear title and description',
-      ro: 'Scrie un titlu și o descriere clare'
+      en: 'Clear title + honest description',
+      ro: 'Titlu clar + descriere sinceră'
     },
     details: {
       en: [
-        'Title: Include brand, model, size, color (e.g., "iPhone 14 Pro 256GB Space Black")',
-        'Description: List all features, specifications, and condition details',
-        'Category: Choose the most accurate category for your product',
-        'Condition: Be honest about the item\'s condition',
-        'Price: Research similar items to set a competitive price',
-        'Location: Add your city for local pickup options'
+        '1. Title: Brand + Model + Size + Color',
+        '2. Description: Features, specs, condition',
+        '3. Category: Choose the best match',
+        '4. Condition: Be honest (buyers appreciate it)'
       ],
       ro: [
-        'Titlu: Include marca, modelul, mărimea, culoarea (ex: "iPhone 14 Pro 256GB Space Black")',
-        'Descriere: Listează toate caracteristicile, specificațiile și detalii despre stare',
-        'Categorie: Alege cea mai potrivită categorie pentru produs',
-        'Stare: Fii sincer despre starea produsului',
-        'Preț: Cercetează produse similare pentru un preț competitiv',
-        'Locație: Adaugă orașul tău pentru opțiuni de ridicare locală'
+        '1. Titlu: Marcă + Model + Mărime + Culoare',
+        '2. Descriere: Caracteristici, specificații, stare',
+        '3. Categorie: Alege cea mai potrivită',
+        '4. Stare: Fii sincer (cumpărătorii apreciază)'
       ]
     },
     tips: {
       en: [
         '💡 Include keywords buyers search for',
-        '💡 Mention original packaging if available',
-        '💡 State if price is negotiable',
-        '💡 Add relevant measurements or specifications'
+        '💡 Mention if price is negotiable',
+        '💡 Add your city for local pickup'
       ],
       ro: [
-        '💡 Include cuvinte cheie pe care le caută cumpărătorii',
-        '💡 Menționează ambalajul original dacă îl ai',
-        '💡 Specifică dacă prețul este negociabil',
-        '💡 Adaugă măsurători sau specificații relevante'
+        '💡 Include cuvinte cheie căutate',
+        '💡 Menționează dacă prețul e negociabil',
+        '💡 Adaugă orașul pentru ridicare locală'
       ]
-    }
+    },
+    timeEstimate: '45s'
   },
   {
     id: 'pricing',
     icon: <CreditCard className="h-6 w-6" />,
     title: {
-      en: 'Step 4: Set the Right Price',
-      ro: 'Pasul 4: Setează Prețul Corect'
+      en: 'Step 4: Price Your Item',
+      ro: 'Pasul 4: Setează Prețul'
     },
     description: {
-      en: 'Price competitively to sell faster',
-      ro: 'Prețuri competitive pentru vânzări rapide'
+      en: 'Research + competitive pricing',
+      ro: 'Cercetează + preț competitiv'
     },
     details: {
       en: [
-        'Research: Check prices of similar items on the marketplace',
-        'Condition matters: Reduce price for used items proportionally',
-        'Leave room for negotiation: Add 10-15% margin if open to offers',
-        'Use psychological pricing: £99 instead of £100',
-        'Consider fees: Platform takes 15% commission from each sale',
-        'Factor in shipping costs if offering free delivery'
+        '1. Check similar items on the marketplace',
+        '2. Price based on condition (reduce for wear)',
+        '3. Add 10-15% margin for negotiation',
+        '4. Platform fee: £1 per sale (you receive rest)'
       ],
       ro: [
-        'Cercetează: Verifică prețurile produselor similare pe platformă',
-        'Starea contează: Reduce prețul proporțional pentru produse folosite',
-        'Lasă loc de negociere: Adaugă 10-15% dacă accepți oferte',
-        'Folosește prețuri psihologice: £99 în loc de £100',
-        'Consideră comisioanele: Platforma ia 15% din fiecare vânzare',
-        'Include costul transportului dacă oferi livrare gratuită'
+        '1. Verifică produse similare pe platformă',
+        '2. Preț bazat pe stare (reduce pentru uzură)',
+        '3. Adaugă 10-15% marjă de negociere',
+        '4. Comision platformă: £1 per vânzare (restul e al tău)'
       ]
     },
     tips: {
       en: [
-        '💰 Start higher, you can always lower the price',
-        '💰 Update price if item doesn\'t sell in 2 weeks',
-        '💰 Consider auction format for unique items',
-        '💰 Offer bundle discounts for multiple items'
+        '💰 You can always lower price later',
+        '💰 Use £99 instead of £100 (psychology)',
+        '💰 Consider auction for unique items'
       ],
       ro: [
-        '💰 Începe mai sus, poți oricând să reduci prețul',
-        '💰 Actualizează prețul dacă nu se vinde în 2 săptămâni',
-        '💰 Consideră licitația pentru articole unice',
-        '💰 Oferă reduceri pentru pachete de mai multe produse'
+        '💰 Poți reduce prețul oricând',
+        '💰 Folosește £99 în loc de £100 (psihologie)',
+        '💰 Consideră licitație pentru articole unice'
       ]
-    }
+    },
+    timeEstimate: '45s'
   },
   {
     id: 'shipping',
     icon: <Truck className="h-6 w-6" />,
     title: {
-      en: 'Step 5: Ship Your Items',
-      ro: 'Pasul 5: Expediază Produsele'
+      en: 'Step 5: Ship & Get Paid',
+      ro: 'Pasul 5: Expediază & Primești Banii'
     },
     description: {
-      en: 'Pack securely and ship promptly',
-      ro: 'Împachetează sigur și expediază prompt'
+      en: 'Pack securely → Ship → Get paid automatically',
+      ro: 'Împachetează → Expediază → Primești banii automat'
     },
     details: {
       en: [
-        'Pack securely with bubble wrap or packing paper',
-        'Use a sturdy box that fits the item (not too big)',
-        'Include receipt or thank you note for personal touch',
-        'Ship within 2-3 days after payment confirmation',
-        'Add tracking number in Orders section',
-        'Keep proof of postage until delivery is confirmed'
+        '1. Pack securely (bubble wrap, sturdy box)',
+        '2. Ship within 2-3 days of payment',
+        '3. Add tracking number in Orders section',
+        '4. Payment releases after buyer confirms delivery'
       ],
       ro: [
-        'Împachetează sigur cu folie cu bule sau hârtie de ambalat',
-        'Folosește o cutie rezistentă pe măsura produsului',
-        'Include chitanță sau un bilet de mulțumire',
-        'Expediază în 2-3 zile de la confirmarea plății',
-        'Adaugă numărul de tracking în secțiunea Comenzi',
-        'Păstrează dovada expedierii până la confirmarea livrării'
+        '1. Împachetează sigur (folie bule, cutie rezistentă)',
+        '2. Expediază în 2-3 zile de la plată',
+        '3. Adaugă tracking în secțiunea Comenzi',
+        '4. Banii se eliberează când cumpărătorul confirmă'
       ]
     },
     tips: {
       en: [
-        '📦 Take photos of packaged item before shipping',
-        '📦 Use tracked shipping for valuable items',
-        '📦 Communicate with buyer about shipping timeline',
-        '📦 Payment is released after delivery confirmation'
+        '📦 Keep proof of postage until confirmed',
+        '📦 Money transfers directly to your bank',
+        '📦 Platform handles all payment security'
       ],
       ro: [
-        '📦 Fă poze produsului împachetat înainte de expediere',
-        '📦 Folosește livrare cu tracking pentru obiecte valoroase',
-        '📦 Comunică cu cumpărătorul despre termenul de livrare',
-        '📦 Plata este eliberată după confirmarea livrării'
+        '📦 Păstrează dovada expedierii până la confirmare',
+        '📦 Banii se transferă direct în contul tău',
+        '📦 Platforma gestionează securitatea plăților'
       ]
-    }
+    },
+    timeEstimate: '45s'
   }
 ];
 
@@ -254,7 +232,6 @@ export const SellerVideoTutorial: React.FC<SellerVideoTutorialProps> = ({
   const { language } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
-  const [showFullGuide, setShowFullGuide] = useState(false);
 
   const lang = language as 'en' | 'ro';
   const step = TUTORIAL_STEPS[currentStep];
@@ -285,68 +262,81 @@ export const SellerVideoTutorial: React.FC<SellerVideoTutorialProps> = ({
 
   const texts = {
     en: {
-      title: 'Seller Tutorial',
-      subtitle: 'Learn how to sell successfully on our marketplace',
+      title: 'Quick Seller Tutorial',
+      subtitle: '3-4 minutes to learn everything you need',
       stepOf: 'Step {current} of {total}',
       next: 'Next',
       previous: 'Previous',
-      finish: 'Start Selling',
-      skip: 'Skip Tutorial',
+      finish: 'Start Selling!',
+      skip: 'Skip',
       howTo: 'How to do it:',
-      tips: 'Pro Tips:',
-      fullGuide: 'View Full Guide',
-      backToTutorial: 'Back to Tutorial'
+      tips: 'Quick Tips:',
+      fullGuide: 'Full Seller Guide',
+      paymentFlow: 'How Payments Work',
+      paymentFlowDesc: 'Your Stripe account connects directly to the marketplace. When a buyer pays, funds are held securely. After you ship and the buyer confirms delivery, payment transfers automatically to your bank account (minus £1 platform fee).',
+      timeRemaining: '~{time} remaining'
     },
     ro: {
-      title: 'Tutorial Vânzător',
-      subtitle: 'Învață cum să vinzi cu succes pe platforma noastră',
+      title: 'Tutorial Rapid Vânzător',
+      subtitle: '3-4 minute să înveți tot ce ai nevoie',
       stepOf: 'Pasul {current} din {total}',
       next: 'Următorul',
       previous: 'Anterior',
-      finish: 'Începe să Vinzi',
-      skip: 'Sari Tutorial',
+      finish: 'Începe să Vinzi!',
+      skip: 'Sari',
       howTo: 'Cum să faci:',
-      tips: 'Sfaturi Pro:',
-      fullGuide: 'Vezi Ghidul Complet',
-      backToTutorial: 'Înapoi la Tutorial'
+      tips: 'Sfaturi Rapide:',
+      fullGuide: 'Ghid Complet Vânzător',
+      paymentFlow: 'Cum Funcționează Plățile',
+      paymentFlowDesc: 'Contul tău Stripe se conectează direct la marketplace. Când un cumpărător plătește, fondurile sunt păstrate în siguranță. După ce expediezi și cumpărătorul confirmă livrarea, plata se transferă automat în contul tău bancar (minus £1 comision platformă).',
+      timeRemaining: '~{time} rămas'
     }
   };
 
   const t = texts[lang];
 
+  // Calculate remaining time
+  const remainingSteps = TUTORIAL_STEPS.length - currentStep;
+  const remainingSeconds = remainingSteps * 45;
+  const remainingMinutes = Math.ceil(remainingSeconds / 60);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] p-0 overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6">
-          <div className="flex items-center justify-between mb-4">
+        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-5">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
-                <BookOpen className="h-6 w-6" />
+              <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                <BookOpen className="h-5 w-5" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold">{t.title}</DialogTitle>
-                <p className="text-primary-foreground/80 text-sm">{t.subtitle}</p>
+                <DialogTitle className="text-lg font-bold">{t.title}</DialogTitle>
+                <p className="text-primary-foreground/80 text-xs">{t.subtitle}</p>
               </div>
             </div>
+            <Badge variant="secondary" className="bg-white/20 text-white border-0">
+              <Clock className="h-3 w-3 mr-1" />
+              ~{remainingMinutes} min
+            </Badge>
           </div>
           
           {/* Progress */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
               <span>{t.stepOf.replace('{current}', String(currentStep + 1)).replace('{total}', String(TUTORIAL_STEPS.length))}</span>
               <span>{Math.round(progress)}%</span>
             </div>
-            <Progress value={progress} className="h-2 bg-white/20" />
+            <Progress value={progress} className="h-1.5 bg-white/20" />
           </div>
 
           {/* Step indicators */}
-          <div className="flex justify-between mt-4">
+          <div className="flex justify-between mt-3">
             {TUTORIAL_STEPS.map((s, index) => (
               <button
                 key={s.id}
                 onClick={() => setCurrentStep(index)}
-                className={`h-10 w-10 rounded-full flex items-center justify-center transition-all ${
+                className={`h-8 w-8 rounded-full flex items-center justify-center transition-all ${
                   index === currentStep 
                     ? 'bg-white text-primary scale-110' 
                     : completedSteps.has(index)
@@ -355,9 +345,9 @@ export const SellerVideoTutorial: React.FC<SellerVideoTutorialProps> = ({
                 }`}
               >
                 {completedSteps.has(index) ? (
-                  <CheckCircle2 className="h-5 w-5" />
+                  <CheckCircle2 className="h-4 w-4" />
                 ) : (
-                  s.icon
+                  <span className="text-xs font-medium">{index + 1}</span>
                 )}
               </button>
             ))}
@@ -365,26 +355,26 @@ export const SellerVideoTutorial: React.FC<SellerVideoTutorialProps> = ({
         </div>
 
         {/* Content */}
-        <ScrollArea className="h-[400px] p-6">
-          <div className="space-y-6">
+        <ScrollArea className="h-[350px] p-5">
+          <div className="space-y-4">
             {/* Step title */}
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 {step.icon}
               </div>
               <div>
-                <h3 className="text-xl font-bold">{step.title[lang]}</h3>
-                <p className="text-muted-foreground">{step.description[lang]}</p>
+                <h3 className="text-lg font-bold">{step.title[lang]}</h3>
+                <p className="text-muted-foreground text-sm">{step.description[lang]}</p>
               </div>
             </div>
 
             {/* Details */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-lg">{t.howTo}</h4>
-              <ul className="space-y-2">
+            <div className="space-y-2">
+              <h4 className="font-semibold text-sm">{t.howTo}</h4>
+              <ul className="space-y-1.5">
                 {step.details[lang].map((detail, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <ChevronRight className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <li key={index} className="flex items-start gap-2 text-sm">
+                    <ChevronRight className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                     <span>{detail}</span>
                   </li>
                 ))}
@@ -392,21 +382,49 @@ export const SellerVideoTutorial: React.FC<SellerVideoTutorialProps> = ({
             </div>
 
             {/* Tips */}
-            <div className="bg-muted/50 rounded-xl p-4 space-y-2">
-              <h4 className="font-semibold">{t.tips}</h4>
-              <ul className="space-y-1">
+            <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+              <h4 className="font-semibold text-sm">{t.tips}</h4>
+              <ul className="space-y-0.5">
                 {step.tips[lang].map((tip, index) => (
-                  <li key={index} className="text-sm text-muted-foreground">
+                  <li key={index} className="text-xs text-muted-foreground">
                     {tip}
                   </li>
                 ))}
               </ul>
             </div>
 
+            {/* Payment Flow Explanation (shown on Stripe step) */}
+            {step.id === 'stripe' && (
+              <Alert className="border-green-500/50 bg-green-500/10">
+                <ArrowRightLeft className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-xs">
+                  <strong className="text-green-700">{t.paymentFlow}:</strong>
+                  <br />
+                  {t.paymentFlowDesc}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Payment confirmation (shown on shipping step) */}
+            {step.id === 'shipping' && (
+              <Alert className="border-blue-500/50 bg-blue-500/10">
+                <Shield className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-xs">
+                  <strong className="text-blue-700">
+                    {lang === 'ro' ? 'Siguranța Plăților:' : 'Payment Security:'}
+                  </strong>
+                  <br />
+                  {lang === 'ro' 
+                    ? 'Banii sunt păstrați în escrow de platformă. După confirmarea livrării, se transferă automat în contul tău Stripe conectat, apoi în banca ta.' 
+                    : 'Funds are held in escrow by the platform. After delivery confirmation, they transfer automatically to your connected Stripe account, then to your bank.'}
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Full guide link */}
-            <Button variant="outline" className="w-full gap-2" asChild>
+            <Button variant="outline" size="sm" className="w-full gap-2" asChild>
               <Link to="/seller-guide" onClick={() => onOpenChange(false)}>
-                <ExternalLink className="h-4 w-4" />
+                <ExternalLink className="h-3 w-3" />
                 {t.fullGuide}
               </Link>
             </Button>
@@ -414,21 +432,21 @@ export const SellerVideoTutorial: React.FC<SellerVideoTutorialProps> = ({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="border-t p-4 flex items-center justify-between bg-muted/30">
-          <Button variant="ghost" onClick={handleSkip} className="text-muted-foreground">
+        <div className="border-t p-3 flex items-center justify-between bg-muted/30">
+          <Button variant="ghost" size="sm" onClick={handleSkip} className="text-muted-foreground text-xs">
             {t.skip}
           </Button>
           
           <div className="flex gap-2">
             {currentStep > 0 && (
-              <Button variant="outline" onClick={handlePrevious} className="gap-1">
-                <ChevronLeft className="h-4 w-4" />
+              <Button variant="outline" size="sm" onClick={handlePrevious} className="gap-1">
+                <ChevronLeft className="h-3 w-3" />
                 {t.previous}
               </Button>
             )}
-            <Button onClick={handleNext} className="gap-1">
+            <Button size="sm" onClick={handleNext} className="gap-1">
               {currentStep === TUTORIAL_STEPS.length - 1 ? t.finish : t.next}
-              {currentStep < TUTORIAL_STEPS.length - 1 && <ChevronRight className="h-4 w-4" />}
+              {currentStep < TUTORIAL_STEPS.length - 1 && <ChevronRight className="h-3 w-3" />}
             </Button>
           </div>
         </div>
