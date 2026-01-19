@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Gavel, Clock, Users, TrendingUp, AlertCircle, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Gavel, Clock, Users, TrendingUp, AlertCircle, Loader2, ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,9 @@ interface AuctionBiddingProps {
   sellerId: string;
 }
 
+// Shipping cost estimate for auctions
+const AUCTION_SHIPPING_COST = 5.99;
+
 export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
   listingId,
   startingBid,
@@ -31,6 +35,7 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
   bidIncrement = 1,
   sellerId,
 }) => {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { formatPrice } = useCurrency();
   const { toast } = useToast();
@@ -264,11 +269,24 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
           </Alert>
         )}
 
-        {/* Buy Now Option */}
+        {/* Buy Now Option with Shipping */}
         {buyNowPrice && !isEnded && !isOwner && (
           <div className="pt-4 border-t">
-            <Button variant="secondary" className="w-full gap-2" size="lg">
-              Cumpără Acum: {formatPrice(buyNowPrice)}
+            <div className="text-center mb-2">
+              <p className="text-2xl font-bold text-primary">{formatPrice(buyNowPrice)}</p>
+              <p className="text-sm text-muted-foreground">+ {formatPrice(AUCTION_SHIPPING_COST)} livrare</p>
+              <p className="text-lg font-semibold text-foreground mt-1">
+                Total: {formatPrice(buyNowPrice + AUCTION_SHIPPING_COST)}
+              </p>
+            </div>
+            <Button 
+              variant="default" 
+              className="w-full gap-2" 
+              size="lg"
+              onClick={() => navigate(`/checkout?listing=${listingId}`)}
+            >
+              <ShoppingCart className="h-4 w-4" />
+              Cumpără Acum
             </Button>
             <p className="text-xs text-center text-muted-foreground mt-2">
               Cumpără imediat fără să aștepți finalizarea licitației

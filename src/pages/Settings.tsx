@@ -58,10 +58,65 @@ const Settings = () => {
   const [paymentAlerts, setPaymentAlerts] = useState(true);
 
   // Setări plăți (cumpărător)
-  const [savedCards, setSavedCards] = useState([
-    { id: '1', last4: '4242', brand: 'Visa', expiry: '12/25', isDefault: true },
-  ]);
+  const [savedCards, setSavedCards] = useState<{ id: string; last4: string; brand: string; expiry: string; isDefault: boolean; }[]>([]);
+  const [loadingCards, setLoadingCards] = useState(false);
   const [defaultPaymentMethod, setDefaultPaymentMethod] = useState('card');
+
+  // Fetch saved cards from Stripe
+  const fetchSavedCards = async () => {
+    if (!user) return;
+    setLoadingCards(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-payment-methods', {
+        body: { action: 'list' },
+      });
+      if (error) throw error;
+      setSavedCards(data?.cards || []);
+    } catch (error) {
+      console.error('Error fetching cards:', error);
+    } finally {
+      setLoadingCards(false);
+    }
+  };
+
+  // Add new card via Stripe
+  const handleAddCard = async () => {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-payment-methods', {
+        body: { action: 'setup' },
+      });
+      if (error) throw error;
+      
+      // For now, show a message that card adding is via checkout
+      toast({
+        title: 'Adăugare Card',
+        description: 'Cardul va fi salvat automat la prima ta plată. Poți adăuga carduri la checkout.',
+      });
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  // Delete card
+  const handleDeleteCard = async (paymentMethodId: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('manage-payment-methods', {
+        body: { action: 'delete', paymentMethodId },
+      });
+      if (error) throw error;
+      toast({ title: 'Card șters cu succes' });
+      fetchSavedCards();
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      fetchSavedCards();
+    }
+  }, [user]);
 
   // Setări încasări (vânzător)
   const [payoutMethod, setPayoutMethod] = useState('stripe');
@@ -325,25 +380,33 @@ const Settings = () => {
                     <CardDescription>Gestionează cum plătești pentru achiziții</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {savedCards.map((card) => (
-                      <div key={card.id} className="flex items-center justify-between p-4 rounded-lg border">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-8 bg-gradient-to-r from-primary/20 to-primary/10 rounded flex items-center justify-center text-xs font-bold">
-                            {card.brand}
+                    {loadingCards ? (
+                      <div className="p-4 text-center text-muted-foreground">Se încarcă cardurile...</div>
+                    ) : savedCards.length > 0 ? (
+                      savedCards.map((card) => (
+                        <div key={card.id} className="flex items-center justify-between p-4 rounded-lg border">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-8 bg-gradient-to-r from-primary/20 to-primary/10 rounded flex items-center justify-center text-xs font-bold uppercase">
+                              {card.brand}
+                            </div>
+                            <div>
+                              <p className="font-medium">•••• •••• •••• {card.last4}</p>
+                              <p className="text-sm text-muted-foreground">Expiră {card.expiry}</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium">•••• •••• •••• {card.last4}</p>
-                            <p className="text-sm text-muted-foreground">Expiră {card.expiry}</p>
+                          <div className="flex items-center gap-2">
+                            {card.isDefault && <Badge variant="secondary">Principal</Badge>}
+                            <Button variant="ghost" size="sm" onClick={() => handleDeleteCard(card.id)}>Șterge</Button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          {card.isDefault && <Badge variant="secondary">Principal</Badge>}
-                          <Button variant="ghost" size="sm">Șterge</Button>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-muted-foreground">
+                        Nu ai carduri salvate. Cardurile vor fi salvate automat la checkout.
                       </div>
-                    ))}
+                    )}
                     
-                    <Button variant="outline" className="w-full gap-2">
+                    <Button variant="outline" className="w-full gap-2" onClick={handleAddCard}>
                       <Plus className="h-4 w-4" />
                       Adaugă Card Nou
                     </Button>
