@@ -453,9 +453,11 @@ export type Database = {
       listings: {
         Row: {
           auction_end_date: string | null
+          available_variants: Json | null
           bid_increment: number | null
           buy_now_price: number | null
           category_id: string | null
+          colors: string[] | null
           condition: Database["public"]["Enums"]["item_condition"]
           created_at: string
           description: string | null
@@ -465,8 +467,11 @@ export type Database = {
           listing_type: string | null
           location: string | null
           price: number
+          quantity: number | null
           reserve_price: number | null
           seller_id: string
+          shipping_cost: number | null
+          sizes: string[] | null
           starting_bid: number | null
           title: string
           updated_at: string
@@ -474,9 +479,11 @@ export type Database = {
         }
         Insert: {
           auction_end_date?: string | null
+          available_variants?: Json | null
           bid_increment?: number | null
           buy_now_price?: number | null
           category_id?: string | null
+          colors?: string[] | null
           condition?: Database["public"]["Enums"]["item_condition"]
           created_at?: string
           description?: string | null
@@ -486,8 +493,11 @@ export type Database = {
           listing_type?: string | null
           location?: string | null
           price: number
+          quantity?: number | null
           reserve_price?: number | null
           seller_id: string
+          shipping_cost?: number | null
+          sizes?: string[] | null
           starting_bid?: number | null
           title: string
           updated_at?: string
@@ -495,9 +505,11 @@ export type Database = {
         }
         Update: {
           auction_end_date?: string | null
+          available_variants?: Json | null
           bid_increment?: number | null
           buy_now_price?: number | null
           category_id?: string | null
+          colors?: string[] | null
           condition?: Database["public"]["Enums"]["item_condition"]
           created_at?: string
           description?: string | null
@@ -507,8 +519,11 @@ export type Database = {
           listing_type?: string | null
           location?: string | null
           price?: number
+          quantity?: number | null
           reserve_price?: number | null
           seller_id?: string
+          shipping_cost?: number | null
+          sizes?: string[] | null
           starting_bid?: number | null
           title?: string
           updated_at?: string

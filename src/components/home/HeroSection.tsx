@@ -82,12 +82,9 @@ export const HeroSection: React.FC = () => {
       <div className="absolute top-20 right-1/4 w-72 h-72 bg-accent/20 rounded-full blur-3xl" />
       
       <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16 relative">
-        <div className="max-w-6xl mx-auto text-center space-y-6 md:space-y-8">
-          {/* Large Colorful MarketPlace Title - Centered, no borders */}
-          <MarketPlaceTitle />
-
-          {/* Hero Image - Below the title */}
-          <div className="animate-fade-up flex justify-center" style={{ animationDelay: '0.1s' }}>
+      <div className="max-w-6xl mx-auto text-center space-y-6 md:space-y-8">
+          {/* Hero Image with embedded MarketPlace logo */}
+          <div className="animate-fade-up flex justify-center">
             <img 
               src={heroImage} 
               alt="MarketPlace Products" 

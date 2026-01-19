@@ -182,7 +182,26 @@ const Checkout = () => {
     ? [{ id: singleListing.id, title: singleListing.title, price: singleListing.price, image_url: (singleListing as any).listing_images?.[0]?.image_url || '/placeholder.svg', seller_id: singleListing.seller_id }]
     : items;
   
-  const shippingCost = shippingMethod === 'express' ? 14.99 : shippingMethod === 'overnight' ? 29.99 : 5.99;
+  // Dynamic shipping cost calculation based on method and destination
+  const getShippingCost = () => {
+    const baseRates: Record<string, number> = {
+      standard: 5.99,
+      express: 14.99,
+      overnight: 29.99,
+    };
+    
+    // Add extra cost for international (non-UK) destinations
+    const isInternational = shipping.state && !['England', 'Scotland', 'Wales', 'Northern Ireland', 'UK', 'United Kingdom'].some(
+      region => shipping.state.toLowerCase().includes(region.toLowerCase())
+    );
+    
+    const baseCost = baseRates[shippingMethod] || 5.99;
+    const internationalSurcharge = isInternational ? 10.00 : 0;
+    
+    return baseCost + internationalSurcharge;
+  };
+  
+  const shippingCost = getShippingCost();
   const subtotal = checkoutItems.reduce((sum, item) => sum + item.price, 0);
   const buyerFee = 2; // £2 buyer fee
   const total = subtotal + shippingCost + buyerFee;

@@ -89,12 +89,46 @@ const CreateListing = () => {
   const [customCarrier, setCustomCarrier] = useState('');
   const [shippingNotes, setShippingNotes] = useState('');
   
+  // Quantity & Variants
+  const [quantity, setQuantity] = useState('1');
+  const [sizes, setSizes] = useState<string[]>([]);
+  const [colors, setColors] = useState<string[]>([]);
+  const [customSize, setCustomSize] = useState('');
+  const [customColor, setCustomColor] = useState('');
+
   // Auction settings
   const [listingType, setListingType] = useState<'buy_now' | 'auction' | 'both'>('buy_now');
   const [startingBid, setStartingBid] = useState('');
   const [reservePrice, setReservePrice] = useState('');
   const [bidIncrement, setBidIncrement] = useState('1');
   const [auctionDuration, setAuctionDuration] = useState('7');
+
+  // Predefined sizes and colors
+  const SHOE_SIZES = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
+  const CLOTHING_SIZES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+  const COMMON_COLORS = ['Negru', 'Alb', 'Gri', 'Roșu', 'Albastru', 'Verde', 'Galben', 'Roz', 'Mov', 'Maro', 'Bej', 'Portocaliu'];
+
+  const toggleSize = (size: string) => {
+    setSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
+  };
+
+  const toggleColor = (color: string) => {
+    setColors(prev => prev.includes(color) ? prev.filter(c => c !== color) : [...prev, color]);
+  };
+
+  const addCustomSize = () => {
+    if (customSize.trim() && !sizes.includes(customSize.trim())) {
+      setSizes(prev => [...prev, customSize.trim()]);
+      setCustomSize('');
+    }
+  };
+
+  const addCustomColor = () => {
+    if (customColor.trim() && !colors.includes(customColor.trim())) {
+      setColors(prev => [...prev, customColor.trim()]);
+      setCustomColor('');
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -177,6 +211,9 @@ const CreateListing = () => {
         buy_now_price: listingType !== 'auction' ? parseFloat(price) : null,
         bid_increment: listingType !== 'buy_now' ? parseFloat(bidIncrement) : null,
         auction_end_date: auctionEndDate,
+        quantity: parseInt(quantity) || 1,
+        sizes: sizes.length > 0 ? sizes : null,
+        colors: colors.length > 0 ? colors : null,
       };
 
       const newListing = await createListing.mutateAsync(listingData);
@@ -419,6 +456,113 @@ const CreateListing = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              {/* Quantity */}
+              <div>
+                <Label htmlFor="quantity">Cantitate disponibilă</Label>
+                <Input 
+                  id="quantity" 
+                  type="number" 
+                  min="1" 
+                  max="99" 
+                  placeholder="1" 
+                  value={quantity} 
+                  onChange={(e) => setQuantity(e.target.value)} 
+                />
+                <p className="text-xs text-muted-foreground mt-1">Câte bucăți ai de vânzare (1-99)</p>
+              </div>
+
+              {/* Sizes Section */}
+              <div className="space-y-3">
+                <Label>Mărimi disponibile (opțional)</Label>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Mărimi încălțăminte:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {SHOE_SIZES.map((size) => (
+                      <Badge 
+                        key={size} 
+                        variant={sizes.includes(size) ? "default" : "outline"}
+                        className="cursor-pointer hover:bg-primary/80"
+                        onClick={() => toggleSize(size)}
+                      >
+                        {size}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Mărimi haine:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {CLOTHING_SIZES.map((size) => (
+                      <Badge 
+                        key={size} 
+                        variant={sizes.includes(size) ? "default" : "outline"}
+                        className="cursor-pointer hover:bg-primary/80"
+                        onClick={() => toggleSize(size)}
+                      >
+                        {size}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="Adaugă altă mărime..." 
+                    value={customSize}
+                    onChange={(e) => setCustomSize(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSize())}
+                    className="flex-1"
+                  />
+                  <Button type="button" variant="outline" onClick={addCustomSize}>+</Button>
+                </div>
+                {sizes.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    <span className="text-xs text-muted-foreground">Selectate:</span>
+                    {sizes.map((s) => (
+                      <Badge key={s} variant="secondary" className="cursor-pointer" onClick={() => toggleSize(s)}>
+                        {s} ✕
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Colors Section */}
+              <div className="space-y-3">
+                <Label>Culori disponibile (opțional)</Label>
+                <div className="flex flex-wrap gap-2">
+                  {COMMON_COLORS.map((color) => (
+                    <Badge 
+                      key={color} 
+                      variant={colors.includes(color) ? "default" : "outline"}
+                      className="cursor-pointer hover:bg-primary/80"
+                      onClick={() => toggleColor(color)}
+                    >
+                      {color}
+                    </Badge>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <Input 
+                    placeholder="Adaugă altă culoare..." 
+                    value={customColor}
+                    onChange={(e) => setCustomColor(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomColor())}
+                    className="flex-1"
+                  />
+                  <Button type="button" variant="outline" onClick={addCustomColor}>+</Button>
+                </div>
+                {colors.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    <span className="text-xs text-muted-foreground">Selectate:</span>
+                    {colors.map((c) => (
+                      <Badge key={c} variant="secondary" className="cursor-pointer" onClick={() => toggleColor(c)}>
+                        {c} ✕
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>

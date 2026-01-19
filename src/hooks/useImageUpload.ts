@@ -32,7 +32,8 @@ export function useImageUpload() {
     }
   };
 
-  const uploadImage = async (file: File, listingId: string, autoVerify = true): Promise<string | null> => {
+  // Auto-verify disabled - all images are allowed
+  const uploadImage = async (file: File, listingId: string, _autoVerify = false): Promise<string | null> => {
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `${listingId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
@@ -53,28 +54,7 @@ export function useImageUpload() {
         .from('listings')
         .getPublicUrl(fileName);
 
-      // Auto-verify the uploaded image
-      if (autoVerify) {
-        const verification = await verifyImage(publicUrl, listingId);
-        
-        if (verification) {
-          if (verification.action === 'delete') {
-            // Image was auto-deleted as fake
-            toast({
-              title: '⚠️ Imagine respinsă',
-              description: `Imaginea a fost identificată ca falsă: ${verification.reason}`,
-              variant: 'destructive'
-            });
-            return null;
-          } else if (verification.action === 'flag') {
-            toast({
-              title: 'ℹ️ Imagine marcată pentru verificare',
-              description: verification.reason,
-            });
-          }
-        }
-      }
-
+      // Image verification disabled - all images allowed
       return publicUrl;
     } catch (error: any) {
       console.error('Error uploading image:', error);
@@ -87,13 +67,14 @@ export function useImageUpload() {
     }
   };
 
-  const uploadMultipleImages = async (files: File[], listingId: string, autoVerify = true): Promise<string[]> => {
+  // All images allowed without verification
+  const uploadMultipleImages = async (files: File[], listingId: string, _autoVerify = false): Promise<string[]> => {
     setUploading(true);
     const urls: string[] = [];
 
     try {
       for (const file of files) {
-        const url = await uploadImage(file, listingId, autoVerify);
+        const url = await uploadImage(file, listingId, false);
         if (url) {
           urls.push(url);
         }
