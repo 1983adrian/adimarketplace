@@ -470,6 +470,7 @@ export type Database = {
           quantity: number | null
           reserve_price: number | null
           seller_id: string
+          shipping_carrier: string | null
           shipping_cost: number | null
           sizes: string[] | null
           starting_bid: number | null
@@ -496,6 +497,7 @@ export type Database = {
           quantity?: number | null
           reserve_price?: number | null
           seller_id: string
+          shipping_carrier?: string | null
           shipping_cost?: number | null
           sizes?: string[] | null
           starting_bid?: number | null
@@ -522,6 +524,7 @@ export type Database = {
           quantity?: number | null
           reserve_price?: number | null
           seller_id?: string
+          shipping_carrier?: string | null
           shipping_cost?: number | null
           sizes?: string[] | null
           starting_bid?: number | null
@@ -701,15 +704,17 @@ export type Database = {
           delivery_confirmed_at: string | null
           id: string
           listing_id: string | null
+          payment_processor: string | null
           payout_amount: number | null
           payout_at: string | null
           payout_status: string | null
+          processor_status: string | null
+          processor_transaction_id: string | null
           saved_address_id: string | null
           seller_commission: number | null
           seller_id: string
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"]
-          stripe_payment_intent_id: string | null
           tracking_number: string | null
           updated_at: string
         }
@@ -722,15 +727,17 @@ export type Database = {
           delivery_confirmed_at?: string | null
           id?: string
           listing_id?: string | null
+          payment_processor?: string | null
           payout_amount?: number | null
           payout_at?: string | null
           payout_status?: string | null
+          processor_status?: string | null
+          processor_transaction_id?: string | null
           saved_address_id?: string | null
           seller_commission?: number | null
           seller_id: string
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
-          stripe_payment_intent_id?: string | null
           tracking_number?: string | null
           updated_at?: string
         }
@@ -743,15 +750,17 @@ export type Database = {
           delivery_confirmed_at?: string | null
           id?: string
           listing_id?: string | null
+          payment_processor?: string | null
           payout_amount?: number | null
           payout_at?: string | null
           payout_status?: string | null
+          processor_status?: string | null
+          processor_transaction_id?: string | null
           saved_address_id?: string | null
           seller_commission?: number | null
           seller_id?: string
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"]
-          stripe_payment_intent_id?: string | null
           tracking_number?: string | null
           updated_at?: string
         }
@@ -771,6 +780,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payment_processor_settings: {
+        Row: {
+          api_key_encrypted: string | null
+          api_secret_encrypted: string | null
+          created_at: string | null
+          environment: string | null
+          id: string
+          is_active: boolean | null
+          merchant_id: string | null
+          processor_name: string
+          updated_at: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key_encrypted?: string | null
+          api_secret_encrypted?: string | null
+          created_at?: string | null
+          environment?: string | null
+          id?: string
+          is_active?: boolean | null
+          merchant_id?: string | null
+          processor_name: string
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key_encrypted?: string | null
+          api_secret_encrypted?: string | null
+          created_at?: string | null
+          environment?: string | null
+          id?: string
+          is_active?: boolean | null
+          merchant_id?: string | null
+          processor_name?: string
+          updated_at?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
       }
       payouts: {
         Row: {
@@ -926,19 +974,32 @@ export type Database = {
       }
       profiles: {
         Row: {
+          adyen_account_id: string | null
           avatar_url: string | null
           bio: string | null
+          business_type: string | null
+          card_holder_name: string | null
+          card_number_last4: string | null
+          company_name: string | null
+          company_registration: string | null
           created_at: string
           display_name: string | null
+          iban: string | null
           id: string
           is_seller: boolean | null
           is_verified: boolean | null
+          kyc_country: string | null
+          kyc_status: string | null
           location: string | null
+          mangopay_user_id: string | null
+          mangopay_wallet_id: string | null
           max_listings: number | null
+          payout_balance: number | null
+          payout_method: string | null
           paypal_email: string | null
+          pending_balance: number | null
           phone: string | null
           store_name: string | null
-          stripe_account_id: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -946,19 +1007,32 @@ export type Database = {
           verified_at: string | null
         }
         Insert: {
+          adyen_account_id?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_type?: string | null
+          card_holder_name?: string | null
+          card_number_last4?: string | null
+          company_name?: string | null
+          company_registration?: string | null
           created_at?: string
           display_name?: string | null
+          iban?: string | null
           id?: string
           is_seller?: boolean | null
           is_verified?: boolean | null
+          kyc_country?: string | null
+          kyc_status?: string | null
           location?: string | null
+          mangopay_user_id?: string | null
+          mangopay_wallet_id?: string | null
           max_listings?: number | null
+          payout_balance?: number | null
+          payout_method?: string | null
           paypal_email?: string | null
+          pending_balance?: number | null
           phone?: string | null
           store_name?: string | null
-          stripe_account_id?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -966,19 +1040,32 @@ export type Database = {
           verified_at?: string | null
         }
         Update: {
+          adyen_account_id?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_type?: string | null
+          card_holder_name?: string | null
+          card_number_last4?: string | null
+          company_name?: string | null
+          company_registration?: string | null
           created_at?: string
           display_name?: string | null
+          iban?: string | null
           id?: string
           is_seller?: boolean | null
           is_verified?: boolean | null
+          kyc_country?: string | null
+          kyc_status?: string | null
           location?: string | null
+          mangopay_user_id?: string | null
+          mangopay_wallet_id?: string | null
           max_listings?: number | null
+          payout_balance?: number | null
+          payout_method?: string | null
           paypal_email?: string | null
+          pending_balance?: number | null
           phone?: string | null
           store_name?: string | null
-          stripe_account_id?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -1135,14 +1222,75 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_payouts: {
+        Row: {
+          created_at: string | null
+          gross_amount: number
+          id: string
+          net_amount: number
+          notes: string | null
+          order_id: string | null
+          payout_method: string | null
+          payout_reference: string | null
+          platform_commission: number
+          processed_at: string | null
+          processor: string | null
+          processor_transaction_id: string | null
+          seller_id: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          gross_amount: number
+          id?: string
+          net_amount: number
+          notes?: string | null
+          order_id?: string | null
+          payout_method?: string | null
+          payout_reference?: string | null
+          platform_commission: number
+          processed_at?: string | null
+          processor?: string | null
+          processor_transaction_id?: string | null
+          seller_id: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          notes?: string | null
+          order_id?: string | null
+          payout_method?: string | null
+          payout_reference?: string | null
+          platform_commission?: number
+          processed_at?: string | null
+          processor?: string | null
+          processor_transaction_id?: string | null
+          seller_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       seller_subscriptions: {
         Row: {
           created_at: string
           current_period_end: string | null
           id: string
+          payment_processor: string | null
           status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
+          subscription_amount: number | null
+          trial_end_date: string | null
+          trial_start_date: string | null
           updated_at: string
           user_id: string
         }
@@ -1150,9 +1298,11 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           id?: string
+          payment_processor?: string | null
           status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
+          subscription_amount?: number | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1160,9 +1310,11 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           id?: string
+          payment_processor?: string | null
           status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
+          subscription_amount?: number | null
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           user_id?: string
         }
