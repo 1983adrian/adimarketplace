@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Share2, MapPin, Shield, Star, Gavel, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Heart, Share2, MapPin, Shield, Star, Gavel, CheckCircle, ShoppingCart } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 
 import { StarRating } from '@/components/reviews/StarRating';
@@ -35,10 +36,13 @@ const ListingDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { formatPrice } = useCurrency();
+  const { addItem, items } = useCart();
   const { toast } = useToast();
   const [selectedImage, setSelectedImage] = useState(0);
   const { data: favorites } = useFavorites(user?.id);
   const toggleFavorite = useToggleFavorite();
+  
+  const isInCart = items.some(item => item.id === id);
 
   // Fetch listing from database
   const { data: listing, isLoading } = useQuery({
@@ -112,7 +116,6 @@ const ListingDetail = () => {
     );
   }
 
-
   const handleContact = () => {
     if (!user) {
       toast({ title: 'Please log in', description: 'You need to be logged in to message sellers', variant: 'destructive' });
@@ -120,6 +123,27 @@ const ListingDetail = () => {
       return;
     }
     navigate(`/messages?listing=${listing.id}`);
+  };
+
+  const handleAddToCart = () => {
+    if (listing.is_sold) {
+      toast({ title: 'Produs indisponibil', description: 'Acest produs a fost deja vândut.', variant: 'destructive' });
+      return;
+    }
+    
+    const primaryImg = listing.listing_images?.[0]?.image_url || '/placeholder.svg';
+    addItem({
+      id: listing.id,
+      title: listing.title,
+      price: listing.buy_now_price || listing.price,
+      image_url: primaryImg,
+      seller_id: listing.seller_id,
+    });
+    
+    toast({
+      title: "Adăugat în coș",
+      description: listing.title,
+    });
   };
 
   const handleShare = async () => {
@@ -222,16 +246,27 @@ const ListingDetail = () => {
               />
             )}
 
-            {/* Buy Now Button - only for buy_now listings */}
-            {isBuyNow && !isAuction && (
-              <div className="mb-4">
+            {/* Buy Now Button - for buy_now or both listings */}
+            {isBuyNow && (
+              <div className="space-y-3 mb-4">
                 <Button 
-                  className="w-full" 
+                  className="w-full gradient-primary text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all" 
                   size="lg"
                   onClick={() => navigate(`/checkout?listing=${listing.id}`)}
                   disabled={listing.is_sold}
                 >
                   {listing.is_sold ? 'Vândut' : 'Cumpără Acum'}
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  className="w-full gap-2 font-medium" 
+                  size="lg"
+                  onClick={handleAddToCart}
+                  disabled={listing.is_sold || isInCart}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {isInCart ? 'În coș' : 'Adaugă în coș'}
                 </Button>
               </div>
             )}
