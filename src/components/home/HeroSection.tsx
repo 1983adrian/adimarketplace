@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, MapPin } from 'lucide-react';
+import { TrendingUp, MapPin, Download, Smartphone, Apple, Share, Plus, Menu } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useQuery } from '@tanstack/react-query';
@@ -8,11 +8,24 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 import cmarketHero from '@/assets/cmarket-hero.png';
 
 export const HeroSection: React.FC = () => {
   const { t } = useLanguage();
   const { formatPrice } = useCurrency();
+  const { 
+    isInstalled, 
+    isStandalone, 
+    isIOS, 
+    isAndroid, 
+    canPrompt, 
+    promptInstall 
+  } = usePWAInstall();
+
+  const showDownloadButtons = !isStandalone && !isInstalled;
 
   // Fetch listings for display
   const { data: listings, isLoading } = useQuery({
@@ -57,6 +70,94 @@ export const HeroSection: React.FC = () => {
       <div className="container mx-auto px-4 py-6 md:py-10 lg:py-14 relative">
         <div className="max-w-6xl mx-auto text-center">
           
+          {/* Download App Buttons - positioned above logo */}
+          {showDownloadButtons && (
+            <div className="flex justify-start md:justify-center mb-2 animate-fade-up">
+              <div className="flex items-center gap-2">
+                {/* iOS Button */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="gap-1.5 bg-black text-white border-black hover:bg-gray-800 hover:text-white rounded-lg px-3 h-9 shadow-md"
+                    >
+                      <Apple className="h-4 w-4" />
+                      <div className="text-left leading-tight">
+                        <span className="text-[8px] block opacity-80">Descarcă pe</span>
+                        <span className="text-xs font-semibold -mt-0.5 block">iPhone</span>
+                      </div>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-72 p-4" align="start">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 font-semibold text-sm">
+                        <Apple className="h-5 w-5" />
+                        Instalare pe iPhone/iPad
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">1</div>
+                          <span className="flex-1 flex items-center gap-1">Apasă <Share className="h-4 w-4" /> Share în Safari</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">2</div>
+                          <span className="flex-1 flex items-center gap-1">Selectează <Plus className="h-4 w-4" /> "Add to Home Screen"</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">3</div>
+                          <span className="flex-1">Confirmă cu "Add"</span>
+                        </div>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Android Button */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="gap-1.5 bg-gradient-to-r from-green-600 to-green-500 text-white border-green-600 hover:from-green-700 hover:to-green-600 rounded-lg px-3 h-9 shadow-md"
+                      onClick={canPrompt ? async () => { await promptInstall(); } : undefined}
+                    >
+                      <Smartphone className="h-4 w-4" />
+                      <div className="text-left leading-tight">
+                        <span className="text-[8px] block opacity-80">Descarcă pe</span>
+                        <span className="text-xs font-semibold -mt-0.5 block">Android</span>
+                      </div>
+                    </Button>
+                  </PopoverTrigger>
+                  {!canPrompt && (
+                    <PopoverContent className="w-72 p-4" align="start">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 font-semibold text-sm">
+                          <Smartphone className="h-5 w-5" />
+                          Instalare pe Android
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">1</div>
+                            <span className="flex-1 flex items-center gap-1">Apasă <Menu className="h-4 w-4" /> meniul browserului</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">2</div>
+                            <span className="flex-1">"Install app" sau "Add to Home screen"</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">3</div>
+                            <span className="flex-1">Confirmă instalarea</span>
+                          </div>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  )}
+                </Popover>
+              </div>
+            </div>
+          )}
+
           {/* CMarket Logo - Large, centered, no borders, seamless blend */}
           <div className="flex justify-center animate-fade-up">
             <img 
