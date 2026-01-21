@@ -13,8 +13,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { QRCodeSVG } from 'qrcode.react';
-import cmarketHero from '@/assets/cmarket-hero-clean.png';
-
 export const HeroSection: React.FC = () => {
   const { t } = useLanguage();
   const { formatPrice } = useCurrency();
@@ -217,14 +215,6 @@ export const HeroSection: React.FC = () => {
             </div>
           )}
 
-          {/* Hero Image - Compact, directly below buttons */}
-          <div className="flex justify-center animate-fade-up mb-1">
-            <img 
-              src={cmarketHero} 
-              alt="CMarket - Place România" 
-              className="w-full max-w-[280px] sm:max-w-xs md:max-w-sm h-auto object-contain"
-            />
-          </div>
 
           {/* Platform Description - Compact */}
           <div className="text-center mb-3 animate-fade-up" style={{ animationDelay: '0.1s' }}>
