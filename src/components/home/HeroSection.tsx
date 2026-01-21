@@ -225,14 +225,16 @@ export const HeroSection: React.FC = () => {
               />
             </div>
 
-            {/* Tagline - Compact */}
-            <div className="text-center space-y-1 animate-fade-up" style={{ animationDelay: '0.1s' }}>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-accent/20 text-accent-foreground rounded-full text-xs font-medium">
-                <TrendingUp className="h-3 w-3" />
-                Peste 10,000 produse disponibile
+            {/* Tagline - Professional Platform Description */}
+            <div className="text-center space-y-2 animate-fade-up -mt-2" style={{ animationDelay: '0.1s' }}>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold shadow-sm">
+                <TrendingUp className="h-4 w-4" />
+                Marketplace-ul #1 din România
               </div>
-              <p className="text-sm md:text-base text-muted-foreground max-w-xl mx-auto leading-relaxed">
-                {t('home.hero.tagline')}
+              <p className="text-sm md:text-base text-foreground/80 max-w-2xl mx-auto leading-relaxed font-medium">
+                Cumpără și vinde inteligent — produse noi sau second-hand, de la haine și electronice până la obiecte de colecție. 
+                Cu sau fără firmă, poți lista orice și chiar organiza licitații. 
+                Alătură-te miilor de utilizatori care tranzacționează zilnic!
               </p>
             </div>
           </div>
