@@ -63,16 +63,24 @@ export const Header: React.FC = () => {
 
           {/* Desktop Search Bar */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-4">
-            <div className="relative w-full flex shadow-sm rounded-lg overflow-hidden border border-border focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+            <div className="relative w-full flex rounded-full overflow-hidden border-2 border-primary/30 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 bg-background shadow-lg shadow-primary/10 transition-all duration-300 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/50">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                <Search className="h-5 w-5 text-primary/60" />
+              </div>
               <Input
                 type="search"
                 placeholder={t('header.search')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 border-0 bg-background focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
+                className="h-12 pl-12 pr-4 border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 text-base placeholder:text-muted-foreground/70"
               />
-              <Button type="submit" size="sm" className="h-10 px-4 rounded-none gradient-primary">
+              <Button 
+                type="submit" 
+                size="sm" 
+                className="h-12 px-6 rounded-full m-0 bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
+              >
                 <Search className="h-4 w-4" />
+                <span className="hidden lg:inline">Caută</span>
               </Button>
             </div>
           </form>
@@ -103,10 +111,14 @@ export const Header: React.FC = () => {
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="rounded-full ml-1">
-                      <Avatar className="h-8 w-8 border-2 border-primary/20">
-                        <AvatarImage src={profile?.avatar_url || undefined} />
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="rounded-full ml-1 p-0 h-11 w-11 ring-2 ring-primary/20 hover:ring-primary/50 hover:ring-4 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/20 bg-gradient-to-br from-background to-muted"
+                    >
+                      <Avatar className="h-10 w-10 border-2 border-primary/30 shadow-inner">
+                        <AvatarImage src={profile?.avatar_url || undefined} className="object-cover" />
+                        <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 text-primary font-bold text-lg">
                           {profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
