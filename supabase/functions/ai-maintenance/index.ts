@@ -74,7 +74,7 @@ serve(async (req) => {
 
     // ==================== DATABASE HEALTH CHECKS ====================
     
-    // Check for orphaned records
+    // Check for orphaned records (info only - no deletion)
     const { data: orphanedOrders } = await supabase
       .from("orders")
       .select("id, listing_id")
@@ -84,11 +84,10 @@ serve(async (req) => {
       issues.push({
         id: "db_orphaned_orders",
         category: "data_integrity",
-        severity: "warning",
+        severity: "info",
         title: "Comenzi fără listing asociat",
-        description: `${orphanedOrders.length} comenzi au referințe către listinguri care nu mai există`,
-        autoFixable: true,
-        fixAction: "archive_orphaned_orders",
+        description: `${orphanedOrders.length} comenzi au referințe către listinguri care nu mai există - necesită revizuire manuală`,
+        autoFixable: false, // NU se șterge - doar raportare
         detectedAt: new Date().toISOString()
       });
     }
@@ -312,7 +311,7 @@ serve(async (req) => {
       });
     }
 
-    // Check for conversations without messages
+    // Check for conversations without messages (info only - no deletion allowed)
     const { data: emptyConversations } = await supabase
       .from("conversations")
       .select(`
@@ -327,9 +326,8 @@ serve(async (req) => {
         category: "data_integrity",
         severity: "info",
         title: "Conversații goale",
-        description: `${emptyConversations.length} conversații nu au niciun mesaj`,
-        autoFixable: true,
-        fixAction: "delete_empty_conversations",
+        description: `${emptyConversations.length} conversații nu au niciun mesaj - necesită atenție manuală`,
+        autoFixable: false, // NU se șterge - doar raportare
         detectedAt: new Date().toISOString()
       });
     }
@@ -385,16 +383,8 @@ serve(async (req) => {
               }
               break;
 
-            case "delete_empty_conversations":
-              if (emptyConversations) {
-                const ids = emptyConversations.map(c => c.id);
-                await supabase
-                  .from("conversations")
-                  .delete()
-                  .in("id", ids);
-                issuesFixed++;
-              }
-              break;
+            // REMOVED: delete_empty_conversations - AI Maintenance NU are voie să șteargă date
+            // Conversațiile goale sunt raportate pentru revizuire manuală
 
             case "create_missing_profiles":
               if (usersData?.users) {
@@ -516,7 +506,7 @@ Răspunde în română, structurat și concis.`;
             messages: [
               { 
                 role: "system", 
-                content: "Ești un expert în mentenanță și DevOps pentru platforme marketplace. Oferi analize tehnice precise și soluții practice. Răspunzi în română." 
+                content: "Ești un expert în mentenanță și DevOps pentru platforme marketplace. Oferi analize tehnice precise și soluții practice. IMPORTANT: Ai voie doar să REPARI și să ÎNTREȚII platforma - NU ai voie să ștergi date. Toate operațiunile de ștergere sunt INTERZISE. Răspunzi în română." 
               },
               { role: "user", content: analysisPrompt }
             ],
