@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, MapPin, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
@@ -19,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useCreateReturn } from '@/hooks/useReturns';
+import { useCreateReturn, useSellerReturnAddress } from '@/hooks/useReturns';
 
 interface ReturnRequestDialogProps {
   orderId: string;
@@ -49,6 +50,11 @@ export const ReturnRequestDialog: React.FC<ReturnRequestDialogProps> = ({
   const [reason, setReason] = useState('');
   const [description, setDescription] = useState('');
   const createReturn = useCreateReturn();
+  
+  // Get seller's return address
+  const { data: sellerAddress, isLoading: addressLoading } = useSellerReturnAddress(
+    open ? sellerId : undefined
+  );
 
   const handleSubmit = async () => {
     if (!reason) return;
@@ -76,7 +82,7 @@ export const ReturnRequestDialog: React.FC<ReturnRequestDialogProps> = ({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Cerere de Retur</DialogTitle>
           <DialogDescription>
@@ -85,6 +91,43 @@ export const ReturnRequestDialog: React.FC<ReturnRequestDialogProps> = ({
         </DialogHeader>
         
         <div className="space-y-4 py-4">
+          {/* Seller's return address */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              Adresa de retur a vânzătorului
+            </Label>
+            {addressLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Se încarcă adresa...
+              </div>
+            ) : sellerAddress ? (
+              <Alert>
+                <AlertDescription className="text-sm">
+                  <strong>{sellerAddress.first_name} {sellerAddress.last_name}</strong><br />
+                  {sellerAddress.address}
+                  {sellerAddress.apartment && `, ${sellerAddress.apartment}`}<br />
+                  {sellerAddress.city}, {sellerAddress.postal_code}<br />
+                  {sellerAddress.country}
+                  {sellerAddress.phone && (
+                    <>
+                      <br />
+                      <span className="text-muted-foreground">Tel: {sellerAddress.phone}</span>
+                    </>
+                  )}
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <Alert variant="destructive">
+                <AlertDescription className="text-sm">
+                  Vânzătorul nu are o adresă de retur configurată. 
+                  Te rugăm să-l contactezi direct prin mesaje.
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+
           <div className="space-y-2">
             <Label>Motivul returului</Label>
             <Select value={reason} onValueChange={setReason}>
@@ -107,9 +150,16 @@ export const ReturnRequestDialog: React.FC<ReturnRequestDialogProps> = ({
               placeholder="Descrie problema în detaliu..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              rows={4}
+              rows={3}
             />
           </div>
+
+          <Alert>
+            <AlertDescription className="text-sm text-muted-foreground">
+              După aprobarea returului, vei primi instrucțiuni să adaugi numărul AWB 
+              al coletului trimis înapoi către vânzător.
+            </AlertDescription>
+          </Alert>
         </div>
 
         <DialogFooter>

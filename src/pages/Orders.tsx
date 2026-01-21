@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import { ReturnRequestDialog } from '@/components/dashboard/ReturnRequestDialog';
+import { ReturnsSection } from '@/components/dashboard/ReturnsSection';
 
 const CARRIERS = [
   { value: 'fan_courier', label: 'FAN Courier' },
@@ -297,6 +298,8 @@ const Orders = () => {
           <TabsList className="mb-6">
             <TabsTrigger value="buying">Cumpărături</TabsTrigger>
             <TabsTrigger value="selling">Vânzări</TabsTrigger>
+            <TabsTrigger value="my-returns">Returnările Mele</TabsTrigger>
+            <TabsTrigger value="received-returns">Returnări Primite</TabsTrigger>
           </TabsList>
 
           <TabsContent value="buying">
@@ -339,6 +342,14 @@ const Orders = () => {
                 ))}
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="my-returns">
+            <ReturnsSection type="buyer" />
+          </TabsContent>
+
+          <TabsContent value="received-returns">
+            <ReturnsSection type="seller" />
           </TabsContent>
         </Tabs>
       </div>
