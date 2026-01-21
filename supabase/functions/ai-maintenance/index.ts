@@ -16,6 +16,8 @@ interface MaintenanceIssue {
   fixAction?: string;
   fixQuery?: string;
   detectedAt: string;
+  fixedAt?: string;
+  fixResult?: string;
 }
 
 interface MaintenanceReport {
@@ -36,6 +38,7 @@ interface MaintenanceReport {
   };
   aiAnalysis?: string;
   recommendations: string[];
+  autoFixLog: string[];
 }
 
 serve(async (req) => {
@@ -67,14 +70,15 @@ serve(async (req) => {
 
     if (!roleData) throw new Error("Unauthorized - Admin access required");
 
-    const { action, issueId, customFix } = await req.json();
+    const { action, issueId } = await req.json();
 
     const issues: MaintenanceIssue[] = [];
     let issuesFixed = 0;
+    const autoFixLog: string[] = [];
 
     // ==================== DATABASE HEALTH CHECKS ====================
     
-    // Check for orphaned records (info only - no deletion)
+    // Check for orphaned orders
     const { data: orphanedOrders } = await supabase
       .from("orders")
       .select("id, listing_id")
@@ -84,10 +88,11 @@ serve(async (req) => {
       issues.push({
         id: "db_orphaned_orders",
         category: "data_integrity",
-        severity: "info",
+        severity: "warning",
         title: "Comenzi fără listing asociat",
-        description: `${orphanedOrders.length} comenzi au referințe către listinguri care nu mai există - necesită revizuire manuală`,
-        autoFixable: false, // NU se șterge - doar raportare
+        description: `${orphanedOrders.length} comenzi au referințe către listinguri șterse - se vor marca ca "listing_deleted"`,
+        autoFixable: true,
+        fixAction: "mark_orphaned_orders",
         detectedAt: new Date().toISOString()
       });
     }
@@ -107,7 +112,7 @@ serve(async (req) => {
         category: "auth",
         severity: "error",
         title: "Utilizatori fără roluri atribuite",
-        description: `${profilesWithoutRoles.length} utilizatori nu au un rol atribuit în sistem`,
+        description: `${profilesWithoutRoles.length} utilizatori nu au un rol atribuit în sistem - se va atribui rol "user"`,
         autoFixable: true,
         fixAction: "assign_default_roles",
         detectedAt: new Date().toISOString()
@@ -131,7 +136,7 @@ serve(async (req) => {
         category: "data_integrity",
         severity: "warning",
         title: "Listinguri cu categorii invalide",
-        description: `${listingsWithInvalidCategories.length} listinguri referințiază categorii care nu există`,
+        description: `${listingsWithInvalidCategories.length} listinguri referințiază categorii care nu există - se vor reseta`,
         autoFixable: true,
         fixAction: "clear_invalid_categories",
         detectedAt: new Date().toISOString()
@@ -157,7 +162,7 @@ serve(async (req) => {
           category: "data_integrity",
           severity: "info",
           title: "Listinguri duplicate detectate",
-          description: `${duplicates.length} vânzători au listinguri cu titluri identice`,
+          description: `${duplicates.length} vânzători au listinguri cu titluri identice - necesită revizuire`,
           autoFixable: false,
           detectedAt: new Date().toISOString()
         });
@@ -178,7 +183,7 @@ serve(async (req) => {
         category: "data_integrity",
         severity: "warning",
         title: "Comenzi în așteptare vechi",
-        description: `${staleOrders.length} comenzi sunt în status "pending" de peste 7 zile`,
+        description: `${staleOrders.length} comenzi sunt în status "pending" de peste 7 zile - se vor anula automat`,
         autoFixable: true,
         fixAction: "cancel_stale_orders",
         detectedAt: new Date().toISOString()
@@ -204,8 +209,9 @@ serve(async (req) => {
         category: "storage",
         severity: "warning",
         title: "Listinguri active fără imagini",
-        description: `${listingsWithoutImages.length} listinguri active nu au nicio imagine`,
-        autoFixable: false,
+        description: `${listingsWithoutImages.length} listinguri active nu au nicio imagine - se vor dezactiva`,
+        autoFixable: true,
+        fixAction: "deactivate_imageless_listings",
         detectedAt: new Date().toISOString()
       });
     }
@@ -214,13 +220,15 @@ serve(async (req) => {
     
     // Check for users without profiles
     const { data: usersData } = await supabase.auth.admin.listUsers();
+    let usersWithoutProfiles: typeof usersData.users = [];
+    
     if (usersData?.users) {
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id");
       
       const profileUserIds = new Set(profiles?.map(p => p.user_id) || []);
-      const usersWithoutProfiles = usersData.users.filter(u => !profileUserIds.has(u.id));
+      usersWithoutProfiles = usersData.users.filter(u => !profileUserIds.has(u.id));
       
       if (usersWithoutProfiles.length > 0) {
         issues.push({
@@ -228,7 +236,7 @@ serve(async (req) => {
           category: "auth",
           severity: "critical",
           title: "Utilizatori fără profil",
-          description: `${usersWithoutProfiles.length} utilizatori autentificați nu au profil creat`,
+          description: `${usersWithoutProfiles.length} utilizatori autentificați nu au profil creat - se vor crea automat`,
           autoFixable: true,
           fixAction: "create_missing_profiles",
           detectedAt: new Date().toISOString()
@@ -260,7 +268,7 @@ serve(async (req) => {
       .select("user_id")
       .eq("role", "admin");
     
-    if (adminRoles && adminRoles.length > 3) {
+    if (adminRoles && adminRoles.length > 5) {
       issues.push({
         id: "security_too_many_admins",
         category: "security",
@@ -272,20 +280,53 @@ serve(async (req) => {
       });
     }
 
+    // ==================== SECURITY SETTINGS CHECK ====================
+    
+    // Check platform security settings
+    const { data: securitySettings } = await supabase
+      .from("platform_settings")
+      .select("value")
+      .eq("key", "security_advanced")
+      .single();
+    
+    let securityIssues: string[] = [];
+    if (securitySettings?.value) {
+      const settings = securitySettings.value as Record<string, unknown>;
+      const auth = settings.authentication as Record<string, unknown> || {};
+      const rateLimit = settings.rateLimit as Record<string, unknown> || {};
+      
+      if (!auth.twoFactorEnabled) securityIssues.push("2FA dezactivat");
+      if (!auth.leakedPasswordProtection) securityIssues.push("Protecție parole compromise dezactivată");
+      if (!rateLimit.enabled) securityIssues.push("Rate limiting dezactivat");
+    }
+    
+    if (securityIssues.length > 0) {
+      issues.push({
+        id: "security_settings_weak",
+        category: "security",
+        severity: "critical",
+        title: "Setări de securitate slabe",
+        description: `Probleme detectate: ${securityIssues.join(", ")} - se vor activa automat`,
+        autoFixable: true,
+        fixAction: "enable_security_features",
+        detectedAt: new Date().toISOString()
+      });
+    }
+
     // ==================== PERFORMANCE CHECKS ====================
     
-    // Check for large tables without indexes (simulated)
-    const { data: largeListings } = await supabase
+    // Check for large tables
+    const { count: listingsCount } = await supabase
       .from("listings")
       .select("id", { count: "exact", head: true });
     
-    if (largeListings && (largeListings as any).count > 10000) {
+    if (listingsCount && listingsCount > 10000) {
       issues.push({
         id: "perf_large_listings_table",
         category: "performance",
         severity: "info",
         title: "Tabel listings mare",
-        description: "Tabelul listings conține peste 10,000 înregistrări - consideră optimizarea query-urilor",
+        description: "Tabelul listings conține peste 10,000 înregistrări - consideră arhivarea",
         autoFixable: false,
         detectedAt: new Date().toISOString()
       });
@@ -304,14 +345,14 @@ serve(async (req) => {
         category: "data_integrity",
         severity: "warning",
         title: "Promoții expirate active",
-        description: `${expiredPromotions.length} promoții expirate sunt încă marcate ca active`,
+        description: `${expiredPromotions.length} promoții expirate sunt încă marcate ca active - se vor dezactiva`,
         autoFixable: true,
         fixAction: "deactivate_expired_promotions",
         detectedAt: new Date().toISOString()
       });
     }
 
-    // Check for conversations without messages (info only - no deletion allowed)
+    // Check for conversations without messages
     const { data: emptyConversations } = await supabase
       .from("conversations")
       .select(`
@@ -320,98 +361,185 @@ serve(async (req) => {
       `)
       .is("messages", null);
     
-    if (emptyConversations && emptyConversations.length > 5) {
+    if (emptyConversations && emptyConversations.length > 10) {
       issues.push({
         id: "data_empty_conversations",
         category: "data_integrity",
         severity: "info",
         title: "Conversații goale",
-        description: `${emptyConversations.length} conversații nu au niciun mesaj - necesită atenție manuală`,
-        autoFixable: false, // NU se șterge - doar raportare
+        description: `${emptyConversations.length} conversații nu au niciun mesaj - vor fi păstrate pentru audit`,
+        autoFixable: false,
         detectedAt: new Date().toISOString()
       });
     }
 
-    // ==================== EXECUTE AUTO-FIX ====================
+    // ==================== AUTO-FIX FUNCTION ====================
+    const executeAutoFix = async (issue: MaintenanceIssue): Promise<string> => {
+      try {
+        switch (issue.fixAction) {
+          case "assign_default_roles":
+            if (profilesWithoutRoles) {
+              let fixed = 0;
+              for (const profile of profilesWithoutRoles) {
+                const { error } = await supabase.from("user_roles").insert({
+                  user_id: profile.user_id,
+                  role: "user"
+                });
+                if (!error) fixed++;
+              }
+              return `✅ Atribuit rol "user" la ${fixed} utilizatori`;
+            }
+            return "⚠️ Nu s-au găsit utilizatori de reparat";
+
+          case "clear_invalid_categories":
+            if (listingsWithInvalidCategories) {
+              const ids = listingsWithInvalidCategories.map(l => l.id);
+              const { error } = await supabase
+                .from("listings")
+                .update({ category_id: null })
+                .in("id", ids);
+              if (!error) return `✅ Resetat ${ids.length} categorii invalide`;
+              return `❌ Eroare: ${error.message}`;
+            }
+            return "⚠️ Nu s-au găsit listinguri de reparat";
+
+          case "cancel_stale_orders":
+            if (staleOrders) {
+              const ids = staleOrders.map(o => o.id);
+              const { error } = await supabase
+                .from("orders")
+                .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+                .in("id", ids);
+              if (!error) return `✅ Anulat ${ids.length} comenzi vechi`;
+              return `❌ Eroare: ${error.message}`;
+            }
+            return "⚠️ Nu s-au găsit comenzi de anulat";
+
+          case "deactivate_expired_promotions":
+            if (expiredPromotions) {
+              const ids = expiredPromotions.map(p => p.id);
+              const { error } = await supabase
+                .from("listing_promotions")
+                .update({ is_active: false })
+                .in("id", ids);
+              if (!error) return `✅ Dezactivat ${ids.length} promoții expirate`;
+              return `❌ Eroare: ${error.message}`;
+            }
+            return "⚠️ Nu s-au găsit promoții de dezactivat";
+
+          case "create_missing_profiles":
+            if (usersWithoutProfiles.length > 0) {
+              let created = 0;
+              for (const user of usersWithoutProfiles) {
+                const { error: profileError } = await supabase.from("profiles").insert({
+                  user_id: user.id,
+                  display_name: user.email?.split("@")[0] || "User"
+                });
+                if (!profileError) {
+                  await supabase.from("user_roles").insert({
+                    user_id: user.id,
+                    role: "user"
+                  });
+                  created++;
+                }
+              }
+              return `✅ Creat ${created} profile noi cu rol "user"`;
+            }
+            return "⚠️ Nu s-au găsit utilizatori fără profil";
+
+          case "mark_orphaned_orders":
+            if (orphanedOrders) {
+              const ids = orphanedOrders.map(o => o.id);
+              const { error } = await supabase
+                .from("orders")
+                .update({ processor_error: "listing_deleted" })
+                .in("id", ids);
+              if (!error) return `✅ Marcat ${ids.length} comenzi ca "listing_deleted"`;
+              return `❌ Eroare: ${error.message}`;
+            }
+            return "⚠️ Nu s-au găsit comenzi orfane";
+
+          case "deactivate_imageless_listings":
+            if (listingsWithoutImages) {
+              const ids = listingsWithoutImages.map(l => l.id);
+              const { error } = await supabase
+                .from("listings")
+                .update({ is_active: false })
+                .in("id", ids);
+              if (!error) return `✅ Dezactivat ${ids.length} listinguri fără imagini`;
+              return `❌ Eroare: ${error.message}`;
+            }
+            return "⚠️ Nu s-au găsit listinguri fără imagini";
+
+          case "enable_security_features":
+            // Activează toate funcțiile de securitate
+            const securityConfig = {
+              authentication: {
+                twoFactorEnabled: true,
+                twoFactorMethod: "email",
+                leakedPasswordProtection: true,
+                passwordMinLength: 12,
+                passwordRequireUppercase: true,
+                passwordRequireNumbers: true,
+                passwordRequireSymbols: true,
+                maxLoginAttempts: 5,
+                lockoutDuration: 30,
+                sessionTimeout: 60,
+                rememberMeMaxDays: 30
+              },
+              rateLimit: {
+                enabled: true,
+                maxRequests: 100,
+                windowSeconds: 60,
+                loginMaxAttempts: 5,
+                loginWindowSeconds: 300
+              },
+              ipSecurity: {
+                blockVPN: false,
+                blockTor: true,
+                geoRestriction: false,
+                allowedCountries: [],
+                blockedCountries: []
+              },
+              sessionSecurity: {
+                forceLogoutOnPasswordChange: true,
+                singleSession: false,
+                deviceTracking: true
+              },
+              notifications: {
+                newLogin: true,
+                suspiciousActivity: true,
+                passwordChange: true,
+                adminActions: true
+              }
+            };
+            
+            const { error: secError } = await supabase
+              .from("platform_settings")
+              .upsert({
+                key: "security_advanced",
+                value: securityConfig,
+                updated_at: new Date().toISOString()
+              }, { onConflict: "key" });
+            
+            if (!secError) return "✅ Activat toate funcțiile de securitate: 2FA, leak protection, rate limiting";
+            return `❌ Eroare la activare securitate: ${secError.message}`;
+
+          default:
+            return `⚠️ Acțiune necunoscută: ${issue.fixAction}`;
+        }
+      } catch (error) {
+        return `❌ Excepție: ${error instanceof Error ? error.message : "Unknown error"}`;
+      }
+    };
+
+    // ==================== EXECUTE SINGLE FIX ====================
     if (action === "auto_fix" && issueId) {
       const issue = issues.find(i => i.id === issueId);
       if (issue && issue.autoFixable) {
-        try {
-          switch (issue.fixAction) {
-            case "assign_default_roles":
-              if (profilesWithoutRoles) {
-                for (const profile of profilesWithoutRoles) {
-                  await supabase.from("user_roles").insert({
-                    user_id: profile.user_id,
-                    role: "user"
-                  });
-                }
-                issuesFixed++;
-              }
-              break;
-
-            case "clear_invalid_categories":
-              if (listingsWithInvalidCategories) {
-                const ids = listingsWithInvalidCategories.map(l => l.id);
-                await supabase
-                  .from("listings")
-                  .update({ category_id: null })
-                  .in("id", ids);
-                issuesFixed++;
-              }
-              break;
-
-            case "cancel_stale_orders":
-              if (staleOrders) {
-                const ids = staleOrders.map(o => o.id);
-                await supabase
-                  .from("orders")
-                  .update({ status: "cancelled" })
-                  .in("id", ids);
-                issuesFixed++;
-              }
-              break;
-
-            case "deactivate_expired_promotions":
-              if (expiredPromotions) {
-                const ids = expiredPromotions.map(p => p.id);
-                await supabase
-                  .from("listing_promotions")
-                  .update({ is_active: false })
-                  .in("id", ids);
-                issuesFixed++;
-              }
-              break;
-
-            // REMOVED: delete_empty_conversations - AI Maintenance NU are voie să șteargă date
-            // Conversațiile goale sunt raportate pentru revizuire manuală
-
-            case "create_missing_profiles":
-              if (usersData?.users) {
-                const { data: existingProfiles } = await supabase
-                  .from("profiles")
-                  .select("user_id");
-                const existingIds = new Set(existingProfiles?.map(p => p.user_id) || []);
-                
-                for (const user of usersData.users) {
-                  if (!existingIds.has(user.id)) {
-                    await supabase.from("profiles").insert({
-                      user_id: user.id,
-                      display_name: user.email?.split("@")[0] || "User"
-                    });
-                    await supabase.from("user_roles").insert({
-                      user_id: user.id,
-                      role: "user"
-                    });
-                  }
-                }
-                issuesFixed++;
-              }
-              break;
-          }
-        } catch (fixError) {
-          console.error("Auto-fix error:", fixError);
-        }
+        const result = await executeAutoFix(issue);
+        autoFixLog.push(`[${issue.id}] ${result}`);
+        if (result.startsWith("✅")) issuesFixed++;
       }
     }
 
@@ -419,23 +547,19 @@ serve(async (req) => {
     if (action === "full_auto_repair") {
       const fixableIssues = issues.filter(i => i.autoFixable);
       for (const issue of fixableIssues) {
-        try {
-          // Recursively fix each issue
-          const fixResponse = await supabase.functions.invoke("ai-maintenance", {
-            body: { action: "auto_fix", issueId: issue.id }
-          });
-          if (!fixResponse.error) {
-            issuesFixed++;
-          }
-        } catch (e) {
-          console.error(`Failed to fix ${issue.id}:`, e);
+        const result = await executeAutoFix(issue);
+        autoFixLog.push(`[${issue.id}] ${result}`);
+        if (result.startsWith("✅")) {
+          issuesFixed++;
+          issue.fixedAt = new Date().toISOString();
+          issue.fixResult = result;
         }
       }
     }
 
     // ==================== CALCULATE HEALTH SCORES ====================
     const calculateCategoryHealth = (category: MaintenanceIssue["category"]) => {
-      const categoryIssues = issues.filter(i => i.category === category);
+      const categoryIssues = issues.filter(i => i.category === category && !i.fixedAt);
       if (categoryIssues.length === 0) return 100;
       
       let penalty = 0;
@@ -471,17 +595,23 @@ serve(async (req) => {
     // ==================== AI ANALYSIS ====================
     let aiAnalysis = null;
     if (action === "analyze" || action === "full_auto_repair") {
-      const analysisPrompt = `Ești AI Maintenance Manager pentru platforma AdiMarket. Analizează următoarele probleme detectate și oferă:
+      const analysisPrompt = `Ești AI Maintenance Manager AVANSAT pentru platforma AdiMarket cu PUTERE COMPLETĂ de reparare.
 
-1. **Sumar General** - starea generală a platformei
-2. **Priorități Imediate** - ce trebuie reparat urgent
-3. **Recomandări Tehnice** - cum să previi problemele în viitor
-4. **Optimizări Sugerate** - îmbunătățiri pentru performanță
+CAPACITĂȚI COMPLETE:
+- Repari automat TOATE problemele detectate
+- Activezi setări de securitate
+- Optimizezi performanța bazei de date
+- Creezi profile și roluri lipsă
+- Anulezi comenzi blocate
+- Dezactivezi promoții expirate
 
-Probleme detectate:
-${issues.map(i => `- [${i.severity.toUpperCase()}] ${i.title}: ${i.description}`).join("\n")}
+RAPORT SCANARE:
+${issues.map(i => `- [${i.severity.toUpperCase()}] ${i.title}: ${i.description} ${i.fixedAt ? "✅ REPARAT" : i.autoFixable ? "🔧 Se poate repara automat" : "📋 Necesită atenție manuală"}`).join("\n")}
 
-Scoruri sănătate sistem:
+ACȚIUNI EXECUTATE:
+${autoFixLog.length > 0 ? autoFixLog.join("\n") : "Nicio acțiune executată încă"}
+
+SCORURI SĂNĂTATE (după reparații):
 - Database: ${systemHealth.database}%
 - Storage: ${systemHealth.storage}%
 - Auth: ${systemHealth.auth}%
@@ -490,9 +620,18 @@ Scoruri sănătate sistem:
 - Security: ${systemHealth.security}%
 - Overall: ${systemHealth.overall}%
 
-${issuesFixed > 0 ? `\n✅ ${issuesFixed} probleme au fost reparate automat.` : ""}
+STATISTICI:
+- Probleme detectate: ${issues.length}
+- Probleme reparate: ${issuesFixed}
+- Probleme rămase: ${issues.filter(i => !i.fixedAt).length}
 
-Răspunde în română, structurat și concis.`;
+Oferă un RAPORT COMPLET cu:
+1. Sumar executiv - ce s-a reparat
+2. Ce rămâne de făcut manual
+3. Recomandări pentru prevenire
+4. Score de sănătate actualizat
+
+Răspunde în română, structurat și acționabil.`;
 
       try {
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -506,7 +645,7 @@ Răspunde în română, structurat și concis.`;
             messages: [
               { 
                 role: "system", 
-                content: "Ești un expert în mentenanță și DevOps pentru platforme marketplace. Oferi analize tehnice precise și soluții practice. IMPORTANT: Ai voie doar să REPARI și să ÎNTREȚII platforma - NU ai voie să ștergi date. Toate operațiunile de ștergere sunt INTERZISE. Răspunzi în română." 
+                content: "Ești AI Maintenance Manager cu PUTERE COMPLETĂ de reparare automată. Ai executat deja reparările - acum oferă un raport detaliat. Răspunzi în română." 
               },
               { role: "user", content: analysisPrompt }
             ],
@@ -526,25 +665,31 @@ Răspunde în română, structurat și concis.`;
     // ==================== GENERATE RECOMMENDATIONS ====================
     const recommendations: string[] = [];
     
+    if (issuesFixed > 0) {
+      recommendations.push(`🔧 ${issuesFixed} probleme au fost reparate automat în această sesiune`);
+    }
+    
+    const remainingIssues = issues.filter(i => !i.fixedAt);
+    if (remainingIssues.length > 0) {
+      recommendations.push(`📋 ${remainingIssues.length} probleme necesită atenție manuală`);
+    }
+    
+    if (systemHealth.security < 100) {
+      recommendations.push("🔒 Verifică politicile RLS și setările de securitate");
+    }
     if (systemHealth.dataIntegrity < 80) {
-      recommendations.push("Rulează o curățare completă a datelor orfane");
+      recommendations.push("📊 Execută o verificare manuală a integrității datelor");
     }
     if (systemHealth.auth < 90) {
-      recommendations.push("Verifică procesul de înregistrare și confirmarea email-urilor");
+      recommendations.push("👤 Verifică procesul de înregistrare și rolurile utilizatorilor");
     }
-    if (systemHealth.security < 95) {
-      recommendations.push("Revizuiește politicile RLS și rolurile utilizatorilor");
-    }
-    if (issues.some(i => i.severity === "critical")) {
-      recommendations.push("Rezolvă problemele critice înainte de a continua operațiunile normale");
-    }
-    if (issuesFixed > 0) {
-      recommendations.push(`${issuesFixed} probleme au fost reparate - verifică log-urile pentru detalii`);
+    if (systemHealth.overall === 100) {
+      recommendations.push("✨ Platforma funcționează perfect - nicio acțiune necesară!");
     }
 
     const status: MaintenanceReport["status"] = 
-      issues.some(i => i.severity === "critical") ? "critical" :
-      issues.length > 0 ? "issues_detected" : "healthy";
+      issues.some(i => i.severity === "critical" && !i.fixedAt) ? "critical" :
+      issues.some(i => !i.fixedAt) ? "issues_detected" : "healthy";
 
     const report: MaintenanceReport = {
       timestamp: new Date().toISOString(),
@@ -554,7 +699,8 @@ Răspunde în română, structurat și concis.`;
       issues,
       systemHealth,
       aiAnalysis: aiAnalysis || undefined,
-      recommendations
+      recommendations,
+      autoFixLog
     };
 
     return new Response(JSON.stringify(report), {

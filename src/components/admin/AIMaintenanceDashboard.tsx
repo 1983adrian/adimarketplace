@@ -67,6 +67,7 @@ interface MaintenanceReport {
   };
   aiAnalysis?: string;
   recommendations: string[];
+  autoFixLog?: string[];
 }
 
 const categoryIcons = {
@@ -221,12 +222,12 @@ export function AIMaintenanceDashboard() {
           </div>
           <div>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-              AI Maintenance
+              AI Maintenance PRO
             </h1>
             <p className="text-muted-foreground">
-              Monitorizare și reparare automată a platformei 
-              <Badge variant="outline" className="ml-2 text-xs border-green-500 text-green-600">
-                🔒 Doar Reparații - Fără Ștergeri
+              Monitorizare și reparare automată COMPLETĂ a platformei 
+              <Badge variant="outline" className="ml-2 text-xs border-emerald-500 text-emerald-600">
+                ⚡ Putere Completă de Reparare
               </Badge>
             </p>
           </div>
@@ -408,6 +409,39 @@ export function AIMaintenanceDashboard() {
 
         {/* AI Analysis & Recommendations */}
         <div className="space-y-6">
+          {/* Auto-Fix Log */}
+          {report?.autoFixLog && report.autoFixLog.length > 0 && (
+            <Card className="border-green-500/50 bg-gradient-to-br from-green-500/5 to-emerald-500/5">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wrench className="h-5 w-5 text-green-500" />
+                  Log Reparări Automate
+                </CardTitle>
+                <CardDescription>
+                  Acțiuni executate în ultima sesiune
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[200px]">
+                  <div className="space-y-2 font-mono text-sm">
+                    {report.autoFixLog.map((log, i) => (
+                      <div 
+                        key={i} 
+                        className={`p-2 rounded ${
+                          log.includes('✅') ? 'bg-green-500/10 text-green-700 dark:text-green-400' :
+                          log.includes('❌') ? 'bg-red-500/10 text-red-700 dark:text-red-400' :
+                          'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
+                        }`}
+                      >
+                        {log}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
+
           {/* AI Analysis */}
           {report?.aiAnalysis && (
             <Card className="border-primary/30 bg-gradient-to-br from-emerald-500/5 via-teal-500/5 to-cyan-500/5">
