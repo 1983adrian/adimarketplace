@@ -62,7 +62,7 @@
     <link rel="preconnect" href="https://pabdpeqliwnpbnbsawqe.supabase.co" />
     <link rel="dns-prefetch" href="https://pabdpeqliwnpbnbsawqe.supabase.co" />
     
-    <!-- Safe area insets for notch devices -->
+    <!-- Universal safe area and responsive fixes for ALL phone models -->
     <style>
       :root {
         --sat: env(safe-area-inset-top, 0px);
@@ -71,31 +71,37 @@
         --sal: env(safe-area-inset-left, 0px);
       }
       
-      /* PWA standalone mode header fix */
-      @media all and (display-mode: standalone) {
-        :root {
-          --sat: max(env(safe-area-inset-top, 0px), 20px);
-        }
-      }
-      
       /* Prevent pull-to-refresh on mobile */
       html {
         overscroll-behavior-y: contain;
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
       }
       
-      /* iOS rubber band effect fix */
+      /* Universal mobile layout fix */
       body {
         position: fixed;
         width: 100%;
         height: 100%;
+        height: 100dvh; /* Dynamic viewport height for mobile browsers */
         overflow: hidden;
+        margin: 0;
+        padding: 0;
       }
       
       #root {
         width: 100%;
         height: 100%;
+        height: 100dvh;
         overflow-y: auto;
+        overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+      }
+      
+      /* Ensure content doesn't get cut off on any device */
+      * {
+        box-sizing: border-box;
       }
     </style>
   </head>
