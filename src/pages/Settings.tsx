@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, Store, Bell, Shield, MapPin, Save, 
-  Wallet, Package, Building2, EyeOff
+  Wallet, Package, Building2, EyeOff, Globe
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -14,15 +14,54 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
 import { PayoutSection } from '@/components/settings/PayoutSection';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage, Language } from '@/contexts/LanguageContext';
+
+// All European languages
+const EUROPEAN_LANGUAGES = [
+  { code: 'ro', name: 'Română', flag: '🇷🇴' },
+  { code: 'en', name: 'English', flag: '🇬🇧' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
+  { code: 'pt', name: 'Português', flag: '🇵🇹' },
+  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+  { code: 'pl', name: 'Polski', flag: '🇵🇱' },
+  { code: 'cs', name: 'Čeština', flag: '🇨🇿' },
+  { code: 'hu', name: 'Magyar', flag: '🇭🇺' },
+  { code: 'bg', name: 'Български', flag: '🇧🇬' },
+  { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
+  { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
+  { code: 'da', name: 'Dansk', flag: '🇩🇰' },
+  { code: 'fi', name: 'Suomi', flag: '🇫🇮' },
+  { code: 'no', name: 'Norsk', flag: '🇳🇴' },
+  { code: 'sk', name: 'Slovenčina', flag: '🇸🇰' },
+  { code: 'hr', name: 'Hrvatski', flag: '🇭🇷' },
+  { code: 'sl', name: 'Slovenščina', flag: '🇸🇮' },
+  { code: 'lt', name: 'Lietuvių', flag: '🇱🇹' },
+  { code: 'lv', name: 'Latviešu', flag: '🇱🇻' },
+  { code: 'et', name: 'Eesti', flag: '🇪🇪' },
+  { code: 'mt', name: 'Malti', flag: '🇲🇹' },
+  { code: 'ga', name: 'Gaeilge', flag: '🇮🇪' },
+  { code: 'uk', name: 'Українська', flag: '🇺🇦' },
+  { code: 'sr', name: 'Српски', flag: '🇷🇸' },
+  { code: 'mk', name: 'Македонски', flag: '🇲🇰' },
+  { code: 'sq', name: 'Shqip', flag: '🇦🇱' },
+  { code: 'bs', name: 'Bosanski', flag: '🇧🇦' },
+  { code: 'is', name: 'Íslenska', flag: '🇮🇸' },
+  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+];
 
 const Settings = () => {
   const { user, profile, updateProfile, loading } = useAuth();
+  const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -34,6 +73,7 @@ const Settings = () => {
   const [storeName, setStoreName] = useState('');
   const [isSeller, setIsSeller] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
 
   // Setări notificări - real state saved to localStorage
   const [emailNotifications, setEmailNotifications] = useState(() => {
@@ -127,10 +167,14 @@ const Settings = () => {
           <h1 className="text-3xl font-bold mb-8">Setări</h1>
           
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
               <TabsTrigger value="profile" className="gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden lg:inline">Profil</span>
+              </TabsTrigger>
+              <TabsTrigger value="language" className="gap-2">
+                <Globe className="h-4 w-4" />
+                <span className="hidden lg:inline">Limbă</span>
               </TabsTrigger>
               <TabsTrigger value="payouts" className="gap-2">
                 <Wallet className="h-4 w-4" />
@@ -243,6 +287,87 @@ const Settings = () => {
                     <Save className="h-4 w-4" />
                     {saving ? 'Se salvează...' : 'Salvează Modificările'}
                   </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Tab Limbă */}
+            <TabsContent value="language">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    Setări Limbă
+                  </CardTitle>
+                  <CardDescription>
+                    Alege limba de afișare a platformei. Limba oficială este Română. 
+                    Platforma detectează automat limba și moneda pe baza locației tale.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="language">Limba Preferată</Label>
+                      <Select 
+                        value={selectedLanguage} 
+                        onValueChange={(val) => {
+                          setSelectedLanguage(val);
+                          // Only RO and EN are fully supported
+                          if (val === 'ro' || val === 'en') {
+                            setLanguage(val as Language);
+                            localStorage.setItem('preferredLanguage', val);
+                            toast({ title: 'Limbă schimbată', description: `Limba a fost setată la ${EUROPEAN_LANGUAGES.find(l => l.code === val)?.name}` });
+                          } else {
+                            localStorage.setItem('preferredLanguage', val);
+                            toast({ 
+                              title: 'Limbă salvată', 
+                              description: `Preferința ${EUROPEAN_LANGUAGES.find(l => l.code === val)?.name} a fost salvată. Traducerea completă este disponibilă doar pentru Română și English.`,
+                            });
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Selectează limba" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {EUROPEAN_LANGUAGES.map((lang) => (
+                            <SelectItem key={lang.code} value={lang.code}>
+                              <span className="flex items-center gap-2">
+                                <span>{lang.flag}</span>
+                                <span>{lang.name}</span>
+                                {(lang.code === 'ro' || lang.code === 'en') && (
+                                  <Badge variant="secondary" className="text-xs ml-2">Complet</Badge>
+                                )}
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">
+                        Traducerea completă este disponibilă pentru Română și English. Celelalte limbi vor fi adăugate în curând.
+                      </p>
+                    </div>
+
+                    <Alert>
+                      <Globe className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>Detectare automată:</strong> Dacă nu ai setat manual o preferință, platforma va afișa limba și moneda 
+                        bazate pe locația ta. De exemplu, din UK vezi în Engleză cu £, din România în Română cu Lei.
+                      </AlertDescription>
+                    </Alert>
+
+                    <div className="rounded-lg border p-4 bg-muted/30">
+                      <h4 className="font-medium mb-2">Limba curentă</h4>
+                      <div className="flex items-center gap-2">
+                        <span className="text-2xl">
+                          {EUROPEAN_LANGUAGES.find(l => l.code === language)?.flag || '🌍'}
+                        </span>
+                        <span className="font-medium">
+                          {EUROPEAN_LANGUAGES.find(l => l.code === language)?.name || language.toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

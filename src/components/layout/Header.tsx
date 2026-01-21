@@ -16,7 +16,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
-import { CurrencySelector } from './CurrencySelector';
 import { SearchDialog } from './SearchDialog';
 import { NotificationBell } from './NotificationBell';
 import { CartDropdown } from './CartDropdown';
@@ -76,7 +75,6 @@ export const Header: React.FC = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             <CartDropdown />
-            <CurrencySelector />
             <LanguageSelector />
             
             {user ? (
@@ -191,7 +189,6 @@ export const Header: React.FC = () => {
           <div className="flex items-center gap-1 md:hidden">
             <CartDropdown />
             <SearchDialog />
-            <CurrencySelector />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon">
