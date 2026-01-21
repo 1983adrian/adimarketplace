@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Share2, MapPin, Shield, Star, Gavel, CheckCircle, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Heart, Share2, MapPin, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { StarRating } from '@/components/reviews/StarRating';
 import { SimilarListings } from '@/components/listings/SimilarListings';
 import { AuctionBidding } from '@/components/listings/AuctionBidding';
+import { CODBadge } from '@/components/listings/CODBadge';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSellerStats } from '@/hooks/useReviews';
@@ -222,6 +223,20 @@ const ListingDetail = () => {
                   <p className="text-sm text-destructive font-medium">
                     + {formatPrice(listing.shipping_cost)} livrare
                   </p>
+                )}
+                {/* COD Badge */}
+                {(listing as any).cod_enabled && (
+                  <div className="pt-2">
+                    <CODBadge
+                      enabled={(listing as any).cod_enabled}
+                      productPrice={listing.buy_now_price || listing.price}
+                      feePercentage={(listing as any).cod_fee_percentage}
+                      fixedFee={(listing as any).cod_fixed_fee}
+                      transportFee={(listing as any).cod_transport_fee}
+                      showDetails={true}
+                      size="md"
+                    />
+                  </div>
                 )}
               </div>
             )}
