@@ -457,6 +457,10 @@ export type Database = {
           bid_increment: number | null
           buy_now_price: number | null
           category_id: string | null
+          cod_enabled: boolean | null
+          cod_fee_percentage: number | null
+          cod_fixed_fee: number | null
+          cod_transport_fee: number | null
           colors: string[] | null
           condition: Database["public"]["Enums"]["item_condition"]
           created_at: string
@@ -469,6 +473,7 @@ export type Database = {
           price: number
           quantity: number | null
           reserve_price: number | null
+          seller_country: string | null
           seller_id: string
           shipping_carrier: string | null
           shipping_cost: number | null
@@ -484,6 +489,10 @@ export type Database = {
           bid_increment?: number | null
           buy_now_price?: number | null
           category_id?: string | null
+          cod_enabled?: boolean | null
+          cod_fee_percentage?: number | null
+          cod_fixed_fee?: number | null
+          cod_transport_fee?: number | null
           colors?: string[] | null
           condition?: Database["public"]["Enums"]["item_condition"]
           created_at?: string
@@ -496,6 +505,7 @@ export type Database = {
           price: number
           quantity?: number | null
           reserve_price?: number | null
+          seller_country?: string | null
           seller_id: string
           shipping_carrier?: string | null
           shipping_cost?: number | null
@@ -511,6 +521,10 @@ export type Database = {
           bid_increment?: number | null
           buy_now_price?: number | null
           category_id?: string | null
+          cod_enabled?: boolean | null
+          cod_fee_percentage?: number | null
+          cod_fixed_fee?: number | null
+          cod_transport_fee?: number | null
           colors?: string[] | null
           condition?: Database["public"]["Enums"]["item_condition"]
           created_at?: string
@@ -523,6 +537,7 @@ export type Database = {
           price?: number
           quantity?: number | null
           reserve_price?: number | null
+          seller_country?: string | null
           seller_id?: string
           shipping_carrier?: string | null
           shipping_cost?: number | null
@@ -1018,6 +1033,7 @@ export type Database = {
           card_number_last4: string | null
           company_name: string | null
           company_registration: string | null
+          country: string | null
           created_at: string
           display_name: string | null
           iban: string | null
@@ -1053,6 +1069,7 @@ export type Database = {
           card_number_last4?: string | null
           company_name?: string | null
           company_registration?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           iban?: string | null
@@ -1088,6 +1105,7 @@ export type Database = {
           card_number_last4?: string | null
           company_name?: string | null
           company_registration?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           iban?: string | null

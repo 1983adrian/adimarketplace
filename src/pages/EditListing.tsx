@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { X, ImagePlus, Loader2, Truck, ArrowLeft, Trash2 } from 'lucide-react';
+import { X, ImagePlus, Loader2, Truck, ArrowLeft, Trash2, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,8 @@ import { useListing, useUpdateListing, useDeleteListing } from '@/hooks/useListi
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
+import { CODSettings } from '@/components/listings/CODSettings';
+import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 
 
 const EditListing = () => {
@@ -46,6 +48,15 @@ const EditListing = () => {
   
   // Shipping cost
   const [shippingCost, setShippingCost] = useState('');
+  
+  // COD (Cash on Delivery / Ramburs) - Romania only
+  const { data: sellerCountry } = useSellerCountry();
+  const updateSellerCountry = useUpdateSellerCountry();
+  const [codEnabled, setCodEnabled] = useState(false);
+  const [codFeePercentage, setCodFeePercentage] = useState('2.5');
+  const [codFixedFee, setCodFixedFee] = useState('5');
+  const [codTransportFee, setCodTransportFee] = useState('20');
+  const [sellerCountryInput, setSellerCountryInput] = useState('');
 
   // Load listing data
   useEffect(() => {
@@ -59,6 +70,13 @@ const EditListing = () => {
       setLocation(listing.location || '');
       setIsActive(listing.is_active);
       setIsSold(listing.is_sold);
+      
+      // Load COD settings
+      setCodEnabled((listing as any).cod_enabled || false);
+      setCodFeePercentage((listing as any).cod_fee_percentage?.toString() || '2.5');
+      setCodFixedFee((listing as any).cod_fixed_fee?.toString() || '5');
+      setCodTransportFee((listing as any).cod_transport_fee?.toString() || '20');
+      setSellerCountryInput((listing as any).seller_country || '');
       
       // Load existing images
       if (listing.listing_images) {
@@ -162,7 +180,13 @@ const EditListing = () => {
         location,
         is_active: isActive,
         is_sold: isSold,
-      });
+        // COD (Ramburs) settings
+        cod_enabled: codEnabled,
+        cod_fee_percentage: codEnabled ? parseFloat(codFeePercentage) : null,
+        cod_fixed_fee: codEnabled ? parseFloat(codFixedFee) : null,
+        cod_transport_fee: codEnabled ? parseFloat(codTransportFee) : null,
+        seller_country: sellerCountry || sellerCountryInput || null,
+      } as any);
       
       // 2. Upload new images if any
       if (newImageFiles.length > 0) {
@@ -438,8 +462,49 @@ const EditListing = () => {
                   onChange={(e) => setLocation(e.target.value)} 
                 />
               </div>
+              
+              {/* Seller Country for COD eligibility */}
+              {!sellerCountry && (
+                <div className="pt-4 border-t">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="sellerCountry">Țara ta (pentru opțiuni de livrare)</Label>
+                  </div>
+                  <Select value={sellerCountryInput} onValueChange={(value) => {
+                    setSellerCountryInput(value);
+                    updateSellerCountry.mutate(value);
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selectează țara" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Romania">România</SelectItem>
+                      <SelectItem value="UK">Regatul Unit</SelectItem>
+                      <SelectItem value="Germany">Germania</SelectItem>
+                      <SelectItem value="France">Franța</SelectItem>
+                      <SelectItem value="Italy">Italia</SelectItem>
+                      <SelectItem value="Spain">Spania</SelectItem>
+                      <SelectItem value="Other">Altă țară</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* COD Settings - Romania Only */}
+          <CODSettings
+            enabled={codEnabled}
+            onEnabledChange={setCodEnabled}
+            feePercentage={codFeePercentage}
+            onFeePercentageChange={setCodFeePercentage}
+            fixedFee={codFixedFee}
+            onFixedFeeChange={setCodFixedFee}
+            transportFee={codTransportFee}
+            onTransportFeeChange={setCodTransportFee}
+            productPrice={parseFloat(price) || 0}
+            sellerCountry={sellerCountry || sellerCountryInput}
+          />
 
           {/* Status Settings */}
           <Card>

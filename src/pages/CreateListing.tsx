@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, BookOpen } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, BookOpen, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +25,8 @@ import { ItemCondition } from '@/types/database';
 import { addDays } from 'date-fns';
 import { SellerVideoTutorial, useSellerTutorial } from '@/components/seller/SellerVideoTutorial';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { CODSettings } from '@/components/listings/CODSettings';
+import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 
 
 const CreateListing = () => {
@@ -68,6 +70,15 @@ const CreateListing = () => {
   
   // Shipping cost (required with price)
   const [shippingCost, setShippingCost] = useState('');
+  
+  // COD (Cash on Delivery / Ramburs) - Romania only
+  const { data: sellerCountry } = useSellerCountry();
+  const updateSellerCountry = useUpdateSellerCountry();
+  const [codEnabled, setCodEnabled] = useState(false);
+  const [codFeePercentage, setCodFeePercentage] = useState('2.5');
+  const [codFixedFee, setCodFixedFee] = useState('5');
+  const [codTransportFee, setCodTransportFee] = useState('20');
+  const [sellerCountryInput, setSellerCountryInput] = useState('');
   
   // Quantity & Variants
   const [quantity, setQuantity] = useState('1');
@@ -213,6 +224,12 @@ const CreateListing = () => {
         sizes: sizes.length > 0 ? sizes : null,
         colors: colors.length > 0 ? colors : null,
         shipping_cost: shippingCost ? parseFloat(shippingCost) : 0,
+        // COD (Ramburs) settings - Romania only
+        cod_enabled: codEnabled,
+        cod_fee_percentage: codEnabled ? parseFloat(codFeePercentage) : null,
+        cod_fixed_fee: codEnabled ? parseFloat(codFixedFee) : null,
+        cod_transport_fee: codEnabled ? parseFloat(codTransportFee) : null,
+        seller_country: sellerCountry || sellerCountryInput || null,
       };
 
       const newListing = await createListing.mutateAsync(listingData);
@@ -770,8 +787,49 @@ const CreateListing = () => {
                   onChange={(e) => setLocation(e.target.value)} 
                 />
               </div>
+              
+              {/* Seller Country for COD eligibility */}
+              {!sellerCountry && (
+                <div className="pt-4 border-t">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <Label htmlFor="sellerCountry">Țara ta (pentru opțiuni de livrare)</Label>
+                  </div>
+                  <Select value={sellerCountryInput} onValueChange={(value) => {
+                    setSellerCountryInput(value);
+                    updateSellerCountry.mutate(value);
+                  }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selectează țara" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Romania">România</SelectItem>
+                      <SelectItem value="UK">Regatul Unit</SelectItem>
+                      <SelectItem value="Germany">Germania</SelectItem>
+                      <SelectItem value="France">Franța</SelectItem>
+                      <SelectItem value="Italy">Italia</SelectItem>
+                      <SelectItem value="Spain">Spania</SelectItem>
+                      <SelectItem value="Other">Altă țară</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </CardContent>
           </Card>
+
+          {/* COD Settings - Romania Only */}
+          <CODSettings
+            enabled={codEnabled}
+            onEnabledChange={setCodEnabled}
+            feePercentage={codFeePercentage}
+            onFeePercentageChange={setCodFeePercentage}
+            fixedFee={codFixedFee}
+            onFixedFeeChange={setCodFixedFee}
+            transportFee={codTransportFee}
+            onTransportFeeChange={setCodTransportFee}
+            productPrice={parseFloat(price) || 0}
+            sellerCountry={sellerCountry || sellerCountryInput}
+          />
 
           {/* Publish Settings */}
           <Card>
