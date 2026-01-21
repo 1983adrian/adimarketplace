@@ -309,62 +309,48 @@ const Dashboard = () => {
           </Card>
         )}
 
-        {/* Quick Links */}
-        <div className="grid md:grid-cols-6 gap-4 mb-8">
-          <Link to="/seller-guide">
-            <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full border-primary/30 bg-primary/5">
-              <CardHeader className="pb-3">
-                <BookOpen className="h-6 w-6 mb-2 text-primary" />
-                <CardTitle className="text-lg">Ghid Vânzător</CardTitle>
-                <CardDescription>Tutorial complet pas cu pas</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-          <Link to="/favorites">
-            <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
-              <CardHeader className="pb-3">
-                <Heart className="h-6 w-6 mb-2" />
-                <CardTitle className="text-lg">{t('dashboard.myFavorites')}</CardTitle>
-                <CardDescription>{t('dashboard.itemsSaved')}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-          <Link to="/messages">
-            <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
-              <CardHeader className="pb-3">
-                <MessageCircle className="h-6 w-6 mb-2" />
-                <CardTitle className="text-lg">{t('header.messages')}</CardTitle>
-                <CardDescription>{t('dashboard.chatWithUsers')}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-          <Link to="/orders">
-            <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
-              <CardHeader className="pb-3">
-                <Package className="h-6 w-6 mb-2" />
-                <CardTitle className="text-lg">Orders</CardTitle>
-                <CardDescription>Track your orders</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-          <Link to="/seller-analytics">
-            <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
-              <CardHeader className="pb-3">
-                <TrendingUp className="h-6 w-6 mb-2" />
-                <CardTitle className="text-lg">Analytics</CardTitle>
-                <CardDescription>View your sales statistics</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-          <Link to="/settings">
-            <Card className="hover:border-primary/50 transition-colors cursor-pointer h-full">
-              <CardHeader className="pb-3">
-                <Settings className="h-6 w-6 mb-2" />
-                <CardTitle className="text-lg">{t('header.settings')}</CardTitle>
-                <CardDescription>{t('dashboard.manageAccount')}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
+        {/* Quick Links - Horizontal Scrollable like Admin */}
+        <div className="mb-8">
+          <div className="overflow-x-auto pb-2 -mx-4 px-4">
+            <div className="flex gap-3 min-w-max flex-row-reverse">
+              <Link to="/settings">
+                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
+                  <Settings className="h-6 w-6 mb-2 text-muted-foreground" />
+                  <span className="text-xs text-center">{t('header.settings')}</span>
+                </div>
+              </Link>
+              <Link to="/seller-analytics">
+                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
+                  <TrendingUp className="h-6 w-6 mb-2 text-muted-foreground" />
+                  <span className="text-xs text-center">Analytics</span>
+                </div>
+              </Link>
+              <Link to="/orders">
+                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
+                  <Package className="h-6 w-6 mb-2 text-muted-foreground" />
+                  <span className="text-xs text-center">Comenzi</span>
+                </div>
+              </Link>
+              <Link to="/messages">
+                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
+                  <MessageCircle className="h-6 w-6 mb-2 text-muted-foreground" />
+                  <span className="text-xs text-center">{t('header.messages')}</span>
+                </div>
+              </Link>
+              <Link to="/favorites">
+                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
+                  <Heart className="h-6 w-6 mb-2 text-muted-foreground" />
+                  <span className="text-xs text-center">{t('dashboard.myFavorites')}</span>
+                </div>
+              </Link>
+              <Link to="/seller-guide">
+                <div className="flex flex-col items-center p-4 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors min-w-[80px] border border-primary/30">
+                  <BookOpen className="h-6 w-6 mb-2 text-primary" />
+                  <span className="text-xs text-center text-primary font-medium">Ghid</span>
+                </div>
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* My Auctions Section - for sellers */}

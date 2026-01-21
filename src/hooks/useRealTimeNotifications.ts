@@ -145,9 +145,11 @@ export const useRealTimeNotifications = () => {
   return { isSubscribed };
 };
 
-// Hook for real-time messages
+// Hook for real-time messages with notification sound
 export const useRealTimeMessages = (conversationId: string | undefined) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!conversationId) return;
@@ -162,7 +164,17 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
           table: 'messages',
           filter: `conversation_id=eq.${conversationId}`,
         },
-        () => {
+        (payload) => {
+          const message = payload.new as any;
+          
+          // Show notification if message is from someone else
+          if (message.sender_id !== user?.id) {
+            toast({
+              title: '💬 Mesaj Nou',
+              description: message.content?.substring(0, 50) + (message.content?.length > 50 ? '...' : ''),
+            });
+          }
+          
           queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
           queryClient.invalidateQueries({ queryKey: ['conversations'] });
         }
@@ -172,7 +184,64 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, queryClient]);
+  }, [conversationId, queryClient, user, toast]);
+};
+
+// Global hook for real-time messages notifications (for users not in chat)
+export const useGlobalMessageNotifications = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`global-messages:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+        },
+        async (payload) => {
+          const message = payload.new as any;
+          
+          // Skip own messages
+          if (message.sender_id === user.id) return;
+          
+          // Check if this message is in a conversation the user is part of
+          const { data: conversation } = await supabase
+            .from('conversations')
+            .select('buyer_id, seller_id')
+            .eq('id', message.conversation_id)
+            .single();
+          
+          if (conversation && (conversation.buyer_id === user.id || conversation.seller_id === user.id)) {
+            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+            
+            // Get sender info
+            const { data: sender } = await supabase
+              .from('profiles')
+              .select('display_name, username')
+              .eq('user_id', message.sender_id)
+              .single();
+            
+            toast({
+              title: `💬 ${sender?.display_name || sender?.username || 'Utilizator'}`,
+              description: message.content?.substring(0, 60) + (message.content?.length > 60 ? '...' : ''),
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient, toast]);
 };
 
 // Hook for real-time orders with coin sound for payouts
