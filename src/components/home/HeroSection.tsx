@@ -4,101 +4,26 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, TrendingUp, Shield, Truck, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import cmarketOriginal from '@/assets/cmarket-original.png';
 
-// CMarket Logo - Each letter styled individually
+// CMarket Logo with dot after C
 const CMarketLogo: React.FC = () => (
-  <div className="flex items-center justify-center gap-0 select-none animate-fade-up">
-    {/* Letter C - Orange with smiley character style */}
-    <span 
-      className="text-6xl md:text-8xl lg:text-9xl font-black drop-shadow-lg"
-      style={{ 
-        color: '#F5A623',
-        textShadow: '3px 3px 0px rgba(0,0,0,0.1), 0 4px 8px rgba(245,166,35,0.3)',
-        fontFamily: 'Comic Sans MS, cursive, sans-serif',
+  <div className="relative flex items-center justify-center animate-fade-up">
+    <img 
+      src={cmarketOriginal} 
+      alt="C.Market - Marketplace" 
+      className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl h-auto object-contain"
+    />
+    {/* Colorful dot positioned after C */}
+    <div 
+      className="absolute w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full"
+      style={{
+        background: 'linear-gradient(135deg, #F5A623 0%, #4A90D9 25%, #E74C3C 50%, #27AE60 75%, #5DADE2 100%)',
+        left: '23%',
+        bottom: '38%',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
       }}
-    >
-      C
-    </span>
-    
-    {/* Dot after C - Gradient blend with all colors */}
-    <span 
-      className="text-5xl md:text-7xl lg:text-8xl font-black mx-1 md:mx-2"
-      style={{ 
-        background: 'linear-gradient(135deg, #F5A623 0%, #4A90D9 25%, #E74C3C 50%, #27AE60 75%, #2980B9 100%)',
-        WebkitBackgroundClip: 'text',
-        WebkitTextFillColor: 'transparent',
-        backgroundClip: 'text',
-        filter: 'drop-shadow(2px 2px 2px rgba(0,0,0,0.2))',
-      }}
-    >
-      .
-    </span>
-    
-    {/* Letter M - Blue */}
-    <span 
-      className="text-6xl md:text-8xl lg:text-9xl font-black drop-shadow-lg"
-      style={{ 
-        color: '#4A90D9',
-        textShadow: '3px 3px 0px rgba(0,0,0,0.1), 0 4px 8px rgba(74,144,217,0.3)',
-      }}
-    >
-      M
-    </span>
-    
-    {/* Letter a - Red */}
-    <span 
-      className="text-6xl md:text-8xl lg:text-9xl font-black drop-shadow-lg"
-      style={{ 
-        color: '#E74C3C',
-        textShadow: '3px 3px 0px rgba(0,0,0,0.1), 0 4px 8px rgba(231,76,60,0.3)',
-      }}
-    >
-      a
-    </span>
-    
-    {/* Letter r - Yellow/Orange */}
-    <span 
-      className="text-6xl md:text-8xl lg:text-9xl font-black drop-shadow-lg"
-      style={{ 
-        color: '#F5A623',
-        textShadow: '3px 3px 0px rgba(0,0,0,0.1), 0 4px 8px rgba(245,166,35,0.3)',
-      }}
-    >
-      r
-    </span>
-    
-    {/* Letter k - Green */}
-    <span 
-      className="text-6xl md:text-8xl lg:text-9xl font-black drop-shadow-lg"
-      style={{ 
-        color: '#27AE60',
-        textShadow: '3px 3px 0px rgba(0,0,0,0.1), 0 4px 8px rgba(39,174,96,0.3)',
-      }}
-    >
-      k
-    </span>
-    
-    {/* Letter e - Cyan/Light Blue */}
-    <span 
-      className="text-6xl md:text-8xl lg:text-9xl font-black drop-shadow-lg"
-      style={{ 
-        color: '#5DADE2',
-        textShadow: '3px 3px 0px rgba(0,0,0,0.1), 0 4px 8px rgba(93,173,226,0.3)',
-      }}
-    >
-      e
-    </span>
-    
-    {/* Letter t - Dark Blue */}
-    <span 
-      className="text-6xl md:text-8xl lg:text-9xl font-black drop-shadow-lg"
-      style={{ 
-        color: '#2980B9',
-        textShadow: '3px 3px 0px rgba(0,0,0,0.1), 0 4px 8px rgba(41,128,185,0.3)',
-      }}
-    >
-      t
-    </span>
+    />
   </div>
 );
 
