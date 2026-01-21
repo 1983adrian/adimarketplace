@@ -188,11 +188,18 @@ const ListingDetail = () => {
                 )}
               </div>
               <h1 className="text-3xl font-bold mb-2">{listing.title}</h1>
-              {isBuyNow && (
+            {isBuyNow && (
+              <div className="space-y-1">
                 <p className="text-4xl font-bold text-primary">
                   {formatPrice(listing.buy_now_price || listing.price)}
                 </p>
-              )}
+                {listing.shipping_cost > 0 && (
+                  <p className="text-sm text-destructive font-medium">
+                    + {formatPrice(listing.shipping_cost)} livrare
+                  </p>
+                )}
+              </div>
+            )}
             </div>
 
             {listing.location && (

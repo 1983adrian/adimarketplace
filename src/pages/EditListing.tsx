@@ -141,8 +141,8 @@ const EditListing = () => {
     if (shippingCost) {
       const priceNum = parseFloat(price);
       const shippingNum = parseFloat(shippingCost);
-      if (shippingNum > priceNum * 0.5) {
-        toast({ title: 'Cost livrare prea mare', description: 'Costul de livrare nu poate depăși 50% din prețul produsului', variant: 'destructive' });
+      if (shippingNum > priceNum * 0.2) {
+        toast({ title: 'Cost livrare prea mare', description: 'Costul de livrare nu poate depăși 20% din prețul produsului', variant: 'destructive' });
         return;
       }
     }
@@ -424,8 +424,8 @@ const EditListing = () => {
                       step="0.01" 
                     />
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Max 50% din preț
+                  <p className="text-xs text-destructive mt-1">
+                    Max 20% din preț
                   </p>
                 </div>
               </div>
