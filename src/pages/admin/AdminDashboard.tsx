@@ -12,17 +12,21 @@ import {
   CheckCircle,
   Settings,
   Zap,
-  RefreshCw
+  RefreshCw,
+  CreditCard,
+  Wallet
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { usePlatformStats, usePlatformFees, useAllOrders } from '@/hooks/useAdmin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AdminChecklist } from '@/components/admin/AdminChecklist';
+import { PaymentComplianceAudit } from '@/components/admin/PaymentComplianceAudit';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { usePlatformSettings } from '@/hooks/useAdminSettings';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function AdminDashboard() {
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = usePlatformStats();
@@ -310,8 +314,31 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Admin Checklist */}
-        <AdminChecklist />
+        {/* Audit Tabs */}
+        <Tabs defaultValue="checklist" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-muted/50 rounded-xl">
+            <TabsTrigger 
+              value="checklist" 
+              className="gap-2 py-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all"
+            >
+              <CheckCircle className="h-4 w-4" />
+              Audit Marketplace
+            </TabsTrigger>
+            <TabsTrigger 
+              value="compliance" 
+              className="gap-2 py-3 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all"
+            >
+              <CreditCard className="h-4 w-4" />
+              Conformitate Plăți
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="checklist" className="mt-6">
+            <AdminChecklist />
+          </TabsContent>
+          <TabsContent value="compliance" className="mt-6">
+            <PaymentComplianceAudit />
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   );

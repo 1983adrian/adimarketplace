@@ -197,30 +197,48 @@ const Settings = () => {
           <h1 className="text-3xl font-bold mb-8">Setări</h1>
           
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="profile" className="gap-2">
+            <TabsList className="w-full flex flex-wrap gap-1 h-auto p-2 bg-gradient-to-r from-muted/80 to-muted/40 rounded-xl">
+              <TabsTrigger 
+                value="profile" 
+                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300 hover:bg-primary/10"
+              >
                 <User className="h-4 w-4" />
-                <span className="hidden lg:inline">Profil</span>
+                <span className="hidden sm:inline font-medium">Profil</span>
               </TabsTrigger>
-              <TabsTrigger value="language" className="gap-2">
+              <TabsTrigger 
+                value="language" 
+                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300 hover:bg-primary/10"
+              >
                 <Globe className="h-4 w-4" />
-                <span className="hidden lg:inline">Limbă</span>
+                <span className="hidden sm:inline font-medium">Limbă</span>
               </TabsTrigger>
-              <TabsTrigger value="payouts" className="gap-2">
-                <Wallet className="h-4 w-4" />
-                <span className="hidden lg:inline">Încasări</span>
-              </TabsTrigger>
-              <TabsTrigger value="seller" className="gap-2">
+              <TabsTrigger 
+                value="seller" 
+                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-amber-500/10"
+              >
                 <Store className="h-4 w-4" />
-                <span className="hidden lg:inline">Magazin</span>
+                <span className="hidden sm:inline font-medium">Magazin</span>
               </TabsTrigger>
-              <TabsTrigger value="notifications" className="gap-2">
+              <TabsTrigger 
+                value="payouts" 
+                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-green-500/10"
+              >
+                <Wallet className="h-4 w-4" />
+                <span className="hidden sm:inline font-medium">Încasări</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="notifications" 
+                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-blue-500/10"
+              >
                 <Bell className="h-4 w-4" />
-                <span className="hidden lg:inline">Alerte</span>
+                <span className="hidden sm:inline font-medium">Alerte</span>
               </TabsTrigger>
-              <TabsTrigger value="security" className="gap-2">
+              <TabsTrigger 
+                value="security" 
+                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-red-500/10"
+              >
                 <Shield className="h-4 w-4" />
-                <span className="hidden lg:inline">Securitate</span>
+                <span className="hidden sm:inline font-medium">Securitate</span>
               </TabsTrigger>
             </TabsList>
 
@@ -313,8 +331,13 @@ const Settings = () => {
                     </div>
                   </div>
 
-                  <Button onClick={handleSaveProfile} disabled={saving} className="gap-2">
-                    <Save className="h-4 w-4" />
+                  <Button 
+                    onClick={handleSaveProfile} 
+                    disabled={saving} 
+                    size="lg"
+                    className="gap-2 w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300 text-base font-semibold"
+                  >
+                    <Save className="h-5 w-5" />
                     {saving ? 'Se salvează...' : 'Salvează Modificările'}
                   </Button>
                 </CardContent>
@@ -515,9 +538,14 @@ const Settings = () => {
                     </>
                   )}
 
-                  <Button onClick={handleSaveSellerSettings} disabled={saving} className="gap-2">
-                    <Save className="h-4 w-4" />
-                    {saving ? 'Se salvează...' : 'Salvează Setările'}
+                  <Button 
+                    onClick={handleSaveSellerSettings} 
+                    disabled={saving || (isSeller && !hasAcceptedTermsBefore && !sellerTermsAccepted)} 
+                    size="lg"
+                    className="gap-2 w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base font-semibold disabled:opacity-50"
+                  >
+                    <Save className="h-5 w-5" />
+                    {saving ? 'Se salvează...' : 'Salvează Setările Magazin'}
                   </Button>
                 </CardContent>
               </Card>
