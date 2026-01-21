@@ -699,17 +699,29 @@ export type Database = {
           amount: number
           buyer_fee: number | null
           buyer_id: string
+          cancelled_at: string | null
           carrier: string | null
           created_at: string
           delivery_confirmed_at: string | null
+          dispute_opened_at: string | null
+          dispute_reason: string | null
+          dispute_resolved_at: string | null
           id: string
           listing_id: string | null
           payment_processor: string | null
           payout_amount: number | null
           payout_at: string | null
           payout_status: string | null
+          processor_error: string | null
           processor_status: string | null
           processor_transaction_id: string | null
+          refund_amount: number | null
+          refund_reason: string | null
+          refund_requested_at: string | null
+          refund_status: string | null
+          refund_transaction_id: string | null
+          refunded_at: string | null
+          refunded_by: string | null
           saved_address_id: string | null
           seller_commission: number | null
           seller_id: string
@@ -722,17 +734,29 @@ export type Database = {
           amount: number
           buyer_fee?: number | null
           buyer_id: string
+          cancelled_at?: string | null
           carrier?: string | null
           created_at?: string
           delivery_confirmed_at?: string | null
+          dispute_opened_at?: string | null
+          dispute_reason?: string | null
+          dispute_resolved_at?: string | null
           id?: string
           listing_id?: string | null
           payment_processor?: string | null
           payout_amount?: number | null
           payout_at?: string | null
           payout_status?: string | null
+          processor_error?: string | null
           processor_status?: string | null
           processor_transaction_id?: string | null
+          refund_amount?: number | null
+          refund_reason?: string | null
+          refund_requested_at?: string | null
+          refund_status?: string | null
+          refund_transaction_id?: string | null
+          refunded_at?: string | null
+          refunded_by?: string | null
           saved_address_id?: string | null
           seller_commission?: number | null
           seller_id: string
@@ -745,17 +769,29 @@ export type Database = {
           amount?: number
           buyer_fee?: number | null
           buyer_id?: string
+          cancelled_at?: string | null
           carrier?: string | null
           created_at?: string
           delivery_confirmed_at?: string | null
+          dispute_opened_at?: string | null
+          dispute_reason?: string | null
+          dispute_resolved_at?: string | null
           id?: string
           listing_id?: string | null
           payment_processor?: string | null
           payout_amount?: number | null
           payout_at?: string | null
           payout_status?: string | null
+          processor_error?: string | null
           processor_status?: string | null
           processor_transaction_id?: string | null
+          refund_amount?: number | null
+          refund_reason?: string | null
+          refund_requested_at?: string | null
+          refund_status?: string | null
+          refund_transaction_id?: string | null
+          refunded_at?: string | null
+          refunded_by?: string | null
           saved_address_id?: string | null
           seller_commission?: number | null
           seller_id?: string
@@ -990,6 +1026,7 @@ export type Database = {
           is_verified: boolean | null
           kyc_country: string | null
           kyc_status: string | null
+          kyc_submitted_at: string | null
           location: string | null
           mangopay_user_id: string | null
           mangopay_wallet_id: string | null
@@ -1024,6 +1061,7 @@ export type Database = {
           is_verified?: boolean | null
           kyc_country?: string | null
           kyc_status?: string | null
+          kyc_submitted_at?: string | null
           location?: string | null
           mangopay_user_id?: string | null
           mangopay_wallet_id?: string | null
@@ -1058,6 +1096,7 @@ export type Database = {
           is_verified?: boolean | null
           kyc_country?: string | null
           kyc_status?: string | null
+          kyc_submitted_at?: string | null
           location?: string | null
           mangopay_user_id?: string | null
           mangopay_wallet_id?: string | null
@@ -1076,6 +1115,62 @@ export type Database = {
           verified_at?: string | null
         }
         Relationships: []
+      }
+      refunds: {
+        Row: {
+          amount: number
+          buyer_id: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          order_id: string | null
+          processor: string | null
+          processor_refund_id: string | null
+          reason: string
+          requested_by: string
+          seller_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          processor?: string | null
+          processor_refund_id?: string | null
+          reason: string
+          requested_by: string
+          seller_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          processor?: string | null
+          processor_refund_id?: string | null
+          reason?: string
+          requested_by?: string
+          seller_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       returns: {
         Row: {
@@ -1227,6 +1322,8 @@ export type Database = {
       }
       seller_payouts: {
         Row: {
+          cancelled_reason: string | null
+          completed_at: string | null
           created_at: string | null
           gross_amount: number
           id: string
@@ -1238,11 +1335,14 @@ export type Database = {
           platform_commission: number
           processed_at: string | null
           processor: string | null
+          processor_payout_id: string | null
           processor_transaction_id: string | null
           seller_id: string
           status: string | null
         }
         Insert: {
+          cancelled_reason?: string | null
+          completed_at?: string | null
           created_at?: string | null
           gross_amount: number
           id?: string
@@ -1254,11 +1354,14 @@ export type Database = {
           platform_commission: number
           processed_at?: string | null
           processor?: string | null
+          processor_payout_id?: string | null
           processor_transaction_id?: string | null
           seller_id: string
           status?: string | null
         }
         Update: {
+          cancelled_reason?: string | null
+          completed_at?: string | null
           created_at?: string | null
           gross_amount?: number
           id?: string
@@ -1270,6 +1373,7 @@ export type Database = {
           platform_commission?: number
           processed_at?: string | null
           processor?: string | null
+          processor_payout_id?: string | null
           processor_transaction_id?: string | null
           seller_id?: string
           status?: string | null
@@ -1377,6 +1481,42 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      webhook_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          processed: boolean | null
+          processed_at: string | null
+          processor: string
+          resource_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          processed?: boolean | null
+          processed_at?: string | null
+          processor: string
+          resource_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          processed?: boolean | null
+          processed_at?: string | null
+          processor?: string
+          resource_id?: string | null
         }
         Relationships: []
       }
