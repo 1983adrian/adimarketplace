@@ -25,7 +25,8 @@ import {
   RotateCcw,
   Megaphone,
   CreditCard,
-  Wallet
+  Wallet,
+  Smartphone
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -80,6 +81,7 @@ const contentItems = [
 
 const systemItems = [
   { title: 'Mentenanță', url: '/admin/maintenance', icon: Wrench },
+  { title: 'Aplicație Mobilă', url: '/admin/mobile-app', icon: Smartphone },
   { title: 'Audit Log', url: '/admin/audit-log', icon: ClipboardList },
 ];
 
