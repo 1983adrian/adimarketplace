@@ -72,6 +72,8 @@ const Settings = () => {
   const [phone, setPhone] = useState('');
   const [storeName, setStoreName] = useState('');
   const [isSeller, setIsSeller] = useState(false);
+  const [sellerTermsAccepted, setSellerTermsAccepted] = useState(false);
+  const [hasAcceptedTermsBefore, setHasAcceptedTermsBefore] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
 
@@ -110,6 +112,12 @@ const Settings = () => {
       setPhone(profile.phone || '');
       setStoreName((profile as any).store_name || '');
       setIsSeller((profile as any).is_seller || false);
+      // Check if seller has already accepted terms
+      const termsAcceptedAt = (profile as any).seller_terms_accepted_at;
+      if (termsAcceptedAt) {
+        setHasAcceptedTermsBefore(true);
+        setSellerTermsAccepted(true);
+      }
     }
   }, [user, profile, loading, navigate]);
 
@@ -131,17 +139,39 @@ const Settings = () => {
   };
 
   const handleSaveSellerSettings = async () => {
+    // Validate terms acceptance for new sellers
+    if (isSeller && !hasAcceptedTermsBefore && !sellerTermsAccepted) {
+      toast({ 
+        title: 'Acceptare termeni obligatorie', 
+        description: 'Trebuie să accepți Termenii și Condițiile pentru a deveni vânzător.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     setSaving(true);
     try {
+      const updateData: any = {
+        store_name: storeName,
+        is_seller: isSeller,
+      };
+
+      // Set terms acceptance timestamp for first-time sellers
+      if (isSeller && !hasAcceptedTermsBefore && sellerTermsAccepted) {
+        updateData.seller_terms_accepted_at = new Date().toISOString();
+      }
+
       const { error } = await supabase
         .from('profiles')
-        .update({
-          store_name: storeName,
-          is_seller: isSeller,
-        })
+        .update(updateData)
         .eq('user_id', user?.id);
 
       if (error) throw error;
+      
+      if (isSeller && !hasAcceptedTermsBefore && sellerTermsAccepted) {
+        setHasAcceptedTermsBefore(true);
+      }
+      
       toast({ title: 'Setări vânzător salvate cu succes' });
     } catch (error: any) {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
@@ -436,6 +466,52 @@ const Settings = () => {
                           Du-te la <strong>Vinde</strong> pentru a adăuga un produs nou.
                         </AlertDescription>
                       </Alert>
+
+                      {/* Terms and Conditions - only show if not accepted before */}
+                      {!hasAcceptedTermsBefore && (
+                        <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 space-y-3">
+                          <div className="flex items-start gap-3">
+                            <Shield className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                            <div className="space-y-2">
+                              <h4 className="font-semibold text-primary">Termeni și Condiții Vânzător</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Pentru a deveni vânzător pe platformă, trebuie să accepți Termenii și Condițiile noastre. 
+                                Aceasta include responsabilitățile tale privind:
+                              </p>
+                              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+                                <li>Descrierea corectă și onestă a produselor</li>
+                                <li>Expedierea la timp a comenzilor</li>
+                                <li>Respectarea politicii de returnări</li>
+                                <li>Conformitatea cu legislația în vigoare</li>
+                                <li>Acceptarea comisioanelor platformei</li>
+                                <li>Actualizările ulterioare ale termenilor</li>
+                              </ul>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 pt-2 border-t border-primary/20">
+                            <input
+                              type="checkbox"
+                              id="sellerTerms"
+                              checked={sellerTermsAccepted}
+                              onChange={(e) => setSellerTermsAccepted(e.target.checked)}
+                              className="h-5 w-5 rounded border-primary text-primary focus:ring-primary cursor-pointer"
+                            />
+                            <label htmlFor="sellerTerms" className="text-sm font-medium cursor-pointer">
+                              Accept <a href="/terms-of-service" target="_blank" className="text-primary underline hover:no-underline">Termenii și Condițiile</a> platformei, 
+                              inclusiv modificările ulterioare *
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {hasAcceptedTermsBefore && (
+                        <Alert className="border-green-500/30 bg-green-500/10">
+                          <Shield className="h-4 w-4 text-green-600" />
+                          <AlertDescription className="text-green-700">
+                            <strong>✓ Termeni acceptați</strong> - Ai acceptat Termenii și Condițiile pentru vânzători.
+                          </AlertDescription>
+                        </Alert>
+                      )}
                     </>
                   )}
 
