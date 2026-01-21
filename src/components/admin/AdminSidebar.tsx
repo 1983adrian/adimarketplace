@@ -62,7 +62,8 @@ const menuItems = [
 const financeItems = [
   { title: 'Procesatori Plăți', url: '/admin/payments', icon: CreditCard },
   { title: 'Fees & Pricing', url: '/admin/fees', icon: DollarSign },
-  { title: 'API Settings', url: '/admin/api-settings', icon: Key },
+  { title: 'Plăți Vânzători', url: '/admin/seller-payouts', icon: Wallet },
+  { title: 'API & Chei', url: '/admin/api-settings', icon: Key },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
 ];
 
