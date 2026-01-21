@@ -5,6 +5,7 @@ import { CategorySection } from '@/components/home/CategorySection';
 import { FeaturedListings } from '@/components/home/FeaturedListings';
 import { PromotedListings } from '@/components/home/PromotedListings';
 import { HowItWorks } from '@/components/home/HowItWorks';
+import { TrustBadges } from '@/components/home/TrustBadges';
 
 const Index = () => {
   return (
@@ -12,6 +13,7 @@ const Index = () => {
       <HeroSection />
       <FeaturedListings />
       <PromotedListings />
+      <TrustBadges />
       <CategorySection />
       <HowItWorks />
     </Layout>
