@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, ShoppingCart, Star, Truck, CheckCircle, Gavel, Clock } from 'lucide-react';
+import { Heart, MapPin, ShoppingCart, Star, Truck, CheckCircle, Gavel, Clock, BadgeCheck } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
 
 interface ListingCardProps {
   listing: ListingWithImages;
@@ -124,11 +125,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               </div>
             )}
             {isVerified && (
-              <div className="flex items-center gap-1 bg-blue-500 text-white px-2 py-1 rounded-md text-xs font-medium">
+              <div className="flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
                 <CheckCircle className="h-3 w-3" />
                 Verificat
               </div>
             )}
+            <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={false} />
           </div>
         </div>
         
