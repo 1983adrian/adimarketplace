@@ -8,8 +8,45 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
+import { cn } from '@/lib/utils';
+
+// Sub-component for favorite button with its own hooks
+const FavoriteButton: React.FC<{ listingId: string; userId?: string }> = ({ listingId, userId }) => {
+  const { data: isFavorite } = useIsFavorite(listingId, userId);
+  const toggleFavorite = useToggleFavorite();
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!userId) return;
+    toggleFavorite.mutate({
+      listingId,
+      userId,
+      isFavorite: !!isFavorite,
+    });
+  };
+
+  if (!userId) return null;
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className={cn(
+        "absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background",
+        isFavorite && "text-destructive"
+      )}
+      onClick={handleToggleFavorite}
+    >
+      <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
+    </Button>
+  );
+};
 
 export const FeaturedListings: React.FC = () => {
+  const { user } = useAuth();
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
 
@@ -182,14 +219,7 @@ export const FeaturedListings: React.FC = () => {
                       alt={listing.title}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background"
-                      onClick={(e) => e.preventDefault()}
-                    >
-                      <Heart className="h-5 w-5" />
-                    </Button>
+                    <FavoriteButton listingId={listing.id} userId={user?.id} />
                     <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">
                       {conditionLabels[listing.condition]}
                     </Badge>
