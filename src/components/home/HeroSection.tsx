@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { QRCodeSVG } from 'qrcode.react';
-import cmarketHero from '@/assets/cmarket-hero.png';
+import cmarketHero from '@/assets/cmarket-hero-clean.png';
 
 export const HeroSection: React.FC = () => {
   const { t } = useLanguage();
@@ -64,10 +64,11 @@ export const HeroSection: React.FC = () => {
 
 
   return (
-    <section className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, hsl(220 20% 97%) 0%, hsl(220 20% 98%) 50%, hsl(var(--background)) 100%)' }}>
-      {/* Subtle decorative blur elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 pointer-events-none" />
-      <div className="absolute top-20 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
+    <section className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, hsl(200 60% 96%) 0%, hsl(200 50% 98%) 30%, hsl(var(--background)) 100%)' }}>
+      {/* Subtle decorative blur elements matching the logo gradient */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-200/30 rounded-full blur-3xl -translate-y-1/2 pointer-events-none" />
+      <div className="absolute top-20 right-1/4 w-72 h-72 bg-blue-200/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-to-b from-sky-100/40 to-transparent rounded-full blur-3xl pointer-events-none" />
       
       <div className="container mx-auto px-4 py-6 md:py-10 lg:py-14 relative">
         <div className="max-w-6xl mx-auto text-center">
@@ -216,15 +217,12 @@ export const HeroSection: React.FC = () => {
             </div>
           )}
 
-          {/* CMarket Logo - Large, centered, no borders, seamless blend */}
-          <div className="flex justify-center animate-fade-up">
+          {/* CMarket Logo - Large, centered, seamless integration */}
+          <div className="flex justify-center animate-fade-up -mx-4 md:mx-0">
             <img 
               src={cmarketHero} 
-              alt="CMarket - Marketplace" 
-              className="w-full max-w-4xl md:max-w-5xl lg:max-w-6xl h-auto object-contain"
-              style={{
-                mixBlendMode: 'multiply',
-              }}
+              alt="CMarket - Place România" 
+              className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl h-auto object-contain"
             />
           </div>
 
