@@ -203,7 +203,7 @@ export const useRealTimeOrders = () => {
             if (payload.eventType === 'INSERT' && order.seller_id === user.id) {
               toast({
                 title: '🎉 Comandă nouă!',
-                description: 'Ai primit o comandă nouă. Verifică Orders pentru detalii.',
+                description: `Ai primit o comandă de £${order.amount?.toFixed(2) || '0.00'}. Verifică Orders pentru detalii.`,
               });
             }
             
@@ -215,12 +215,60 @@ export const useRealTimeOrders = () => {
                 });
               }
               if (order.status === 'delivered' && order.seller_id === user.id) {
+                const payoutAmount = order.payout_amount || (order.amount * 0.9);
                 toast({
-                  title: '✅ Livrare confirmată!',
-                  description: 'Cumpărătorul a confirmat primirea. Plata va fi procesată.',
+                  title: '💰 Bani Primiți!',
+                  description: `£${payoutAmount.toFixed(2)} au fost adăugați la soldul tău disponibil.`,
                 });
               }
             }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient, toast]);
+};
+
+// Hook for real-time bids (for sellers)
+export const useRealTimeBids = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`bids:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'bids',
+        },
+        async (payload) => {
+          const bid = payload.new as any;
+          
+          // Check if this bid is on seller's listing
+          const { data: listing } = await supabase
+            .from('listings')
+            .select('seller_id, title')
+            .eq('id', bid.listing_id)
+            .single();
+          
+          if (listing?.seller_id === user.id) {
+            queryClient.invalidateQueries({ queryKey: ['bids'] });
+            queryClient.invalidateQueries({ queryKey: ['my-auction-listings'] });
+            
+            toast({
+              title: '🔔 Licitație Nouă!',
+              description: `Ai primit o ofertă de £${bid.amount.toFixed(2)} pe "${listing.title}".`,
+            });
           }
         }
       )
