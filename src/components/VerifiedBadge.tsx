@@ -1,5 +1,5 @@
 import React from 'react';
-import { BadgeCheck } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -78,16 +78,23 @@ export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   if (!data?.isSpecial) return null;
 
   const sizeClasses = {
-    sm: 'h-6 w-6',
-    md: 'h-7 w-7',
-    lg: 'h-8 w-8',
+    sm: { container: 'h-5 w-5', icon: 'h-3 w-3' },
+    md: { container: 'h-6 w-6', icon: 'h-3.5 w-3.5' },
+    lg: { container: 'h-8 w-8', icon: 'h-5 w-5' },
   };
 
   const badge = (
-    <BadgeCheck 
-      className={`${sizeClasses[size]} text-[#1d9bf0] fill-[#1d9bf0] shrink-0`} 
-      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}
-    />
+    <div 
+      className={`${sizeClasses[size].container} rounded-full bg-[#1d9bf0] flex items-center justify-center shrink-0`}
+      style={{ 
+        boxShadow: '0 2px 8px rgba(29, 155, 240, 0.4), 0 1px 3px rgba(0,0,0,0.3)',
+      }}
+    >
+      <Check 
+        className={`${sizeClasses[size].icon} text-white`} 
+        strokeWidth={3.5}
+      />
+    </div>
   );
 
   if (!showTooltip) return badge;
