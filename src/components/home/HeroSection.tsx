@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, MapPin, Download, Smartphone, Apple, Share, Plus, Menu } from 'lucide-react';
+import { TrendingUp, MapPin, Download, Smartphone, Apple, Share, Plus, Menu, QrCode } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { QRCodeSVG } from 'qrcode.react';
 import cmarketHero from '@/assets/cmarket-hero.png';
 
 export const HeroSection: React.FC = () => {
@@ -154,6 +156,62 @@ export const HeroSection: React.FC = () => {
                     </PopoverContent>
                   )}
                 </Popover>
+
+                {/* QR Code Button */}
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-600 hover:from-purple-700 hover:to-indigo-700 rounded-lg px-3 h-9 shadow-md"
+                    >
+                      <QrCode className="h-4 w-4" />
+                      <div className="text-left leading-tight hidden sm:block">
+                        <span className="text-[8px] block opacity-80">Scanează</span>
+                        <span className="text-xs font-semibold -mt-0.5 block">QR Code</span>
+                      </div>
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle className="text-center flex items-center justify-center gap-2">
+                        <QrCode className="h-5 w-5 text-primary" />
+                        Descarcă C Market pe Alt Dispozitiv
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col items-center gap-4 py-4">
+                      <div className="p-4 bg-white rounded-2xl shadow-lg border">
+                        <QRCodeSVG 
+                          value="https://adimarketplace.lovable.app/install" 
+                          size={200}
+                          level="H"
+                          includeMargin={true}
+                          bgColor="#ffffff"
+                          fgColor="#1a1a2e"
+                        />
+                      </div>
+                      <div className="text-center space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                          Scanează acest cod QR cu camera telefonului tău pentru a deschide C Market
+                        </p>
+                        <p className="text-xs text-muted-foreground/70">
+                          Funcționează pe iPhone, Android și orice dispozitiv cu cameră
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 pt-2">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Apple className="h-4 w-4" />
+                          iPhone
+                        </div>
+                        <div className="w-px h-4 bg-border" />
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Smartphone className="h-4 w-4" />
+                          Android
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             </div>
           )}
