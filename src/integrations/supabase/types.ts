@@ -1025,6 +1025,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_number: string | null
           adyen_account_id: string | null
           avatar_url: string | null
           bio: string | null
@@ -1053,6 +1054,7 @@ export type Database = {
           pending_balance: number | null
           phone: string | null
           seller_terms_accepted_at: string | null
+          sort_code: string | null
           store_name: string | null
           updated_at: string
           user_id: string
@@ -1061,6 +1063,7 @@ export type Database = {
           verified_at: string | null
         }
         Insert: {
+          account_number?: string | null
           adyen_account_id?: string | null
           avatar_url?: string | null
           bio?: string | null
@@ -1089,6 +1092,7 @@ export type Database = {
           pending_balance?: number | null
           phone?: string | null
           seller_terms_accepted_at?: string | null
+          sort_code?: string | null
           store_name?: string | null
           updated_at?: string
           user_id: string
@@ -1097,6 +1101,7 @@ export type Database = {
           verified_at?: string | null
         }
         Update: {
+          account_number?: string | null
           adyen_account_id?: string | null
           avatar_url?: string | null
           bio?: string | null
@@ -1125,6 +1130,7 @@ export type Database = {
           pending_balance?: number | null
           phone?: string | null
           seller_terms_accepted_at?: string | null
+          sort_code?: string | null
           store_name?: string | null
           updated_at?: string
           user_id?: string
