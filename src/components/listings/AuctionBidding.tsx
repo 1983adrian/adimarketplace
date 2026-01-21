@@ -205,7 +205,17 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
         {isWinning && !isEnded && (
           <Alert className="bg-green-50 border-green-200">
             <AlertDescription className="text-green-800">
-              🎉 Ești cel mai mare ofertant! Menține-ți poziția.
+              🎉 Ești cel mai mare ofertant! Așteaptă să vadă dacă altcineva licitează mai mult.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Already highest bidder - cannot bid again */}
+        {isWinning && !isEnded && user && (
+          <Alert className="bg-amber-50 border-amber-200">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800">
+              Nu poți licita din nou până când altcineva nu licitează mai mult decât tine.
             </AlertDescription>
           </Alert>
         )}
@@ -219,8 +229,8 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
           </Alert>
         )}
 
-        {/* Bidding Form */}
-        {!isEnded && !isOwner && user && (
+        {/* Bidding Form - hidden if user is already highest bidder */}
+        {!isEnded && !isOwner && user && !isWinning && (
           <div className="space-y-3">
             <div className="flex gap-2">
               <div className="flex-1 relative">

@@ -113,7 +113,7 @@ export const usePlaceBid = () => {
       // Check if bid is higher than current highest
       const { data: highestBid } = await supabase
         .from('bids')
-        .select('amount')
+        .select('amount, bidder_id')
         .eq('listing_id', listingId)
         .order('amount', { ascending: false })
         .limit(1)
@@ -121,6 +121,11 @@ export const usePlaceBid = () => {
 
       if (highestBid && amount <= highestBid.amount) {
         throw new Error(`Licitația ta trebuie să fie mai mare de £${highestBid.amount}`);
+      }
+
+      // RESTRICTION: User cannot bid again if they are the highest bidder
+      if (highestBid && highestBid.bidder_id === user.id) {
+        throw new Error('Ești deja cel mai mare ofertant. Așteaptă până altcineva licitează mai mult.');
       }
 
       // Check listing details
@@ -174,5 +179,77 @@ export const usePlaceBid = () => {
         variant: 'destructive',
       });
     },
+  });
+};
+
+// Hook for sellers to see their auction listings with latest bids
+export const useMyAuctionListings = () => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['my-auction-listings', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+
+      // Get all auction listings for this seller
+      const { data: listings, error: listingsError } = await supabase
+        .from('listings')
+        .select(`
+          id,
+          title,
+          starting_bid,
+          reserve_price,
+          auction_end_date,
+          listing_type,
+          is_active,
+          is_sold,
+          listing_images (image_url, is_primary)
+        `)
+        .eq('seller_id', user.id)
+        .in('listing_type', ['auction', 'both'])
+        .order('created_at', { ascending: false });
+
+      if (listingsError) throw listingsError;
+
+      // For each listing, get the highest bid and bid count
+      const listingsWithBids = await Promise.all(
+        (listings || []).map(async (listing) => {
+          const { data: highestBid } = await supabase
+            .from('bids')
+            .select('amount, bidder_id, created_at')
+            .eq('listing_id', listing.id)
+            .order('amount', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          const { count } = await supabase
+            .from('bids')
+            .select('*', { count: 'exact', head: true })
+            .eq('listing_id', listing.id);
+
+          // Get bidder profile if there's a highest bid
+          let bidderProfile = null;
+          if (highestBid) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('display_name, username, avatar_url')
+              .eq('user_id', highestBid.bidder_id)
+              .single();
+            bidderProfile = profile;
+          }
+
+          return {
+            ...listing,
+            highest_bid: highestBid?.amount || null,
+            bid_count: count || 0,
+            last_bid_at: highestBid?.created_at || null,
+            bidder_profile: bidderProfile,
+          };
+        })
+      );
+
+      return listingsWithBids;
+    },
+    enabled: !!user,
   });
 };

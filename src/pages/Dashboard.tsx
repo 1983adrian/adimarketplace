@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign, CreditCard, Crown, TrendingUp, ShoppingCart, Pencil, BookOpen } from 'lucide-react';
+import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign, CreditCard, Crown, TrendingUp, ShoppingCart, Pencil, BookOpen, Gavel, Clock, Users } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,21 +8,26 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { useMyListings } from '@/hooks/useListings';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useSellerSubscription, useCreateSellerSubscription, useSellerPortal } from '@/hooks/useSellerSubscription';
+import { useMyAuctionListings } from '@/hooks/useBids';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { useToast } from '@/hooks/use-toast';
-
+import { formatDistanceToNow } from 'date-fns';
+import { ro } from 'date-fns/locale';
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
   const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { data: myListings, isLoading: listingsLoading } = useMyListings(user?.id);
   const { data: favorites, isLoading: favoritesLoading } = useFavorites(user?.id);
   const { data: subscription, isLoading: subscriptionLoading, refetch: refetchSubscription } = useSellerSubscription();
+  const { data: auctionListings, isLoading: auctionsLoading } = useMyAuctionListings();
   const createSubscription = useCreateSellerSubscription();
   const openPortal = useSellerPortal();
 
@@ -351,6 +356,105 @@ const Dashboard = () => {
             </Card>
           </Link>
         </div>
+
+        {/* My Auctions Section - for sellers */}
+        {isSubscribed && auctionListings && auctionListings.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Gavel className="h-5 w-5 text-primary" />
+                Licitațiile Mele
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {auctionListings.map((auction) => {
+                const isEnded = auction.auction_end_date && new Date(auction.auction_end_date) < new Date();
+                const timeRemaining = auction.auction_end_date 
+                  ? formatDistanceToNow(new Date(auction.auction_end_date), { addSuffix: true, locale: ro })
+                  : null;
+                
+                return (
+                  <Card key={auction.id} className={`overflow-hidden ${isEnded ? 'opacity-75' : 'border-primary/20'}`}>
+                    <div className="flex">
+                      {/* Image */}
+                      <div className="w-24 h-24 flex-shrink-0 bg-muted">
+                        {auction.listing_images?.[0] && (
+                          <img 
+                            src={auction.listing_images[0].image_url} 
+                            alt={auction.title}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3 className="font-medium text-sm line-clamp-1">{auction.title}</h3>
+                          <Badge 
+                            variant={isEnded ? 'secondary' : 'default'}
+                            className={`text-xs flex-shrink-0 ${!isEnded ? 'bg-green-500 hover:bg-green-600' : ''}`}
+                          >
+                            {isEnded ? 'Încheiată' : 'Activă'}
+                          </Badge>
+                        </div>
+                        
+                        {/* Bid info */}
+                        <div className="mt-2 space-y-1">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Cea mai mare ofertă:</span>
+                            <span className="font-bold text-primary">
+                              {auction.highest_bid ? formatPrice(auction.highest_bid) : 'Fără oferte'}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {auction.bid_count} oferte
+                            </span>
+                            {timeRemaining && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {timeRemaining}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {/* Latest bidder */}
+                          {auction.bidder_profile && (
+                            <div className="flex items-center gap-2 mt-2 p-2 bg-muted/50 rounded text-xs">
+                              <Avatar className="h-5 w-5">
+                                <AvatarFallback className="text-[10px]">
+                                  {auction.bidder_profile.display_name?.[0] || 'U'}
+                                </AvatarFallback>
+                              </Avatar>
+                              <span className="truncate">
+                                Ultima ofertă de <strong>{auction.bidder_profile.display_name || auction.bidder_profile.username || 'Utilizator'}</strong>
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Actions */}
+                        <div className="flex gap-2 mt-2">
+                          <Button variant="outline" size="sm" asChild className="flex-1 h-7 text-xs">
+                            <Link to={`/listing/${auction.id}`}>Vezi Detalii</Link>
+                          </Button>
+                          <Button variant="ghost" size="sm" asChild className="h-7 text-xs">
+                            <Link to={`/edit-listing/${auction.id}`}>
+                              <Pencil className="h-3 w-3" />
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* My Listings */}
         <div>
