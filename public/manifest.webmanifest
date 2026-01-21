@@ -1,0 +1,136 @@
+{
+  "name": "C Market - Marketplace România",
+  "short_name": "C Market",
+  "description": "Cumpără și vinde produse în siguranță pe C Market. Marketplace-ul românesc cu plăți securizate și livrare rapidă.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ro",
+  "categories": ["shopping", "business", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Pagina principală C Market"
+    },
+    {
+      "src": "/screenshots/browse-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Caută produse"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Vinde un produs",
+      "short_name": "Vinde",
+      "description": "Adaugă un anunț nou",
+      "url": "/sell",
+      "icons": [{ "src": "/icons/shortcut-sell.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Comenzile mele",
+      "short_name": "Comenzi",
+      "description": "Vezi comenzile tale",
+      "url": "/orders",
+      "icons": [{ "src": "/icons/shortcut-orders.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Mesaje",
+      "short_name": "Mesaje",
+      "description": "Conversațiile tale",
+      "url": "/messages",
+      "icons": [{ "src": "/icons/shortcut-messages.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=app.lovable.e0bfe707146b4b72b4c4b072982fc18d",
+      "id": "app.lovable.e0bfe707146b4b72b4c4b072982fc18d"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/c-market/id000000000"
+    }
+  ],
+  "prefer_related_applications": false,
+  "protocol_handlers": [
+    {
+      "protocol": "web+cmarket",
+      "url": "/handle-protocol?url=%s"
+    }
+  ],
+  "share_target": {
+    "action": "/sell",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "description",
+      "url": "url",
+      "files": [
+        {
+          "name": "images",
+          "accept": ["image/*"]
+        }
+      ]
+    }
+  }
+}

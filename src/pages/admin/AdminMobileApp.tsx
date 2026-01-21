@@ -17,7 +17,9 @@ import {
   Shield,
   Rocket,
   FileCode,
-  ExternalLink
+  ExternalLink,
+  Globe,
+  Share2
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -199,13 +201,129 @@ FCM_PROJECT_ID: "your-firebase-project-id"
 
         {/* Main Tabs */}
         <Tabs defaultValue="setup" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="setup">Setup</TabsTrigger>
+            <TabsTrigger value="pwa">PWA</TabsTrigger>
             <TabsTrigger value="config">Configurație</TabsTrigger>
             <TabsTrigger value="ios">iOS</TabsTrigger>
             <TabsTrigger value="android">Android</TabsTrigger>
-            <TabsTrigger value="push">Push Notifications</TabsTrigger>
+            <TabsTrigger value="push">Push</TabsTrigger>
           </TabsList>
+
+          {/* PWA Tab */}
+          <TabsContent value="pwa" className="space-y-4">
+            <Card className="border-green-200 bg-green-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-green-800">
+                  <Globe className="h-5 w-5" />
+                  Progressive Web App - ACTIV
+                </CardTitle>
+                <CardDescription className="text-green-700">
+                  Utilizatorii pot instala aplicația direct din browser
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-white rounded-lg border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="h-4 w-4 text-green-500" />
+                      <span className="font-medium">Manifest PWA</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Configurat pentru instalare</p>
+                  </div>
+                  <div className="p-4 bg-white rounded-lg border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="h-4 w-4 text-green-500" />
+                      <span className="font-medium">Service Worker</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Cache și offline activ</p>
+                  </div>
+                  <div className="p-4 bg-white rounded-lg border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="h-4 w-4 text-green-500" />
+                      <span className="font-medium">Iconițe App</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Toate dimensiunile generate</p>
+                  </div>
+                  <div className="p-4 bg-white rounded-lg border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Check className="h-4 w-4 text-green-500" />
+                      <span className="font-medium">Install Banner</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Prompt automat pe mobil</p>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-white rounded-lg border">
+                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                    <Share2 className="h-4 w-4" />
+                    Link Instalare PWA
+                  </h4>
+                  <div className="flex gap-2">
+                    <code className="flex-1 p-2 bg-muted rounded text-sm">
+                      https://adimarketplace.lovable.app/install
+                    </code>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard("https://adimarketplace.lovable.app/install", "PWA Link")}
+                    >
+                      {copiedCommand === "PWA Link" ? (
+                        <Check className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Funcționalități PWA Active</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3">
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-green-500" />
+                    <div>
+                      <span className="font-medium">Instalare pe Home Screen</span>
+                      <p className="text-sm text-muted-foreground">iOS Safari, Android Chrome, Desktop browsers</p>
+                    </div>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-green-500" />
+                    <div>
+                      <span className="font-medium">Mod Offline</span>
+                      <p className="text-sm text-muted-foreground">Cache pentru imagini și API-uri</p>
+                    </div>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-green-500" />
+                    <div>
+                      <span className="font-medium">Splash Screen</span>
+                      <p className="text-sm text-muted-foreground">Ecran de încărcare personalizat</p>
+                    </div>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-green-500" />
+                    <div>
+                      <span className="font-medium">Shortcuts</span>
+                      <p className="text-sm text-muted-foreground">Acces rapid la Vinde, Comenzi, Mesaje</p>
+                    </div>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <Check className="h-5 w-5 text-green-500" />
+                    <div>
+                      <span className="font-medium">Share Target</span>
+                      <p className="text-sm text-muted-foreground">Primește imagini din alte aplicații</p>
+                    </div>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Setup Tab */}
           <TabsContent value="setup" className="space-y-4">
