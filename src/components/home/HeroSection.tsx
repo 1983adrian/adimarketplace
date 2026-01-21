@@ -55,7 +55,7 @@ export const HeroSection: React.FC = () => {
       <div className="absolute top-20 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
       
       <div className="container mx-auto px-4 py-6 md:py-10 lg:py-14 relative">
-        <div className="max-w-6xl mx-auto text-center space-y-6 md:space-y-8">
+        <div className="max-w-6xl mx-auto text-center">
           
           {/* CMarket Logo - Large, centered, no borders, seamless blend */}
           <div className="flex justify-center animate-fade-up">
@@ -69,26 +69,29 @@ export const HeroSection: React.FC = () => {
             />
           </div>
 
-          {/* Trending Badge */}
-          <div className="flex justify-center animate-fade-up" style={{ animationDelay: '0.2s' }}>
-            <span className="px-4 py-2 bg-accent/20 text-accent-foreground rounded-full text-sm font-medium flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Peste 10,000 produse disponibile
-            </span>
-          </div>
-          
-          {/* Subtitle */}
-          <div className="space-y-3 animate-fade-up" style={{ animationDelay: '0.3s' }}>
-            <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
-              {t('home.hero.tagline')}
-            </p>
-            <p className="text-base md:text-lg text-muted-foreground/80 max-w-2xl mx-auto">
-              {t('home.hero.subtitle')}
-            </p>
+          {/* Text Section - 2-3cm (approx 24-32px) below logo */}
+          <div className="mt-8 md:mt-10 space-y-4">
+            {/* Trending Badge */}
+            <div className="flex justify-center animate-fade-up" style={{ animationDelay: '0.2s' }}>
+              <span className="px-4 py-2 bg-accent/20 text-accent-foreground rounded-full text-sm font-medium flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" />
+                Peste 10,000 produse disponibile
+              </span>
+            </div>
+            
+            {/* Subtitle */}
+            <div className="space-y-3 animate-fade-up" style={{ animationDelay: '0.3s' }}>
+              <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
+                {t('home.hero.tagline')}
+              </p>
+              <p className="text-base md:text-lg text-muted-foreground/80 max-w-2xl mx-auto">
+                {t('home.hero.subtitle')}
+              </p>
+            </div>
           </div>
 
-          {/* Products Grid - 3 per row on mobile, 5 per row on tablet/desktop */}
-          <div className="animate-fade-up pt-4" style={{ animationDelay: '0.4s' }}>
+          {/* Products Grid - 2-3cm (approx 24-32px) below text */}
+          <div className="animate-fade-up mt-8 md:mt-10" style={{ animationDelay: '0.4s' }}>
             {isLoading ? (
               <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
                 {[...Array(10)].map((_, i) => (
