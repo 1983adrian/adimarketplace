@@ -105,7 +105,7 @@ const ResetPassword = () => {
         <CardHeader className="text-center">
           <Link to="/" className="inline-flex items-center justify-center gap-2 mb-4">
             <ShoppingBag className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold font-serif">MarketPlace</span>
+            <span className="text-2xl font-bold font-serif">C.Market</span>
           </Link>
           <CardTitle className="text-2xl">Resetează Parola</CardTitle>
           <CardDescription>Introdu noua ta parolă</CardDescription>
