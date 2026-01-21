@@ -4,45 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, TrendingUp, Shield, Truck, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-// Import individual letters
-import letterC from '@/assets/letter-c.png';
-import letterM from '@/assets/letter-m.png';
-import letterA from '@/assets/letter-a.png';
-import letterR from '@/assets/letter-r.png';
-import letterK from '@/assets/letter-k.png';
-import letterE from '@/assets/letter-e.png';
-import letterT from '@/assets/letter-t.png';
-
-// CMarket Logo - Each letter as individual image, perfectly aligned
-const CMarketLogo: React.FC = () => {
-  const letters = [
-    { src: letterC, alt: 'C', className: 'h-16 md:h-24 lg:h-32 w-auto -mr-2 md:-mr-3' },
-    { src: letterM, alt: 'M', className: 'h-12 md:h-20 lg:h-28 w-auto' },
-    { src: letterA, alt: 'a', className: 'h-10 md:h-16 lg:h-24 w-auto' },
-    { src: letterR, alt: 'r', className: 'h-10 md:h-16 lg:h-24 w-auto' },
-    { src: letterK, alt: 'k', className: 'h-12 md:h-20 lg:h-28 w-auto' },
-    { src: letterE, alt: 'e', className: 'h-10 md:h-16 lg:h-24 w-auto' },
-    { src: letterT, alt: 't', className: 'h-10 md:h-16 lg:h-24 w-auto' },
-  ];
-
-  return (
-    <div className="flex items-end justify-center gap-0 animate-fade-up px-4">
-      {letters.map((letter, index) => (
-        <img
-          key={letter.alt}
-          src={letter.src}
-          alt={letter.alt}
-          className={`object-contain drop-shadow-lg transition-transform hover:scale-105 ${letter.className}`}
-          style={{ 
-            animationDelay: `${index * 0.1}s`,
-            filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.15))'
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+import cmarketHero from '@/assets/cmarket-hero.png';
 
 export const HeroSection: React.FC = () => {
   const navigate = useNavigate();
@@ -81,16 +43,24 @@ export const HeroSection: React.FC = () => {
   ];
 
   return (
-    <section className="relative bg-gradient-to-b from-primary/5 via-background to-background overflow-hidden">
-      {/* Decorative Elements */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2" />
-      <div className="absolute top-20 right-1/4 w-72 h-72 bg-accent/20 rounded-full blur-3xl" />
+    <section className="relative overflow-hidden" style={{ background: 'linear-gradient(180deg, hsl(220 20% 97%) 0%, hsl(220 20% 98%) 50%, hsl(var(--background)) 100%)' }}>
+      {/* Subtle decorative blur elements */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 pointer-events-none" />
+      <div className="absolute top-20 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
       
-      <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16 relative">
-      <div className="max-w-6xl mx-auto text-center space-y-6 md:space-y-8">
-          {/* CMarket Logo - Individual Letters */}
-          <div className="flex justify-center py-4 md:py-8">
-            <CMarketLogo />
+      <div className="container mx-auto px-4 py-6 md:py-10 lg:py-14 relative">
+        <div className="max-w-6xl mx-auto text-center space-y-6 md:space-y-8">
+          
+          {/* CMarket Logo - Large, centered, no borders, seamless blend */}
+          <div className="flex justify-center animate-fade-up">
+            <img 
+              src={cmarketHero} 
+              alt="CMarket - Marketplace" 
+              className="w-full max-w-4xl md:max-w-5xl lg:max-w-6xl h-auto object-contain"
+              style={{
+                mixBlendMode: 'multiply',
+              }}
+            />
           </div>
 
           {/* Trending Badge */}
@@ -155,7 +125,7 @@ export const HeroSection: React.FC = () => {
             ))}
           </div>
 
-          {/* Trust Badges - Functional and Interactive */}
+          {/* Trust Badges */}
           <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-3xl mx-auto pt-6 animate-fade-up" style={{ animationDelay: '0.6s' }}>
             {features.map(({ icon: Icon, text, subtext, color, bgColor }) => (
               <div 
