@@ -46,6 +46,7 @@ const menuItems = [
   { title: 'AI Manager', url: '/admin/ai-manager', icon: Brain },
   { title: 'AI Sales Manager', url: '/admin/ai-sales', icon: Brain },
   { title: 'AI Marketing', url: '/admin/marketing', icon: Megaphone },
+  { title: 'AI Maintenance', url: '/admin/ai-maintenance', icon: Wrench },
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
   { title: 'Verificări Vânzători', url: '/admin/seller-verifications', icon: UserCheck },

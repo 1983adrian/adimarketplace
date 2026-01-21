@@ -58,6 +58,7 @@ import AdminMaintenance from "./pages/admin/AdminMaintenance";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
 import AdminAISales from "./pages/admin/AdminAISales";
 import AdminAIManager from "./pages/admin/AdminAIManager";
+import AdminAIMaintenance from "./pages/admin/AdminAIMaintenance";
 import AdminDeliveryManagement from "./pages/admin/AdminDeliveryManagement";
 import AdminReturns from "./pages/admin/AdminReturns";
 import AdminSellerVerifications from "./pages/admin/AdminSellerVerifications";
@@ -131,6 +132,7 @@ const App = () => (
                 <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
                 <Route path="/admin/seo" element={<AdminSEO />} />
                 <Route path="/admin/maintenance" element={<AdminMaintenance />} />
+                <Route path="/admin/ai-maintenance" element={<AdminAIMaintenance />} />
                 <Route path="/admin/audit-log" element={<AdminAuditLog />} />
                 <Route path="/admin/returns" element={<AdminReturns />} />
                 <Route path="/admin/seller-verifications" element={<AdminSellerVerifications />} />
