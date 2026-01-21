@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, Store, Bell, Shield, CreditCard, MapPin, Save, 
-  Wallet, Truck, Package, Building2, Banknote, Check,
-  EyeOff, AlertCircle, FileText
+  Wallet, Package, Building2, EyeOff, AlertCircle, FileText
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -14,8 +13,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -24,16 +21,6 @@ import { PasswordReset } from '@/components/settings/PasswordReset';
 import { SellerVerification } from '@/components/settings/SellerVerification';
 import { PayoutSection } from '@/components/settings/PayoutSection';
 import { supabase } from '@/integrations/supabase/client';
-
-const shippingCarriers = [
-  { id: 'usps', name: 'USPS', logo: '📮', description: 'Serviciu Poștal SUA' },
-  { id: 'ups', name: 'UPS', logo: '📦', description: 'United Parcel Service' },
-  { id: 'fedex', name: 'FedEx', logo: '🚚', description: 'Federal Express' },
-  { id: 'dhl', name: 'DHL', logo: '✈️', description: 'DHL Express' },
-  { id: 'amazon', name: 'Amazon Logistics', logo: '📋', description: 'Livrare Amazon' },
-  { id: 'ontrac', name: 'OnTrac', logo: '🏃', description: 'Curier Regional' },
-  { id: 'lasership', name: 'LaserShip', logo: '⚡', description: 'Curier Regional' },
-];
 
 const Settings = () => {
   const { user, profile, updateProfile, loading } = useAuth();
@@ -56,15 +43,6 @@ const Settings = () => {
   const [newListingAlerts, setNewListingAlerts] = useState(true);
   const [trackingAlerts, setTrackingAlerts] = useState(true);
   const [paymentAlerts, setPaymentAlerts] = useState(true);
-
-  // Placeholder pentru carduri - vor fi gestionate prin MangoPay
-
-
-  // Setări curieri livrare
-  const [selectedCarriers, setSelectedCarriers] = useState(['usps', 'ups', 'fedex']);
-  const [defaultCarrier, setDefaultCarrier] = useState('usps');
-  const [autoTrackingEnabled, setAutoTrackingEnabled] = useState(true);
-  const [shippingLabelProvider, setShippingLabelProvider] = useState('integrated');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -118,14 +96,6 @@ const Settings = () => {
     }
   };
 
-  const toggleCarrier = (carrierId: string) => {
-    setSelectedCarriers(prev => 
-      prev.includes(carrierId) 
-        ? prev.filter(id => id !== carrierId)
-        : [...prev, carrierId]
-    );
-  };
-
   if (loading) {
     return (
       <Layout>
@@ -143,7 +113,7 @@ const Settings = () => {
           <h1 className="text-3xl font-bold mb-8">Setări</h1>
           
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
               <TabsTrigger value="profile" className="gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden lg:inline">Profil</span>
@@ -160,13 +130,9 @@ const Settings = () => {
                 <Wallet className="h-4 w-4" />
                 <span className="hidden lg:inline">Încasări</span>
               </TabsTrigger>
-              <TabsTrigger value="shipping" className="gap-2">
-                <Truck className="h-4 w-4" />
-                <span className="hidden lg:inline">Livrare</span>
-              </TabsTrigger>
               <TabsTrigger value="seller" className="gap-2">
                 <Store className="h-4 w-4" />
-                <span className="hidden lg:inline">Vânzător</span>
+                <span className="hidden lg:inline">Magazin</span>
               </TabsTrigger>
               <TabsTrigger value="notifications" className="gap-2">
                 <Bell className="h-4 w-4" />
@@ -328,180 +294,11 @@ const Settings = () => {
               <PayoutSection />
             </TabsContent>
 
-            {/* Tab Livrare */}
-            <TabsContent value="shipping">
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Truck className="h-5 w-5" />
-                      Curieri Livrare
-                    </CardTitle>
-                    <CardDescription>Selectează curierii pe care îi folosești pentru expediere</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {shippingCarriers.map((carrier) => (
-                      <div 
-                        key={carrier.id}
-                        className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-colors ${
-                          selectedCarriers.includes(carrier.id) ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                        }`}
-                        onClick={() => toggleCarrier(carrier.id)}
-                      >
-                        <div className="flex items-center gap-4">
-                          <span className="text-2xl">{carrier.logo}</span>
-                          <div>
-                            <p className="font-medium">{carrier.name}</p>
-                            <p className="text-sm text-muted-foreground">{carrier.description}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          {selectedCarriers.includes(carrier.id) && defaultCarrier === carrier.id && (
-                            <Badge>Principal</Badge>
-                          )}
-                          <Checkbox 
-                            checked={selectedCarriers.includes(carrier.id)}
-                            onCheckedChange={() => toggleCarrier(carrier.id)}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Curier Principal</CardTitle>
-                    <CardDescription>Alege curierul preferat pentru expedieri noi</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Select value={defaultCarrier} onValueChange={setDefaultCarrier}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {shippingCarriers.filter(c => selectedCarriers.includes(c.id)).map((carrier) => (
-                          <SelectItem key={carrier.id} value={carrier.id}>
-                            <span className="flex items-center gap-2">
-                              <span>{carrier.logo}</span>
-                              {carrier.name}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Package className="h-5 w-5" />
-                      Urmărire Colete
-                    </CardTitle>
-                    <CardDescription>Configurează cum urmărești expedierile</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Actualizări Automate de Urmărire</p>
-                        <p className="text-sm text-muted-foreground">Primește notificări în timp real despre urmărire</p>
-                      </div>
-                      <Switch checked={autoTrackingEnabled} onCheckedChange={setAutoTrackingEnabled} />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Trimite Urmărire către Cumpărători</p>
-                        <p className="text-sm text-muted-foreground">Trimite automat informații de urmărire către cumpărători</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Confirmare Livrare</p>
-                        <p className="text-sm text-muted-foreground">Primește notificare când coletele sunt livrate</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Etichete de Expediere</CardTitle>
-                    <CardDescription>Cum creezi și tipărești etichetele de expediere</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Select value={shippingLabelProvider} onValueChange={setShippingLabelProvider}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="integrated">Folosește Etichetele MarketPlace (Tarife reduse)</SelectItem>
-                        <SelectItem value="shipstation">ShipStation</SelectItem>
-                        <SelectItem value="shippo">Shippo</SelectItem>
-                        <SelectItem value="pirateship">Pirate Ship</SelectItem>
-                        <SelectItem value="manual">Îmi creez propriile etichete</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-sm text-muted-foreground">
-                      Folosind Etichetele MarketPlace primești reduceri de până la 90% din tarifele standard
-                    </p>
-
-                    <div className="p-4 rounded-lg bg-muted">
-                      <h5 className="font-medium mb-2">Dimensiuni Etichete Suportate</h5>
-                      <div className="flex flex-wrap gap-2">
-                        <Badge variant="outline">4x6 Termică</Badge>
-                        <Badge variant="outline">A4 Hârtie</Badge>
-                        <Badge variant="outline">4x4 Etichetă</Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Adresă Retur</CardTitle>
-                    <CardDescription>Adresa ta pentru etichete de expediere și retururi</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label>Firmă/Nume</Label>
-                        <Input placeholder="Numele tău sau al firmei" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Adresă Stradă</Label>
-                        <Input placeholder="Strada Exemplu nr. 123" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Oraș</Label>
-                        <Input placeholder="București" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Județ / Cod Poștal</Label>
-                        <div className="flex gap-2">
-                          <Input placeholder="Ilfov" className="w-20" />
-                          <Input placeholder="010101" />
-                        </div>
-                      </div>
-                    </div>
-                    <Button className="gap-2">
-                      <Save className="h-4 w-4" />
-                      Salvează Adresa de Retur
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            {/* Tab Vânzător */}
+            {/* Tab Vânzător / Magazin */}
             <TabsContent value="seller">
               <Card>
                 <CardHeader>
-                  <CardTitle>Setări Vânzător</CardTitle>
+                  <CardTitle>Setări Magazin</CardTitle>
                   <CardDescription>Gestionează profilul și preferințele de vânzător</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -516,71 +313,52 @@ const Settings = () => {
                     />
                   </div>
 
-                  <div className="space-y-4">
-                    <h4 className="font-medium flex items-center gap-2">
-                      <Store className="h-4 w-4" />
-                      Setări Magazin
-                    </h4>
-                    <div className="space-y-2">
-                      <Label htmlFor="storeName">Nume Magazin *</Label>
-                      <Input 
-                        id="storeName"
-                        value={storeName}
-                        onChange={(e) => setStoreName(e.target.value)}
-                        placeholder="Magazinul Meu Super" 
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Acest nume va fi afișat pe toate produsele tale
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Descriere Magazin</Label>
-                      <Textarea 
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                        placeholder="Spune-le cumpărătorilor despre magazinul tău..." 
-                        rows={3} 
-                      />
-                    </div>
-                  </div>
+                  {isSeller && (
+                    <>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="storeName">Nume Magazin *</Label>
+                          <Input 
+                            id="storeName"
+                            value={storeName}
+                            onChange={(e) => setStoreName(e.target.value)}
+                            placeholder="Magazinul Meu Super" 
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            Acest nume va fi afișat pe toate produsele tale
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Descriere Magazin</Label>
+                          <Textarea 
+                            value={bio}
+                            onChange={(e) => setBio(e.target.value)}
+                            placeholder="Spune-le cumpărătorilor despre magazinul tău..." 
+                            rows={3} 
+                          />
+                        </div>
+                      </div>
 
-                  <Alert>
-                    <Package className="h-4 w-4" />
-                    <AlertDescription>
-                      <strong>Limită produse:</strong> Poți avea maxim 10 produse active simultan. Vânzările sunt nelimitate!
-                    </AlertDescription>
-                  </Alert>
+                      <Alert>
+                        <Package className="h-4 w-4" />
+                        <AlertDescription>
+                          <strong>Limită produse:</strong> Poți avea maxim 10 produse active simultan. Vânzările sunt nelimitate!
+                        </AlertDescription>
+                      </Alert>
 
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Preferințe Listare</h4>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Oferă ridicare locală</p>
-                          <p className="text-sm text-muted-foreground">Permite cumpărătorilor să ridice articolele</p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Oferă livrare</p>
-                          <p className="text-sm text-muted-foreground">Expediază articolele către cumpărători</p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Acceptă oferte</p>
-                          <p className="text-sm text-muted-foreground">Permite cumpărătorilor să facă oferte pentru articole</p>
-                        </div>
-                        <Switch defaultChecked />
-                      </div>
-                    </div>
-                  </div>
+                      <Alert className="border-primary/20 bg-primary/5">
+                        <Building2 className="h-4 w-4" />
+                        <AlertDescription>
+                          <strong>Livrare:</strong> Costul și curierul de livrare se setează la crearea fiecărui anunț. 
+                          Du-te la <strong>Vinde</strong> pentru a adăuga un produs nou.
+                        </AlertDescription>
+                      </Alert>
+                    </>
+                  )}
 
                   <Button onClick={handleSaveSellerSettings} disabled={saving} className="gap-2">
                     <Save className="h-4 w-4" />
-                    {saving ? 'Se salvează...' : 'Salvează Setările Magazinului'}
+                    {saving ? 'Se salvează...' : 'Salvează Setările'}
                   </Button>
                 </CardContent>
               </Card>
