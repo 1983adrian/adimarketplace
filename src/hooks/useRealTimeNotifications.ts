@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-
+import { useCoinSound } from '@/hooks/useCoinSound';
 export interface Notification {
   id: string;
   user_id: string;
@@ -175,11 +175,12 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
   }, [conversationId, queryClient]);
 };
 
-// Hook for real-time orders
+// Hook for real-time orders with coin sound for payouts
 export const useRealTimeOrders = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { playCoinSound } = useCoinSound();
 
   useEffect(() => {
     if (!user) return;
@@ -214,8 +215,13 @@ export const useRealTimeOrders = () => {
                   description: 'Vânzătorul a expediat comanda ta.',
                 });
               }
+              // 🪙 COIN SOUND: When seller receives payout (delivery confirmed)
               if (order.status === 'delivered' && order.seller_id === user.id) {
                 const payoutAmount = order.payout_amount || (order.amount * 0.9);
+                
+                // Play coin drop sound! 🎵
+                playCoinSound();
+                
                 toast({
                   title: '💰 Bani Primiți!',
                   description: `£${payoutAmount.toFixed(2)} au fost adăugați la soldul tău disponibil.`,
@@ -230,7 +236,7 @@ export const useRealTimeOrders = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, toast]);
+  }, [user, queryClient, toast, playCoinSound]);
 };
 
 // Hook for real-time bids (for sellers)
