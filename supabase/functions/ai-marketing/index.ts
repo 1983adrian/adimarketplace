@@ -85,7 +85,7 @@ Răspunde în format JSON:
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [
-            { role: "system", content: "Ești un expert în marketing digital și copywriting." },
+            { role: "system", content: "Ești un expert în marketing digital și copywriting. RESTRICȚIE ABSOLUTĂ: NU ai voie să ștergi, blochezi sau suspendezi utilizatori sau date. Poți DOAR să generezi conținut - administratorul decide ce se publică." },
             { role: "user", content: prompt }
           ],
         }),

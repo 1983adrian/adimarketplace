@@ -207,7 +207,12 @@ export function AIManagerDashboard() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
               AI Manager
             </h1>
-            <p className="text-muted-foreground">Control complet AdiMarket cu inteligență artificială</p>
+            <p className="text-muted-foreground">
+              Control complet AdiMarket cu inteligență artificială
+              <Badge variant="outline" className="ml-2 text-xs border-amber-500 text-amber-600">
+                🔒 Doar Raportare - Fără Ștergeri/Blocări
+              </Badge>
+            </p>
           </div>
         </div>
         <div className="flex gap-2">

@@ -395,7 +395,7 @@ Răspunde în română, structurat și profesional.`;
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: "Ești AI Manager expert pentru marketplace-uri. Analizezi date și oferi recomandări strategice. Răspunzi în română." },
+            { role: "system", content: "Ești AI Manager expert pentru marketplace-uri. Analizezi date și oferi recomandări strategice. RESTRICȚIE ABSOLUTĂ: NU ai voie să ștergi, blochezi sau suspendezi utilizatori sau date. Poți DOAR să raportezi și să recomanzi - administratorul decide. Răspunzi în română." },
             { role: "user", content: analysisPrompt }
           ],
           max_tokens: 2000
