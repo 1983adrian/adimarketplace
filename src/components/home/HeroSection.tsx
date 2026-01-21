@@ -69,8 +69,8 @@ export const HeroSection: React.FC = () => {
             />
           </div>
 
-          {/* Text Section - 2-3cm (approx 24-32px) below logo */}
-          <div className="mt-8 md:mt-10 space-y-4">
+          {/* Text Section - 1cm (approx 8-10px) below logo */}
+          <div className="mt-2 md:mt-3 space-y-3">
             {/* Trending Badge */}
             <div className="flex justify-center animate-fade-up" style={{ animationDelay: '0.2s' }}>
               <span className="px-4 py-2 bg-accent/20 text-accent-foreground rounded-full text-sm font-medium flex items-center gap-2">
@@ -80,7 +80,7 @@ export const HeroSection: React.FC = () => {
             </div>
             
             {/* Subtitle */}
-            <div className="space-y-3 animate-fade-up" style={{ animationDelay: '0.3s' }}>
+            <div className="space-y-2 animate-fade-up" style={{ animationDelay: '0.3s' }}>
               <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed font-medium">
                 {t('home.hero.tagline')}
               </p>
@@ -90,8 +90,8 @@ export const HeroSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Products Grid - 2-3cm (approx 24-32px) below text */}
-          <div className="animate-fade-up mt-8 md:mt-10" style={{ animationDelay: '0.4s' }}>
+          {/* Products Grid - closer to text */}
+          <div className="animate-fade-up mt-4 md:mt-5" style={{ animationDelay: '0.4s' }}>
             {isLoading ? (
               <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
                 {[...Array(10)].map((_, i) => (
