@@ -20,6 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSellerStats } from '@/hooks/useReviews';
 import { useFavorites, useToggleFavorite } from '@/hooks/useFavorites';
 import { format } from 'date-fns';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
 
 const conditionLabels: Record<string, string> = {
   new: 'Nou',
@@ -276,6 +277,7 @@ const ListingDetail = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p className="font-semibold text-lg">{sellerName}</p>
+                      <VerifiedBadge userId={listing.seller_id} size="md" />
                       {isVerifiedSeller && (
                         <Badge className="gap-1 bg-green-500 hover:bg-green-600">
                           <CheckCircle className="h-3 w-3" />

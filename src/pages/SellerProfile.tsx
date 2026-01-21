@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCreateConversation } from '@/hooks/useConversations';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
 
 const SellerProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -126,8 +127,9 @@ const SellerProfile = () => {
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-2xl font-bold">{displayName}</h1>
+                  <VerifiedBadge userId={id!} size="lg" />
                   {seller.is_verified && (
-                    <Badge className="gap-1 bg-blue-500"><Shield className="h-3 w-3" />Verificat</Badge>
+                    <Badge className="gap-1 bg-green-500"><Shield className="h-3 w-3" />Verificat</Badge>
                   )}
                 </div>
                 {seller.bio && <p className="text-muted-foreground mb-3">{seller.bio}</p>}
