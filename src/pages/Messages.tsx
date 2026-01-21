@@ -3,11 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { ConversationList } from '@/components/messages/ConversationList';
 import { ChatWindow } from '@/components/messages/ChatWindow';
-import { useConversations } from '@/hooks/useConversations';
+import { NewConversationDialog } from '@/components/messages/NewConversationDialog';
+import { useConversations, useCreateConversation } from '@/hooks/useConversations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card } from '@/components/ui/card';
 import { MessageCircle } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Messages() {
   const { user } = useAuth();
@@ -18,7 +20,8 @@ export default function Messages() {
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [showChat, setShowChat] = useState(false);
   
-  const { data: conversations, isLoading } = useConversations(user?.id);
+  const { data: conversations, isLoading, refetch } = useConversations(user?.id);
+  const createConversation = useCreateConversation();
 
   useEffect(() => {
     if (conversationIdParam && conversations) {
@@ -41,6 +44,33 @@ export default function Messages() {
     setShowChat(false);
   };
 
+  const handleNewConversation = async (sellerId: string, listingId?: string) => {
+    if (!user?.id || !listingId) return;
+    
+    try {
+      const result = await createConversation.mutateAsync({
+        listingId,
+        buyerId: user.id,
+        sellerId
+      });
+      
+      await refetch();
+      
+      // Find the new conversation and select it
+      const conv = conversations?.find((c: any) => c.id === result.id) || {
+        id: result.id,
+        listing_id: listingId,
+        buyer_id: user.id,
+        seller_id: sellerId
+      };
+      
+      setSelectedConversation(conv);
+      setShowChat(true);
+    } catch (error) {
+      toast.error('Nu s-a putut crea conversația');
+    }
+  };
+
   if (!user) {
     return (
       <Layout>
@@ -58,9 +88,15 @@ export default function Messages() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold">Mesaje</h1>
-          <p className="text-muted-foreground">Conversațiile tale cu vânzătorii și cumpărătorii</p>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Mesaje</h1>
+            <p className="text-muted-foreground">Conversațiile tale cu vânzătorii și cumpărătorii</p>
+          </div>
+          <NewConversationDialog
+            currentUserId={user.id}
+            onSelectSeller={handleNewConversation}
+          />
         </div>
 
         <Card className="overflow-hidden" style={{ height: 'calc(100vh - 250px)', minHeight: '500px' }}>

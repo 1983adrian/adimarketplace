@@ -5,12 +5,10 @@ import { CategorySection } from '@/components/home/CategorySection';
 import { FeaturedListings } from '@/components/home/FeaturedListings';
 import { PromotedListings } from '@/components/home/PromotedListings';
 import { HowItWorks } from '@/components/home/HowItWorks';
-import { NewsletterPopup } from '@/components/marketing/NewsletterPopup';
 
 const Index = () => {
   return (
     <Layout>
-      <NewsletterPopup />
       <HeroSection />
       <FeaturedListings />
       <PromotedListings />
