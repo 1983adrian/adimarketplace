@@ -224,8 +224,8 @@ export const FeaturedListings: React.FC = () => {
                     <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">
                       {conditionLabels[listing.condition]}
                     </Badge>
-                    {/* Verified Badge for special sellers */}
-                    <div className="absolute top-2 left-2">
+                    {/* Verified Badge for special sellers - bottom right */}
+                    <div className="absolute bottom-2 right-2">
                       <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={true} />
                     </div>
                   </div>

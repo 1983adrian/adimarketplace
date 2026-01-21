@@ -84,11 +84,10 @@ export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   };
 
   const badge = (
-    <div className="bg-white rounded-full p-0.5 shadow-lg border-2 border-blue-500">
-      <BadgeCheck 
-        className={`${sizeClasses[size]} text-blue-500 fill-blue-500 shrink-0`} 
-      />
-    </div>
+    <BadgeCheck 
+      className={`${sizeClasses[size]} text-[#1d9bf0] fill-[#1d9bf0] shrink-0`} 
+      style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}
+    />
   );
 
   if (!showTooltip) return badge;
