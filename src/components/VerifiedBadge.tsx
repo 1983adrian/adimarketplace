@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Check } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -68,6 +68,32 @@ const useIsSpecialUser = (userId: string) => {
   });
 };
 
+const sizeClasses = {
+  sm: { container: 'h-5 w-5', icon: 'h-3 w-3' },
+  md: { container: 'h-6 w-6', icon: 'h-3.5 w-3.5' },
+  lg: { container: 'h-8 w-8', icon: 'h-5 w-5' },
+};
+
+// Inner badge component that can receive refs
+const BadgeIcon = forwardRef<HTMLDivElement, { size: 'sm' | 'md' | 'lg'; className?: string }>(
+  ({ size, className, ...props }, ref) => (
+    <div 
+      ref={ref}
+      className={`${sizeClasses[size].container} rounded-full bg-[#1d9bf0] flex items-center justify-center shrink-0 cursor-help ${className || ''}`}
+      style={{ 
+        boxShadow: '0 2px 8px rgba(29, 155, 240, 0.4), 0 1px 3px rgba(0,0,0,0.3)',
+      }}
+      {...props}
+    >
+      <Check 
+        className={`${sizeClasses[size].icon} text-white`} 
+        strokeWidth={3.5}
+      />
+    </div>
+  )
+);
+BadgeIcon.displayName = 'BadgeIcon';
+
 export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({ 
   userId, 
   size = 'md',
@@ -77,34 +103,14 @@ export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
 
   if (!data?.isSpecial) return null;
 
-  const sizeClasses = {
-    sm: { container: 'h-5 w-5', icon: 'h-3 w-3' },
-    md: { container: 'h-6 w-6', icon: 'h-3.5 w-3.5' },
-    lg: { container: 'h-8 w-8', icon: 'h-5 w-5' },
-  };
-
-  const badge = (
-    <div 
-      className={`${sizeClasses[size].container} rounded-full bg-[#1d9bf0] flex items-center justify-center shrink-0`}
-      style={{ 
-        boxShadow: '0 2px 8px rgba(29, 155, 240, 0.4), 0 1px 3px rgba(0,0,0,0.3)',
-      }}
-    >
-      <Check 
-        className={`${sizeClasses[size].icon} text-white`} 
-        strokeWidth={3.5}
-      />
-    </div>
-  );
-
-  if (!showTooltip) return badge;
+  if (!showTooltip) {
+    return <BadgeIcon size={size} />;
+  }
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="inline-flex cursor-help">
-          {badge}
-        </span>
+        <BadgeIcon size={size} />
       </TooltipTrigger>
       <TooltipContent>
         <p className="font-medium">{data.type}</p>
