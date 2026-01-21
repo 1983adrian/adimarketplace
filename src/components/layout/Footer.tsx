@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, CreditCard, Shield, Truck, HeadphonesIcon } from 'lucide-react';
-import logo from '@/assets/logo.jpeg';
+import logo from '@/assets/cmarket-hero.png';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="AdiMarket" className="h-12 w-auto rounded-lg" />
+              <img src={logo} alt="CMarket" className="h-12 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Your trusted marketplace for buying and selling quality items. Join thousands of happy customers today.
