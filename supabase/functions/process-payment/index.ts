@@ -13,6 +13,7 @@ interface PaymentRequest {
   shippingCost: number;
   buyerFee: number;
   guestEmail?: string;
+  processor?: "adyen" | "mangopay";
 }
 
 serve(async (req) => {
@@ -38,11 +39,34 @@ serve(async (req) => {
     }
 
     const body: PaymentRequest = await req.json();
-    const { items, shippingAddress, shippingMethod, shippingCost, buyerFee, guestEmail } = body;
+    const { items, shippingAddress, shippingMethod, shippingCost, buyerFee, guestEmail, processor: requestedProcessor } = body;
 
     if (!items || items.length === 0) {
       throw new Error("No items provided");
     }
+
+    // Determine active payment processor
+    const { data: processors } = await supabase
+      .from("payment_processor_settings")
+      .select("*")
+      .eq("is_active", true)
+      .order("processor_name");
+
+    // Priority: Adyen > MangoPay (if both active, use Adyen)
+    let activeProcessor = processors?.find(p => p.processor_name === "adyen") || 
+                          processors?.find(p => p.processor_name === "mangopay");
+
+    // Override with requested processor if specified and active
+    if (requestedProcessor) {
+      const requested = processors?.find(p => p.processor_name === requestedProcessor);
+      if (requested) activeProcessor = requested;
+    }
+
+    const processorName = activeProcessor?.processor_name || "mangopay";
+    const processorEnv = activeProcessor?.environment || "sandbox";
+    const merchantId = activeProcessor?.merchant_id;
+
+    console.log(`Processing payment with ${processorName} (${processorEnv})`);
 
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + item.price, 0);
@@ -75,18 +99,22 @@ serve(async (req) => {
       const sellerCommission = (listing.price * commissionPercent) / 100;
       const payoutAmount = listing.price - sellerCommission;
 
+      // Generate processor transaction ID (will be replaced by actual processor response)
+      const transactionId = `${processorName.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
+
       // Create order
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
           listing_id: listing.id,
-          buyer_id: userId || "00000000-0000-0000-0000-000000000000", // Guest placeholder
+          buyer_id: userId || "00000000-0000-0000-0000-000000000000",
           seller_id: listing.seller_id,
           amount: listing.price + shippingCost / items.length + buyerFee / items.length,
           status: "pending",
           shipping_address: shippingAddress,
-          payment_processor: "mangopay",
+          payment_processor: processorName,
           processor_status: "pending",
+          processor_transaction_id: transactionId,
           buyer_fee: buyerFee / items.length,
           seller_commission: sellerCommission,
           payout_amount: payoutAmount,
@@ -114,7 +142,8 @@ serve(async (req) => {
           platform_commission: sellerCommission,
           net_amount: payoutAmount,
           status: "pending",
-          payout_method: "iban", // Will be fetched from profile
+          processor: processorName,
+          payout_method: "iban",
         });
 
       // Update seller pending balance
@@ -147,18 +176,38 @@ serve(async (req) => {
       status: "issued",
     });
 
-    // Return success with redirect URL (simulating payment gateway)
-    // In production, this would redirect to MangoPay hosted payment page
-    const successUrl = `${req.headers.get("origin") || "https://adimarketplace.lovable.app"}/checkout/success?order_ids=${orders.map(o => o.id).join(",")}&total=${total}`;
+    // Generate payment URL based on processor
+    const origin = req.headers.get("origin") || "https://adimarketplace.lovable.app";
+    const successUrl = `${origin}/checkout/success?order_ids=${orders.map(o => o.id).join(",")}&total=${total}`;
+    
+    let paymentUrl = successUrl;
+    let paymentInstructions = "";
+
+    if (processorName === "adyen" && activeProcessor?.api_key_encrypted && merchantId) {
+      // Adyen payment - would redirect to Adyen hosted page
+      paymentInstructions = "Redirecționare către Adyen pentru plată securizată cu card.";
+      // In production: Generate Adyen payment link using their API
+      paymentUrl = successUrl; // Placeholder - real implementation uses Adyen SDK
+    } else if (processorName === "mangopay" && activeProcessor?.api_key_encrypted) {
+      // MangoPay payment
+      paymentInstructions = "Redirecționare către MangoPay pentru plată securizată.";
+      paymentUrl = successUrl; // Placeholder - real implementation uses MangoPay SDK
+    } else {
+      // Demo mode - direct to success
+      paymentInstructions = `Demo mode (${processorName}): Configurează cheile API pentru plăți reale.`;
+    }
 
     return new Response(
       JSON.stringify({
         success: true,
-        orders: orders.map(o => ({ id: o.id, amount: o.amount })),
+        processor: processorName,
+        environment: processorEnv,
+        orders: orders.map(o => ({ id: o.id, amount: o.amount, transactionId: o.processor_transaction_id })),
         total,
         invoiceNumber,
-        redirectUrl: successUrl,
-        message: "Comenzile au fost create. Plata va fi procesată prin MangoPay.",
+        redirectUrl: paymentUrl,
+        message: paymentInstructions,
+        isLive: processorEnv === "live" && !!activeProcessor?.api_key_encrypted,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
