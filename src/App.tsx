@@ -64,7 +64,7 @@ import AdminSellerVerifications from "./pages/admin/AdminSellerVerifications";
 import AdminAuctions from "./pages/admin/AdminAuctions";
 import AdminMarketing from "./pages/admin/AdminMarketing";
 import AdminSecuritySettings from "./pages/admin/AdminSecuritySettings";
-import AdminStripeSettings from "./pages/admin/AdminStripeSettings";
+import AdminPaymentProcessors from "./pages/admin/AdminPaymentProcessors";
 
 const queryClient = new QueryClient();
 
@@ -119,7 +119,7 @@ const App = () => (
                 <Route path="/admin/orders" element={<AdminOrders />} />
                 <Route path="/admin/deliveries" element={<AdminDeliveryManagement />} />
                 <Route path="/admin/fees" element={<AdminFees />} />
-                <Route path="/admin/stripe" element={<AdminStripeSettings />} />
+                <Route path="/admin/payments" element={<AdminPaymentProcessors />} />
                 <Route path="/admin/messages" element={<AdminMessages />} />
                 <Route path="/admin/api-settings" element={<AdminApiSettings />} />
                 <Route path="/admin/disputes" element={<AdminDisputes />} />

@@ -22,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
 import { SellerVerification } from '@/components/settings/SellerVerification';
-import { StripeConnectSection } from '@/components/settings/StripeConnectSection';
+import { PayoutSection } from '@/components/settings/PayoutSection';
 import { supabase } from '@/integrations/supabase/client';
 
 const shippingCarriers = [
@@ -57,73 +57,27 @@ const Settings = () => {
   const [trackingAlerts, setTrackingAlerts] = useState(true);
   const [paymentAlerts, setPaymentAlerts] = useState(true);
 
-  // Setări plăți (cumpărător)
+  // Setări plăți (cumpărător) - placeholder pentru Adyen/Mangopay
   const [savedCards, setSavedCards] = useState<{ id: string; last4: string; brand: string; expiry: string; isDefault: boolean; }[]>([]);
   const [loadingCards, setLoadingCards] = useState(false);
   const [defaultPaymentMethod, setDefaultPaymentMethod] = useState('card');
 
-  // Fetch saved cards from Stripe
-  const fetchSavedCards = async () => {
-    if (!user) return;
-    setLoadingCards(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('manage-payment-methods', {
-        body: { action: 'list' },
-      });
-      if (error) throw error;
-      setSavedCards(data?.cards || []);
-    } catch (error) {
-      console.error('Error fetching cards:', error);
-    } finally {
-      setLoadingCards(false);
-    }
-  };
-
-  // Add new card via Stripe
+  // Placeholder - payment methods will be managed through Adyen/Mangopay
   const handleAddCard = async () => {
-    if (!user) return;
-    try {
-      const { data, error } = await supabase.functions.invoke('manage-payment-methods', {
-        body: { action: 'setup' },
-      });
-      if (error) throw error;
-      
-      // For now, show a message that card adding is via checkout
-      toast({
-        title: 'Adăugare Card',
-        description: 'Cardul va fi salvat automat la prima ta plată. Poți adăuga carduri la checkout.',
-      });
-    } catch (error: any) {
-      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
-    }
+    toast({
+      title: 'Adăugare Card',
+      description: 'Cardul va fi salvat automat la prima ta plată prin Adyen sau Mangopay.',
+    });
   };
 
-  // Delete card
+  // Delete card placeholder
   const handleDeleteCard = async (paymentMethodId: string) => {
-    try {
-      const { error } = await supabase.functions.invoke('manage-payment-methods', {
-        body: { action: 'delete', paymentMethodId },
-      });
-      if (error) throw error;
-      toast({ title: 'Card șters cu succes' });
-      fetchSavedCards();
-    } catch (error: any) {
-      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
-    }
+    toast({
+      title: 'Funcție în dezvoltare',
+      description: 'Gestionarea cardurilor va fi disponibilă curând.',
+    });
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchSavedCards();
-    }
-  }, [user]);
-
-  // Setări încasări (vânzător)
-  const [payoutMethod, setPayoutMethod] = useState('stripe');
-  const [stripeAccountConnected, setStripeAccountConnected] = useState(false);
-  const [stripeAccountId, setStripeAccountId] = useState('');
-  const [payoutSchedule, setPayoutSchedule] = useState('weekly');
-  const [minimumPayout, setMinimumPayout] = useState('50');
 
   // Setări curieri livrare
   const [selectedCarriers, setSelectedCarriers] = useState(['usps', 'ups', 'fedex']);
@@ -143,31 +97,8 @@ const Settings = () => {
       setPhone(profile.phone || '');
       setStoreName((profile as any).store_name || '');
       setIsSeller((profile as any).is_seller || false);
-      setStripeAccountId((profile as any).stripe_account_id || '');
-      setStripeAccountConnected(!!(profile as any).stripe_account_id);
     }
   }, [user, profile, loading, navigate]);
-
-  const handleConnectStripe = async () => {
-    if (!user) return;
-    setSaving(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('create-stripe-connect-account', {
-        body: {},
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        // Redirect to Stripe Connect onboarding
-        window.location.href = data.url;
-      }
-    } catch (error: any) {
-      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -509,9 +440,9 @@ const Settings = () => {
               </div>
             </TabsContent>
 
-            {/* Tab Încasări (Vânzător) - Stripe Connect */}
+            {/* Tab Încasări (Vânzător) - IBAN/Card */}
             <TabsContent value="payouts">
-              <StripeConnectSection />
+              <PayoutSection />
             </TabsContent>
 
             {/* Tab Livrare */}

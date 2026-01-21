@@ -91,7 +91,8 @@ export interface Order {
   amount: number;
   status: OrderStatus;
   shipping_address: string | null;
-  stripe_payment_intent_id: string | null;
+  payment_processor: string | null;
+  processor_transaction_id: string | null;
   created_at: string;
   updated_at: string;
 }
