@@ -128,10 +128,20 @@ export const useUpdatePlatformFee = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ id, amount, description }: { id: string; amount: number; description?: string }) => {
+    mutationFn: async ({ id, amount, description, is_active }: { id: string; amount: number; description?: string; is_active?: boolean }) => {
+      const updateData: Record<string, any> = { 
+        amount, 
+        description, 
+        updated_at: new Date().toISOString() 
+      };
+      
+      if (typeof is_active === 'boolean') {
+        updateData.is_active = is_active;
+      }
+      
       const { error } = await supabase
         .from('platform_fees')
-        .update({ amount, description, updated_at: new Date().toISOString() })
+        .update(updateData)
         .eq('id', id);
       
       if (error) throw error;
