@@ -1,21 +1,49 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Shield, Truck, Star } from 'lucide-react';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { TrendingUp, Shield, Truck, Star, MapPin } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import cmarketHero from '@/assets/cmarket-hero.png';
 
 export const HeroSection: React.FC = () => {
-  const navigate = useNavigate();
   const { t } = useLanguage();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { formatPrice } = useCurrency();
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
-    }
+  // Fetch listings for display
+  const { data: listings, isLoading } = useQuery({
+    queryKey: ['hero-listings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('listings')
+        .select(`
+          *,
+          listing_images (
+            id,
+            image_url,
+            is_primary,
+            sort_order
+          )
+        `)
+        .eq('is_active', true)
+        .eq('is_sold', false)
+        .order('created_at', { ascending: false })
+        .limit(15);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const conditionLabels: Record<string, string> = {
+    new: t('condition.new'),
+    like_new: t('condition.like_new'),
+    good: t('condition.good'),
+    fair: t('condition.fair'),
+    poor: t('condition.poor'),
   };
 
   const features = [
@@ -81,52 +109,66 @@ export const HeroSection: React.FC = () => {
             </p>
           </div>
 
-          {/* Search Bar */}
-          <form 
-            onSubmit={handleSearch} 
-            className="animate-fade-up max-w-3xl mx-auto" 
-            style={{ animationDelay: '0.4s' }}
-          >
-            <div className="relative flex shadow-card-hover rounded-xl overflow-hidden bg-card border border-border">
-              <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder={t('header.search')}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-14 md:h-16 text-base md:text-lg border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
+          {/* Products Grid - 3 per row on mobile, 5 per row on tablet/desktop */}
+          <div className="animate-fade-up pt-4" style={{ animationDelay: '0.4s' }}>
+            {isLoading ? (
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                {[...Array(10)].map((_, i) => (
+                  <Card key={i} className="animate-pulse">
+                    <div className="aspect-square bg-muted" />
+                    <CardContent className="p-2">
+                      <div className="h-3 bg-muted rounded w-3/4 mb-1" />
+                      <div className="h-4 bg-muted rounded w-1/2" />
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-              <Button 
-                type="submit" 
-                size="lg" 
-                className="h-14 md:h-16 px-6 md:px-10 rounded-none text-base md:text-lg font-semibold gradient-primary hover:opacity-90 transition-opacity"
-              >
-                <Search className="h-5 w-5 md:mr-2" />
-                <span className="hidden md:inline">{t('header.search')}</span>
-              </Button>
-            </div>
-          </form>
-
-          {/* Popular Searches */}
-          <div className="flex flex-wrap justify-center gap-2 animate-fade-up" style={{ animationDelay: '0.5s' }}>
-            <span className="text-sm text-muted-foreground">{t('home.hero.popular')}:</span>
-            {['iPhone 15', 'MacBook', 'Nike Air Max', 'PlayStation 5', 'Samsung TV'].map((term) => (
-              <Button 
-                key={term}
-                variant="outline" 
-                size="sm"
-                className="rounded-full h-8 text-sm hover:bg-primary hover:text-primary-foreground transition-colors"
-                onClick={() => navigate(`/browse?search=${term}`)}
-              >
-                {term}
-              </Button>
-            ))}
+            ) : listings && listings.length > 0 ? (
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+                {listings.slice(0, 15).map((listing) => {
+                  const primaryImage = listing.listing_images?.find((img: any) => img.is_primary) || listing.listing_images?.[0];
+                  
+                  return (
+                    <Link key={listing.id} to={`/listing/${listing.id}`}>
+                      <Card className="group overflow-hidden hover-lift cursor-pointer border-border/50 hover:border-primary/30 h-full flex flex-col">
+                        <div className="relative aspect-square overflow-hidden bg-muted">
+                          <img
+                            src={primaryImage?.image_url || '/placeholder.svg'}
+                            alt={listing.title}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                          <Badge className="absolute bottom-1 left-1 text-[10px] md:text-xs bg-secondary text-secondary-foreground px-1 py-0.5">
+                            {conditionLabels[listing.condition]}
+                          </Badge>
+                        </div>
+                        <CardContent className="p-1.5 md:p-2 flex-1 flex flex-col">
+                          <h3 className="font-medium text-[10px] md:text-xs line-clamp-1 group-hover:text-primary transition-colors">
+                            {listing.title}
+                          </h3>
+                          <p className="text-xs md:text-sm font-bold text-primary mt-0.5">
+                            {formatPrice(listing.price)}
+                          </p>
+                          {listing.location && (
+                            <p className="text-[8px] md:text-[10px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
+                              <MapPin className="h-2 w-2 md:h-2.5 md:w-2.5" />
+                              <span className="line-clamp-1">{listing.location}</span>
+                            </p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">{t('browse.noResults')}</p>
+              </div>
+            )}
           </div>
 
           {/* Trust Badges */}
-          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-3xl mx-auto pt-6 animate-fade-up" style={{ animationDelay: '0.6s' }}>
+          <div className="grid grid-cols-3 gap-4 md:gap-8 max-w-3xl mx-auto pt-6 animate-fade-up" style={{ animationDelay: '0.5s' }}>
             {features.map(({ icon: Icon, text, subtext, color, bgColor }) => (
               <div 
                 key={text} 
