@@ -7,20 +7,20 @@ interface SafeAreaInsets {
   left: number;
 }
 
-// Minimum safe padding for different scenarios
-const MIN_HEADER_PADDING = 12;
-const PWA_STANDALONE_PADDING = 20;
-const NOTCH_DEVICE_PADDING = 44; // iPhone X and later with notch
+// Minimum safe padding for different scenarios - INCREASED for all devices
+const MIN_HEADER_PADDING = 48;
+const PWA_STANDALONE_PADDING = 64;
+const NOTCH_DEVICE_PADDING = 64; // Increased to ensure visibility on all notch devices
 
 export const useSafeArea = () => {
   const [insets, setInsets] = useState<SafeAreaInsets>({
-    top: MIN_HEADER_PADDING,
+    top: PWA_STANDALONE_PADDING, // Start with larger default
     right: 0,
     bottom: 0,
     left: 0,
   });
   const [isStandalone, setIsStandalone] = useState(false);
-  const [hasNotch, setHasNotch] = useState(false);
+  const [hasNotch, setHasNotch] = useState(true); // Assume notch by default for safety
 
   useEffect(() => {
     // Check if running as PWA standalone

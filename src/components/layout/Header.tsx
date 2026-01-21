@@ -56,8 +56,14 @@ export const Header: React.FC = () => {
     }
   };
 
+  // Use the larger of: calculated safe area OR minimum 64px for notch devices
+  const safePadding = Math.max(headerPadding, 64);
+
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm pt-16 md:pt-0">
+    <header 
+      className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm md:pt-0"
+      style={{ paddingTop: window.innerWidth < 768 ? `${safePadding}px` : '0px' }}
+    >
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
         <div className="flex items-center justify-between h-14 md:h-16 gap-2 md:gap-4">
