@@ -265,7 +265,7 @@ const Browse = () => {
                             className="w-full gap-2 mt-auto pt-2"
                             onClick={(e) => {
                               e.preventDefault();
-                              window.location.href = `/checkout/${listing.id}`;
+                              window.location.href = `/checkout?listing=${listing.id}`;
                             }}
                           >
                             <ShoppingCart className="h-4 w-4" />

@@ -31,39 +31,9 @@ export const usePromotedListings = () => {
   return useQuery({
     queryKey: ['promoted-listings'],
     queryFn: async (): Promise<PromotedListing[]> => {
-      const now = new Date().toISOString();
-      
-      const response = await supabase
-        .from('listing_promotions' as any)
-        .select('listing_id')
-        .eq('is_active', true)
-        .gt('ends_at', now);
-
-      const promotions = response.data as unknown as { listing_id: string }[] | null;
-      
-      if (response.error || !promotions || promotions.length === 0) return [];
-
-      const { data: listings, error } = await supabase
-        .from('listings')
-        .select(`id, title, price, condition, location, seller_id, listing_images (image_url, is_primary)`)
-        .in('id', promotions.map(p => p.listing_id))
-        .eq('is_active', true)
-        .eq('is_sold', false);
-
-      if (error || !listings) return [];
-
-      const sellerIds = [...new Set(listings.map(l => l.seller_id))];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, avatar_url')
-        .in('user_id', sellerIds);
-
-      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
-
-      return listings.map(listing => ({
-        ...listing,
-        profiles: profileMap.get(listing.seller_id) || null
-      })) as PromotedListing[];
+      // Return empty array since listing_promotions table doesn't exist yet
+      // This prevents 404 errors until the table is created
+      return [];
     },
     staleTime: 60000,
   });
