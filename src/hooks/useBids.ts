@@ -161,6 +161,27 @@ export const usePlaceBid = () => {
         .single();
 
       if (error) throw error;
+
+      // Send notification to seller about new bid
+      await supabase.from('notifications').insert({
+        user_id: listing.seller_id,
+        type: 'bid',
+        title: '🔔 Licitație Nouă!',
+        message: `Ai primit o licitație de £${amount.toFixed(2)} pe produsul tău.`,
+        data: { listing_id: listingId, bid_id: data.id, amount },
+      });
+
+      // Notify previous highest bidder they were outbid
+      if (highestBid && highestBid.bidder_id !== user.id) {
+        await supabase.from('notifications').insert({
+          user_id: highestBid.bidder_id,
+          type: 'bid',
+          title: '⚠️ Ai fost depășit!',
+          message: `Cineva a licitat £${amount.toFixed(2)}, depășind oferta ta de £${highestBid.amount.toFixed(2)}.`,
+          data: { listing_id: listingId, new_amount: amount, your_amount: highestBid.amount },
+        });
+      }
+
       return data;
     },
     onSuccess: (_, variables) => {
