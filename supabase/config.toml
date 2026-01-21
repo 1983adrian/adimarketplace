@@ -15,7 +15,7 @@ verify_jwt = false
 [functions.create-social-promotion]
 verify_jwt = false
 
-[functions.ai-manager]
+[functions.courier-lockers]
 verify_jwt = false
 
 [functions.ai-sales-manager]
@@ -29,4 +29,7 @@ verify_jwt = false
 
 
 [functions.ai-maintenance]
+verify_jwt = false
+
+[functions.send-easybox-code]
 verify_jwt = false

@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 interface PaymentRequest {
-  items: { listingId: string; price: number }[];
+  items: { listingId: string; price: number; title?: string }[];
   shippingAddress: string;
   shippingMethod: string;
   shippingCost: number;
@@ -20,6 +20,14 @@ interface PaymentRequest {
     percentage: number;
     fixed: number;
     transport: number;
+  };
+  deliveryType?: "home" | "locker";
+  selectedLocker?: {
+    id: string;
+    name: string;
+    address: string;
+    city: string;
+    county: string;
   };
 }
 
@@ -46,7 +54,20 @@ serve(async (req) => {
     }
 
     const body: PaymentRequest = await req.json();
-    const { items, shippingAddress, shippingMethod, shippingCost, buyerFee, guestEmail, processor: requestedProcessor } = body;
+    const { 
+      items, 
+      shippingAddress, 
+      shippingMethod, 
+      shippingCost, 
+      buyerFee, 
+      guestEmail, 
+      processor: requestedProcessor,
+      paymentMethod,
+      courier,
+      codFees,
+      deliveryType,
+      selectedLocker,
+    } = body;
 
     if (!items || items.length === 0) {
       throw new Error("No items provided");
@@ -182,6 +203,57 @@ serve(async (req) => {
       total: total,
       status: "issued",
     });
+
+    // If locker delivery, send easybox pickup code to buyer
+    if (deliveryType === "locker" && selectedLocker && userEmail) {
+      const pickupCode = Math.random().toString().slice(2, 8); // 6-digit code
+      const awbNumber = `AWB-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
+      
+      // Get buyer profile for name
+      const { data: buyerProfile } = await supabase
+        .from("profiles")
+        .select("display_name, username")
+        .eq("user_id", userId)
+        .single();
+      
+      const buyerName = buyerProfile?.display_name || buyerProfile?.username || "Client";
+      
+      // Get product title from first item
+      const { data: firstListing } = await supabase
+        .from("listings")
+        .select("title")
+        .eq("id", items[0].listingId)
+        .single();
+      
+      // Send easybox code email
+      try {
+        await supabase.functions.invoke("send-easybox-code", {
+          body: {
+            orderId: orders[0].id,
+            buyerEmail: userEmail,
+            buyerName,
+            lockerName: selectedLocker.name,
+            lockerAddress: `${selectedLocker.address}, ${selectedLocker.city}, ${selectedLocker.county}`,
+            awbNumber,
+            pickupCode,
+            courier: courier || "sameday",
+            productTitle: firstListing?.title || items[0].title || "Produs",
+          },
+        });
+        console.log("Easybox code email sent to buyer");
+      } catch (emailError) {
+        console.error("Failed to send easybox code email:", emailError);
+      }
+      
+      // Update order with tracking info
+      await supabase
+        .from("orders")
+        .update({
+          tracking_number: awbNumber,
+          carrier: courier,
+        })
+        .eq("id", orders[0].id);
+    }
 
     // Generate payment URL based on processor
     const origin = req.headers.get("origin") || "https://adimarketplace.lovable.app";

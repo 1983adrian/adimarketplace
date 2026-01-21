@@ -96,24 +96,38 @@ export const CourierAPISettings: React.FC = () => {
   const [testing, setTesting] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, 'success' | 'error' | null>>({});
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Load existing credentials on mount
   React.useEffect(() => {
     const loadCredentials = async () => {
-      for (const courier of COURIER_CONFIGS) {
-        const { data } = await supabase
-          .from('platform_settings')
-          .select('value')
-          .eq('category', 'courier_api')
-          .eq('key', `${courier.id}_credentials`)
-          .single();
-        
-        if (data?.value) {
-          const creds = data.value as Record<string, string>;
-          setCredentials(prev => ({ ...prev, [courier.id]: creds }));
-          setEnabledCouriers(prev => ({ ...prev, [courier.id]: !!creds.enabled }));
+      setLoading(true);
+      try {
+        for (const courier of COURIER_CONFIGS) {
+          const { data, error } = await supabase
+            .from('platform_settings')
+            .select('value')
+            .eq('category', 'courier_api')
+            .eq('key', `${courier.id}_credentials`)
+            .maybeSingle();
+          
+          if (data?.value && typeof data.value === 'object') {
+            const creds = data.value as Record<string, string>;
+            // Mask passwords for display
+            const displayCreds: Record<string, string> = {};
+            courier.fields.forEach(field => {
+              if (creds[field.key]) {
+                displayCreds[field.key] = field.type === 'password' ? '••••••••' : creds[field.key];
+              }
+            });
+            setCredentials(prev => ({ ...prev, [courier.id]: displayCreds }));
+            setEnabledCouriers(prev => ({ ...prev, [courier.id]: String(creds.enabled) === 'true' }));
+          }
         }
+      } catch (err) {
+        console.error('Error loading credentials:', err);
       }
+      setLoading(false);
     };
     
     loadCredentials();
@@ -168,18 +182,48 @@ export const CourierAPISettings: React.FC = () => {
     setSaving(true);
 
     try {
-      const creds = {
-        ...credentials[courierId],
-        enabled: enabledCouriers[courierId],
+      // Only include non-masked values
+      const courierCreds = credentials[courierId] || {};
+      const cleanCreds: Record<string, any> = {
+        enabled: enabledCouriers[courierId] ? 'true' : 'false',
       };
+      
+      const courierConfig = COURIER_CONFIGS.find(c => c.id === courierId);
+      courierConfig?.fields.forEach(field => {
+        const value = courierCreds[field.key];
+        // Only include if it's not the masked placeholder
+        if (value && value !== '••••••••') {
+          cleanCreds[field.key] = value;
+        }
+      });
 
-      const { error } = await supabase
+      // Check if setting exists first
+      const { data: existing } = await supabase
         .from('platform_settings')
-        .upsert({
-          category: 'courier_api',
-          key: `${courierId}_credentials`,
-          value: creds,
-        }, { onConflict: 'key' });
+        .select('id')
+        .eq('category', 'courier_api')
+        .eq('key', `${courierId}_credentials`)
+        .maybeSingle();
+
+      let error;
+      if (existing) {
+        // Update existing
+        const result = await supabase
+          .from('platform_settings')
+          .update({ value: cleanCreds, updated_at: new Date().toISOString() })
+          .eq('id', existing.id);
+        error = result.error;
+      } else {
+        // Insert new
+        const result = await supabase
+          .from('platform_settings')
+          .insert({
+            category: 'courier_api',
+            key: `${courierId}_credentials`,
+            value: cleanCreds,
+          });
+        error = result.error;
+      }
 
       if (error) throw error;
 
@@ -187,16 +231,33 @@ export const CourierAPISettings: React.FC = () => {
         title: 'Salvat!',
         description: 'Credențialele au fost salvate cu succes',
       });
-    } catch (e) {
+    } catch (e: any) {
+      console.error('Save error:', e);
       toast({
         title: 'Eroare',
-        description: 'Nu s-au putut salva credențialele',
+        description: e.message || 'Nu s-au putut salva credențialele',
         variant: 'destructive',
       });
     }
 
     setSaving(false);
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Truck className="h-5 w-5" />
+            Integrare API Curieri România
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
