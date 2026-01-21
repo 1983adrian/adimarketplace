@@ -14,18 +14,23 @@ const useIsSpecialUser = (userId: string) => {
   return useQuery({
     queryKey: ['special-user-badge', userId],
     queryFn: async () => {
-      // Check user roles (admin/moderator)
-      const { data: roleData } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .single();
+      // Use the RPC function to check user status (bypasses RLS)
+      const { data: statusData, error: statusError } = await supabase
+        .rpc('get_user_special_status', { check_user_id: userId });
 
-      if (roleData?.role === 'admin') {
-        return { isSpecial: true, type: 'Admin' };
+      if (statusError) {
+        console.error('Error fetching user status:', statusError);
+        return { isSpecial: false, type: null };
       }
-      if (roleData?.role === 'moderator') {
-        return { isSpecial: true, type: 'Moderator' };
+
+      // Type assertion for the response
+      const status = statusData as { is_admin: boolean; is_moderator: boolean; is_verified: boolean } | null;
+
+      if (status?.is_admin) {
+        return { isSpecial: true, type: 'Admin ✓' };
+      }
+      if (status?.is_moderator) {
+        return { isSpecial: true, type: 'Moderator ✓' };
       }
 
       // Check if in top 10 sellers
@@ -47,8 +52,13 @@ const useIsSpecialUser = (userId: string) => {
 
         if (sortedSellers.includes(userId)) {
           const rank = sortedSellers.indexOf(userId) + 1;
-          return { isSpecial: true, type: `Top ${rank} Vânzător` };
+          return { isSpecial: true, type: `Top ${rank} Vânzător ⭐` };
         }
+      }
+
+      // Check if user is verified seller
+      if (status?.is_verified) {
+        return { isSpecial: true, type: 'Vânzător Verificat' };
       }
 
       return { isSpecial: false, type: null };
@@ -74,9 +84,11 @@ export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   };
 
   const badge = (
-    <BadgeCheck 
-      className={`${sizeClasses[size]} text-blue-500 fill-blue-500 shrink-0`} 
-    />
+    <div className="bg-white rounded-full p-0.5 shadow-md">
+      <BadgeCheck 
+        className={`${sizeClasses[size]} text-blue-500 fill-blue-500 shrink-0`} 
+      />
+    </div>
   );
 
   if (!showTooltip) return badge;
