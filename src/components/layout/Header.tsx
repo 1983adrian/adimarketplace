@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag } from 'lucide-react';
-import logo from '@/assets/marketplace-hero.jpeg';
+import logo from '@/assets/cmarket-hero.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -53,7 +53,12 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16 gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center shrink-0">
-            <img src={logo} alt="AdiMarket" className="h-10 md:h-11 w-auto rounded-lg" />
+            <img 
+              src={logo} 
+              alt="CMarket" 
+              className="h-9 md:h-10 w-auto object-contain"
+              style={{ mixBlendMode: 'multiply' }}
+            />
           </Link>
 
           {/* Desktop Search Bar */}
@@ -198,7 +203,7 @@ export const Header: React.FC = () => {
               <SheetContent side="right" className="w-80 p-0">
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b border-border">
-                    <img src={logo} alt="AdiMarket" className="h-10 rounded-lg" />
+                    <img src={logo} alt="CMarket" className="h-9 object-contain" style={{ mixBlendMode: 'multiply' }} />
                   </div>
                   
                   <div className="p-4">
