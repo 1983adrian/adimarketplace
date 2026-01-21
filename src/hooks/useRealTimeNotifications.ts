@@ -201,10 +201,14 @@ export const useRealTimeOrders = () => {
           if (order.buyer_id === user.id || order.seller_id === user.id) {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
             
+            // 🎉 New order notification for seller with sound
             if (payload.eventType === 'INSERT' && order.seller_id === user.id) {
+              // Play coin sound for new order too!
+              playCoinSound();
+              
               toast({
-                title: '🎉 Comandă nouă!',
-                description: `Ai primit o comandă de £${order.amount?.toFixed(2) || '0.00'}. Verifică Orders pentru detalii.`,
+                title: '🎉 Comandă nouă primită!',
+                description: `Ai vândut un produs pentru £${order.amount?.toFixed(2) || '0.00'}. Adaugă tracking-ul în secțiunea Comenzi!`,
               });
             }
             

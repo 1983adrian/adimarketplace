@@ -18,23 +18,25 @@ import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import { ReturnRequestDialog } from '@/components/dashboard/ReturnRequestDialog';
 
 const CARRIERS = [
+  { value: 'fan_courier', label: 'FAN Courier' },
+  { value: 'sameday', label: 'Sameday' },
+  { value: 'cargus', label: 'Cargus' },
+  { value: 'dpd', label: 'DPD' },
+  { value: 'gls', label: 'GLS' },
   { value: 'royal_mail', label: 'Royal Mail' },
   { value: 'dhl', label: 'DHL' },
   { value: 'ups', label: 'UPS' },
   { value: 'fedex', label: 'FedEx' },
-  { value: 'hermes', label: 'Evri (Hermes)' },
-  { value: 'dpd', label: 'DPD' },
-  { value: 'yodel', label: 'Yodel' },
-  { value: 'other', label: 'Other' },
+  { value: 'other', label: 'Altul' },
 ];
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-4 w-4" /> },
-  paid: { label: 'Paid', color: 'bg-blue-100 text-blue-800', icon: <CheckCircle className="h-4 w-4" /> },
-  shipped: { label: 'Shipped', color: 'bg-purple-100 text-purple-800', icon: <Truck className="h-4 w-4" /> },
-  delivered: { label: 'Delivered', color: 'bg-green-100 text-green-800', icon: <CheckCircle className="h-4 w-4" /> },
-  cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-800', icon: <AlertCircle className="h-4 w-4" /> },
-  refunded: { label: 'Refunded', color: 'bg-gray-100 text-gray-800', icon: <AlertCircle className="h-4 w-4" /> },
+  pending: { label: 'În Așteptare', color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-4 w-4" /> },
+  paid: { label: 'Plătit', color: 'bg-blue-100 text-blue-800', icon: <CheckCircle className="h-4 w-4" /> },
+  shipped: { label: 'Expediat', color: 'bg-purple-100 text-purple-800', icon: <Truck className="h-4 w-4" /> },
+  delivered: { label: 'Livrat', color: 'bg-green-100 text-green-800', icon: <CheckCircle className="h-4 w-4" /> },
+  cancelled: { label: 'Anulat', color: 'bg-red-100 text-red-800', icon: <AlertCircle className="h-4 w-4" /> },
+  refunded: { label: 'Rambursat', color: 'bg-gray-100 text-gray-800', icon: <AlertCircle className="h-4 w-4" /> },
 };
 
 const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }) => {
@@ -99,28 +101,28 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
               <p className="font-semibold">{formatPrice(Number(order.amount))}</p>
               
               <div className="flex gap-2">
-                {/* Seller: Add tracking when order is paid */}
-                {type === 'selling' && order.status === 'paid' && (
+                {/* Seller: Add tracking when order is pending or paid */}
+                {type === 'selling' && (order.status === 'pending' || order.status === 'paid') && !order.tracking_number && (
                   <Dialog open={trackingOpen} onOpenChange={setTrackingOpen}>
                     <DialogTrigger asChild>
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
                         <Truck className="h-4 w-4 mr-1" />
-                        Add Tracking
+                        Adaugă Tracking
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Add Tracking Information</DialogTitle>
+                        <DialogTitle>Adaugă Informații de Livrare</DialogTitle>
                         <DialogDescription>
-                          Enter the tracking number and carrier for this order.
+                          Introdu numărul de urmărire și curierul pentru această comandă.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                          <Label htmlFor="carrier">Carrier</Label>
+                          <Label htmlFor="carrier">Curier</Label>
                           <Select value={carrier} onValueChange={setCarrier}>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select carrier" />
+                              <SelectValue placeholder="Selectează curierul" />
                             </SelectTrigger>
                             <SelectContent>
                               {CARRIERS.map((c) => (
@@ -132,10 +134,10 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="tracking">Tracking Number</Label>
+                          <Label htmlFor="tracking">Număr de Urmărire (AWB)</Label>
                           <Input
                             id="tracking"
-                            placeholder="Enter tracking number"
+                            placeholder="Introdu numărul de urmărire"
                             value={trackingNumber}
                             onChange={(e) => setTrackingNumber(e.target.value)}
                           />
@@ -143,13 +145,13 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                       </div>
                       <DialogFooter>
                         <Button variant="outline" onClick={() => setTrackingOpen(false)}>
-                          Cancel
+                          Anulează
                         </Button>
                         <Button 
                           onClick={handleAddTracking}
                           disabled={!trackingNumber || !carrier || updateTracking.isPending}
                         >
-                          {updateTracking.isPending ? 'Saving...' : 'Mark as Shipped'}
+                          {updateTracking.isPending ? 'Se salvează...' : 'Marchează ca Expediat'}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -162,33 +164,33 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                     <DialogTrigger asChild>
                       <Button size="sm">
                         <CheckCircle className="h-4 w-4 mr-1" />
-                        Confirm Receipt
+                        Confirmă Primirea
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>Confirm Delivery</DialogTitle>
+                        <DialogTitle>Confirmă Livrarea</DialogTitle>
                         <DialogDescription>
-                          By confirming, you acknowledge that you have received the item.
-                          The seller will be paid after platform fees are deducted.
+                          Prin confirmare, recunoști că ai primit produsul.
+                          Vânzătorul va fi plătit după deducerea comisioanelor.
                         </DialogDescription>
                       </DialogHeader>
                       <div className="py-4">
                         <div className="bg-muted p-4 rounded-lg space-y-2">
-                          <p className="text-sm"><strong>Item:</strong> {order.listings?.title}</p>
-                          <p className="text-sm"><strong>Carrier:</strong> {CARRIERS.find(c => c.value === order.carrier)?.label || order.carrier}</p>
-                          <p className="text-sm"><strong>Tracking:</strong> {order.tracking_number}</p>
+                          <p className="text-sm"><strong>Produs:</strong> {order.listings?.title}</p>
+                          <p className="text-sm"><strong>Curier:</strong> {CARRIERS.find(c => c.value === order.carrier)?.label || order.carrier}</p>
+                          <p className="text-sm"><strong>AWB:</strong> {order.tracking_number}</p>
                         </div>
                       </div>
                       <DialogFooter>
                         <Button variant="outline" onClick={() => setConfirmOpen(false)}>
-                          Cancel
+                          Anulează
                         </Button>
                         <Button 
                           onClick={handleConfirmDelivery}
                           disabled={confirmDelivery.isPending}
                         >
-                          {confirmDelivery.isPending ? 'Processing...' : 'Confirm Receipt'}
+                          {confirmDelivery.isPending ? 'Se procesează...' : 'Confirmă Primirea'}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
@@ -204,7 +206,7 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                       rel="noopener noreferrer"
                     >
                       <ExternalLink className="h-4 w-4 mr-1" />
-                      Track
+                      Urmărește
                     </a>
                   </Button>
                 )}
@@ -214,9 +216,9 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
             {/* Payout info for seller */}
             {type === 'selling' && order.status === 'delivered' && order.payout_amount && (
               <div className="mt-2 p-2 bg-green-50 rounded text-sm text-green-800">
-                <p>Payout: £{Number(order.payout_amount).toFixed(2)}</p>
+                <p>💰 Încasat: £{Number(order.payout_amount).toFixed(2)}</p>
                 <p className="text-xs text-green-600">
-                  Commission deducted: £{Number(order.seller_commission || 0).toFixed(2)}
+                  Comision dedus: £{Number(order.seller_commission || 0).toFixed(2)}
                 </p>
               </div>
             )}
@@ -289,24 +291,24 @@ const Orders = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <h1 className="text-3xl font-bold mb-8">My Orders</h1>
+        <h1 className="text-3xl font-bold mb-8">Comenzile Mele</h1>
 
         <Tabs defaultValue="buying">
           <TabsList className="mb-6">
-            <TabsTrigger value="buying">Purchases</TabsTrigger>
-            <TabsTrigger value="selling">Sales</TabsTrigger>
+            <TabsTrigger value="buying">Cumpărături</TabsTrigger>
+            <TabsTrigger value="selling">Vânzări</TabsTrigger>
           </TabsList>
 
           <TabsContent value="buying">
             {buyingLoading ? (
-              <p className="text-center text-muted-foreground py-8">Loading...</p>
+              <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
             ) : buyingOrders?.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="font-semibold mb-2">No purchases yet</h3>
-                  <p className="text-muted-foreground mb-4">Start browsing to find great deals</p>
-                  <Button onClick={() => navigate('/browse')}>Browse Items</Button>
+                  <h3 className="font-semibold mb-2">Nu ai cumpărături încă</h3>
+                  <p className="text-muted-foreground mb-4">Începe să cauți produse grozave</p>
+                  <Button onClick={() => navigate('/browse')}>Caută Produse</Button>
                 </CardContent>
               </Card>
             ) : (
@@ -320,14 +322,14 @@ const Orders = () => {
 
           <TabsContent value="selling">
             {sellingLoading ? (
-              <p className="text-center text-muted-foreground py-8">Loading...</p>
+              <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
             ) : sellingOrders?.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="font-semibold mb-2">No sales yet</h3>
-                  <p className="text-muted-foreground mb-4">Create listings to start selling</p>
-                  <Button onClick={() => navigate('/sell')}>Create Listing</Button>
+                  <h3 className="font-semibold mb-2">Nu ai vânzări încă</h3>
+                  <p className="text-muted-foreground mb-4">Creează anunțuri pentru a începe să vinzi</p>
+                  <Button onClick={() => navigate('/sell')}>Creează Anunț</Button>
                 </CardContent>
               </Card>
             ) : (
