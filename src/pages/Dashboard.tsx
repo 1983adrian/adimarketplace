@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Package, Heart, MessageCircle, Settings, Plus, Eye, DollarSign, CreditCard, Crown, TrendingUp, ShoppingCart, Pencil, BookOpen, Gavel, Clock, Users } from 'lucide-react';
+import { Package, Heart, Eye, DollarSign, CreditCard, Crown, TrendingUp, Pencil, Gavel, Clock, Plus, Settings, MessageCircle, BookOpen, Users } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
+import { SellerQuickActions } from '@/components/dashboard/SellerQuickActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -309,49 +310,8 @@ const Dashboard = () => {
           </Card>
         )}
 
-        {/* Quick Links - Horizontal Scrollable like Admin */}
-        <div className="mb-8">
-          <div className="overflow-x-auto pb-2 -mx-4 px-4">
-            <div className="flex gap-3 min-w-max flex-row-reverse">
-              <Link to="/settings">
-                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
-                  <Settings className="h-6 w-6 mb-2 text-muted-foreground" />
-                  <span className="text-xs text-center">{t('header.settings')}</span>
-                </div>
-              </Link>
-              <Link to="/seller-analytics">
-                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
-                  <TrendingUp className="h-6 w-6 mb-2 text-muted-foreground" />
-                  <span className="text-xs text-center">Analytics</span>
-                </div>
-              </Link>
-              <Link to="/orders">
-                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
-                  <Package className="h-6 w-6 mb-2 text-muted-foreground" />
-                  <span className="text-xs text-center">Comenzi</span>
-                </div>
-              </Link>
-              <Link to="/messages">
-                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
-                  <MessageCircle className="h-6 w-6 mb-2 text-muted-foreground" />
-                  <span className="text-xs text-center">{t('header.messages')}</span>
-                </div>
-              </Link>
-              <Link to="/favorites">
-                <div className="flex flex-col items-center p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors min-w-[80px]">
-                  <Heart className="h-6 w-6 mb-2 text-muted-foreground" />
-                  <span className="text-xs text-center">{t('dashboard.myFavorites')}</span>
-                </div>
-              </Link>
-              <Link to="/seller-guide">
-                <div className="flex flex-col items-center p-4 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors min-w-[80px] border border-primary/30">
-                  <BookOpen className="h-6 w-6 mb-2 text-primary" />
-                  <span className="text-xs text-center text-primary font-medium">Ghid</span>
-                </div>
-              </Link>
-            </div>
-          </div>
-        </div>
+        {/* Ultra Pro Quick Actions - Categorized */}
+        <SellerQuickActions />
 
         {/* My Auctions Section - for sellers */}
         {isSubscribed && auctionListings && auctionListings.length > 0 && (
