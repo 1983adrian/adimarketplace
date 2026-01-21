@@ -2,7 +2,7 @@ import React from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { InstallBanner } from './InstallBanner';
-import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids } from '@/hooks/useRealTimeNotifications';
+import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids, useGlobalMessageNotifications } from '@/hooks/useRealTimeNotifications';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 interface LayoutProps {
@@ -15,6 +15,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideFooter = false }) 
   useRealTimeNotifications();
   useRealTimeOrders();
   useRealTimeBids();
+  useGlobalMessageNotifications(); // Global message notifications
   
   // Initialize native push notifications (only active on iOS/Android)
   usePushNotifications();

@@ -32,11 +32,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   const markRead = useMarkMessagesRead();
   
   // Enable real-time updates for this conversation
-  useRealTimeMessages(conversation?.id);
+  useRealTimeMessages(conversation?.id !== 'admin-new' ? conversation?.id : undefined);
 
-  const otherUser = conversation?.buyer_id === currentUserId
-    ? conversation?.seller
-    : conversation?.buyer;
+  // Handle admin chat or regular chat
+  const isAdminChat = conversation?.isNewAdminChat;
+  
+  const otherUser = isAdminChat 
+    ? conversation?.seller 
+    : conversation?.buyer_id === currentUserId
+      ? conversation?.seller
+      : conversation?.buyer;
 
   const getInitials = (name?: string | null) => {
     if (!name) return '?';
