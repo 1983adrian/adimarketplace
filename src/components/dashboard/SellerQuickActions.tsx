@@ -7,6 +7,7 @@ import {
   Wallet,
   MessageCircle,
   Settings,
+  GraduationCap,
   LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,8 +21,16 @@ interface QuickAction {
   gradient: string;
 }
 
-// Only 6 essential actions - Amazon/eBay style
+// Only 7 essential actions - Amazon/eBay style
 const essentialActions: QuickAction[] = [
+  { 
+    id: 'tutorial', 
+    label: 'Tutorial Vânzător', 
+    description: 'Învață să vinzi',
+    icon: GraduationCap, 
+    href: '/seller-tutorial', 
+    gradient: 'from-pink-500 to-rose-500' 
+  },
   { 
     id: 'add-product', 
     label: 'Adaugă Produs', 
