@@ -23,7 +23,9 @@ import {
   Gavel,
   UserCheck,
   RotateCcw,
-  Megaphone
+  Megaphone,
+  CreditCard,
+  Wallet
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -57,7 +59,7 @@ const menuItems = [
 ];
 
 const financeItems = [
-  { title: 'Stripe Plăți', url: '/admin/stripe', icon: DollarSign },
+  { title: 'Procesatori Plăți', url: '/admin/payments', icon: CreditCard },
   { title: 'Fees & Pricing', url: '/admin/fees', icon: DollarSign },
   { title: 'API Settings', url: '/admin/api-settings', icon: Key },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
