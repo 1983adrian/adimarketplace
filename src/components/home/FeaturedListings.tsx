@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
 
 // Sub-component for favorite button with its own hooks
 const FavoriteButton: React.FC<{ listingId: string; userId?: string }> = ({ listingId, userId }) => {
@@ -223,6 +224,10 @@ export const FeaturedListings: React.FC = () => {
                     <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">
                       {conditionLabels[listing.condition]}
                     </Badge>
+                    {/* Verified Badge for special sellers */}
+                    <div className="absolute top-2 left-2">
+                      <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={true} />
+                    </div>
                   </div>
                   <CardContent className="p-3 flex-1 flex flex-col">
                     <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors">
