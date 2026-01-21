@@ -19,6 +19,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { SearchDialog } from './SearchDialog';
 import { NotificationBell } from './NotificationBell';
 import { CartDropdown } from './CartDropdown';
+import { AppDownloadButton } from './AppDownloadButton';
 import { useRealTimeNotifications, useRealTimeOrders } from '@/hooks/useRealTimeNotifications';
 import { useIsAdmin } from '@/hooks/useAdmin';
 
@@ -57,15 +58,20 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
         <div className="flex items-center justify-between h-16 gap-4">
-          {/* Logo */}
-          <Link to="/" className="flex items-center shrink-0">
-            <img 
-              src={logo} 
-              alt="CMarket" 
-              className="h-9 md:h-10 w-auto object-contain"
-              style={{ mixBlendMode: 'multiply' }}
-            />
-          </Link>
+          {/* Logo + Download Button */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Link to="/" className="flex items-center">
+              <img 
+                src={logo} 
+                alt="CMarket" 
+                className="h-9 md:h-10 w-auto object-contain"
+                style={{ mixBlendMode: 'multiply' }}
+              />
+            </Link>
+            <div className="hidden sm:block">
+              <AppDownloadButton />
+            </div>
+          </div>
 
           {/* Desktop Search Bar */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-4">
@@ -228,8 +234,9 @@ export const Header: React.FC = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-80 p-0">
                 <div className="flex flex-col h-full">
-                  <div className="p-4 border-b border-border">
+                  <div className="p-4 border-b border-border flex items-center justify-between">
                     <img src={logo} alt="CMarket" className="h-9 object-contain" style={{ mixBlendMode: 'multiply' }} />
+                    <AppDownloadButton />
                   </div>
                   
                   <div className="p-4">
