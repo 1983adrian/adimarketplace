@@ -51,9 +51,9 @@ interface PlatformSettings {
 
 const defaultSettings: PlatformSettings = {
   general: {
-    siteName: 'AdiMarket',
+    siteName: 'CMarket',
     siteDescription: 'Your trusted online marketplace - Buy & Sell Smart',
-    supportEmail: 'support@adimarket.com',
+    supportEmail: 'support@cmarket.com',
     logoUrl: '',
     faviconUrl: '',
   },
