@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag } from 'lucide-react';
+import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck } from 'lucide-react';
 import logo from '@/assets/cmarket-hero.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -344,13 +344,66 @@ export const Header: React.FC = () => {
                         </div>
                       </>
                     ) : (
-                      <div className="space-y-3">
-                        <Button asChild className="w-full gradient-primary" onClick={() => setMobileMenuOpen(false)}>
-                          <Link to="/signup">{t('header.signup')}</Link>
+                      <div className="space-y-4 py-4">
+                        {/* Welcome Message */}
+                        <div className="text-center space-y-2 pb-4 border-b border-border/50">
+                          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+                            <Sparkles className="h-4 w-4" />
+                            Bine ai venit!
+                          </div>
+                          <p className="text-muted-foreground text-sm">
+                            Alătură-te comunității C.Market
+                          </p>
+                        </div>
+                        
+                        {/* Premium Sign Up Button */}
+                        <Button 
+                          asChild 
+                          className="w-full h-14 bg-gradient-to-r from-[#4A90D9] via-[#5BA3EC] to-[#8B5CF6] hover:from-[#3A80C9] hover:via-[#4B93DC] hover:to-[#7C4CE6] text-white font-semibold rounded-xl shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300 transform hover:scale-[1.02] group" 
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Link to="/signup" className="flex items-center justify-center gap-2">
+                            <UserPlus className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                            <span className="text-lg">{t('header.signup')}</span>
+                          </Link>
                         </Button>
-                        <Button variant="outline" className="w-full" asChild onClick={() => setMobileMenuOpen(false)}>
-                          <Link to="/login">{t('header.login')}</Link>
+                        
+                        {/* Divider */}
+                        <div className="relative">
+                          <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-border/50" />
+                          </div>
+                          <div className="relative flex justify-center text-xs uppercase">
+                            <span className="bg-background px-3 text-muted-foreground">sau</span>
+                          </div>
+                        </div>
+                        
+                        {/* Premium Login Button */}
+                        <Button 
+                          variant="outline" 
+                          className="w-full h-14 border-2 border-primary/30 hover:border-primary/60 bg-gradient-to-r from-primary/5 to-accent/5 hover:from-primary/10 hover:to-accent/10 rounded-xl transition-all duration-300 group" 
+                          asChild 
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Link to="/login" className="flex items-center justify-center gap-2">
+                            <div className="p-1.5 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                              <LogIn className="h-4 w-4 text-primary" />
+                            </div>
+                            <span className="text-lg font-medium text-foreground">{t('header.login')}</span>
+                          </Link>
                         </Button>
+                        
+                        {/* Trust badges */}
+                        <div className="flex items-center justify-center gap-4 pt-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Shield className="h-3.5 w-3.5 text-green-500" />
+                            <span>Securizat</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <BadgeCheck className="h-3.5 w-3.5 text-blue-500" />
+                            <span>Verificat</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
