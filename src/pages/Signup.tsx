@@ -49,6 +49,7 @@ const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [success, setSuccess] = useState(false);
   const { toast } = useToast();
 
@@ -112,6 +113,11 @@ const Signup = () => {
       toast({ title: 'Eroare', description: message, variant: 'destructive' });
       setLoading(false);
       return;
+    }
+    
+    // Save email for "remember me" functionality
+    if (rememberMe) {
+      localStorage.setItem('cmarket_remembered_email', formData.email.trim());
     }
     
     setSuccess(true);
@@ -377,6 +383,21 @@ const Signup = () => {
                     <CheckCircle className="h-3 w-3" /> Parolele coincid
                   </p>
                 )}
+              </div>
+
+              {/* Remember me checkbox */}
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                />
+                <label
+                  htmlFor="rememberMe"
+                  className="text-sm text-muted-foreground cursor-pointer select-none"
+                >
+                  Ține-mă minte
+                </label>
               </div>
 
               {/* Terms and conditions */}
