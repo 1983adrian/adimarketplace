@@ -21,8 +21,9 @@ import { useListing } from '@/hooks/useListings';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { PaymentMethodSelector, PaymentMethod } from '@/components/checkout/PaymentMethodSelector';
-import { RomanianCouriers, ROMANIAN_COURIERS } from '@/components/checkout/RomanianCouriers';
+import { RomanianCouriers, ROMANIAN_COURIERS, DeliveryType } from '@/components/checkout/RomanianCouriers';
 import { CODSummary } from '@/components/checkout/CODSummary';
+import { LockerSelector, LockerLocation } from '@/components/checkout/LockerSelector';
 
 // Validation schemas
 const shippingSchema = z.object({
@@ -57,6 +58,8 @@ const Checkout = () => {
   // Payment method state
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
   const [selectedCourier, setSelectedCourier] = useState('fan_courier');
+  const [deliveryType, setDeliveryType] = useState<DeliveryType>('home');
+  const [selectedLocker, setSelectedLocker] = useState<LockerLocation | null>(null);
 
   // Shipping form state
   const [shipping, setShipping] = useState({
@@ -516,9 +519,21 @@ const Checkout = () => {
                           onCourierChange={setSelectedCourier}
                           productPrice={subtotal}
                           isCOD={true}
+                          deliveryType={deliveryType}
+                          onDeliveryTypeChange={setDeliveryType}
                         />
                       </CardContent>
                     </Card>
+                  )}
+
+                  {/* Locker Selection */}
+                  {paymentMethod === 'cod' && isRomanianSeller && deliveryType === 'locker' && (
+                    <LockerSelector
+                      selectedCourier={selectedCourier}
+                      selectedLocker={selectedLocker}
+                      onLockerSelect={setSelectedLocker}
+                      isCOD={true}
+                    />
                   )}
 
                   {/* Standard Shipping for Card Payment */}
