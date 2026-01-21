@@ -2,12 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageBubble } from './MessageBubble';
+import { EmojiPicker } from './EmojiPicker';
+import { ImageUploadButton } from './ImageUploadButton';
 import { useMessages, useSendMessage, useMarkMessagesRead } from '@/hooks/useConversations';
 import { useRealTimeMessages } from '@/hooks/useRealTimeNotifications';
-import { Send, ArrowLeft, ImageIcon } from 'lucide-react';
+import { Send, ArrowLeft, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Profile } from '@/types/database';
 
@@ -18,6 +19,15 @@ interface ChatWindowProps {
   isMobile?: boolean;
 }
 
+// WhatsApp-like chat background pattern
+const CHAT_BACKGROUND = `
+  radial-gradient(circle at 25% 25%, rgba(37, 211, 102, 0.03) 0%, transparent 50%),
+  radial-gradient(circle at 75% 75%, rgba(37, 211, 102, 0.03) 0%, transparent 50%),
+  linear-gradient(to bottom, #E5DDD5 0%, #D1C7BC 100%)
+`;
+
+const CHAT_PATTERN = `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`;
+
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   conversation,
   currentUserId,
@@ -25,9 +35,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   isMobile,
 }) => {
   const [newMessage, setNewMessage] = useState('');
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   
-  const { data: messages, isLoading } = useMessages(conversation?.id);
+  const { data: messages, isLoading } = useMessages(conversation?.id !== 'admin-new' ? conversation?.id : undefined);
   const sendMessage = useSendMessage();
   const markRead = useMarkMessagesRead();
   
@@ -49,20 +60,20 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   };
 
   useEffect(() => {
-    if (conversation?.id && currentUserId) {
+    if (conversation?.id && conversation?.id !== 'admin-new' && currentUserId) {
       markRead.mutate({ conversationId: conversation.id, userId: currentUserId });
     }
   }, [conversation?.id, currentUserId, messages]);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
   }, [messages]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !conversation?.id) return;
+    if (!newMessage.trim() || !conversation?.id || conversation?.id === 'admin-new') return;
 
     await sendMessage.mutateAsync({
       conversationId: conversation.id,
@@ -70,6 +81,22 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
       content: newMessage.trim(),
     });
     setNewMessage('');
+    inputRef.current?.focus();
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    setNewMessage(prev => prev + emoji);
+    inputRef.current?.focus();
+  };
+
+  const handleImageUploaded = async (imageUrl: string) => {
+    if (!conversation?.id || conversation?.id === 'admin-new') return;
+    
+    await sendMessage.mutateAsync({
+      conversationId: conversation.id,
+      senderId: currentUserId,
+      content: imageUrl,
+    });
   };
 
   const getSenderProfile = (senderId: string): Profile | undefined => {
@@ -80,10 +107,19 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   if (!conversation) {
     return (
-      <div className="flex items-center justify-center h-full text-muted-foreground">
-        <div className="text-center">
-          <p className="text-lg font-medium">Selectează o conversație</p>
-          <p className="text-sm">Alege o conversație din lista din stânga</p>
+      <div 
+        className="flex items-center justify-center h-full text-muted-foreground"
+        style={{ 
+          background: CHAT_BACKGROUND,
+          backgroundImage: CHAT_PATTERN,
+        }}
+      >
+        <div className="text-center bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Send className="h-8 w-8 text-primary" />
+          </div>
+          <p className="text-lg font-medium text-gray-800">Selectează o conversație</p>
+          <p className="text-sm text-gray-500 mt-1">Alege o conversație din lista din stânga</p>
         </div>
       </div>
     );
@@ -91,31 +127,43 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b bg-background">
+      {/* Header - WhatsApp style */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#075E54] to-[#128C7E] text-white shadow-md">
         {isMobile && onBack && (
-          <Button variant="ghost" size="icon" onClick={onBack} className="md:hidden">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onBack} 
+            className="md:hidden text-white hover:bg-white/10"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
         
-        <Avatar className="h-10 w-10">
+        <Avatar className="h-10 w-10 border-2 border-white/20">
           <AvatarImage src={otherUser?.avatar_url || ''} />
-          <AvatarFallback className="bg-primary/10 text-primary">
-            {getInitials(otherUser?.display_name || otherUser?.username)}
+          <AvatarFallback className="bg-white/20 text-white">
+            {isAdminChat || otherUser?.isAdmin ? (
+              <Shield className="h-5 w-5" />
+            ) : (
+              getInitials(otherUser?.display_name || otherUser?.username)
+            )}
           </AvatarFallback>
         </Avatar>
         
         <div className="flex-1 min-w-0">
-          <p className="font-medium truncate">
+          <p className="font-semibold truncate">
             {otherUser?.display_name || otherUser?.username || 'Utilizator'}
+            {(isAdminChat || otherUser?.isAdmin) && (
+              <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">Admin</span>
+            )}
           </p>
           {conversation.listings && (
             <Link 
               to={`/listing/${conversation.listing_id}`}
-              className="text-sm text-muted-foreground hover:text-primary truncate block"
+              className="text-xs text-white/70 hover:text-white truncate block"
             >
-              {conversation.listings.title}
+              📦 {conversation.listings.title}
             </Link>
           )}
         </div>
@@ -125,14 +173,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             <img 
               src={conversation.listings.listing_images[0].image_url} 
               alt={conversation.listings.title}
-              className="h-12 w-12 rounded-lg object-cover border"
+              className="h-10 w-10 rounded-lg object-cover border-2 border-white/20"
             />
           </Link>
         )}
       </div>
 
-      {/* Messages */}
-      <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+      {/* Messages area with WhatsApp background */}
+      <div 
+        ref={scrollAreaRef}
+        className="flex-1 overflow-y-auto p-4"
+        style={{ 
+          background: CHAT_BACKGROUND,
+          backgroundImage: CHAT_PATTERN,
+        }}
+      >
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
@@ -143,7 +198,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             ))}
           </div>
         ) : messages && messages.length > 0 ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {messages.map((message) => (
               <MessageBubble
                 key={message.id}
@@ -154,31 +209,50 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            <p className="text-center">Niciun mesaj încă. Trimite primul mesaj!</p>
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-md">
+              <p className="text-gray-600">👋 Niciun mesaj încă</p>
+              <p className="text-sm text-gray-400 mt-1">Trimite primul mesaj!</p>
+            </div>
           </div>
         )}
-      </ScrollArea>
+      </div>
 
-      {/* Input */}
-      <form onSubmit={handleSend} className="p-4 border-t bg-background">
-        <div className="flex gap-2">
+      {/* Input area - WhatsApp style */}
+      <form onSubmit={handleSend} className="p-2 bg-[#F0F0F0] border-t">
+        <div className="flex items-center gap-1">
+          <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+          <ImageUploadButton 
+            onImageUploaded={handleImageUploaded}
+            disabled={sendMessage.isPending || !conversation?.id || conversation?.id === 'admin-new'}
+          />
+          
           <Input
+            ref={inputRef}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Scrie un mesaj..."
-            className="flex-1"
-            disabled={sendMessage.isPending}
+            className="flex-1 rounded-full border-0 bg-white shadow-sm focus-visible:ring-1 focus-visible:ring-primary/30"
+            disabled={sendMessage.isPending || conversation?.id === 'admin-new'}
           />
+          
           <Button 
             type="submit" 
             size="icon"
-            disabled={!newMessage.trim() || sendMessage.isPending}
+            disabled={!newMessage.trim() || sendMessage.isPending || conversation?.id === 'admin-new'}
+            className="rounded-full bg-[#00A884] hover:bg-[#008C72] text-white shadow-md h-10 w-10"
           >
             <Send className="h-4 w-4" />
           </Button>
         </div>
+        {conversation?.id === 'admin-new' && (
+          <p className="text-xs text-center text-amber-600 mt-2">
+            Pentru a trimite mesaje adminului, contactează-l printr-un produs sau comandă specifică.
+          </p>
+        )}
       </form>
     </div>
   );
 };
+
+export default ChatWindow;

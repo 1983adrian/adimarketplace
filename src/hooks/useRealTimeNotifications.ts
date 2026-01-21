@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useCoinSound } from '@/hooks/useCoinSound';
+import { useMessageSound } from '@/hooks/useMessageSound';
 export interface Notification {
   id: string;
   user_id: string;
@@ -150,6 +151,7 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { playMessageSound } = useMessageSound();
 
   useEffect(() => {
     if (!conversationId) return;
@@ -169,6 +171,9 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
           
           // Show notification if message is from someone else
           if (message.sender_id !== user?.id) {
+            // Play message notification sound
+            playMessageSound();
+            
             toast({
               title: '💬 Mesaj Nou',
               description: message.content?.substring(0, 50) + (message.content?.length > 50 ? '...' : ''),
@@ -177,6 +182,7 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
           
           queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
           queryClient.invalidateQueries({ queryKey: ['conversations'] });
+          queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
         }
       )
       .subscribe();
@@ -184,7 +190,7 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [conversationId, queryClient, user, toast]);
+  }, [conversationId, queryClient, user, toast, playMessageSound]);
 };
 
 // Global hook for real-time messages notifications (for users not in chat)
@@ -192,6 +198,7 @@ export const useGlobalMessageNotifications = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { playMessageSound } = useMessageSound();
 
   useEffect(() => {
     if (!user) return;
@@ -221,6 +228,7 @@ export const useGlobalMessageNotifications = () => {
           if (conversation && (conversation.buyer_id === user.id || conversation.seller_id === user.id)) {
             queryClient.invalidateQueries({ queryKey: ['conversations'] });
             queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+            queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
             
             // Get sender info
             const { data: sender } = await supabase
@@ -228,10 +236,24 @@ export const useGlobalMessageNotifications = () => {
               .select('display_name, username')
               .eq('user_id', message.sender_id)
               .single();
+
+            // Play notification sound
+            playMessageSound();
+            
+            // Get unread count
+            const conversationIds = [message.conversation_id];
+            const { count } = await supabase
+              .from('messages')
+              .select('*', { count: 'exact', head: true })
+              .in('conversation_id', conversationIds)
+              .eq('is_read', false)
+              .neq('sender_id', user.id);
+
+            const unreadText = count && count > 1 ? `${count} mesaje noi` : '1 mesaj nou';
             
             toast({
               title: `💬 ${sender?.display_name || sender?.username || 'Utilizator'}`,
-              description: message.content?.substring(0, 60) + (message.content?.length > 60 ? '...' : ''),
+              description: `${unreadText}: ${message.content?.substring(0, 40) + (message.content?.length > 40 ? '...' : '')}`,
             });
           }
         }
@@ -241,7 +263,7 @@ export const useGlobalMessageNotifications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, toast]);
+  }, [user, queryClient, toast, playMessageSound]);
 };
 
 // Hook for real-time orders with coin sound for payouts
