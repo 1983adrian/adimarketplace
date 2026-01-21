@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  User, Store, Bell, Shield, CreditCard, MapPin, Save, 
-  Wallet, Package, Building2, EyeOff, AlertCircle, FileText
+  User, Store, Bell, Shield, MapPin, Save, 
+  Wallet, Package, Building2, EyeOff
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
-import { SellerVerification } from '@/components/settings/SellerVerification';
 import { PayoutSection } from '@/components/settings/PayoutSection';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -36,13 +35,28 @@ const Settings = () => {
   const [isSeller, setIsSeller] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Setări notificări
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [messageAlerts, setMessageAlerts] = useState(true);
-  const [priceAlerts, setPriceAlerts] = useState(false);
-  const [newListingAlerts, setNewListingAlerts] = useState(true);
-  const [trackingAlerts, setTrackingAlerts] = useState(true);
-  const [paymentAlerts, setPaymentAlerts] = useState(true);
+  // Setări notificări - real state saved to localStorage
+  const [emailNotifications, setEmailNotifications] = useState(() => {
+    const saved = localStorage.getItem('notification_email');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [messageAlerts, setMessageAlerts] = useState(() => {
+    const saved = localStorage.getItem('notification_messages');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [orderAlerts, setOrderAlerts] = useState(() => {
+    const saved = localStorage.getItem('notification_orders');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+  const [paymentAlerts, setPaymentAlerts] = useState(() => {
+    const saved = localStorage.getItem('notification_payments');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  // Save notification preferences to localStorage
+  const saveNotificationPrefs = (key: string, value: boolean) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -113,18 +127,10 @@ const Settings = () => {
           <h1 className="text-3xl font-bold mb-8">Setări</h1>
           
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
               <TabsTrigger value="profile" className="gap-2">
                 <User className="h-4 w-4" />
                 <span className="hidden lg:inline">Profil</span>
-              </TabsTrigger>
-              <TabsTrigger value="verification" className="gap-2">
-                <FileText className="h-4 w-4" />
-                <span className="hidden lg:inline">Verificare</span>
-              </TabsTrigger>
-              <TabsTrigger value="payments" className="gap-2">
-                <CreditCard className="h-4 w-4" />
-                <span className="hidden lg:inline">Plăți</span>
               </TabsTrigger>
               <TabsTrigger value="payouts" className="gap-2">
                 <Wallet className="h-4 w-4" />
@@ -143,11 +149,6 @@ const Settings = () => {
                 <span className="hidden lg:inline">Securitate</span>
               </TabsTrigger>
             </TabsList>
-
-            {/* Tab Verificare */}
-            <TabsContent value="verification">
-              <SellerVerification />
-            </TabsContent>
 
             {/* Tab Profil */}
             <TabsContent value="profile">
@@ -246,49 +247,6 @@ const Settings = () => {
               </Card>
             </TabsContent>
 
-            {/* Tab Plăți (Cumpărător) */}
-            <TabsContent value="payments">
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CreditCard className="h-5 w-5" />
-                      Metode de Plată
-                    </CardTitle>
-                    <CardDescription>
-                      Plățile sunt procesate securizat prin MangoPay. Cardurile se salvează automat la checkout.
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Alert>
-                      <CreditCard className="h-4 w-4" />
-                      <AlertDescription>
-                        La primul checkout, cardul tău va fi salvat securizat pentru plăți viitoare. 
-                        Toate datele sunt criptate și procesate prin MangoPay.
-                      </AlertDescription>
-                    </Alert>
-                    
-                    <div className="p-6 text-center border-2 border-dashed rounded-lg">
-                      <CreditCard className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-                      <p className="text-muted-foreground mb-2">
-                        Nu ai carduri salvate încă
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Cardul tău va fi salvat automat la prima ta comandă
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Adresa de facturare va fi solicitată în timpul checkout-ului și salvată pentru comenzi viitoare.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </TabsContent>
-
             {/* Tab Încasări (Vânzător) - IBAN/Card */}
             <TabsContent value="payouts">
               <PayoutSection />
@@ -369,7 +327,7 @@ const Settings = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Preferințe Notificări</CardTitle>
-                  <CardDescription>Alege ce notificări primești</CardDescription>
+                  <CardDescription>Alege ce notificări primești - preferințele se salvează automat</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
@@ -379,64 +337,56 @@ const Settings = () => {
                         <p className="font-medium">Notificări Email</p>
                         <p className="text-sm text-muted-foreground">Primește actualizări prin email</p>
                       </div>
-                      <Switch checked={emailNotifications} onCheckedChange={setEmailNotifications} />
+                      <Switch 
+                        checked={emailNotifications} 
+                        onCheckedChange={(val) => {
+                          setEmailNotifications(val);
+                          saveNotificationPrefs('notification_email', val);
+                        }} 
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium">Alerte Mesaje</p>
                         <p className="text-sm text-muted-foreground">Primește notificare când primești mesaje</p>
                       </div>
-                      <Switch checked={messageAlerts} onCheckedChange={setMessageAlerts} />
+                      <Switch 
+                        checked={messageAlerts} 
+                        onCheckedChange={(val) => {
+                          setMessageAlerts(val);
+                          saveNotificationPrefs('notification_messages', val);
+                        }} 
+                      />
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Cumpărare</h4>
+                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Comenzi</h4>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium">Alerte Scădere Preț</p>
-                        <p className="text-sm text-muted-foreground">Notifică când articolele salvate scad în preț</p>
+                        <p className="font-medium">Alerte Comenzi</p>
+                        <p className="text-sm text-muted-foreground">Notificări pentru statusul comenzilor</p>
                       </div>
-                      <Switch checked={priceAlerts} onCheckedChange={setPriceAlerts} />
+                      <Switch 
+                        checked={orderAlerts} 
+                        onCheckedChange={(val) => {
+                          setOrderAlerts(val);
+                          saveNotificationPrefs('notification_orders', val);
+                        }} 
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium">Alerte Listări Noi</p>
-                        <p className="text-sm text-muted-foreground">Notifică pentru articole noi în căutările tale</p>
+                        <p className="font-medium">Plăți & Încasări</p>
+                        <p className="text-sm text-muted-foreground">Notificări despre plăți primite și încasări</p>
                       </div>
-                      <Switch checked={newListingAlerts} onCheckedChange={setNewListingAlerts} />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Actualizări Urmărire Colet</p>
-                        <p className="text-sm text-muted-foreground">Primește actualizări despre comenzile în tranzit</p>
-                      </div>
-                      <Switch checked={trackingAlerts} onCheckedChange={setTrackingAlerts} />
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Vânzare</h4>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Plată Primită</p>
-                        <p className="text-sm text-muted-foreground">Notifică când primești o plată</p>
-                      </div>
-                      <Switch checked={paymentAlerts} onCheckedChange={setPaymentAlerts} />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Încasare Efectuată</p>
-                        <p className="text-sm text-muted-foreground">Notifică când încasările sunt trimise în cont</p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Comandă Nouă</p>
-                        <p className="text-sm text-muted-foreground">Notifică când cineva îți cumpără articolul</p>
-                      </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={paymentAlerts} 
+                        onCheckedChange={(val) => {
+                          setPaymentAlerts(val);
+                          saveNotificationPrefs('notification_payments', val);
+                        }} 
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -455,21 +405,6 @@ const Settings = () => {
                     {/* Componenta pentru resetare/schimbare parolă */}
                     <PasswordReset userEmail={user?.email || ''} />
 
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div>
-                        <p className="font-medium">Autentificare în Doi Pași</p>
-                        <p className="text-sm text-muted-foreground">Adaugă un strat suplimentar de securitate</p>
-                      </div>
-                      <Button variant="outline" size="sm">Activează</Button>
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div>
-                        <p className="font-medium">Sesiuni Active</p>
-                        <p className="text-sm text-muted-foreground">Vizualizează și gestionează dispozitivele conectate</p>
-                      </div>
-                      <Button variant="outline" size="sm">Vizualizează</Button>
-                    </div>
-
                     {/* Informații date private */}
                     <Card className="border-primary/20 bg-primary/5">
                       <CardContent className="p-4">
@@ -485,14 +420,6 @@ const Settings = () => {
                         </div>
                       </CardContent>
                     </Card>
-
-                    <div className="flex items-center justify-between p-4 rounded-lg border border-destructive/50">
-                      <div>
-                        <p className="font-medium text-destructive">Șterge Contul</p>
-                        <p className="text-sm text-muted-foreground">Șterge permanent contul tău</p>
-                      </div>
-                      <Button variant="destructive" size="sm">Șterge</Button>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
