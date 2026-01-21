@@ -34,18 +34,18 @@ export const sendOrderNotificationToSeller = async (
     amount: number;
   }
 ) => {
-  const smsMessage = `🎉 Comandă nouă pe MarketPlace! "${orderDetails.itemTitle}" a fost cumpărat de ${orderDetails.buyerName} pentru £${orderDetails.amount}. Verifică dashboard-ul pentru detalii.`;
+const smsMessage = `🎉 Comandă nouă pe C.Market! "${orderDetails.itemTitle}" a fost cumpărat de ${orderDetails.buyerName} pentru £${orderDetails.amount}. Verifică dashboard-ul pentru detalii.`;
   
   const emailMessage = `
     <h1>🎉 Ai o comandă nouă!</h1>
-    <p>Felicitări! Cineva tocmai a cumpărat produsul tău.</p>
+    <p>Felicitări! Cineva tocmai a cumpărat produsul tău pe C.Market.</p>
     <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
       <p><strong>Produs:</strong> ${orderDetails.itemTitle}</p>
       <p><strong>Cumpărător:</strong> ${orderDetails.buyerName}</p>
       <p><strong>Suma:</strong> £${orderDetails.amount}</p>
     </div>
     <p>Accesează dashboard-ul pentru a procesa comanda și a marca expedierea.</p>
-    <a href="https://marketplace.lovable.app/dashboard" style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px;">Vezi Comanda</a>
+    <a href="${typeof window !== 'undefined' ? window.location.origin : 'https://adimarketplace.lovable.app'}/dashboard" style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px;">Vezi Comanda</a>
   `;
 
   const results = [];
