@@ -14,6 +14,13 @@ interface PaymentRequest {
   buyerFee: number;
   guestEmail?: string;
   processor?: "adyen" | "mangopay";
+  paymentMethod?: "card" | "cod";
+  courier?: string;
+  codFees?: {
+    percentage: number;
+    fixed: number;
+    transport: number;
+  };
 }
 
 serve(async (req) => {
