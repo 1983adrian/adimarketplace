@@ -3,23 +3,17 @@ import {
   Users, 
   Package, 
   ShoppingCart, 
-  DollarSign, 
   TrendingUp,
   Crown,
-  Eye,
   Activity,
   MapPin,
-  Globe,
   CreditCard,
   Wallet,
-  ArrowUpRight,
-  ArrowDownRight,
   RefreshCw,
-  Clock,
   CheckCircle,
-  AlertTriangle,
   UserCheck,
-  Banknote
+  Banknote,
+  AlertCircle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -37,83 +31,69 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
   BarChart,
   Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
-  AreaChart,
-  Area
 } from 'recharts';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-
-// Mock data for charts - în aplicația reală, acestea vor fi din DB
-const revenueData = [
-  { month: 'Ian', revenue: 1200, orders: 45, fees: 180 },
-  { month: 'Feb', revenue: 1800, orders: 62, fees: 270 },
-  { month: 'Mar', revenue: 1500, orders: 58, fees: 225 },
-  { month: 'Apr', revenue: 2200, orders: 78, fees: 330 },
-  { month: 'Mai', revenue: 2800, orders: 92, fees: 420 },
-  { month: 'Iun', revenue: 3500, orders: 110, fees: 525 },
-];
-
-const locationData = [
-  { city: 'London', sales: 45, amount: 4500 },
-  { city: 'Manchester', sales: 32, amount: 3200 },
-  { city: 'Birmingham', sales: 28, amount: 2800 },
-  { city: 'Leeds', sales: 22, amount: 2200 },
-  { city: 'Glasgow', sales: 18, amount: 1800 },
-];
-
-const paymentStatusData = [
-  { name: 'Plătite', value: 65, color: '#22c55e' },
-  { name: 'În așteptare', value: 20, color: '#eab308' },
-  { name: 'Expediate', value: 10, color: '#3b82f6' },
-  { name: 'Anulate', value: 5, color: '#ef4444' },
-];
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function OwnerDashboard() {
   const queryClient = useQueryClient();
-  const { data: stats, isLoading: statsLoading, refetch: refetchStats } = usePlatformStats();
+  const { data: stats, isLoading: statsLoading } = usePlatformStats();
   const { data: fees } = usePlatformFees();
   const { data: orders, isLoading: ordersLoading } = useAllOrders();
-  const { data: users } = useAllUsers();
+  const { data: users, isLoading: usersLoading } = useAllUsers();
   const { data: listings } = useAllListings();
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Simulate online users (în producție, folosești Supabase Realtime)
-  const { data: onlineUsers } = useQuery({
-    queryKey: ['online-users'],
-    queryFn: async () => {
-      // În producție, vei folosi Supabase Realtime presence
-      // Pentru demo, returnăm un număr random
-      return Math.floor(Math.random() * 50) + 10;
-    },
-    refetchInterval: 30000,
-  });
 
   const buyerFee = fees?.find(f => f.fee_type === 'buyer_fee');
   const sellerCommission = fees?.find(f => f.fee_type === 'seller_commission');
   const sellerSub = fees?.find(f => f.fee_type === 'seller_subscription');
 
-  // Calculate earnings
-  const totalGMV = orders?.reduce((sum, o) => sum + Number(o.amount), 0) || 0;
-  const paidOrders = orders?.filter(o => o.status === 'paid' || o.status === 'shipped' || o.status === 'delivered') || [];
-  const pendingOrders = orders?.filter(o => o.status === 'pending') || [];
-  const totalPaidAmount = paidOrders.reduce((sum, o) => sum + Number(o.amount), 0);
+  // Calculate real data
+  const totalGMV = orders?.reduce((sum, o) => sum + Number(o.amount || 0), 0) || 0;
+  const paidOrders = orders?.filter(o => ['paid', 'shipped', 'delivered'].includes(o.status)) || [];
+  const totalPaidAmount = paidOrders.reduce((sum, o) => sum + Number(o.amount || 0), 0);
   
-  // Platform earnings (buyer fees + seller commissions)
-  const buyerFeeTotal = paidOrders.length * (buyerFee?.amount || 2);
-  const sellerCommissionTotal = totalPaidAmount * ((sellerCommission?.amount || 15) / 100);
+  // Platform earnings from real orders
+  const buyerFeeTotal = paidOrders.reduce((sum, o) => sum + Number(o.buyer_fee || 0), 0);
+  const sellerCommissionTotal = paidOrders.reduce((sum, o) => sum + Number(o.seller_commission || 0), 0);
   const platformEarnings = buyerFeeTotal + sellerCommissionTotal;
+
+  // Today's stats
+  const today = new Date().toDateString();
+  const ordersToday = orders?.filter(o => new Date(o.created_at).toDateString() === today) || [];
+  const revenueToday = ordersToday.reduce((sum, o) => sum + Number(o.amount || 0), 0);
+
+  // Real order status distribution
+  const orderStatusData = [
+    { name: 'Plătite', value: orders?.filter(o => o.status === 'paid').length || 0, color: '#22c55e' },
+    { name: 'În așteptare', value: orders?.filter(o => o.status === 'pending').length || 0, color: '#eab308' },
+    { name: 'Expediate', value: orders?.filter(o => o.status === 'shipped').length || 0, color: '#3b82f6' },
+    { name: 'Livrate', value: orders?.filter(o => o.status === 'delivered').length || 0, color: '#10b981' },
+    { name: 'Anulate', value: orders?.filter(o => o.status === 'cancelled').length || 0, color: '#ef4444' },
+  ].filter(item => item.value > 0);
+
+  // Real location data from orders
+  const locationStats = orders?.reduce((acc, order) => {
+    const location = order.shipping_address?.split(',').pop()?.trim() || 'Nedefinit';
+    if (!acc[location]) acc[location] = { sales: 0, amount: 0 };
+    acc[location].sales += 1;
+    acc[location].amount += Number(order.amount || 0);
+    return acc;
+  }, {} as Record<string, { sales: number; amount: number }>) || {};
+
+  const locationData = Object.entries(locationStats)
+    .map(([city, data]) => ({ city, ...data }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -128,7 +108,7 @@ export default function OwnerDashboard() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Owner Dashboard</h1>
-            <p className="text-muted-foreground">Tablou de bord complet pentru deținătorul marketplace-ului</p>
+            <p className="text-muted-foreground">Date live din baza de date</p>
           </div>
           <Button onClick={handleRefresh} disabled={isRefreshing} className="gap-2">
             <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -146,23 +126,18 @@ export default function OwnerDashboard() {
                   <div className="absolute inset-0 h-3 w-3 bg-green-500 rounded-full animate-ping" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Utilizatori Online Acum</p>
-                  <p className="text-2xl font-bold">{onlineUsers || 0}</p>
+                  <p className="text-sm text-muted-foreground">Date Live</p>
+                  <p className="text-lg font-bold">Actualizat acum</p>
                 </div>
               </div>
               <div className="flex gap-8">
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground">Comenzi Astăzi</p>
-                  <p className="text-xl font-bold text-green-600">
-                    {orders?.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString()).length || 0}
-                  </p>
+                  <p className="text-xl font-bold text-green-600">{ordersToday.length}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground">Venituri Astăzi</p>
-                  <p className="text-xl font-bold text-primary">
-                    £{orders?.filter(o => new Date(o.created_at).toDateString() === new Date().toDateString())
-                      .reduce((sum, o) => sum + Number(o.amount), 0).toFixed(2) || '0.00'}
-                  </p>
+                  <p className="text-xl font-bold text-primary">£{revenueToday.toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -178,12 +153,7 @@ export default function OwnerDashboard() {
             </CardHeader>
             <CardContent>
               {statsLoading ? <Skeleton className="h-8 w-20" /> : (
-                <>
-                  <div className="text-2xl font-bold">{stats?.totalUsers?.toLocaleString()}</div>
-                  <p className="text-xs text-green-600 flex items-center gap-1">
-                    <ArrowUpRight className="h-3 w-3" /> +12% față de luna trecută
-                  </p>
-                </>
+                <div className="text-2xl font-bold">{stats?.totalUsers?.toLocaleString() || 0}</div>
               )}
             </CardContent>
           </Card>
@@ -196,7 +166,7 @@ export default function OwnerDashboard() {
             <CardContent>
               {statsLoading ? <Skeleton className="h-8 w-20" /> : (
                 <>
-                  <div className="text-2xl font-bold">{stats?.activeSellers?.toLocaleString()}</div>
+                  <div className="text-2xl font-bold">{stats?.activeSellers?.toLocaleString() || 0}</div>
                   <p className="text-xs text-muted-foreground">Cu abonament activ</p>
                 </>
               )}
@@ -209,8 +179,8 @@ export default function OwnerDashboard() {
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">£{totalGMV.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">Valoarea brută a mărfurilor</p>
+              <div className="text-2xl font-bold">£{totalGMV.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <p className="text-xs text-muted-foreground">{orders?.length || 0} comenzi totale</p>
             </CardContent>
           </Card>
 
@@ -221,7 +191,7 @@ export default function OwnerDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">£{platformEarnings.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">Taxe + Comisioane</p>
+              <p className="text-xs text-muted-foreground">Taxe + Comisioane reale</p>
             </CardContent>
           </Card>
         </div>
@@ -237,7 +207,7 @@ export default function OwnerDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Taxe Cumpărători</p>
                   <p className="text-xl font-bold">£{buyerFeeTotal.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">£{buyerFee?.amount || 2} × {paidOrders.length} comenzi</p>
+                  <p className="text-xs text-muted-foreground">Din {paidOrders.length} comenzi plătite</p>
                 </div>
               </div>
             </CardContent>
@@ -252,7 +222,7 @@ export default function OwnerDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Comisioane Vânzători</p>
                   <p className="text-xl font-bold">£{sellerCommissionTotal.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">{sellerCommission?.amount || 15}% din vânzări</p>
+                  <p className="text-xs text-muted-foreground">{sellerCommission?.amount || 10}% din vânzări</p>
                 </div>
               </div>
             </CardContent>
@@ -284,88 +254,89 @@ export default function OwnerDashboard() {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Charts */}
             <div className="grid gap-6 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Evoluția Veniturilor
-                  </CardTitle>
-                  <CardDescription>Venituri și comenzi pe luni</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={revenueData}>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis dataKey="month" className="text-xs" />
-                        <YAxis className="text-xs" />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="revenue" 
-                          stroke="hsl(var(--primary))" 
-                          fill="hsl(var(--primary))"
-                          fillOpacity={0.2}
-                          strokeWidth={2}
-                        />
-                        <Area 
-                          type="monotone" 
-                          dataKey="fees" 
-                          stroke="#22c55e" 
-                          fill="#22c55e"
-                          fillOpacity={0.1}
-                          strokeWidth={2}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </div>
-                </CardContent>
-              </Card>
-
+              {/* Order Status Chart */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Activity className="h-5 w-5" />
                     Status Comenzi
                   </CardTitle>
-                  <CardDescription>Distribuția statusurilor</CardDescription>
+                  <CardDescription>Distribuția reală a statusurilor</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={paymentStatusData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={60}
-                          outerRadius={100}
-                          paddingAngle={2}
-                          dataKey="value"
-                        >
-                          {paymentStatusData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="flex justify-center gap-4 mt-4">
-                      {paymentStatusData.map((entry) => (
-                        <div key={entry.name} className="flex items-center gap-2">
-                          <div className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                          <span className="text-sm">{entry.name}</span>
-                        </div>
-                      ))}
+                  {orderStatusData.length > 0 ? (
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={orderStatusData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={100}
+                            paddingAngle={2}
+                            dataKey="value"
+                            label={({ name, value }) => `${name}: ${value}`}
+                          >
+                            {orderStatusData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="flex justify-center gap-4 mt-4 flex-wrap">
+                        {orderStatusData.map((entry) => (
+                          <div key={entry.name} className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: entry.color }} />
+                            <span className="text-sm">{entry.name} ({entry.value})</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+                  ) : (
+                    <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+                      <div className="text-center">
+                        <AlertCircle className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p>Nu există comenzi încă</p>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Quick Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Statistici Rapide
+                  </CardTitle>
+                  <CardDescription>Rezumat platforma</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                    <span>Total Anunțuri</span>
+                    <span className="font-bold">{listings?.length || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                    <span>Anunțuri Active</span>
+                    <span className="font-bold">{stats?.activeListings || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                    <span>Total Comenzi</span>
+                    <span className="font-bold">{orders?.length || 0}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                    <span>Comenzi Plătite</span>
+                    <span className="font-bold text-green-600">{paidOrders.length}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
+                    <span>Valoare Medie Comandă</span>
+                    <span className="font-bold">
+                      £{orders && orders.length > 0 ? (totalGMV / orders.length).toFixed(2) : '0.00'}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -379,7 +350,7 @@ export default function OwnerDashboard() {
                   <CreditCard className="h-5 w-5" />
                   Toate Tranzacțiile
                 </CardTitle>
-                <CardDescription>Gestionează toate plățile de pe platformă</CardDescription>
+                <CardDescription>Date reale din baza de date</CardDescription>
               </CardHeader>
               <CardContent>
                 {ordersLoading ? (
@@ -400,35 +371,29 @@ export default function OwnerDashboard() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {orders.slice(0, 20).map((order) => {
-                        const orderAmount = Number(order.amount);
-                        const buyerFeeAmount = buyerFee?.amount || 2;
-                        const sellerCommissionAmount = orderAmount * ((sellerCommission?.amount || 15) / 100);
-                        
-                        return (
-                          <TableRow key={order.id}>
-                            <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
-                            <TableCell>{order.listings?.title || 'N/A'}</TableCell>
-                            <TableCell className="font-bold">£{orderAmount.toFixed(2)}</TableCell>
-                            <TableCell className="text-blue-600">£{buyerFeeAmount.toFixed(2)}</TableCell>
-                            <TableCell className="text-purple-600">£{sellerCommissionAmount.toFixed(2)}</TableCell>
-                            <TableCell>
-                              <Badge className={
-                                order.status === 'paid' ? 'bg-green-100 text-green-700' :
-                                order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
-                                order.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
-                                order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' :
-                                'bg-gray-100 text-gray-700'
-                              }>
-                                {order.status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-muted-foreground">
-                              {new Date(order.created_at).toLocaleDateString('ro-RO')}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
+                      {orders.slice(0, 20).map((order) => (
+                        <TableRow key={order.id}>
+                          <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
+                          <TableCell>{order.listings?.title || 'N/A'}</TableCell>
+                          <TableCell className="font-bold">£{Number(order.amount || 0).toFixed(2)}</TableCell>
+                          <TableCell className="text-blue-600">£{Number(order.buyer_fee || 0).toFixed(2)}</TableCell>
+                          <TableCell className="text-purple-600">£{Number(order.seller_commission || 0).toFixed(2)}</TableCell>
+                          <TableCell>
+                            <Badge className={
+                              order.status === 'paid' ? 'bg-green-100 text-green-700' :
+                              order.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                              order.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
+                              order.status === 'delivered' ? 'bg-emerald-100 text-emerald-700' :
+                              'bg-gray-100 text-gray-700'
+                            }>
+                              {order.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {new Date(order.created_at).toLocaleDateString('ro-RO')}
+                          </TableCell>
+                        </TableRow>
+                      ))}
                     </TableBody>
                   </Table>
                 ) : (
@@ -445,10 +410,14 @@ export default function OwnerDashboard() {
                   <Crown className="h-5 w-5" />
                   Gestionare Vânzători
                 </CardTitle>
-                <CardDescription>Toți vânzătorii de pe platformă</CardDescription>
+                <CardDescription>Date reale din profiluri</CardDescription>
               </CardHeader>
               <CardContent>
-                {users ? (
+                {usersLoading ? (
+                  <div className="space-y-3">
+                    {[1,2,3].map(i => <Skeleton key={i} className="h-16 w-full" />)}
+                  </div>
+                ) : users && users.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -487,7 +456,7 @@ export default function OwnerDashboard() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
+                  <p className="text-center text-muted-foreground py-8">Nu există utilizatori</p>
                 )}
               </CardContent>
             </Card>
@@ -500,15 +469,19 @@ export default function OwnerDashboard() {
                   <UserCheck className="h-5 w-5" />
                   Gestionare Cumpărători
                 </CardTitle>
-                <CardDescription>Toți cumpărătorii de pe platformă</CardDescription>
+                <CardDescription>Date reale din profiluri și comenzi</CardDescription>
               </CardHeader>
               <CardContent>
-                {users ? (
+                {usersLoading ? (
+                  <div className="space-y-3">
+                    {[1,2,3].map(i => <Skeleton key={i} className="h-16 w-full" />)}
+                  </div>
+                ) : users && users.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Nume</TableHead>
-                        <TableHead>Email</TableHead>
+                        <TableHead>Username</TableHead>
                         <TableHead>Telefon</TableHead>
                         <TableHead>Locație</TableHead>
                         <TableHead>Comenzi</TableHead>
@@ -519,12 +492,12 @@ export default function OwnerDashboard() {
                     <TableBody>
                       {users.map((user) => {
                         const userOrders = orders?.filter(o => o.buyer_id === user.user_id) || [];
-                        const totalSpent = userOrders.reduce((sum, o) => sum + Number(o.amount), 0);
+                        const totalSpent = userOrders.reduce((sum, o) => sum + Number(o.amount || 0), 0);
                         
                         return (
                           <TableRow key={user.id}>
                             <TableCell className="font-medium">{user.display_name || 'N/A'}</TableCell>
-                            <TableCell>user@email.com</TableCell>
+                            <TableCell>@{user.username || 'n/a'}</TableCell>
                             <TableCell>{user.phone || '-'}</TableCell>
                             <TableCell>{user.location || '-'}</TableCell>
                             <TableCell>{userOrders.length}</TableCell>
@@ -538,7 +511,7 @@ export default function OwnerDashboard() {
                     </TableBody>
                   </Table>
                 ) : (
-                  <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
+                  <p className="text-center text-muted-foreground py-8">Nu există utilizatori</p>
                 )}
               </CardContent>
             </Card>
@@ -551,49 +524,57 @@ export default function OwnerDashboard() {
                   <MapPin className="h-5 w-5" />
                   Vânzări pe Locații
                 </CardTitle>
-                <CardDescription>Unde se vând cele mai multe produse</CardDescription>
+                <CardDescription>Date reale din comenzi</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={locationData} layout="vertical">
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis type="number" className="text-xs" />
-                        <YAxis dataKey="city" type="category" className="text-xs" width={80} />
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: 'hsl(var(--card))',
-                            border: '1px solid hsl(var(--border))',
-                            borderRadius: '8px'
-                          }}
-                        />
-                        <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="space-y-3">
-                    {locationData.map((loc, i) => (
-                      <div key={loc.city} className="flex items-center justify-between p-3 rounded-lg border">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            i === 0 ? 'bg-yellow-100 text-yellow-700' :
-                            i === 1 ? 'bg-gray-100 text-gray-700' :
-                            i === 2 ? 'bg-orange-100 text-orange-700' :
-                            'bg-muted text-muted-foreground'
-                          }`}>
-                            {i + 1}
+                {locationData.length > 0 ? (
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={locationData} layout="vertical">
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis type="number" className="text-xs" />
+                          <YAxis dataKey="city" type="category" className="text-xs" width={100} />
+                          <Tooltip 
+                            contentStyle={{ 
+                              backgroundColor: 'hsl(var(--card))',
+                              border: '1px solid hsl(var(--border))',
+                              borderRadius: '8px'
+                            }}
+                          />
+                          <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="space-y-3">
+                      {locationData.map((loc, i) => (
+                        <div key={loc.city} className="flex items-center justify-between p-3 rounded-lg border">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              i === 0 ? 'bg-yellow-100 text-yellow-700' :
+                              i === 1 ? 'bg-gray-100 text-gray-700' :
+                              i === 2 ? 'bg-orange-100 text-orange-700' :
+                              'bg-muted text-muted-foreground'
+                            }`}>
+                              {i + 1}
+                            </div>
+                            <div>
+                              <p className="font-medium">{loc.city}</p>
+                              <p className="text-sm text-muted-foreground">{loc.sales} vânzări</p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium">{loc.city}</p>
-                            <p className="text-sm text-muted-foreground">{loc.sales} vânzări</p>
-                          </div>
+                          <p className="font-bold text-primary">£{loc.amount.toLocaleString()}</p>
                         </div>
-                        <p className="font-bold text-primary">£{loc.amount.toLocaleString()}</p>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center text-muted-foreground py-12">
+                    <MapPin className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p>Nu există date despre locații încă</p>
+                    <p className="text-sm">Datele vor apărea după primele comenzi</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
