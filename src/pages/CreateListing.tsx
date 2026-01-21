@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin, BookOpen } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, BookOpen } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,21 +19,13 @@ import { useSellerSubscription, useCreateSellerSubscription } from '@/hooks/useS
 import { useListingLimit } from '@/hooks/useListingLimit';
 import { useCreateListing } from '@/hooks/useListings';
 import { useImageUpload } from '@/hooks/useImageUpload';
-import { useLocation, COUNTRY_CARRIERS } from '@/contexts/LocationContext';
+import { useLocation } from '@/contexts/LocationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
 import { addDays } from 'date-fns';
 import { SellerVideoTutorial, useSellerTutorial } from '@/components/seller/SellerVideoTutorial';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-// Default carriers for unknown locations
-const DEFAULT_CARRIERS = [
-  { value: 'dhl', label: 'DHL Express' },
-  { value: 'ups', label: 'UPS' },
-  { value: 'fedex', label: 'FedEx' },
-  { value: 'ems', label: 'EMS' },
-  { value: 'other', label: 'Altul (specifică)' },
-];
 
 const CreateListing = () => {
   const navigate = useNavigate();
@@ -46,7 +38,7 @@ const CreateListing = () => {
   const createSubscription = useCreateSellerSubscription();
   const createListing = useCreateListing();
   const { uploadMultipleImages, uploading } = useImageUpload();
-  const { location: userLocation, carriers: locationCarriers } = useLocation();
+  const { location: userLocation } = useLocation();
   
   // Tutorial state
   const { shouldShow: showTutorial, setShouldShow: setShowTutorial } = useSellerTutorial();
@@ -62,16 +54,6 @@ const CreateListing = () => {
     }
   }, [showTutorial, isSubscribed, subscriptionLoading]);
 
-  // Generate carriers list based on user's location
-  const CARRIERS = useMemo(() => {
-    if (locationCarriers && locationCarriers.length > 0) {
-      return [
-        ...locationCarriers.map(c => ({ value: c.toLowerCase().replace(/\s+/g, '_'), label: c })),
-        { value: 'other', label: language === 'ro' ? 'Altul (specifică)' : 'Other (specify)' }
-      ];
-    }
-    return DEFAULT_CARRIERS;
-  }, [locationCarriers, language]);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -84,10 +66,8 @@ const CreateListing = () => {
   const [loading, setLoading] = useState(false);
   const [isActive, setIsActive] = useState(true);
   
-  // Shipping settings
-  const [preferredCarrier, setPreferredCarrier] = useState('');
-  const [customCarrier, setCustomCarrier] = useState('');
-  const [shippingNotes, setShippingNotes] = useState('');
+  // Shipping cost (required with price)
+  const [shippingCost, setShippingCost] = useState('');
   
   // Quantity & Variants
   const [quantity, setQuantity] = useState('1');
@@ -177,9 +157,27 @@ const CreateListing = () => {
       return;
     }
 
-    if (!title || !price || !condition || !category) {
+    if (!title || !condition || !category) {
       toast({ title: 'Câmpuri lipsă', description: 'Te rugăm să completezi toate câmpurile obligatorii', variant: 'destructive' });
       return;
+    }
+
+    // Validate price and shipping cost for non-auction
+    if (listingType !== 'auction') {
+      if (!price) {
+        toast({ title: 'Preț lipsă', description: 'Te rugăm să adaugi prețul produsului', variant: 'destructive' });
+        return;
+      }
+      if (!shippingCost) {
+        toast({ title: 'Cost livrare lipsă', description: 'Te rugăm să adaugi costul de expediere', variant: 'destructive' });
+        return;
+      }
+      const priceNum = parseFloat(price);
+      const shippingNum = parseFloat(shippingCost);
+      if (shippingNum > priceNum * 0.5) {
+        toast({ title: 'Cost livrare prea mare', description: 'Costul de livrare nu poate depăși 50% din prețul produsului', variant: 'destructive' });
+        return;
+      }
     }
 
     if (imageFiles.length === 0) {
@@ -214,6 +212,7 @@ const CreateListing = () => {
         quantity: parseInt(quantity) || 1,
         sizes: sizes.length > 0 ? sizes : null,
         colors: colors.length > 0 ? colors : null,
+        shipping_cost: shippingCost ? parseFloat(shippingCost) : 0,
       };
 
       const newListing = await createListing.mutateAsync(listingData);
@@ -691,32 +690,75 @@ const CreateListing = () => {
             </CardContent>
           </Card>
 
-          {/* Price & Location */}
+          {/* Price, Shipping & Location */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">
-                {listingType === 'auction' ? 'Locație' : 'Preț și Locație'}
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Truck className="h-5 w-5" />
+                {listingType === 'auction' ? 'Livrare și Locație' : 'Preț, Livrare și Locație'}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {listingType !== 'auction' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="price">
+                      {listingType === 'both' ? 'Preț Buy Now *' : 'Preț *'}
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                      <Input 
+                        id="price" 
+                        type="number" 
+                        placeholder="0" 
+                        value={price} 
+                        onChange={(e) => setPrice(e.target.value)} 
+                        className="pl-8" 
+                        min="0" 
+                        step="0.01" 
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="shippingCost">Cost Expediere *</Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                      <Input 
+                        id="shippingCost" 
+                        type="number" 
+                        placeholder="0" 
+                        value={shippingCost} 
+                        onChange={(e) => setShippingCost(e.target.value)} 
+                        className="pl-8" 
+                        min="0" 
+                        step="0.01" 
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Max 50% din preț
+                    </p>
+                  </div>
+                </div>
+              )}
+              {listingType === 'auction' && (
                 <div>
-                  <Label htmlFor="price">
-                    {listingType === 'both' ? 'Preț Buy Now *' : 'Preț *'}
-                  </Label>
+                  <Label htmlFor="shippingCost">Cost Expediere</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
                     <Input 
-                      id="price" 
+                      id="shippingCost" 
                       type="number" 
                       placeholder="0" 
-                      value={price} 
-                      onChange={(e) => setPrice(e.target.value)} 
+                      value={shippingCost} 
+                      onChange={(e) => setShippingCost(e.target.value)} 
                       className="pl-8" 
                       min="0" 
                       step="0.01" 
                     />
                   </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Costul de livrare adăugat la prețul final
+                  </p>
                 </div>
               )}
               <div>
@@ -726,60 +768,6 @@ const CreateListing = () => {
                   placeholder="Oraș, Țară" 
                   value={location} 
                   onChange={(e) => setLocation(e.target.value)} 
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Shipping Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Truck className="h-5 w-5" />
-                Setări Livrare
-              </CardTitle>
-              <CardDescription className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                {userLocation ? (
-                  <span>Curieri disponibili în {userLocation.countryName}</span>
-                ) : (
-                  <span>Alege cum vei livra produsele</span>
-                )}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="carrier">Curier Preferat</Label>
-                <Select value={preferredCarrier} onValueChange={setPreferredCarrier}>
-                  <SelectTrigger><SelectValue placeholder="Selectează curierul" /></SelectTrigger>
-                  <SelectContent>
-                    {CARRIERS.map((carrier) => (
-                      <SelectItem key={carrier.value} value={carrier.value}>{carrier.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {preferredCarrier === 'other' && (
-                <div>
-                  <Label htmlFor="customCarrier">Specifică Curierul</Label>
-                  <Input 
-                    id="customCarrier" 
-                    placeholder="Ex: Cargus, Fan Courier, etc." 
-                    value={customCarrier} 
-                    onChange={(e) => setCustomCarrier(e.target.value)} 
-                  />
-                </div>
-              )}
-
-              <div>
-                <Label htmlFor="shippingNotes">Note pentru Livrare</Label>
-                <Textarea 
-                  id="shippingNotes" 
-                  placeholder="Informații adiționale despre livrare (ex: timp estimat, costuri, zone disponibile)..." 
-                  value={shippingNotes} 
-                  onChange={(e) => setShippingNotes(e.target.value)} 
-                  rows={3} 
                 />
               </div>
             </CardContent>
