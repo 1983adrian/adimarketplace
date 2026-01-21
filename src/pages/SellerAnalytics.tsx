@@ -38,14 +38,14 @@ const SellerAnalytics = () => {
   const completedOrders = sellerOrders.filter(o => o.status === 'delivered');
   const pendingOrders = sellerOrders.filter(o => o.status === 'pending' || o.status === 'paid' || o.status === 'shipped');
   
-  // Real earnings from completed orders
+  // Real earnings from completed orders (10% platform commission)
   const totalEarnings = completedOrders.reduce((acc, o) => {
-    const commission = o.seller_commission || 0;
+    const commission = o.amount * 0.10; // 10% platform commission
     return acc + (o.amount - commission);
   }, 0);
   
   const pendingEarnings = pendingOrders.reduce((acc, o) => {
-    const commission = o.seller_commission || 0;
+    const commission = o.amount * 0.10; // 10% platform commission
     return acc + (o.amount - commission);
   }, 0);
   
@@ -95,7 +95,7 @@ const SellerAnalytics = () => {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Din {completedOrders.length} comenzi livrate
+                Din {completedOrders.length} comenzi livrate (după -10% comision)
               </p>
             </CardContent>
           </Card>
@@ -112,7 +112,7 @@ const SellerAnalytics = () => {
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {pendingOrders.length} comenzi în procesare
+                {pendingOrders.length} comenzi în procesare (după -10% comision)
               </p>
             </CardContent>
           </Card>

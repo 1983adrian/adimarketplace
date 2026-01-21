@@ -61,11 +61,16 @@ const Dashboard = () => {
   const activeListings = myListings?.filter(l => l.is_active && !l.is_sold) || [];
   const soldListings = myListings?.filter(l => l.is_sold) || [];
   const totalViews = myListings?.reduce((acc, l) => acc + l.views_count, 0) || 0;
-  const totalEarnings = soldListings.reduce((acc, l) => acc + l.price, 0);
   
-  // Potential earnings calculation (price - £1 platform commission per item)
+  // Real earnings: sold price minus 10% platform commission
+  const totalEarnings = soldListings.reduce((acc, l) => {
+    const commission = l.price * 0.10; // 10% commission
+    return acc + (l.price - commission);
+  }, 0);
+  
+  // Potential earnings calculation (price - 10% platform commission)
   const potentialGrossEarnings = activeListings.reduce((acc, l) => acc + l.price, 0);
-  const platformCommission = activeListings.length * 1; // £1 per item
+  const platformCommission = potentialGrossEarnings * 0.10; // 10% of total
   const potentialNetEarnings = potentialGrossEarnings - platformCommission;
 
   const isSubscribed = subscription?.subscribed || false;
@@ -229,10 +234,11 @@ const Dashboard = () => {
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center gap-3">
-                <DollarSign className="h-8 w-8 text-muted-foreground" />
+                <DollarSign className="h-8 w-8 text-green-600" />
                 <div>
-                  <p className="text-2xl font-bold">£{totalEarnings.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-green-600">£{totalEarnings.toFixed(2)}</p>
                   <p className="text-sm text-muted-foreground">{t('dashboard.totalEarned')}</p>
+                  <p className="text-xs text-muted-foreground">({soldListings.length} vânzări, -10% comision)</p>
                 </div>
               </div>
             </CardContent>
@@ -265,15 +271,15 @@ const Dashboard = () => {
                 </div>
                 <div className="text-center p-4 bg-background/50 rounded-lg">
                   <p className="text-sm text-muted-foreground mb-1">Valoare Totală</p>
-                  <p className="text-2xl font-bold text-foreground">£{potentialGrossEarnings.toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-foreground">£{potentialGrossEarnings.toFixed(2)}</p>
                 </div>
                 <div className="text-center p-4 bg-background/50 rounded-lg">
-                  <p className="text-sm text-muted-foreground mb-1">Comision ({activeListings.length} × £1)</p>
-                  <p className="text-2xl font-bold text-orange-600">-£{platformCommission.toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground mb-1">Comision (10%)</p>
+                  <p className="text-2xl font-bold text-orange-600">-£{platformCommission.toFixed(2)}</p>
                 </div>
                 <div className="text-center p-4 bg-green-500/20 rounded-lg border-2 border-green-500/30">
-                  <p className="text-sm text-green-700 dark:text-green-400 mb-1 font-medium">Tu Vei Încasa</p>
-                  <p className="text-3xl font-bold text-green-600">£{potentialNetEarnings.toLocaleString()}</p>
+                  <p className="text-sm text-green-700 dark:text-green-400 mb-1 font-medium">Tu Vei Încasa (90%)</p>
+                  <p className="text-3xl font-bold text-green-600">£{potentialNetEarnings.toFixed(2)}</p>
                 </div>
               </div>
               
@@ -282,18 +288,22 @@ const Dashboard = () => {
                 <div className="mt-4 p-3 bg-background/50 rounded-lg">
                   <p className="text-xs font-medium text-muted-foreground mb-2">Detalii per produs:</p>
                   <div className="space-y-1 max-h-32 overflow-y-auto">
-                    {activeListings.map((listing, index) => (
-                      <div key={listing.id} className="flex justify-between text-xs">
-                        <span className="truncate max-w-[200px]">{index + 1}. {listing.title}</span>
-                        <span className="font-medium">£{listing.price} - £1 = <span className="text-green-600">£{listing.price - 1}</span></span>
-                      </div>
-                    ))}
+                    {activeListings.map((listing, index) => {
+                      const itemCommission = listing.price * 0.10;
+                      const netAmount = listing.price - itemCommission;
+                      return (
+                        <div key={listing.id} className="flex justify-between text-xs">
+                          <span className="truncate max-w-[200px]">{index + 1}. {listing.title}</span>
+                          <span className="font-medium">£{listing.price.toFixed(2)} - 10% = <span className="text-green-600">£{netAmount.toFixed(2)}</span></span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
               
               <p className="text-xs text-muted-foreground mt-4 text-center">
-                * Calcul real bazat pe prețurile produselor tale. Banii se transferă automat în contul tău Stripe după confirmarea livrării.
+                * Calcul real bazat pe prețurile produselor tale (10% comision platformă). Banii se transferă automat după confirmarea livrării.
               </p>
             </CardContent>
           </Card>
