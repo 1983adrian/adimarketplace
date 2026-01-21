@@ -197,48 +197,35 @@ const Settings = () => {
           <h1 className="text-3xl font-bold mb-8">Setări</h1>
           
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="w-full flex flex-wrap gap-1 h-auto p-2 bg-gradient-to-r from-muted/80 to-muted/40 rounded-xl">
+            {/* Simplified 4-tab navigation with large icons - Amazon/eBay style */}
+            <TabsList className="w-full grid grid-cols-4 gap-2 h-auto p-2 bg-muted/50 rounded-2xl">
               <TabsTrigger 
                 value="profile" 
-                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300 hover:bg-primary/10"
+                className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
               >
-                <User className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">Profil</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="language" 
-                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-primary/80 data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300 hover:bg-primary/10"
-              >
-                <Globe className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">Limbă</span>
+                <User className="h-6 w-6" />
+                <span className="text-xs font-medium">Profil</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="seller" 
-                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-orange-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-amber-500/10"
+                className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl data-[state=active]:bg-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
               >
-                <Store className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">Magazin</span>
+                <Store className="h-6 w-6" />
+                <span className="text-xs font-medium">Magazin</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="payouts" 
-                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-green-500/10"
+                className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
               >
-                <Wallet className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">Încasări</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="notifications" 
-                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-cyan-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-blue-500/10"
-              >
-                <Bell className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">Alerte</span>
+                <Wallet className="h-6 w-6" />
+                <span className="text-xs font-medium">Bani</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="security" 
-                className="flex-1 min-w-[100px] gap-2 py-3 px-4 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:bg-red-500/10"
+                className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl data-[state=active]:bg-red-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
               >
-                <Shield className="h-4 w-4" />
-                <span className="hidden sm:inline font-medium">Securitate</span>
+                <Shield className="h-6 w-6" />
+                <span className="text-xs font-medium">Securitate</span>
               </TabsTrigger>
             </TabsList>
 
@@ -331,99 +318,44 @@ const Settings = () => {
                     </div>
                   </div>
 
+                  {/* Language Selector - Simplified */}
+                  <div className="space-y-2 pt-4 border-t">
+                    <Label>Limbă platformă</Label>
+                    <Select 
+                      value={selectedLanguage} 
+                      onValueChange={(val) => {
+                        setSelectedLanguage(val);
+                        if (val === 'ro' || val === 'en') {
+                          setLanguage(val as Language);
+                          localStorage.setItem('preferredLanguage', val);
+                          toast({ title: 'Limbă schimbată' });
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full max-w-xs">
+                        <SelectValue placeholder="Selectează limba" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ro">🇷🇴 Română</SelectItem>
+                        <SelectItem value="en">🇬🇧 English</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
                   <Button 
                     onClick={handleSaveProfile} 
                     disabled={saving} 
                     size="lg"
-                    className="gap-2 w-full sm:w-auto bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300 text-base font-semibold"
+                    className="gap-2 w-full sm:w-auto bg-primary hover:bg-primary/90 shadow-lg text-base font-semibold"
                   >
                     <Save className="h-5 w-5" />
-                    {saving ? 'Se salvează...' : 'Salvează Modificările'}
+                    {saving ? 'Se salvează...' : 'Salvează'}
                   </Button>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* Tab Limbă */}
-            <TabsContent value="language">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Globe className="h-5 w-5" />
-                    Setări Limbă
-                  </CardTitle>
-                  <CardDescription>
-                    Alege limba de afișare a platformei. Limba oficială este Română. 
-                    Platforma detectează automat limba și moneda pe baza locației tale.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="language">Limba Preferată</Label>
-                      <Select 
-                        value={selectedLanguage} 
-                        onValueChange={(val) => {
-                          setSelectedLanguage(val);
-                          // Only RO and EN are fully supported
-                          if (val === 'ro' || val === 'en') {
-                            setLanguage(val as Language);
-                            localStorage.setItem('preferredLanguage', val);
-                            toast({ title: 'Limbă schimbată', description: `Limba a fost setată la ${EUROPEAN_LANGUAGES.find(l => l.code === val)?.name}` });
-                          } else {
-                            localStorage.setItem('preferredLanguage', val);
-                            toast({ 
-                              title: 'Limbă salvată', 
-                              description: `Preferința ${EUROPEAN_LANGUAGES.find(l => l.code === val)?.name} a fost salvată. Traducerea completă este disponibilă doar pentru Română și English.`,
-                            });
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selectează limba" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          {EUROPEAN_LANGUAGES.map((lang) => (
-                            <SelectItem key={lang.code} value={lang.code}>
-                              <span className="flex items-center gap-2">
-                                <span>{lang.flag}</span>
-                                <span>{lang.name}</span>
-                                {(lang.code === 'ro' || lang.code === 'en') && (
-                                  <Badge variant="secondary" className="text-xs ml-2">Complet</Badge>
-                                )}
-                              </span>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <p className="text-xs text-muted-foreground">
-                        Traducerea completă este disponibilă pentru Română și English. Celelalte limbi vor fi adăugate în curând.
-                      </p>
-                    </div>
-
-                    <Alert>
-                      <Globe className="h-4 w-4" />
-                      <AlertDescription>
-                        <strong>Detectare automată:</strong> Dacă nu ai setat manual o preferință, platforma va afișa limba și moneda 
-                        bazate pe locația ta. De exemplu, din UK vezi în Engleză cu £, din România în Română cu Lei.
-                      </AlertDescription>
-                    </Alert>
-
-                    <div className="rounded-lg border p-4 bg-muted/30">
-                      <h4 className="font-medium mb-2">Limba curentă</h4>
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">
-                          {EUROPEAN_LANGUAGES.find(l => l.code === language)?.flag || '🌍'}
-                        </span>
-                        <span className="font-medium">
-                          {EUROPEAN_LANGUAGES.find(l => l.code === language)?.name || language.toUpperCase()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            {/* Tab Limbă removed - moved to Profile */}
 
             {/* Tab Încasări (Vânzător) - IBAN/Card */}
             <TabsContent value="payouts">
@@ -551,76 +483,7 @@ const Settings = () => {
               </Card>
             </TabsContent>
 
-            {/* Tab Notificări */}
-            <TabsContent value="notifications">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Preferințe Notificări</CardTitle>
-                  <CardDescription>Alege ce notificări primești - preferințele se salvează automat</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">General</h4>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Notificări Email</p>
-                        <p className="text-sm text-muted-foreground">Primește actualizări prin email</p>
-                      </div>
-                      <Switch 
-                        checked={emailNotifications} 
-                        onCheckedChange={(val) => {
-                          setEmailNotifications(val);
-                          saveNotificationPrefs('notification_email', val);
-                        }} 
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Alerte Mesaje</p>
-                        <p className="text-sm text-muted-foreground">Primește notificare când primești mesaje</p>
-                      </div>
-                      <Switch 
-                        checked={messageAlerts} 
-                        onCheckedChange={(val) => {
-                          setMessageAlerts(val);
-                          saveNotificationPrefs('notification_messages', val);
-                        }} 
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Comenzi</h4>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Alerte Comenzi</p>
-                        <p className="text-sm text-muted-foreground">Notificări pentru statusul comenzilor</p>
-                      </div>
-                      <Switch 
-                        checked={orderAlerts} 
-                        onCheckedChange={(val) => {
-                          setOrderAlerts(val);
-                          saveNotificationPrefs('notification_orders', val);
-                        }} 
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">Plăți & Încasări</p>
-                        <p className="text-sm text-muted-foreground">Notificări despre plăți primite și încasări</p>
-                      </div>
-                      <Switch 
-                        checked={paymentAlerts} 
-                        onCheckedChange={(val) => {
-                          setPaymentAlerts(val);
-                          saveNotificationPrefs('notification_payments', val);
-                        }} 
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+            {/* Tab Notificări removed - simplified to security tab */}
 
             {/* Tab Securitate */}
             <TabsContent value="security">
