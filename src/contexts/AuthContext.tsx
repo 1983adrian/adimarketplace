@@ -110,25 +110,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    // Always clear local state first
+    setUser(null);
+    setSession(null);
+    setProfile(null);
+    setIsAdmin(false);
+    
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Supabase signOut error:', error);
-        throw error;
+      // Try to sign out from Supabase, but don't fail if session is already gone
+      await supabase.auth.signOut();
+    } catch (error: any) {
+      // Ignore "session missing" errors - user is already logged out
+      if (error?.name !== 'AuthSessionMissingError' && error?.code !== 'session_not_found') {
+        console.error('SignOut error (non-critical):', error);
       }
-      // Force clear all state immediately
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setIsAdmin(false);
-    } catch (error) {
-      console.error('SignOut failed:', error);
-      // Force clear state even on error
-      setUser(null);
-      setSession(null);
-      setProfile(null);
-      setIsAdmin(false);
-      throw error;
     }
   };
 
