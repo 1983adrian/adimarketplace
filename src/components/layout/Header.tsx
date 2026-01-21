@@ -41,9 +41,15 @@ export const Header: React.FC = () => {
     }
   };
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+  const handleSignOut = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   return (
@@ -183,9 +189,17 @@ export const Header: React.FC = () => {
                       </>
                     )}
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-destructive focus:text-destructive">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      {t('header.signout')}
+                    <DropdownMenuItem 
+                      onSelect={(e) => e.preventDefault()}
+                      onClick={handleSignOut} 
+                      className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10 hover:bg-destructive/10 rounded-lg mx-1 my-1 transition-all duration-200 group"
+                    >
+                      <div className="flex items-center gap-2 py-1">
+                        <div className="p-1.5 rounded-md bg-destructive/10 group-hover:bg-destructive/20 transition-colors">
+                          <LogOut className="h-4 w-4" />
+                        </div>
+                        <span className="font-medium">{t('header.signout')}</span>
+                      </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -319,11 +333,13 @@ export const Header: React.FC = () => {
                         <div className="pt-4 border-t border-border mt-4">
                           <Button 
                             variant="ghost" 
-                            className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10" 
-                            onClick={() => { handleSignOut(); setMobileMenuOpen(false); }}
+                            className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl group transition-all duration-200" 
+                            onClick={(e) => { handleSignOut(e); setMobileMenuOpen(false); }}
                           >
-                            <LogOut className="mr-3 h-4 w-4" />
-                            {t('header.signout')}
+                            <div className="p-1.5 rounded-md bg-destructive/10 group-hover:bg-destructive/20 transition-colors mr-3">
+                              <LogOut className="h-4 w-4" />
+                            </div>
+                            <span className="font-medium">{t('header.signout')}</span>
                           </Button>
                         </div>
                       </>
