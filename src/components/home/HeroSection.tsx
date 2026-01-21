@@ -4,18 +4,45 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, TrendingUp, Shield, Truck, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import cmarketOriginal from '@/assets/cmarket-original.png';
 
-// CMarket Logo with dot after C
-const CMarketLogo: React.FC = () => (
-  <div className="flex items-center justify-center animate-fade-up">
-    <img 
-      src={cmarketOriginal} 
-      alt="C.Market - Marketplace" 
-      className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl h-auto object-contain"
-    />
-  </div>
-);
+// Import individual letters
+import letterC from '@/assets/letter-c.png';
+import letterM from '@/assets/letter-m.png';
+import letterA from '@/assets/letter-a.png';
+import letterR from '@/assets/letter-r.png';
+import letterK from '@/assets/letter-k.png';
+import letterE from '@/assets/letter-e.png';
+import letterT from '@/assets/letter-t.png';
+
+// CMarket Logo - Each letter as individual image, perfectly aligned
+const CMarketLogo: React.FC = () => {
+  const letters = [
+    { src: letterC, alt: 'C', className: 'h-16 md:h-24 lg:h-32 w-auto -mr-2 md:-mr-3' },
+    { src: letterM, alt: 'M', className: 'h-12 md:h-20 lg:h-28 w-auto' },
+    { src: letterA, alt: 'a', className: 'h-10 md:h-16 lg:h-24 w-auto' },
+    { src: letterR, alt: 'r', className: 'h-10 md:h-16 lg:h-24 w-auto' },
+    { src: letterK, alt: 'k', className: 'h-12 md:h-20 lg:h-28 w-auto' },
+    { src: letterE, alt: 'e', className: 'h-10 md:h-16 lg:h-24 w-auto' },
+    { src: letterT, alt: 't', className: 'h-10 md:h-16 lg:h-24 w-auto' },
+  ];
+
+  return (
+    <div className="flex items-end justify-center gap-0 animate-fade-up px-4">
+      {letters.map((letter, index) => (
+        <img
+          key={letter.alt}
+          src={letter.src}
+          alt={letter.alt}
+          className={`object-contain drop-shadow-lg transition-transform hover:scale-105 ${letter.className}`}
+          style={{ 
+            animationDelay: `${index * 0.1}s`,
+            filter: 'drop-shadow(2px 4px 6px rgba(0,0,0,0.15))'
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 export const HeroSection: React.FC = () => {
   const navigate = useNavigate();
