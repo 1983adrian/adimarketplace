@@ -110,9 +110,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setProfile(null);
-    setIsAdmin(false);
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Supabase signOut error:', error);
+        throw error;
+      }
+      // Force clear all state immediately
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setIsAdmin(false);
+    } catch (error) {
+      console.error('SignOut failed:', error);
+      // Force clear state even on error
+      setUser(null);
+      setSession(null);
+      setProfile(null);
+      setIsAdmin(false);
+      throw error;
+    }
   };
 
   const updateProfile = async (data: Partial<Profile>) => {
