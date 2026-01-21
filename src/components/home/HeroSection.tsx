@@ -2,42 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Shield, Truck, Star, ShoppingCart } from 'lucide-react';
+import { Search, TrendingUp, Shield, Truck, Star } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import heroImage from '@/assets/marketplace-hero.jpeg';
-
-// MarketPlace colorful title component
-const MarketPlaceTitle: React.FC = () => (
-  <div className="flex items-center justify-center gap-2 md:gap-4 animate-fade-up">
-    {/* Shopping Cart Icon */}
-    <ShoppingCart className="h-10 w-10 md:h-16 md:w-16 lg:h-20 lg:w-20 text-primary" />
-    
-    {/* Colorful MarketPlace Text */}
-    <h1 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tight font-display select-none">
-      <span className="text-[hsl(220,90%,50%)]">M</span>
-      <span className="text-[hsl(220,90%,50%)]">a</span>
-      <span className="text-[hsl(220,90%,50%)]">r</span>
-      <span className="text-[hsl(220,90%,50%)]">k</span>
-      <span className="text-[hsl(220,90%,50%)]">e</span>
-      <span className="text-[hsl(220,90%,50%)]">t</span>
-      <span className="text-[hsl(0,80%,50%)]">P</span>
-      <span className="text-[hsl(45,100%,50%)]">l</span>
-      <span className="text-[hsl(45,100%,50%)]">a</span>
-      <span className="text-[hsl(160,84%,39%)]">c</span>
-      <span className="text-[hsl(160,84%,39%)]">e</span>
-    </h1>
-    
-    {/* Shopping Basket Icon */}
-    <div className="relative">
-      <svg className="h-10 w-10 md:h-16 md:w-16 lg:h-20 lg:w-20" viewBox="0 0 64 64" fill="none">
-        <path d="M8 24h48l-6 28H14L8 24z" fill="hsl(45, 100%, 50%)" />
-        <path d="M20 24V16a12 12 0 0124 0v8" stroke="hsl(220, 90%, 50%)" strokeWidth="4" fill="none" />
-        <circle cx="20" cy="56" r="4" fill="hsl(0, 80%, 50%)" />
-        <circle cx="44" cy="56" r="4" fill="hsl(160, 84%, 39%)" />
-      </svg>
-    </div>
-  </div>
-);
+import cmarketLogo from '@/assets/cmarket-logo.png';
 
 export const HeroSection: React.FC = () => {
   const navigate = useNavigate();
@@ -83,16 +50,12 @@ export const HeroSection: React.FC = () => {
       
       <div className="container mx-auto px-4 py-8 md:py-12 lg:py-16 relative">
       <div className="max-w-6xl mx-auto text-center space-y-6 md:space-y-8">
-          {/* Hero Image with embedded MarketPlace logo */}
+          {/* CMarket Logo - Enhanced and Centered */}
           <div className="animate-fade-up flex justify-center">
             <img 
-              src={heroImage} 
-              alt="MarketPlace Products" 
-              className="w-full max-w-4xl h-auto object-contain"
-              style={{
-                mixBlendMode: 'multiply',
-                filter: 'drop-shadow(0 0 0 transparent)',
-              }}
+              src={cmarketLogo} 
+              alt="CMarket - Marketplace" 
+              className="w-full max-w-2xl md:max-w-3xl lg:max-w-4xl h-auto object-contain drop-shadow-xl"
             />
           </div>
 
