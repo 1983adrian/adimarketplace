@@ -1,27 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Lock, Mail, Loader2, Check, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { usePasswordValidation } from '@/hooks/usePasswordValidation';
+import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 
 interface PasswordResetProps {
   userEmail: string;
 }
 
 export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [validating, setValidating] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | 'very-strong'>('weak');
+  
   const { toast } = useToast();
+  const { validate, validateSync } = usePasswordValidation();
+
+  // Validate password on change
+  useEffect(() => {
+    if (newPassword.length > 0) {
+      const result = validateSync(newPassword);
+      setPasswordStrength(result.strength);
+      setPasswordErrors(result.syncErrors);
+    } else {
+      setPasswordStrength('weak');
+      setPasswordErrors([]);
+    }
+  }, [newPassword, validateSync]);
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) {
@@ -33,11 +49,17 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
       return;
     }
 
-    if (newPassword.length < 6) {
-      toast({
-        title: 'Parolă prea scurtă',
-        description: 'Parola trebuie să aibă cel puțin 6 caractere',
-        variant: 'destructive',
+    // Full async validation including leaked password check
+    setValidating(true);
+    const validationResult = await validate(newPassword);
+    setValidating(false);
+    
+    if (!validationResult.isValid) {
+      setPasswordErrors(validationResult.errors);
+      toast({ 
+        title: 'Parolă invalidă', 
+        description: validationResult.errors[0], 
+        variant: 'destructive' 
       });
       return;
     }
@@ -56,7 +78,6 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
       });
 
       // Reset form
-      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setDialogOpen(false);
@@ -96,6 +117,8 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
     }
   };
 
+  const isSubmitting = loading || validating;
+
   return (
     <div className="space-y-4">
       {/* Schimbare parolă - utilizator autentificat */}
@@ -113,7 +136,7 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
           <DialogHeader>
             <DialogTitle>Schimbă Parola</DialogTitle>
             <DialogDescription>
-              Introdu noua ta parolă. Aceasta trebuie să aibă cel puțin 6 caractere.
+              Introdu o parolă puternică și sigură.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
@@ -139,6 +162,15 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
+              
+              {/* Password strength indicator */}
+              {newPassword.length > 0 && (
+                <PasswordStrengthIndicator 
+                  strength={passwordStrength} 
+                  errors={passwordErrors}
+                  showErrors={true}
+                />
+              )}
             </div>
 
             <div className="space-y-2">
@@ -154,19 +186,27 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
                   className="pl-10"
                 />
               </div>
+              {confirmPassword && newPassword !== confirmPassword && (
+                <p className="text-xs text-destructive">Parolele nu se potrivesc</p>
+              )}
             </div>
 
             <Button 
               onClick={handleChangePassword} 
-              disabled={loading || !newPassword || !confirmPassword}
+              disabled={isSubmitting || !newPassword || !confirmPassword}
               className="w-full gap-2"
             >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {validating ? 'Se verifică...' : 'Se salvează...'}
+                </>
               ) : (
-                <Check className="h-4 w-4" />
+                <>
+                  <Check className="h-4 w-4" />
+                  Salvează Parola Nouă
+                </>
               )}
-              Salvează Parola Nouă
             </Button>
           </div>
         </DialogContent>

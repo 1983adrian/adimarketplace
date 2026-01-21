@@ -372,11 +372,11 @@ export default function AdminSecuritySettings() {
                   </div>
                   
                   {settings.authentication.leakedPasswordProtection && (
-                    <Alert className="bg-green-50 border-green-200">
+                    <Alert className="bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800">
                       <CheckCircle className="h-4 w-4 text-green-600" />
-                      <AlertTitle className="text-green-800">Protecție Activată</AlertTitle>
-                      <AlertDescription className="text-green-700">
-                        Utilizatorii nu vor putea folosi parole care au fost expuse în breșe de securitate cunoscute.
+                      <AlertTitle className="text-green-800 dark:text-green-400">Protecție Activată ✓ Funcțională</AlertTitle>
+                      <AlertDescription className="text-green-700 dark:text-green-500">
+                        <strong>Implementat:</strong> La înregistrare și resetare parolă, sistemul verifică automat parola împotriva bazei de date HaveIBeenPwned folosind modelul k-anonymity (sigur și privat). Parolele compromise sunt blocate.
                       </AlertDescription>
                     </Alert>
                   )}
