@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
 import cmarketHero from '@/assets/cmarket-hero.png';
 
 export const HeroSection: React.FC = () => {
@@ -117,6 +118,10 @@ export const HeroSection: React.FC = () => {
                           <Badge className="absolute bottom-1 left-1 text-[10px] md:text-xs bg-secondary text-secondary-foreground px-1 py-0.5">
                             {conditionLabels[listing.condition]}
                           </Badge>
+                          {/* Verified Badge for special sellers */}
+                          <div className="absolute top-1 right-1">
+                            <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={true} />
+                          </div>
                         </div>
                         <CardContent className="p-1.5 md:p-2 flex-1 flex flex-col">
                           <h3 className="font-medium text-[10px] md:text-xs line-clamp-1 group-hover:text-primary transition-colors">
