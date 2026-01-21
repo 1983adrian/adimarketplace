@@ -223,7 +223,12 @@ export function AIMaintenanceDashboard() {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               AI Maintenance
             </h1>
-            <p className="text-muted-foreground">Monitorizare și reparare automată a platformei</p>
+            <p className="text-muted-foreground">
+              Monitorizare și reparare automată a platformei 
+              <Badge variant="outline" className="ml-2 text-xs border-green-500 text-green-600">
+                🔒 Doar Reparații - Fără Ștergeri
+              </Badge>
+            </p>
           </div>
         </div>
         <div className="flex gap-2">
