@@ -20,6 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
 import { CODSettings } from '@/components/listings/CODSettings';
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
+import { ShippingCostSelector, COURIER_RATES } from '@/components/listings/ShippingCostSelector';
 
 
 const EditListing = () => {
@@ -46,8 +47,9 @@ const EditListing = () => {
   const [isActive, setIsActive] = useState(true);
   const [isSold, setIsSold] = useState(false);
   
-  // Shipping cost
+  // Shipping cost and carrier
   const [shippingCost, setShippingCost] = useState('');
+  const [selectedCourier, setSelectedCourier] = useState('');
   
   // COD (Cash on Delivery / Ramburs) - Romania only
   const { data: sellerCountry } = useSellerCountry();
@@ -65,6 +67,7 @@ const EditListing = () => {
       setDescription(listing.description || '');
       setPrice(listing.price.toString());
       setShippingCost(listing.shipping_cost?.toString() || '0');
+      setSelectedCourier((listing as any).shipping_carrier || 'free');
       setCondition(listing.condition);
       setCategory(listing.category_id || '');
       setLocation(listing.location || '');
@@ -155,15 +158,7 @@ const EditListing = () => {
       return;
     }
 
-    // Validate shipping cost
-    if (shippingCost) {
-      const priceNum = parseFloat(price);
-      const shippingNum = parseFloat(shippingCost);
-      if (shippingNum > priceNum * 0.2) {
-        toast({ title: 'Cost livrare prea mare', description: 'Costul de livrare nu poate depăși 20% din prețul produsului', variant: 'destructive' });
-        return;
-      }
-    }
+    // Shipping is now managed by courier selection - no manual validation needed
 
     setLoading(true);
     
@@ -175,6 +170,7 @@ const EditListing = () => {
         description,
         price: parseFloat(price),
         shipping_cost: shippingCost ? parseFloat(shippingCost) : 0,
+        shipping_carrier: selectedCourier || null,
         condition,
         category_id: category || null,
         location,
@@ -416,77 +412,64 @@ const EditListing = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="price">Preț *</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
-                    <Input 
-                      id="price" 
-                      type="number" 
-                      placeholder="0" 
-                      value={price} 
-                      onChange={(e) => setPrice(e.target.value)} 
-                      className="pl-8" 
-                      min="0" 
-                      step="0.01" 
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="shippingCost">Cost Expediere *</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
-                    <Input 
-                      id="shippingCost" 
-                      type="number" 
-                      placeholder="0" 
-                      value={shippingCost} 
-                      onChange={(e) => setShippingCost(e.target.value)} 
-                      className="pl-8" 
-                      min="0" 
-                      step="0.01" 
-                    />
-                  </div>
-                  <p className="text-xs text-destructive mt-1">
-                    Max 20% din preț
-                  </p>
-                </div>
-              </div>
               <div>
-                <Label htmlFor="location">Locație</Label>
-                <Input 
-                  id="location" 
-                  placeholder="Oraș, Țară" 
-                  value={location} 
-                  onChange={(e) => setLocation(e.target.value)} 
-                />
+                <Label htmlFor="price">Preț *</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                  <Input 
+                    id="price" 
+                    type="number" 
+                    placeholder="0" 
+                    value={price} 
+                    onChange={(e) => setPrice(e.target.value)} 
+                    className="pl-8" 
+                    min="0" 
+                    step="0.01" 
+                  />
+                </div>
               </div>
               
-              {/* Seller Country for COD eligibility */}
-              {!sellerCountry && (
-                <div className="pt-4 border-t">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <Label htmlFor="sellerCountry">Țara ta (pentru opțiuni de livrare)</Label>
-                  </div>
-                  <Select value={sellerCountryInput} onValueChange={(value) => {
-                    setSellerCountryInput(value);
+              {/* Seller Country Selection */}
+              <div className="pt-4 border-t">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <Label htmlFor="sellerCountry">Țara ta (pentru tarife de livrare) *</Label>
+                </div>
+                <Select value={sellerCountry || sellerCountryInput} onValueChange={(value) => {
+                  setSellerCountryInput(value);
+                  if (!sellerCountry) {
                     updateSellerCountry.mutate(value);
-                  }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selectează țara" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Romania">România</SelectItem>
-                      <SelectItem value="UK">Regatul Unit</SelectItem>
-                      <SelectItem value="Germany">Germania</SelectItem>
-                      <SelectItem value="France">Franța</SelectItem>
-                      <SelectItem value="Italy">Italia</SelectItem>
-                      <SelectItem value="Spain">Spania</SelectItem>
-                      <SelectItem value="Other">Altă țară</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  }
+                  // Reset courier when country changes
+                  setSelectedCourier('');
+                  setShippingCost('');
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selectează țara" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Romania">România</SelectItem>
+                    <SelectItem value="UK">Regatul Unit</SelectItem>
+                    <SelectItem value="Germany">Germania</SelectItem>
+                    <SelectItem value="France">Franța</SelectItem>
+                    <SelectItem value="Italy">Italia</SelectItem>
+                    <SelectItem value="Spain">Spania</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Shipping Cost Selector - Fixed courier rates */}
+              {(sellerCountry || sellerCountryInput) && (
+                <div className="pt-4">
+                  <ShippingCostSelector
+                    country={sellerCountry || sellerCountryInput || 'UK'}
+                    selectedCourier={selectedCourier}
+                    onCourierChange={(courierId, cost) => {
+                      setSelectedCourier(courierId);
+                      setShippingCost(cost.toString());
+                    }}
+                    allowFreeShipping={true}
+                  />
                 </div>
               )}
             </CardContent>
