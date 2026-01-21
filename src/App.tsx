@@ -37,6 +37,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiePolicy from "./pages/CookiePolicy";
 import InstallApp from "./pages/InstallApp";
+import SellerTutorial from "./pages/SellerTutorial";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -111,6 +112,7 @@ const App = () => (
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/cookies" element={<CookiePolicy />} />
                 <Route path="/install" element={<InstallApp />} />
+                <Route path="/seller-tutorial" element={<SellerTutorial />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/owner" element={<OwnerDashboard />} />
