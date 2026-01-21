@@ -6,57 +6,57 @@ import {
   Package, 
   Eye, 
   ShoppingCart,
-  Star,
   Calendar,
-  ArrowUp,
-  ArrowDown
+  Gavel
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMyListings } from '@/hooks/useListings';
+import { useMyOrders } from '@/hooks/useOrders';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  BarChart,
-  Bar
-} from 'recharts';
-
-// Sample data for charts - in real app, fetch from database
-const salesData = [
-  { month: 'Jan', sales: 120, views: 450 },
-  { month: 'Feb', sales: 180, views: 620 },
-  { month: 'Mar', sales: 150, views: 580 },
-  { month: 'Apr', sales: 220, views: 780 },
-  { month: 'May', sales: 280, views: 920 },
-  { month: 'Jun', sales: 350, views: 1100 },
-];
-
-const categoryData = [
-  { category: 'Electronics', sales: 45 },
-  { category: 'Clothing', sales: 32 },
-  { category: 'Home', sales: 18 },
-  { category: 'Sports', sales: 12 },
-  { category: 'Other', sales: 8 },
-];
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { format } from 'date-fns';
+import { ro } from 'date-fns/locale';
 
 const SellerAnalytics = () => {
   const { user, loading } = useAuth();
   const { t } = useLanguage();
+  const { formatPrice } = useCurrency();
   const { data: myListings } = useMyListings(user?.id);
+  const { data: sellingOrders } = useMyOrders('selling');
 
+  // Real data calculations
   const activeListings = myListings?.filter(l => l.is_active && !l.is_sold) || [];
   const soldListings = myListings?.filter(l => l.is_sold) || [];
   const totalViews = myListings?.reduce((acc, l) => acc + l.views_count, 0) || 0;
-  const totalEarnings = soldListings.reduce((acc, l) => acc + l.price, 0);
-  const avgPrice = soldListings.length > 0 ? totalEarnings / soldListings.length : 0;
+  
+  // Real orders where user is seller
+  const sellerOrders = sellingOrders || [];
+  const completedOrders = sellerOrders.filter(o => o.status === 'delivered');
+  const pendingOrders = sellerOrders.filter(o => o.status === 'pending' || o.status === 'paid' || o.status === 'shipped');
+  
+  // Real earnings from completed orders
+  const totalEarnings = completedOrders.reduce((acc, o) => {
+    const commission = o.seller_commission || 0;
+    return acc + (o.amount - commission);
+  }, 0);
+  
+  const pendingEarnings = pendingOrders.reduce((acc, o) => {
+    const commission = o.seller_commission || 0;
+    return acc + (o.amount - commission);
+  }, 0);
+  
+  const avgPrice = soldListings.length > 0 
+    ? soldListings.reduce((acc, l) => acc + l.price, 0) / soldListings.length 
+    : 0;
+
+  // Auction listings
+  const auctionListings = myListings?.filter(l => 
+    l.listing_type === 'auction' || l.listing_type === 'both'
+  ) || [];
 
   if (loading) {
     return (
@@ -73,31 +73,30 @@ const SellerAnalytics = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold">Seller Analytics</h1>
-            <p className="text-muted-foreground">Track your sales performance and growth</p>
+            <h1 className="text-3xl font-bold">Analize Vânzări</h1>
+            <p className="text-muted-foreground">Date reale din activitatea ta pe platformă</p>
           </div>
           <Button asChild>
             <Link to="/dashboard">{t('common.back')}</Link>
           </Button>
         </div>
 
-        {/* Stats Overview */}
+        {/* Stats Overview - Real Data Only */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Revenue</p>
-                  <p className="text-2xl font-bold">£{totalEarnings.toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground">Câștiguri Confirmate</p>
+                  <p className="text-2xl font-bold text-green-600">{formatPrice(totalEarnings)}</p>
                 </div>
                 <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/20">
                   <DollarSign className="h-6 w-6 text-green-600" />
                 </div>
               </div>
-              <div className="flex items-center gap-1 mt-2 text-sm text-green-600">
-                <ArrowUp className="h-3 w-3" />
-                <span>+12% from last month</span>
-              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Din {completedOrders.length} comenzi livrate
+              </p>
             </CardContent>
           </Card>
 
@@ -105,17 +104,16 @@ const SellerAnalytics = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Items Sold</p>
-                  <p className="text-2xl font-bold">{soldListings.length}</p>
+                  <p className="text-sm text-muted-foreground">În Așteptare</p>
+                  <p className="text-2xl font-bold text-amber-600">{formatPrice(pendingEarnings)}</p>
                 </div>
-                <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/20">
-                  <ShoppingCart className="h-6 w-6 text-blue-600" />
+                <div className="p-3 rounded-full bg-amber-100 dark:bg-amber-900/20">
+                  <ShoppingCart className="h-6 w-6 text-amber-600" />
                 </div>
               </div>
-              <div className="flex items-center gap-1 mt-2 text-sm text-blue-600">
-                <ArrowUp className="h-3 w-3" />
-                <span>+5 this month</span>
-              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {pendingOrders.length} comenzi în procesare
+              </p>
             </CardContent>
           </Card>
 
@@ -123,17 +121,16 @@ const SellerAnalytics = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Views</p>
+                  <p className="text-sm text-muted-foreground">Vizualizări Totale</p>
                   <p className="text-2xl font-bold">{totalViews.toLocaleString()}</p>
                 </div>
                 <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/20">
                   <Eye className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
-              <div className="flex items-center gap-1 mt-2 text-sm text-purple-600">
-                <ArrowUp className="h-3 w-3" />
-                <span>+18% from last month</span>
-              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Pe {myListings?.length || 0} produse
+              </p>
             </CardContent>
           </Card>
 
@@ -141,135 +138,161 @@ const SellerAnalytics = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Avg. Sale Price</p>
-                  <p className="text-2xl font-bold">£{avgPrice.toFixed(0)}</p>
+                  <p className="text-sm text-muted-foreground">Preț Mediu</p>
+                  <p className="text-2xl font-bold">{formatPrice(avgPrice)}</p>
                 </div>
-                <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900/20">
-                  <TrendingUp className="h-6 w-6 text-orange-600" />
+                <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/20">
+                  <TrendingUp className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
-              <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
-                <span>Based on {soldListings.length} sales</span>
-              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Bazat pe {soldListings.length} vânzări
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        {/* Summary Cards */}
+        <div className="grid md:grid-cols-3 gap-4 mb-8">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Sales & Views Trend
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" />
+                Produse Active
               </CardTitle>
-              <CardDescription>Monthly performance over time</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={salesData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis className="text-xs" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="sales" 
-                      stroke="hsl(var(--primary))" 
-                      strokeWidth={2}
-                      dot={{ fill: 'hsl(var(--primary))' }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="views" 
-                      stroke="hsl(var(--muted-foreground))" 
-                      strokeWidth={2}
-                      strokeDasharray="5 5"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <p className="text-4xl font-bold text-primary">{activeListings.length}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Disponibile pentru cumpărare
+              </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                Sales by Category
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ShoppingCart className="h-5 w-5 text-green-600" />
+                Produse Vândute
               </CardTitle>
-              <CardDescription>Distribution of your sales</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={categoryData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis type="number" className="text-xs" />
-                    <YAxis dataKey="category" type="category" className="text-xs" width={80} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Bar dataKey="sales" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              <p className="text-4xl font-bold text-green-600">{soldListings.length}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Total vânzări finalizate
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Gavel className="h-5 w-5 text-amber-600" />
+                La Licitație
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-4xl font-bold text-amber-600">{auctionListings.length}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Produse cu licitație activă
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Recent Activity */}
+        {/* Recent Orders */}
+        {sellerOrders.length > 0 && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                Comenzi Recente
+              </CardTitle>
+              <CardDescription>Ultimele tale comenzi pe platformă</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {sellerOrders.slice(0, 5).map((order) => (
+                  <div key={order.id} className="flex items-center justify-between p-4 rounded-lg border">
+                    <div>
+                      <p className="font-medium">
+                        Comandă #{order.id.slice(0, 8)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(order.created_at), 'dd MMM yyyy, HH:mm', { locale: ro })}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Badge variant={
+                        order.status === 'delivered' ? 'default' :
+                        order.status === 'shipped' ? 'secondary' :
+                        order.status === 'cancelled' ? 'destructive' : 'outline'
+                      }>
+                        {order.status === 'delivered' ? 'Livrată' :
+                         order.status === 'shipped' ? 'Expediată' :
+                         order.status === 'paid' ? 'Plătită' :
+                         order.status === 'pending' ? 'În așteptare' :
+                         order.status === 'cancelled' ? 'Anulată' : order.status}
+                      </Badge>
+                      <p className="font-bold">{formatPrice(order.amount)}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Active Listings Performance - Real Data */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Active Listings Performance
+              <Package className="h-5 w-5" />
+              Performanță Produse Active
             </CardTitle>
-            <CardDescription>How your current listings are performing</CardDescription>
+            <CardDescription>Vizualizări reale pentru produsele tale</CardDescription>
           </CardHeader>
           <CardContent>
             {activeListings.length > 0 ? (
               <div className="space-y-4">
-                {activeListings.slice(0, 5).map((listing) => (
+                {activeListings.slice(0, 10).map((listing) => (
                   <div key={listing.id} className="flex items-center justify-between p-4 rounded-lg border">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                        <Package className="h-6 w-6 text-muted-foreground" />
+                      <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden">
+                        {listing.listing_images?.[0] ? (
+                          <img 
+                            src={listing.listing_images[0].image_url} 
+                            alt={listing.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Package className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
                       </div>
                       <div>
                         <p className="font-medium">{listing.title}</p>
-                        <p className="text-sm text-muted-foreground">£{listing.price}</p>
+                        <p className="text-sm text-muted-foreground">{formatPrice(listing.price)}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-6 text-sm">
                       <div className="text-center">
                         <p className="font-bold">{listing.views_count}</p>
-                        <p className="text-muted-foreground">Views</p>
+                        <p className="text-muted-foreground">Vizualizări</p>
                       </div>
-                      <div className="text-center">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                          <span className="font-bold">4.8</span>
-                        </div>
-                        <p className="text-muted-foreground">Rating</p>
-                      </div>
+                      {listing.listing_type && listing.listing_type !== 'buy_now' && (
+                        <Badge variant="secondary" className="gap-1">
+                          <Gavel className="h-3 w-3" />
+                          Licitație
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-center text-muted-foreground py-8">No active listings</p>
+              <p className="text-center text-muted-foreground py-8">Niciun produs activ</p>
             )}
           </CardContent>
         </Card>
