@@ -65,10 +65,17 @@
     <!-- Safe area insets for notch devices -->
     <style>
       :root {
-        --sat: env(safe-area-inset-top);
-        --sar: env(safe-area-inset-right);
-        --sab: env(safe-area-inset-bottom);
-        --sal: env(safe-area-inset-left);
+        --sat: env(safe-area-inset-top, 0px);
+        --sar: env(safe-area-inset-right, 0px);
+        --sab: env(safe-area-inset-bottom, 0px);
+        --sal: env(safe-area-inset-left, 0px);
+      }
+      
+      /* PWA standalone mode header fix */
+      @media all and (display-mode: standalone) {
+        :root {
+          --sat: max(env(safe-area-inset-top, 0px), 20px);
+        }
       }
       
       /* Prevent pull-to-refresh on mobile */

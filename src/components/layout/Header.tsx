@@ -54,10 +54,10 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm pt-[max(env(safe-area-inset-top),12px)] md:pt-0">
+    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm" style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 16px)' }}>
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
-        <div className="flex items-center justify-between min-h-[56px] h-auto py-2 md:h-16 md:py-0 gap-3 md:gap-4">
+        <div className="flex items-center justify-between min-h-[60px] h-auto py-3 md:h-16 md:py-0 gap-3 md:gap-4">
           {/* Logo + Download Button */}
           <div className="flex items-center gap-2 shrink-0">
             <Link to="/" className="flex items-center">

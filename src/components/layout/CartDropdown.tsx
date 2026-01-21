@@ -23,7 +23,7 @@ export const CartDropdown: React.FC = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          className="relative h-11 w-11 rounded-full bg-gradient-to-br from-background to-muted border-2 border-primary/20 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 group"
+          className="relative h-10 w-10 rounded-full bg-gradient-to-br from-background to-muted border-2 border-primary/20 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 group"
         >
           <ShoppingCart className="h-5 w-5 text-foreground group-hover:text-primary transition-colors duration-300" />
           {itemCount > 0 && (
