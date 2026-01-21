@@ -34,6 +34,7 @@ export interface Listing {
   title: string;
   description: string | null;
   price: number;
+  shipping_cost: number | null;
   condition: ItemCondition;
   category_id: string | null;
   location: string | null;

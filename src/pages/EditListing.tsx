@@ -19,17 +19,6 @@ import { useImageUpload } from '@/hooks/useImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
 
-const CARRIERS = [
-  { value: 'royal_mail', label: 'Royal Mail' },
-  { value: 'parcelforce', label: 'Parcelforce' },
-  { value: 'dhl', label: 'DHL' },
-  { value: 'ups', label: 'UPS' },
-  { value: 'fedex', label: 'FedEx' },
-  { value: 'hermes', label: 'Evri (Hermes)' },
-  { value: 'dpd', label: 'DPD' },
-  { value: 'yodel', label: 'Yodel' },
-  { value: 'other', label: 'Altul (specifică)' },
-];
 
 const EditListing = () => {
   const { id } = useParams<{ id: string }>();
@@ -55,10 +44,8 @@ const EditListing = () => {
   const [isActive, setIsActive] = useState(true);
   const [isSold, setIsSold] = useState(false);
   
-  // Shipping settings
-  const [preferredCarrier, setPreferredCarrier] = useState('');
-  const [customCarrier, setCustomCarrier] = useState('');
-  const [shippingNotes, setShippingNotes] = useState('');
+  // Shipping cost
+  const [shippingCost, setShippingCost] = useState('');
 
   // Load listing data
   useEffect(() => {
@@ -66,6 +53,7 @@ const EditListing = () => {
       setTitle(listing.title);
       setDescription(listing.description || '');
       setPrice(listing.price.toString());
+      setShippingCost(listing.shipping_cost?.toString() || '0');
       setCondition(listing.condition);
       setCategory(listing.category_id || '');
       setLocation(listing.location || '');
@@ -149,6 +137,16 @@ const EditListing = () => {
       return;
     }
 
+    // Validate shipping cost
+    if (shippingCost) {
+      const priceNum = parseFloat(price);
+      const shippingNum = parseFloat(shippingCost);
+      if (shippingNum > priceNum * 0.5) {
+        toast({ title: 'Cost livrare prea mare', description: 'Costul de livrare nu poate depăși 50% din prețul produsului', variant: 'destructive' });
+        return;
+      }
+    }
+
     setLoading(true);
     
     try {
@@ -158,6 +156,7 @@ const EditListing = () => {
         title,
         description,
         price: parseFloat(price),
+        shipping_cost: shippingCost ? parseFloat(shippingCost) : 0,
         condition,
         category_id: category || null,
         location,
@@ -384,26 +383,50 @@ const EditListing = () => {
             </CardContent>
           </Card>
 
-          {/* Price & Location */}
+          {/* Price, Shipping & Location */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Preț și Locație</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Truck className="h-5 w-5" />
+                Preț, Livrare și Locație
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="price">Preț *</Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
-                  <Input 
-                    id="price" 
-                    type="number" 
-                    placeholder="0" 
-                    value={price} 
-                    onChange={(e) => setPrice(e.target.value)} 
-                    className="pl-8" 
-                    min="0" 
-                    step="0.01" 
-                  />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="price">Preț *</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                    <Input 
+                      id="price" 
+                      type="number" 
+                      placeholder="0" 
+                      value={price} 
+                      onChange={(e) => setPrice(e.target.value)} 
+                      className="pl-8" 
+                      min="0" 
+                      step="0.01" 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="shippingCost">Cost Expediere *</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                    <Input 
+                      id="shippingCost" 
+                      type="number" 
+                      placeholder="0" 
+                      value={shippingCost} 
+                      onChange={(e) => setShippingCost(e.target.value)} 
+                      className="pl-8" 
+                      min="0" 
+                      step="0.01" 
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Max 50% din preț
+                  </p>
                 </div>
               </div>
               <div>
@@ -413,53 +436,6 @@ const EditListing = () => {
                   placeholder="Oraș, Țară" 
                   value={location} 
                   onChange={(e) => setLocation(e.target.value)} 
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Shipping Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Truck className="h-5 w-5" />
-                Setări Livrare
-              </CardTitle>
-              <CardDescription>Alege cum vei livra produsul</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="carrier">Curier Preferat</Label>
-                <Select value={preferredCarrier} onValueChange={setPreferredCarrier}>
-                  <SelectTrigger><SelectValue placeholder="Selectează curierul" /></SelectTrigger>
-                  <SelectContent>
-                    {CARRIERS.map((carrier) => (
-                      <SelectItem key={carrier.value} value={carrier.value}>{carrier.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {preferredCarrier === 'other' && (
-                <div>
-                  <Label htmlFor="customCarrier">Specifică Curierul</Label>
-                  <Input 
-                    id="customCarrier" 
-                    placeholder="Ex: Cargus, Fan Courier, etc." 
-                    value={customCarrier} 
-                    onChange={(e) => setCustomCarrier(e.target.value)} 
-                  />
-                </div>
-              )}
-
-              <div>
-                <Label htmlFor="shippingNotes">Note pentru Livrare</Label>
-                <Textarea 
-                  id="shippingNotes" 
-                  placeholder="Informații adiționale despre livrare..." 
-                  value={shippingNotes} 
-                  onChange={(e) => setShippingNotes(e.target.value)} 
-                  rows={3} 
                 />
               </div>
             </CardContent>
