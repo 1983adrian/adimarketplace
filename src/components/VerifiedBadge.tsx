@@ -78,15 +78,17 @@ export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   if (!data?.isSpecial) return null;
 
   const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-5 w-5',
-    lg: 'h-6 w-6',
+    sm: 'h-6 w-6',
+    md: 'h-7 w-7',
+    lg: 'h-8 w-8',
   };
 
   const badge = (
-    <BadgeCheck 
-      className={`${sizeClasses[size]} text-blue-500 fill-blue-500 shrink-0 drop-shadow-lg`} 
-    />
+    <div className="bg-white rounded-full p-0.5 shadow-lg border-2 border-blue-500">
+      <BadgeCheck 
+        className={`${sizeClasses[size]} text-blue-500 fill-blue-500 shrink-0`} 
+      />
+    </div>
   );
 
   if (!showTooltip) return badge;
