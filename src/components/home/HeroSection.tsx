@@ -8,21 +8,11 @@ import cmarketOriginal from '@/assets/cmarket-original.png';
 
 // CMarket Logo with dot after C
 const CMarketLogo: React.FC = () => (
-  <div className="relative flex items-center justify-center animate-fade-up">
+  <div className="flex items-center justify-center animate-fade-up">
     <img 
       src={cmarketOriginal} 
       alt="C.Market - Marketplace" 
       className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl h-auto object-contain"
-    />
-    {/* Colorful dot positioned after C */}
-    <div 
-      className="absolute w-3 h-3 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full"
-      style={{
-        background: 'linear-gradient(135deg, #F5A623 0%, #4A90D9 25%, #E74C3C 50%, #27AE60 75%, #5DADE2 100%)',
-        left: '23%',
-        bottom: '38%',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-      }}
     />
   </div>
 );
