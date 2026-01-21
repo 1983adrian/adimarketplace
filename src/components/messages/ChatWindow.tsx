@@ -73,15 +73,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newMessage.trim() || !conversation?.id || conversation?.id === 'admin-new') return;
+    const trimmedMessage = newMessage.trim();
+    
+    if (!trimmedMessage || !conversation?.id || conversation?.id === 'admin-new') return;
 
-    await sendMessage.mutateAsync({
-      conversationId: conversation.id,
-      senderId: currentUserId,
-      content: newMessage.trim(),
-    });
-    setNewMessage('');
-    inputRef.current?.focus();
+    try {
+      await sendMessage.mutateAsync({
+        conversationId: conversation.id,
+        senderId: currentUserId,
+        content: trimmedMessage,
+      });
+      setNewMessage('');
+      inputRef.current?.focus();
+    } catch (error) {
+      console.error('Failed to send message:', error);
+    }
   };
 
   const handleEmojiSelect = (emoji: string) => {

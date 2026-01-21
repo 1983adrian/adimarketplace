@@ -45,7 +45,10 @@ export default function Messages() {
   };
 
   const handleNewConversation = async (sellerId: string, listingId?: string) => {
-    if (!user?.id || !listingId) return;
+    if (!user?.id || !listingId) {
+      toast.error('Lipsesc informații necesare pentru a crea conversația');
+      return;
+    }
     
     try {
       const result = await createConversation.mutateAsync({
@@ -54,19 +57,29 @@ export default function Messages() {
         sellerId
       });
       
+      // Refetch to get the full conversation with details
       await refetch();
       
-      // Find the new conversation and select it
-      const conv = conversations?.find((c: any) => c.id === result.id) || {
-        id: result.id,
-        listing_id: listingId,
-        buyer_id: user.id,
-        seller_id: sellerId
-      };
+      // Wait a bit for the refetch to complete, then find and select the conversation
+      setTimeout(() => {
+        const conv = conversations?.find((c: any) => c.id === result.id);
+        if (conv) {
+          setSelectedConversation(conv);
+          setShowChat(true);
+        } else {
+          // If not found in list, use the result directly
+          setSelectedConversation({
+            id: result.id,
+            listing_id: listingId,
+            buyer_id: user.id,
+            seller_id: sellerId
+          });
+          setShowChat(true);
+        }
+      }, 100);
       
-      setSelectedConversation(conv);
-      setShowChat(true);
     } catch (error) {
+      console.error('Error creating conversation:', error);
       toast.error('Nu s-a putut crea conversația');
     }
   };

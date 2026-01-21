@@ -103,13 +103,16 @@ export const useCreateConversation = () => {
   
   return useMutation({
     mutationFn: async ({ listingId, buyerId, sellerId }: { listingId: string; buyerId: string; sellerId: string }) => {
-      // Check if conversation already exists
-      const { data: existing } = await supabase
+      // Check if conversation already exists for this listing between buyer and seller
+      const { data: existing, error: existingError } = await supabase
         .from('conversations')
-        .select('id')
+        .select('*')
         .eq('listing_id', listingId)
         .eq('buyer_id', buyerId)
+        .eq('seller_id', sellerId)
         .maybeSingle();
+      
+      if (existingError) throw existingError;
       
       if (existing) {
         return existing;
@@ -117,7 +120,11 @@ export const useCreateConversation = () => {
 
       const { data, error } = await supabase
         .from('conversations')
-        .insert({ listing_id: listingId, buyer_id: buyerId, seller_id: sellerId })
+        .insert({ 
+          listing_id: listingId, 
+          buyer_id: buyerId, 
+          seller_id: sellerId 
+        })
         .select()
         .single();
       
@@ -135,13 +142,38 @@ export const useSendMessage = () => {
   
   return useMutation({
     mutationFn: async ({ conversationId, senderId, content }: { conversationId: string; senderId: string; content: string }) => {
+      // First verify the conversation exists and user is participant
+      const { data: conversation, error: convError } = await supabase
+        .from('conversations')
+        .select('id, buyer_id, seller_id')
+        .eq('id', conversationId)
+        .single();
+      
+      if (convError) {
+        console.error('Conversation not found:', convError);
+        throw new Error('Conversația nu a fost găsită');
+      }
+      
+      // Check if user is participant
+      if (conversation.buyer_id !== senderId && conversation.seller_id !== senderId) {
+        throw new Error('Nu ai permisiunea să trimiți mesaje în această conversație');
+      }
+
       const { data, error } = await supabase
         .from('messages')
-        .insert({ conversation_id: conversationId, sender_id: senderId, content })
+        .insert({ 
+          conversation_id: conversationId, 
+          sender_id: senderId, 
+          content,
+          is_read: false
+        })
         .select()
         .single();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error sending message:', error);
+        throw error;
+      }
 
       // Update conversation timestamp
       await supabase
@@ -155,6 +187,9 @@ export const useSendMessage = () => {
       queryClient.invalidateQueries({ queryKey: ['messages', variables.conversationId] });
       queryClient.invalidateQueries({ queryKey: ['conversations'] });
     },
+    onError: (error) => {
+      console.error('Failed to send message:', error);
+    }
   });
 };
 
