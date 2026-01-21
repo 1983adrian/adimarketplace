@@ -54,10 +54,10 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm">
+    <header className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm pt-[env(safe-area-inset-top)]">
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
-        <div className="flex items-center justify-between h-16 gap-4">
+        <div className="flex items-center justify-between h-14 md:h-16 gap-4">
           {/* Logo + Download Button */}
           <div className="flex items-center gap-2 shrink-0">
             <Link to="/" className="flex items-center">
