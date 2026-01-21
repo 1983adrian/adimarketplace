@@ -144,12 +144,14 @@ const Checkout = () => {
         });
       }
 
-      // Call Stripe checkout - pass all items
-      const { data, error } = await supabase.functions.invoke('stripe-product-checkout', {
+      // Call MangoPay checkout
+      const { data, error } = await supabase.functions.invoke('process-payment', {
         body: { 
           items: checkoutItems.map(item => ({ listingId: item.id, price: item.price })),
           shippingAddress,
           shippingMethod,
+          shippingCost,
+          buyerFee,
           guestEmail: !user ? shipping.email : undefined,
         },
       });
@@ -158,13 +160,17 @@ const Checkout = () => {
         throw new Error(error.message);
       }
 
-      if (data?.url) {
-        // Clear cart on successful checkout redirect
+      if (data?.success) {
+        // Clear cart on successful checkout
         clearCart();
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
+        toast({
+          title: 'Comandă plasată cu succes!',
+          description: `Factura #${data.invoiceNumber}. Total: £${data.total.toFixed(2)}`,
+        });
+        // Redirect to success page
+        navigate(`/checkout/success?order_ids=${data.orders.map((o: any) => o.id).join(',')}`);
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error(data?.error || 'Payment processing failed');
       }
     } catch (error: any) {
       console.error('Order error:', error);

@@ -1,4 +1,10 @@
 project_id = "pabdpeqliwnpbnbsawqe"
+[functions.process-payment]
+verify_jwt = false
+
+[functions.process-payout]
+verify_jwt = false
+
 
 [functions.send-notification]
 verify_jwt = false

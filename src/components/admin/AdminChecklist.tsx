@@ -148,12 +148,12 @@ export const AdminChecklist: React.FC = () => {
 
         // === PAYMENTS ===
         {
-          id: 'stripe_payments',
-          name: 'Stripe Plăți REALE',
-          description: 'Stripe Checkout integrat, plăți în GBP, secret key configurat',
+          id: 'mangopay_payments',
+          name: 'MangoPay Plăți',
+          description: 'MangoPay integrat, plăți în GBP, comision 10%',
           status: 'passed',
-          link: '/admin/api-settings',
-          details: 'STRIPE_SECRET_KEY ✓ | Currency: GBP | Checkout + Connect',
+          link: '/admin/payments',
+          details: 'MangoPay ✓ | Currency: GBP | Procesare Plăți',
           category: 'payments',
           ebayFeature: EBAY_COMPARISON.payments,
         },
@@ -169,11 +169,11 @@ export const AdminChecklist: React.FC = () => {
         },
         {
           id: 'payouts',
-          name: 'Payouts Automate Vânzători',
-          description: 'Transfer Stripe automat după confirmare livrare',
+          name: 'Payouts Vânzători',
+          description: 'Transfer automat după confirmare livrare via IBAN/Card',
           status: 'passed',
           link: '/settings',
-          details: `${payoutsResult.count || 0} plăți procesate | Stripe Transfers API ✓`,
+          details: `${payoutsResult.count || 0} plăți procesate | IBAN + Card UK ✓`,
           category: 'payments',
         },
         {
