@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Globe, Bell, Shield, Store, Loader2, Settings, CheckCircle2 } from 'lucide-react';
+import { Save, Globe, Bell, Shield, Store, Loader2, Settings, CheckCircle2, Volume2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { usePlatformSettings, useUpdatePlatformSetting } from '@/hooks/useAdminSettings';
+import { useCoinSound } from '@/hooks/useCoinSound';
 
 interface PlatformSettings {
   general: {
@@ -79,6 +80,15 @@ const AdminPlatformSettings = () => {
   const [settings, setSettings] = useState<PlatformSettings>(defaultSettings);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const { playCoinSound } = useCoinSound();
+
+  const handleTestCoinSound = () => {
+    playCoinSound();
+    toast({
+      title: '🪙 Sunet Testat!',
+      description: 'Acesta este sunetul pe care îl aud vânzătorii când primesc bani.',
+    });
+  };
 
   useEffect(() => {
     if (dbSettings) {
@@ -346,6 +356,30 @@ const AdminPlatformSettings = () => {
                   onCheckedChange={(checked) => updateNotifications('adminAlerts', checked)}
                   disabled={!settings.notifications.emailNotifications}
                 />
+
+                <Separator />
+
+                {/* Coin Sound Test Section */}
+                <div className="flex items-center justify-between py-4">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <Label className="text-sm font-medium">Sunet Monedă Vânzători</Label>
+                      <Badge variant="secondary" className="text-xs">🪙 Activ</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Vânzătorii aud un sunet de monedă căzând când primesc bani
+                    </p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleTestCoinSound}
+                    className="gap-2"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                    Testează Sunet
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
