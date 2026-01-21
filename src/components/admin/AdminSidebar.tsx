@@ -43,9 +43,7 @@ import {
 
 const menuItems = [
   { title: 'Owner Dashboard', url: '/admin/owner', icon: Crown, premium: true },
-  { title: 'AI Manager', url: '/admin/ai-manager', icon: Brain, premium: true },
   { title: 'AI Sales Manager', url: '/admin/ai-sales', icon: Brain, premium: true },
-  { title: 'AI Marketing', url: '/admin/marketing', icon: Megaphone, premium: true },
   { title: 'AI Maintenance', url: '/admin/ai-maintenance', icon: Wrench, premium: true },
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Users', url: '/admin/users', icon: Users },
@@ -57,6 +55,7 @@ const menuItems = [
   { title: 'Retururi', url: '/admin/returns', icon: RotateCcw },
   { title: 'Messages', url: '/admin/messages', icon: MessageCircle },
   { title: 'Disputes', url: '/admin/disputes', icon: AlertTriangle },
+  { title: 'Curieri API', url: '/admin/couriers', icon: Truck },
 ];
 
 const financeItems = [
