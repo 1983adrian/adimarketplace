@@ -999,6 +999,7 @@ export type Database = {
           paypal_email: string | null
           pending_balance: number | null
           phone: string | null
+          seller_terms_accepted_at: string | null
           store_name: string | null
           updated_at: string
           user_id: string
@@ -1032,6 +1033,7 @@ export type Database = {
           paypal_email?: string | null
           pending_balance?: number | null
           phone?: string | null
+          seller_terms_accepted_at?: string | null
           store_name?: string | null
           updated_at?: string
           user_id: string
@@ -1065,6 +1067,7 @@ export type Database = {
           paypal_email?: string | null
           pending_balance?: number | null
           phone?: string | null
+          seller_terms_accepted_at?: string | null
           store_name?: string | null
           updated_at?: string
           user_id?: string
