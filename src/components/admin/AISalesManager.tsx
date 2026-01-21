@@ -143,7 +143,12 @@ export function AISalesManager() {
           </div>
           <div>
             <h2 className="text-2xl font-bold">AI Sales Manager</h2>
-            <p className="text-muted-foreground">Monitorizare și analiză automată a vânzărilor</p>
+            <p className="text-muted-foreground">
+              Monitorizare și analiză automată a vânzărilor
+              <Badge variant="outline" className="ml-2 text-xs border-amber-500 text-amber-600">
+                🔒 Doar Raportare
+              </Badge>
+            </p>
           </div>
         </div>
         <div className="flex gap-2">

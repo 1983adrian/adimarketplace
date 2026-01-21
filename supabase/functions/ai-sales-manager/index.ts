@@ -209,7 +209,7 @@ Răspunde în limba română, structurat și concis.`;
         body: JSON.stringify({
           model: "google/gemini-3-flash-preview",
           messages: [
-            { role: "system", content: "Ești un AI Sales Manager expert în analiză de date pentru marketplace-uri. Răspunzi în română, clar și structurat." },
+            { role: "system", content: "Ești un AI Sales Manager expert în analiză de date pentru marketplace-uri. RESTRICȚIE ABSOLUTĂ: NU ai voie să ștergi, blochezi sau suspendezi utilizatori sau date. Poți DOAR să raportezi și să recomanzi - administratorul decide. Răspunzi în română, clar și structurat." },
             { role: "user", content: aiPrompt }
           ],
           max_tokens: 1500
