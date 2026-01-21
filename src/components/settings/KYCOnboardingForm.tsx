@@ -45,8 +45,12 @@ interface KYCFormData {
   city: string;
   region: string;
   postalCode: string;
+  // Bank account - IBAN (EU) or UK details
+  payoutMethod: 'iban' | 'uk_bank';
   iban: string;
   bic: string;
+  sortCode: string;
+  accountNumber: string;
 }
 
 interface KYCOnboardingFormProps {
@@ -61,21 +65,24 @@ export const KYCOnboardingForm: React.FC<KYCOnboardingFormProps> = ({ onComplete
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<KYCFormData>({
     businessType: 'individual',
-    firstName: (profile as any)?.display_name?.split(' ')[0] || '',
-    lastName: (profile as any)?.display_name?.split(' ').slice(1).join(' ') || '',
-    birthday: '',
-    nationality: 'GB',
-    countryOfResidence: 'GB',
+    firstName: (profile as any)?.first_name || (profile as any)?.display_name?.split(' ')[0] || '',
+    lastName: (profile as any)?.last_name || (profile as any)?.display_name?.split(' ').slice(1).join(' ') || '',
+    birthday: (profile as any)?.birthday || '',
+    nationality: (profile as any)?.nationality || 'GB',
+    countryOfResidence: (profile as any)?.country_of_residence || 'GB',
     email: user?.email || '',
     companyName: (profile as any)?.company_name || '',
     companyRegistration: (profile as any)?.company_registration || '',
-    addressLine1: '',
-    addressLine2: '',
-    city: '',
-    region: '',
-    postalCode: '',
+    addressLine1: (profile as any)?.address_line1 || '',
+    addressLine2: (profile as any)?.address_line2 || '',
+    city: (profile as any)?.city || '',
+    region: (profile as any)?.region || '',
+    postalCode: (profile as any)?.postal_code || '',
+    payoutMethod: (profile as any)?.payout_method === 'card' ? 'uk_bank' : 'iban',
     iban: (profile as any)?.iban || '',
-    bic: '',
+    bic: (profile as any)?.bic || '',
+    sortCode: (profile as any)?.sort_code || '',
+    accountNumber: (profile as any)?.account_number || '',
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof KYCFormData, string>>>({});
@@ -99,8 +106,17 @@ export const KYCOnboardingForm: React.FC<KYCOnboardingFormProps> = ({ onComplete
     }
 
     if (currentStep === 3) {
-      if (form.iban && form.iban.length < 15) {
-        newErrors.iban = 'IBAN-ul trebuie să aibă minim 15 caractere';
+      if (form.payoutMethod === 'iban') {
+        if (!form.iban || form.iban.length < 15) {
+          newErrors.iban = 'IBAN-ul trebuie să aibă minim 15 caractere';
+        }
+      } else if (form.payoutMethod === 'uk_bank') {
+        if (!form.sortCode || form.sortCode.replace(/-/g, '').length !== 6) {
+          newErrors.sortCode = 'Sort Code trebuie să aibă 6 cifre';
+        }
+        if (!form.accountNumber || form.accountNumber.length !== 8) {
+          newErrors.accountNumber = 'Account Number trebuie să aibă 8 cifre';
+        }
       }
     }
 
@@ -139,8 +155,12 @@ export const KYCOnboardingForm: React.FC<KYCOnboardingFormProps> = ({ onComplete
           city: form.city,
           region: form.region || undefined,
           postal_code: form.postalCode,
-          iban: form.iban || undefined,
-          bic: form.bic || undefined,
+          // Bank details based on payout method
+          payout_method: form.payoutMethod === 'uk_bank' ? 'card' : 'iban',
+          iban: form.payoutMethod === 'iban' ? form.iban : undefined,
+          bic: form.payoutMethod === 'iban' ? form.bic : undefined,
+          sort_code: form.payoutMethod === 'uk_bank' ? form.sortCode : undefined,
+          account_number: form.payoutMethod === 'uk_bank' ? form.accountNumber : undefined,
         },
       });
 
@@ -413,30 +433,121 @@ export const KYCOnboardingForm: React.FC<KYCOnboardingFormProps> = ({ onComplete
               </AlertDescription>
             </Alert>
 
-            <div className="space-y-2">
-              <Label>IBAN</Label>
-              <Input
-                value={form.iban}
-                onChange={(e) => updateForm('iban', e.target.value.toUpperCase().replace(/\s/g, ''))}
-                placeholder="GB00XXXX00000000000000"
-                maxLength={34}
-                className={errors.iban ? 'border-destructive' : ''}
-              />
-              {errors.iban && <p className="text-xs text-destructive">{errors.iban}</p>}
-              <p className="text-xs text-muted-foreground">
-                Introdu IBAN-ul complet, fără spații
-              </p>
+            {/* Payout Method Selection */}
+            <div className="space-y-3">
+              <Label>Metodă de Încasare</Label>
+              <RadioGroup
+                value={form.payoutMethod}
+                onValueChange={(v: 'iban' | 'uk_bank') => updateForm('payoutMethod', v)}
+                className="grid grid-cols-2 gap-4"
+              >
+                <div className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer ${form.payoutMethod === 'iban' ? 'border-primary bg-primary/5' : ''}`}>
+                  <RadioGroupItem value="iban" id="payout-iban" />
+                  <Label htmlFor="payout-iban" className="cursor-pointer flex-1">
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4" />
+                      <span className="font-medium">IBAN (EU/SEPA)</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">Transfer bancar european</p>
+                  </Label>
+                </div>
+                <div className={`flex items-center space-x-3 p-4 rounded-lg border cursor-pointer ${form.payoutMethod === 'uk_bank' ? 'border-primary bg-primary/5' : ''}`}>
+                  <RadioGroupItem value="uk_bank" id="payout-uk" />
+                  <Label htmlFor="payout-uk" className="cursor-pointer flex-1">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4" />
+                      <span className="font-medium">UK Bank Account</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">Sort Code + Account Number</p>
+                  </Label>
+                </div>
+              </RadioGroup>
             </div>
 
-            <div className="space-y-2">
-              <Label>BIC / SWIFT (opțional)</Label>
-              <Input
-                value={form.bic}
-                onChange={(e) => updateForm('bic', e.target.value.toUpperCase())}
-                placeholder="XXXXGB2L"
-                maxLength={11}
-              />
-            </div>
+            <Separator />
+
+            {/* IBAN Fields */}
+            {form.payoutMethod === 'iban' && (
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>IBAN *</Label>
+                  <Input
+                    value={form.iban}
+                    onChange={(e) => updateForm('iban', e.target.value.toUpperCase().replace(/\s/g, ''))}
+                    placeholder="RO00XXXX0000000000000000"
+                    maxLength={34}
+                    className={errors.iban ? 'border-destructive' : ''}
+                  />
+                  {errors.iban && <p className="text-xs text-destructive">{errors.iban}</p>}
+                  <p className="text-xs text-muted-foreground">
+                    Introdu IBAN-ul complet, fără spații (ex: RO49AAAA1B31007593840000)
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>BIC / SWIFT (opțional)</Label>
+                  <Input
+                    value={form.bic}
+                    onChange={(e) => updateForm('bic', e.target.value.toUpperCase())}
+                    placeholder="XXXXROBUXXX"
+                    maxLength={11}
+                  />
+                  <p className="text-xs text-muted-foreground">Codul BIC al băncii (8 sau 11 caractere)</p>
+                </div>
+              </div>
+            )}
+
+            {/* UK Bank Account Fields */}
+            {form.payoutMethod === 'uk_bank' && (
+              <div className="space-y-4">
+                <Alert className="border-blue-500/50 bg-blue-500/5">
+                  <CreditCard className="h-4 w-4 text-blue-600" />
+                  <AlertTitle className="text-blue-700">Cont Bancar UK</AlertTitle>
+                  <AlertDescription>
+                    Introdu Sort Code și Account Number exact cum apar pe extrasul bancar.
+                  </AlertDescription>
+                </Alert>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Sort Code *</Label>
+                    <Input
+                      value={form.sortCode}
+                      onChange={(e) => {
+                        let value = e.target.value.replace(/[^0-9]/g, '');
+                        if (value.length > 6) value = value.slice(0, 6);
+                        if (value.length >= 4) {
+                          value = value.slice(0, 2) + '-' + value.slice(2, 4) + (value.length > 4 ? '-' + value.slice(4) : '');
+                        } else if (value.length >= 2) {
+                          value = value.slice(0, 2) + '-' + value.slice(2);
+                        }
+                        updateForm('sortCode', value);
+                      }}
+                      placeholder="00-00-00"
+                      maxLength={8}
+                      className={errors.sortCode ? 'border-destructive' : ''}
+                    />
+                    {errors.sortCode && <p className="text-xs text-destructive">{errors.sortCode}</p>}
+                    <p className="text-xs text-muted-foreground">6 cifre (ex: 04-00-04)</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Account Number *</Label>
+                    <Input
+                      value={form.accountNumber}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
+                        updateForm('accountNumber', value);
+                      }}
+                      placeholder="00000000"
+                      maxLength={8}
+                      className={errors.accountNumber ? 'border-destructive' : ''}
+                    />
+                    {errors.accountNumber && <p className="text-xs text-destructive">{errors.accountNumber}</p>}
+                    <p className="text-xs text-muted-foreground">8 cifre</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <Alert className="border-green-500/50 bg-green-500/5">
               <CheckCircle2 className="h-4 w-4 text-green-600" />

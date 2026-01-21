@@ -23,9 +23,12 @@ interface KYCOnboardingRequest {
   city: string;
   region?: string;
   postal_code: string;
-  // Bank details
+  // Bank details - IBAN or UK bank
+  payout_method?: "iban" | "card";
   iban?: string;
   bic?: string;
+  sort_code?: string;
+  account_number?: string;
 }
 
 serve(async (req) => {
@@ -186,12 +189,29 @@ serve(async (req) => {
       .from("profiles")
       .update({
         display_name: `${body.first_name} ${body.last_name}`,
+        first_name: body.first_name,
+        last_name: body.last_name,
+        birthday: body.birthday || null,
+        nationality: body.nationality || body.country_of_residence,
+        country_of_residence: body.country_of_residence,
+        address_line1: body.address_line1,
+        address_line2: body.address_line2 || null,
+        city: body.city,
+        region: body.region || null,
+        postal_code: body.postal_code,
         business_type: body.business_type,
-        company_name: body.company_name,
-        company_registration: body.company_registration,
+        company_name: body.company_name || null,
+        company_registration: body.company_registration || null,
         kyc_country: body.country_of_residence,
         kyc_status: "pending",
-        iban: body.iban,
+        kyc_documents_submitted: true,
+        // Bank details based on payout method
+        payout_method: body.payout_method || "iban",
+        iban: body.iban || null,
+        bic: body.bic || null,
+        sort_code: body.sort_code || null,
+        account_number: body.account_number || null,
+        // MangoPay IDs
         mangopay_user_id: mangopayUserId,
         mangopay_wallet_id: mangopayWalletId,
         kyc_submitted_at: new Date().toISOString(),
