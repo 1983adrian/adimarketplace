@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, BookOpen, MapPin } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +23,6 @@ import { useLocation } from '@/contexts/LocationContext';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
 import { addDays } from 'date-fns';
-import { SellerVideoTutorial, useSellerTutorial } from '@/components/seller/SellerVideoTutorial';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CODSettings } from '@/components/listings/CODSettings';
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
@@ -42,19 +41,8 @@ const CreateListing = () => {
   const { uploadMultipleImages, uploading } = useImageUpload();
   const { location: userLocation } = useLocation();
   
-  // Tutorial state
-  const { shouldShow: showTutorial, setShouldShow: setShowTutorial } = useSellerTutorial();
-  const [tutorialOpen, setTutorialOpen] = useState(false);
-
   const isSubscribed = subscription?.subscribed || false;
   const canCreateMore = listingLimit?.canCreateMore ?? true;
-
-  // Show tutorial when page loads for first time
-  useEffect(() => {
-    if (showTutorial && isSubscribed && !subscriptionLoading) {
-      setTutorialOpen(true);
-    }
-  }, [showTutorial, isSubscribed, subscriptionLoading]);
 
 
   const [title, setTitle] = useState('');
@@ -354,29 +342,12 @@ const CreateListing = () => {
 
   return (
     <Layout>
-      {/* Seller Video Tutorial */}
-      <SellerVideoTutorial 
-        open={tutorialOpen} 
-        onOpenChange={setTutorialOpen}
-        onComplete={() => setShowTutorial(false)}
-      />
-      
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">
             {language === 'ro' ? 'Vinde un Produs' : 'Sell a Product'}
           </h1>
           <div className="flex items-center gap-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              size="sm"
-              onClick={() => setTutorialOpen(true)}
-              className="gap-1"
-            >
-              <BookOpen className="h-4 w-4" />
-              {language === 'ro' ? 'Tutorial' : 'Tutorial'}
-            </Button>
             <Badge variant="outline" className="gap-1">
               <Package className="h-3 w-3" />
               {listingLimit?.currentCount}/{listingLimit?.maxListings} {language === 'ro' ? 'produse' : 'products'}

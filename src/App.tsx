@@ -27,7 +27,6 @@ import Messages from "./pages/Messages";
 import SellerProfile from "./pages/SellerProfile";
 import SellerAnalytics from "./pages/SellerAnalytics";
 import Favorites from "./pages/Favorites";
-import SellerGuide from "./pages/SellerGuide";
 // Public pages
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
@@ -102,7 +101,6 @@ const App = () => (
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/favorites" element={<Favorites />} />
                 <Route path="/seller/:id" element={<SellerProfile />} />
-                <Route path="/seller-guide" element={<SellerGuide />} />
                 {/* Public Informational Pages */}
                 <Route path="/about" element={<AboutUs />} />
                 <Route path="/contact" element={<Contact />} />
