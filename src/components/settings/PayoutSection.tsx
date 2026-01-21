@@ -37,6 +37,8 @@ interface PayoutSettings {
   iban: string;
   cardLast4: string;
   cardHolderName: string;
+  sortCode: string;
+  accountNumber: string;
   kycStatus: string;
   kycCountry: string;
   businessType: 'individual' | 'company';
@@ -57,6 +59,8 @@ export const PayoutSection: React.FC = () => {
     iban: '',
     cardLast4: '',
     cardHolderName: '',
+    sortCode: '',
+    accountNumber: '',
     kycStatus: 'pending',
     kycCountry: 'GB',
     businessType: 'individual',
@@ -77,25 +81,28 @@ export const PayoutSection: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('iban, card_number_last4, card_holder_name, payout_method, kyc_status, kyc_country, business_type, company_name, company_registration, payout_balance, pending_balance')
+        .select('*')
         .eq('user_id', user.id)
         .single();
 
       if (error) throw error;
       
       if (data) {
+        const profileData = data as any;
         setSettings({
-          payoutMethod: (data.payout_method as 'iban' | 'card') || 'iban',
-          iban: data.iban || '',
-          cardLast4: data.card_number_last4 || '',
-          cardHolderName: data.card_holder_name || '',
-          kycStatus: data.kyc_status || 'pending',
-          kycCountry: data.kyc_country || 'GB',
-          businessType: (data.business_type as 'individual' | 'company') || 'individual',
-          companyName: data.company_name || '',
-          companyRegistration: data.company_registration || '',
-          payoutBalance: data.payout_balance || 0,
-          pendingBalance: data.pending_balance || 0,
+          payoutMethod: (profileData.payout_method as 'iban' | 'card') || 'iban',
+          iban: profileData.iban || '',
+          cardLast4: profileData.card_number_last4 || '',
+          cardHolderName: profileData.card_holder_name || '',
+          sortCode: profileData.sort_code || '',
+          accountNumber: profileData.account_number || '',
+          kycStatus: profileData.kyc_status || 'pending',
+          kycCountry: profileData.kyc_country || 'GB',
+          businessType: (profileData.business_type as 'individual' | 'company') || 'individual',
+          companyName: profileData.company_name || '',
+          companyRegistration: profileData.company_registration || '',
+          payoutBalance: profileData.payout_balance || 0,
+          pendingBalance: profileData.pending_balance || 0,
         });
       }
     } catch (error) {
@@ -116,11 +123,13 @@ export const PayoutSection: React.FC = () => {
           payout_method: settings.payoutMethod,
           iban: settings.iban,
           card_holder_name: settings.cardHolderName,
+          sort_code: settings.sortCode,
+          account_number: settings.accountNumber,
           kyc_country: settings.kycCountry,
           business_type: settings.businessType,
           company_name: settings.companyName,
           company_registration: settings.companyRegistration,
-        })
+        } as any)
         .eq('user_id', user.id);
 
       if (error) throw error;
@@ -392,24 +401,65 @@ export const PayoutSection: React.FC = () => {
 
           {settings.payoutMethod === 'card' && (
             <div className="space-y-4">
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
+              <Alert className="border-blue-500/50 bg-blue-500/5">
+                <CreditCard className="h-4 w-4 text-blue-600" />
+                <AlertTitle className="text-blue-700">Card UK (Sort Code + Account Number)</AlertTitle>
                 <AlertDescription>
-                  Pentru a adăuga un card de debit, vei fi redirecționat către procesatorul de plăți securizat.
-                  Cardul trebuie să fie de debit (nu credit) și să fie pe numele tău.
+                  Introdu detaliile contului tău bancar din UK. Plățile sunt procesate în 1-2 zile lucrătoare.
                 </AlertDescription>
               </Alert>
+              
               <div className="space-y-2">
-                <Label>Titular Card</Label>
+                <Label>Titular Cont / Card</Label>
                 <Input
                   value={settings.cardHolderName}
                   onChange={(e) => setSettings({ ...settings, cardHolderName: e.target.value })}
-                  placeholder="Nume Prenume (ca pe card)"
+                  placeholder="Nume Prenume (exact ca pe extras)"
                 />
               </div>
-              {settings.cardLast4 && (
-                <div className="p-3 rounded-lg bg-muted/50">
-                  <p className="text-sm">Card salvat: •••• •••• •••• {settings.cardLast4}</p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Sort Code</Label>
+                  <Input
+                    value={settings.sortCode}
+                    onChange={(e) => {
+                      // Format: XX-XX-XX
+                      let value = e.target.value.replace(/[^0-9]/g, '');
+                      if (value.length > 6) value = value.slice(0, 6);
+                      if (value.length >= 4) {
+                        value = value.slice(0, 2) + '-' + value.slice(2, 4) + (value.length > 4 ? '-' + value.slice(4) : '');
+                      } else if (value.length >= 2) {
+                        value = value.slice(0, 2) + '-' + value.slice(2);
+                      }
+                      setSettings({ ...settings, sortCode: value });
+                    }}
+                    placeholder="00-00-00"
+                    maxLength={8}
+                  />
+                  <p className="text-xs text-muted-foreground">6 cifre (ex: 04-00-04)</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Account Number</Label>
+                  <Input
+                    value={settings.accountNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 8);
+                      setSettings({ ...settings, accountNumber: value });
+                    }}
+                    placeholder="00000000"
+                    maxLength={8}
+                  />
+                  <p className="text-xs text-muted-foreground">8 cifre</p>
+                </div>
+              </div>
+              
+              {settings.sortCode && settings.accountNumber && settings.sortCode.length === 8 && settings.accountNumber.length === 8 && (
+                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <p className="text-sm font-medium">Cont UK configurat: {settings.sortCode} / ••••{settings.accountNumber.slice(-4)}</p>
+                  </div>
                 </div>
               )}
             </div>
