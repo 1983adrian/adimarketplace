@@ -20,11 +20,15 @@ export const CartDropdown: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
-          <ShoppingCart className="h-5 w-5" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative h-11 w-11 rounded-full bg-gradient-to-br from-background to-muted border-2 border-primary/20 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 group"
+        >
+          <ShoppingCart className="h-5 w-5 text-foreground group-hover:text-primary transition-colors duration-300" />
           {itemCount > 0 && (
             <Badge 
-              className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs gradient-primary border-0"
+              className="absolute -top-1.5 -right-1.5 h-6 w-6 p-0 flex items-center justify-center text-xs font-bold bg-gradient-to-r from-accent to-primary border-2 border-background shadow-lg animate-pulse"
             >
               {itemCount}
             </Badge>

@@ -87,9 +87,13 @@ export const SearchDialog: React.FC = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="default" className="relative gap-2 px-4">
-          <Search className="h-5 w-5" />
-          <span className="hidden sm:inline">{t('common.search')}</span>
+        <Button 
+          variant="outline" 
+          size="default" 
+          className="relative gap-2 px-5 h-11 rounded-full bg-gradient-to-br from-background to-muted border-2 border-primary/20 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 group font-medium"
+        >
+          <Search className="h-5 w-5 text-primary group-hover:scale-110 transition-transform duration-300" />
+          <span className="hidden sm:inline group-hover:text-primary transition-colors duration-300">{t('common.search')}</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
