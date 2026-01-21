@@ -118,8 +118,8 @@ export const HeroSection: React.FC = () => {
                           <Badge className="absolute bottom-1 left-1 text-[10px] md:text-xs bg-secondary text-secondary-foreground px-1 py-0.5">
                             {conditionLabels[listing.condition]}
                           </Badge>
-                          {/* Verified Badge for special sellers */}
-                          <div className="absolute top-1 right-1">
+                          {/* Verified Badge for special sellers - bottom right */}
+                          <div className="absolute bottom-1 right-1">
                             <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={true} />
                           </div>
                         </div>
