@@ -305,8 +305,12 @@ const AdminPlatformSettings = () => {
                 <div className="flex items-center gap-2">
                   <Bell className="h-5 w-5 text-primary" />
                   <CardTitle>Setări Notificări</CardTitle>
+                  <Badge variant="outline" className="text-xs">Funcțional</Badge>
                 </div>
-                <CardDescription>Configurează notificările email pentru utilizatori și admin</CardDescription>
+                <CardDescription>
+                  Aceste setări controlează trimiterea reală a emailurilor și SMS-urilor.
+                  Modificările se aplică imediat după salvare.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-1">
                 <SettingSwitch
