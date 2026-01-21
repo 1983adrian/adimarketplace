@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, Store, Bell, Shield, CreditCard, MapPin, Save, 
-  Wallet, Truck, Package, Building2, Banknote, Plus, Check,
-  DollarSign, Globe, Eye, EyeOff, AlertCircle, FileText
+  Wallet, Truck, Package, Building2, Banknote, Check,
+  EyeOff, AlertCircle, FileText
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -57,26 +57,7 @@ const Settings = () => {
   const [trackingAlerts, setTrackingAlerts] = useState(true);
   const [paymentAlerts, setPaymentAlerts] = useState(true);
 
-  // Setări plăți (cumpărător) - placeholder pentru Adyen/Mangopay
-  const [savedCards, setSavedCards] = useState<{ id: string; last4: string; brand: string; expiry: string; isDefault: boolean; }[]>([]);
-  const [loadingCards, setLoadingCards] = useState(false);
-  const [defaultPaymentMethod, setDefaultPaymentMethod] = useState('card');
-
-  // Placeholder - payment methods will be managed through Adyen/Mangopay
-  const handleAddCard = async () => {
-    toast({
-      title: 'Adăugare Card',
-      description: 'Cardul va fi salvat automat la prima ta plată prin Adyen sau Mangopay.',
-    });
-  };
-
-  // Delete card placeholder
-  const handleDeleteCard = async (paymentMethodId: string) => {
-    toast({
-      title: 'Funcție în dezvoltare',
-      description: 'Gestionarea cardurilor va fi disponibilă curând.',
-    });
-  };
+  // Placeholder pentru carduri - vor fi gestionate prin MangoPay
 
 
   // Setări curieri livrare
@@ -308,135 +289,37 @@ const Settings = () => {
                       <CreditCard className="h-5 w-5" />
                       Metode de Plată
                     </CardTitle>
-                    <CardDescription>Gestionează cum plătești pentru achiziții</CardDescription>
+                    <CardDescription>
+                      Plățile sunt procesate securizat prin MangoPay. Cardurile se salvează automat la checkout.
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    {loadingCards ? (
-                      <div className="p-4 text-center text-muted-foreground">Se încarcă cardurile...</div>
-                    ) : savedCards.length > 0 ? (
-                      savedCards.map((card) => (
-                        <div key={card.id} className="flex items-center justify-between p-4 rounded-lg border">
-                          <div className="flex items-center gap-4">
-                            <div className="w-12 h-8 bg-gradient-to-r from-primary/20 to-primary/10 rounded flex items-center justify-center text-xs font-bold uppercase">
-                              {card.brand}
-                            </div>
-                            <div>
-                              <p className="font-medium">•••• •••• •••• {card.last4}</p>
-                              <p className="text-sm text-muted-foreground">Expiră {card.expiry}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {card.isDefault && <Badge variant="secondary">Principal</Badge>}
-                            <Button variant="ghost" size="sm" onClick={() => handleDeleteCard(card.id)}>Șterge</Button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-muted-foreground">
-                        Nu ai carduri salvate. Cardurile vor fi salvate automat la checkout.
-                      </div>
-                    )}
+                    <Alert>
+                      <CreditCard className="h-4 w-4" />
+                      <AlertDescription>
+                        La primul checkout, cardul tău va fi salvat securizat pentru plăți viitoare. 
+                        Toate datele sunt criptate și procesate prin MangoPay.
+                      </AlertDescription>
+                    </Alert>
                     
-                    <Button variant="outline" className="w-full gap-2" onClick={handleAddCard}>
-                      <Plus className="h-4 w-4" />
-                      Adaugă Card Nou
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Alte Opțiuni de Plată</CardTitle>
-                    <CardDescription>Modalități adiționale de plată</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-                          <span className="text-lg">P</span>
-                        </div>
-                        <div>
-                          <p className="font-medium">PayPal</p>
-                          <p className="text-sm text-muted-foreground">Plătește cu contul PayPal</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">Conectează</Button>
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
-                          <DollarSign className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="font-medium">Apple Pay</p>
-                          <p className="text-sm text-muted-foreground">Plată rapidă cu Apple Pay</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">Activează</Button>
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-lg border">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
-                          <Globe className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <p className="font-medium">Google Pay</p>
-                          <p className="text-sm text-muted-foreground">Plată rapidă cu Google</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm">Activează</Button>
+                    <div className="p-6 text-center border-2 border-dashed rounded-lg">
+                      <CreditCard className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
+                      <p className="text-muted-foreground mb-2">
+                        Nu ai carduri salvate încă
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Cardul tău va fi salvat automat la prima ta comandă
+                      </p>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Adresă de Facturare</CardTitle>
-                    <CardDescription>Adresa implicită pentru plăți</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label>Adresă Stradă</Label>
-                        <Input placeholder="Strada Exemplu nr. 123" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Apartament / Bloc</Label>
-                        <Input placeholder="Apt 4B" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Oraș</Label>
-                        <Input placeholder="București" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Județ</Label>
-                        <Input placeholder="Ilfov" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Cod Poștal</Label>
-                        <Input placeholder="010101" />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Țară</Label>
-                        <Select defaultValue="ro">
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="ro">România</SelectItem>
-                            <SelectItem value="md">Moldova</SelectItem>
-                            <SelectItem value="us">Statele Unite</SelectItem>
-                            <SelectItem value="uk">Marea Britanie</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <Button className="gap-2">
-                      <Save className="h-4 w-4" />
-                      Salvează Adresa
-                    </Button>
-                  </CardContent>
-                </Card>
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Adresa de facturare va fi solicitată în timpul checkout-ului și salvată pentru comenzi viitoare.
+                  </AlertDescription>
+                </Alert>
               </div>
             </TabsContent>
 
