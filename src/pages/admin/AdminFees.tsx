@@ -53,10 +53,10 @@ export default function AdminFees() {
     setIsSaving(true);
     try {
       const updates = [
-        { id: buyerFee.id, amount: parseFloat(buyerFee.amount) || 0, description: buyerFee.description },
-        { id: sellerCommission.id, amount: parseFloat(sellerCommission.amount) || 0, description: sellerCommission.description },
-        { id: sellerSubscription.id, amount: parseFloat(sellerSubscription.amount) || 0, description: sellerSubscription.description },
-        { id: weeklyPromotion.id, amount: parseFloat(weeklyPromotion.amount) || 0, description: weeklyPromotion.description },
+        { id: buyerFee.id, amount: parseFloat(buyerFee.amount) || 0, description: buyerFee.description, is_active: buyerFee.isActive },
+        { id: sellerCommission.id, amount: parseFloat(sellerCommission.amount) || 0, description: sellerCommission.description, is_active: sellerCommission.isActive },
+        { id: sellerSubscription.id, amount: parseFloat(sellerSubscription.amount) || 0, description: sellerSubscription.description, is_active: sellerSubscription.isActive },
+        { id: weeklyPromotion.id, amount: parseFloat(weeklyPromotion.amount) || 0, description: weeklyPromotion.description, is_active: weeklyPromotion.isActive },
       ].filter(u => u.id);
 
       for (const update of updates) {
@@ -143,16 +143,28 @@ export default function AdminFees() {
           <CardContent className="space-y-6">
             
             {/* Buyer Fee */}
-            <div className="grid gap-4 md:grid-cols-[1fr,2fr] items-start p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
+            <div className={`grid gap-4 md:grid-cols-[1fr,2fr] items-start p-4 rounded-lg border transition-colors ${buyerFee.isActive ? 'bg-card hover:bg-accent/5' : 'bg-muted/30 opacity-60'}`}>
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900">
-                  <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div className={`p-2 rounded-lg ${buyerFee.isActive ? 'bg-blue-100 dark:bg-blue-900' : 'bg-muted'}`}>
+                  <Users className={`h-5 w-5 ${buyerFee.isActive ? 'text-blue-600 dark:text-blue-400' : 'text-muted-foreground'}`} />
                 </div>
-                <div>
-                  <h4 className="font-semibold flex items-center gap-2">
-                    Taxa Cumpărător
-                    <Badge variant="secondary">Fixă</Badge>
-                  </h4>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      Taxa Cumpărător
+                      <Badge variant={buyerFee.isActive ? "secondary" : "outline"}>Fixă</Badge>
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="buyer-fee-toggle" className="text-xs text-muted-foreground">
+                        {buyerFee.isActive ? 'Activă' : 'Dezactivată'}
+                      </Label>
+                      <Switch
+                        id="buyer-fee-toggle"
+                        checked={buyerFee.isActive}
+                        onCheckedChange={(checked) => { setBuyerFee(prev => ({ ...prev, isActive: checked })); markChanged(); }}
+                      />
+                    </div>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     Taxă adăugată la fiecare comandă pentru cumpărător
                   </p>
@@ -163,7 +175,7 @@ export default function AdminFees() {
                   <Label>Sumă (£)</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">£</span>
-                    <Input 
+                    <Input
                       type="number"
                       step="0.01"
                       min="0"
@@ -188,16 +200,28 @@ export default function AdminFees() {
             <Separator />
 
             {/* Seller Commission */}
-            <div className="grid gap-4 md:grid-cols-[1fr,2fr] items-start p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
+            <div className={`grid gap-4 md:grid-cols-[1fr,2fr] items-start p-4 rounded-lg border transition-colors ${sellerCommission.isActive ? 'bg-card hover:bg-accent/5' : 'bg-muted/30 opacity-60'}`}>
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900">
-                  <Percent className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <div className={`p-2 rounded-lg ${sellerCommission.isActive ? 'bg-green-100 dark:bg-green-900' : 'bg-muted'}`}>
+                  <Percent className={`h-5 w-5 ${sellerCommission.isActive ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`} />
                 </div>
-                <div>
-                  <h4 className="font-semibold flex items-center gap-2">
-                    Comision Vânzător
-                    <Badge variant="secondary">Procentual</Badge>
-                  </h4>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      Comision Vânzător
+                      <Badge variant={sellerCommission.isActive ? "secondary" : "outline"}>Procentual</Badge>
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="seller-commission-toggle" className="text-xs text-muted-foreground">
+                        {sellerCommission.isActive ? 'Activ' : 'Dezactivat'}
+                      </Label>
+                      <Switch
+                        id="seller-commission-toggle"
+                        checked={sellerCommission.isActive}
+                        onCheckedChange={(checked) => { setSellerCommission(prev => ({ ...prev, isActive: checked })); markChanged(); }}
+                      />
+                    </div>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     Procentul reținut din fiecare vânzare
                   </p>
@@ -234,16 +258,28 @@ export default function AdminFees() {
             <Separator />
 
             {/* Seller Subscription */}
-            <div className="grid gap-4 md:grid-cols-[1fr,2fr] items-start p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
+            <div className={`grid gap-4 md:grid-cols-[1fr,2fr] items-start p-4 rounded-lg border transition-colors ${sellerSubscription.isActive ? 'bg-card hover:bg-accent/5' : 'bg-muted/30 opacity-60'}`}>
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900">
-                  <Crown className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className={`p-2 rounded-lg ${sellerSubscription.isActive ? 'bg-purple-100 dark:bg-purple-900' : 'bg-muted'}`}>
+                  <Crown className={`h-5 w-5 ${sellerSubscription.isActive ? 'text-purple-600 dark:text-purple-400' : 'text-muted-foreground'}`} />
                 </div>
-                <div>
-                  <h4 className="font-semibold flex items-center gap-2">
-                    Abonament Vânzător
-                    <Badge variant="secondary">Lunar</Badge>
-                  </h4>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      Abonament Vânzător
+                      <Badge variant={sellerSubscription.isActive ? "secondary" : "outline"}>Lunar</Badge>
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="seller-sub-toggle" className="text-xs text-muted-foreground">
+                        {sellerSubscription.isActive ? 'Activ' : 'Dezactivat'}
+                      </Label>
+                      <Switch
+                        id="seller-sub-toggle"
+                        checked={sellerSubscription.isActive}
+                        onCheckedChange={(checked) => { setSellerSubscription(prev => ({ ...prev, isActive: checked })); markChanged(); }}
+                      />
+                    </div>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     Taxa lunară pentru a vinde pe platformă
                   </p>
@@ -254,7 +290,7 @@ export default function AdminFees() {
                   <Label>Sumă (£/lună)</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">£</span>
-                    <Input 
+                    <Input
                       type="number"
                       step="0.01"
                       min="0"
@@ -279,16 +315,28 @@ export default function AdminFees() {
             <Separator />
 
             {/* Weekly Promotion */}
-            <div className="grid gap-4 md:grid-cols-[1fr,2fr] items-start p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors">
+            <div className={`grid gap-4 md:grid-cols-[1fr,2fr] items-start p-4 rounded-lg border transition-colors ${weeklyPromotion.isActive ? 'bg-card hover:bg-accent/5' : 'bg-muted/30 opacity-60'}`}>
               <div className="flex items-start gap-3">
-                <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900">
-                  <Megaphone className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <div className={`p-2 rounded-lg ${weeklyPromotion.isActive ? 'bg-orange-100 dark:bg-orange-900' : 'bg-muted'}`}>
+                  <Megaphone className={`h-5 w-5 ${weeklyPromotion.isActive ? 'text-orange-600 dark:text-orange-400' : 'text-muted-foreground'}`} />
                 </div>
-                <div>
-                  <h4 className="font-semibold flex items-center gap-2">
-                    Promovare Săptămânală
-                    <Badge variant="secondary">Opțional</Badge>
-                  </h4>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-semibold flex items-center gap-2">
+                      Promovare Săptămânală
+                      <Badge variant={weeklyPromotion.isActive ? "secondary" : "outline"}>Opțional</Badge>
+                    </h4>
+                    <div className="flex items-center gap-2">
+                      <Label htmlFor="promo-toggle" className="text-xs text-muted-foreground">
+                        {weeklyPromotion.isActive ? 'Activă' : 'Dezactivată'}
+                      </Label>
+                      <Switch
+                        id="promo-toggle"
+                        checked={weeklyPromotion.isActive}
+                        onCheckedChange={(checked) => { setWeeklyPromotion(prev => ({ ...prev, isActive: checked })); markChanged(); }}
+                      />
+                    </div>
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     Taxa pentru promovarea unui anunț
                   </p>
@@ -299,7 +347,7 @@ export default function AdminFees() {
                   <Label>Sumă (£/săptămână)</Label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium">£</span>
-                    <Input 
+                    <Input
                       type="number"
                       step="0.01"
                       min="0"
