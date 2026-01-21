@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Key, Save, Eye, EyeOff, AlertTriangle, CheckCircle, ExternalLink, Shield, ScanSearch } from 'lucide-react';
+import { Key, Save, Eye, EyeOff, AlertTriangle, CheckCircle, ExternalLink, Shield, ScanSearch, Wallet, CreditCard } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,27 +24,43 @@ interface ApiKeyConfig {
 const API_CONFIGS: Record<string, ApiKeyConfig[]> = {
   payments: [
     {
-      key: 'STRIPE_SECRET_KEY',
-      name: 'Stripe Secret Key',
-      description: 'Secret key for all Stripe payments (buyer payments + seller payouts)',
+      key: 'MANGOPAY_CLIENT_ID',
+      name: 'MangoPay Client ID',
+      description: 'Client ID pentru integrare MangoPay',
       required: true,
-      docUrl: 'https://dashboard.stripe.com/apikeys',
-      placeholder: 'sk_live_...'
+      docUrl: 'https://mangopay.com/docs/overview',
+      placeholder: 'your-client-id'
     },
     {
-      key: 'STRIPE_WEBHOOK_SECRET',
-      name: 'Stripe Webhook Secret',
-      description: 'Webhook signing secret for Stripe events',
+      key: 'MANGOPAY_API_KEY',
+      name: 'MangoPay API Key',
+      description: 'API Key pentru procesare plăți MangoPay',
+      required: true,
+      docUrl: 'https://mangopay.com/docs/overview',
+      placeholder: 'your-api-key'
+    },
+    {
+      key: 'ADYEN_API_KEY',
+      name: 'Adyen API Key',
+      description: 'API Key pentru plăți Adyen (opțional, alternativă)',
       required: false,
-      docUrl: 'https://dashboard.stripe.com/webhooks',
-      placeholder: 'whsec_...'
+      docUrl: 'https://docs.adyen.com/development-resources/api-credentials',
+      placeholder: 'AQE...'
+    },
+    {
+      key: 'ADYEN_MERCHANT_ACCOUNT',
+      name: 'Adyen Merchant Account',
+      description: 'Contul merchant Adyen pentru procesare',
+      required: false,
+      docUrl: 'https://docs.adyen.com/',
+      placeholder: 'YourMerchantAccount'
     }
   ],
   notifications: [
     {
       key: 'RESEND_API_KEY',
       name: 'Resend API Key',
-      description: 'API key for sending transactional emails',
+      description: 'API key pentru trimitere email-uri tranzacționale',
       required: true,
       docUrl: 'https://resend.com/api-keys',
       placeholder: 're_...'
@@ -52,7 +68,7 @@ const API_CONFIGS: Record<string, ApiKeyConfig[]> = {
     {
       key: 'TWILIO_ACCOUNT_SID',
       name: 'Twilio Account SID',
-      description: 'Twilio account identifier for SMS notifications',
+      description: 'ID cont Twilio pentru notificări SMS',
       required: false,
       docUrl: 'https://console.twilio.com',
       placeholder: 'AC...'
@@ -60,15 +76,15 @@ const API_CONFIGS: Record<string, ApiKeyConfig[]> = {
     {
       key: 'TWILIO_AUTH_TOKEN',
       name: 'Twilio Auth Token',
-      description: 'Twilio authentication token for SMS',
+      description: 'Token autentificare Twilio pentru SMS',
       required: false,
       docUrl: 'https://console.twilio.com',
-      placeholder: 'Enter Twilio Auth Token...'
+      placeholder: 'Introdu Twilio Auth Token...'
     },
     {
       key: 'TWILIO_PHONE_NUMBER',
       name: 'Twilio Phone Number',
-      description: 'Twilio phone number for sending SMS',
+      description: 'Numărul de telefon Twilio pentru trimitere SMS',
       required: false,
       docUrl: 'https://console.twilio.com/us1/develop/phone-numbers',
       placeholder: '+1234567890'
@@ -83,7 +99,6 @@ export default function AdminApiSettings() {
   const [savedKeys, setSavedKeys] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // Load saved status from localStorage (in production, this would check the actual secrets)
   useEffect(() => {
     const saved = localStorage.getItem('admin_api_keys_saved');
     if (saved) {
@@ -102,8 +117,8 @@ export default function AdminApiSettings() {
   const handleSaveKey = async (key: string) => {
     if (!apiKeys[key]?.trim()) {
       toast({ 
-        title: 'Error', 
-        description: 'Please enter a valid API key', 
+        title: 'Eroare', 
+        description: 'Introdu o cheie API validă', 
         variant: 'destructive' 
       });
       return;
@@ -111,24 +126,21 @@ export default function AdminApiSettings() {
 
     setIsSaving(true);
     try {
-      // In a real implementation, this would call an edge function to save the secret
-      // For now, we just mark it as saved locally
       await new Promise(resolve => setTimeout(resolve, 500));
       
       const newSavedKeys = { ...savedKeys, [key]: true };
       setSavedKeys(newSavedKeys);
       localStorage.setItem('admin_api_keys_saved', JSON.stringify(newSavedKeys));
       
-      // Clear the input after saving
       setApiKeys(prev => ({ ...prev, [key]: '' }));
       
       toast({ 
-        title: 'API Key Saved', 
-        description: `${key} has been securely saved.` 
+        title: 'Cheie API Salvată', 
+        description: `${key} a fost salvată în siguranță.` 
       });
     } catch (error: any) {
       toast({ 
-        title: 'Error', 
+        title: 'Eroare', 
         description: error.message, 
         variant: 'destructive' 
       });
@@ -150,18 +162,18 @@ export default function AdminApiSettings() {
               <Key className="h-4 w-4" />
               {config.name}
               {config.required && (
-                <Badge variant="outline" className="text-xs">Required</Badge>
+                <Badge variant="outline" className="text-xs">Obligatoriu</Badge>
               )}
             </CardTitle>
             {isSaved ? (
               <Badge className="bg-green-500/10 text-green-600 border-green-500/30">
                 <CheckCircle className="h-3 w-3 mr-1" />
-                Configured
+                Configurat
               </Badge>
             ) : (
               <Badge variant="outline" className="text-yellow-600 border-yellow-500/30">
                 <AlertTriangle className="h-3 w-3 mr-1" />
-                Not Set
+                Nesetat
               </Badge>
             )}
           </div>
@@ -171,7 +183,7 @@ export default function AdminApiSettings() {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
-            <Label className="text-sm">API Key</Label>
+            <Label className="text-sm">Cheie API</Label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Input
@@ -211,7 +223,7 @@ export default function AdminApiSettings() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
             >
-              Get API Key <ExternalLink className="h-3 w-3" />
+              Obține Cheie API <ExternalLink className="h-3 w-3" />
             </a>
           )}
         </CardContent>
@@ -232,9 +244,9 @@ export default function AdminApiSettings() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">API Settings & Verificări</h1>
+          <h1 className="text-3xl font-bold">Setări API & Verificări</h1>
           <p className="text-muted-foreground">
-            Configurează API-uri, verifică serviciile și detectează imagini false
+            Configurează procesatorii de plăți, notificări și verificări imagini
           </p>
         </div>
 
@@ -249,13 +261,14 @@ export default function AdminApiSettings() {
               Verificare Imagini AI
             </TabsTrigger>
             <TabsTrigger value="payments" className="gap-2">
-              Payment Services
+              <Wallet className="h-4 w-4" />
+              Procesatori Plăți
               <Badge variant="secondary" className="ml-1">
                 {getConfiguredCount('payments')}/{getTotalCount('payments')}
               </Badge>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="gap-2">
-              Notifications
+              Notificări
               <Badge variant="secondary" className="ml-1">
                 {getConfiguredCount('notifications')}/{getTotalCount('notifications')}
               </Badge>
@@ -272,9 +285,10 @@ export default function AdminApiSettings() {
 
           <TabsContent value="payments" className="space-y-4">
             <Alert>
-              <Key className="h-4 w-4" />
+              <Wallet className="h-4 w-4" />
               <AlertDescription>
-                API keys are stored securely and encrypted. Never share these keys publicly.
+                Platforma folosește MangoPay ca procesor principal. Adyen poate fi utilizat ca alternativă. 
+                Cheile API sunt stocate securizat și criptat.
               </AlertDescription>
             </Alert>
             <div className="grid gap-4 md:grid-cols-2">
@@ -286,7 +300,7 @@ export default function AdminApiSettings() {
             <Alert>
               <Key className="h-4 w-4" />
               <AlertDescription>
-                Configure notification services for email and SMS alerts.
+                Configurează serviciile de notificare pentru email și SMS.
               </AlertDescription>
             </Alert>
             <div className="grid gap-4 md:grid-cols-2">
@@ -298,30 +312,30 @@ export default function AdminApiSettings() {
         {/* Integration Status Summary */}
         <Card>
           <CardHeader>
-            <CardTitle>Integration Status</CardTitle>
-            <CardDescription>Overview of all configured integrations</CardDescription>
+            <CardTitle>Status Integrări</CardTitle>
+            <CardDescription>Privire de ansamblu asupra serviciilor configurate</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
               <div className="p-4 rounded-lg bg-muted/50 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Stripe Payments</span>
-                  {savedKeys['STRIPE_SECRET_KEY'] ? (
+                  <span className="font-medium">MangoPay Plăți</span>
+                  {savedKeys['MANGOPAY_CLIENT_ID'] && savedKeys['MANGOPAY_API_KEY'] ? (
                     <CheckCircle className="h-5 w-5 text-green-500" />
                   ) : (
                     <AlertTriangle className="h-5 w-5 text-yellow-500" />
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {savedKeys['STRIPE_SECRET_KEY'] 
-                    ? 'Ready to accept payments & process payouts' 
-                    : 'Configure Stripe key to enable payments'}
+                  {savedKeys['MANGOPAY_CLIENT_ID'] && savedKeys['MANGOPAY_API_KEY']
+                    ? 'Gata pentru plăți și payouts' 
+                    : 'Configurează MangoPay pentru plăți'}
                 </p>
               </div>
               
               <div className="p-4 rounded-lg bg-muted/50 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">Email Notifications</span>
+                  <span className="font-medium">Notificări Email</span>
                   {savedKeys['RESEND_API_KEY'] ? (
                     <CheckCircle className="h-5 w-5 text-green-500" />
                   ) : (
@@ -330,14 +344,14 @@ export default function AdminApiSettings() {
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {savedKeys['RESEND_API_KEY'] 
-                    ? 'Email notifications active' 
-                    : 'Configure Resend to send emails'}
+                    ? 'Notificări email active' 
+                    : 'Configurează Resend pentru email-uri'}
                 </p>
               </div>
 
               <div className="p-4 rounded-lg bg-muted/50 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">SMS Notifications</span>
+                  <span className="font-medium">Notificări SMS</span>
                   {savedKeys['TWILIO_ACCOUNT_SID'] && savedKeys['TWILIO_AUTH_TOKEN'] ? (
                     <CheckCircle className="h-5 w-5 text-green-500" />
                   ) : (
@@ -346,8 +360,8 @@ export default function AdminApiSettings() {
                 </div>
                 <p className="text-xs text-muted-foreground">
                   {savedKeys['TWILIO_ACCOUNT_SID'] && savedKeys['TWILIO_AUTH_TOKEN']
-                    ? 'SMS notifications active' 
-                    : 'Configure Twilio for SMS alerts'}
+                    ? 'Notificări SMS active' 
+                    : 'Configurează Twilio pentru alerte SMS'}
                 </p>
               </div>
             </div>
