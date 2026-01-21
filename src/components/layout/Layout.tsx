@@ -1,6 +1,7 @@
 import React from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { InstallBanner } from './InstallBanner';
 import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids } from '@/hooks/useRealTimeNotifications';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 
@@ -23,6 +24,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideFooter = false }) 
       <Header />
       <main className="flex-1">{children}</main>
       {!hideFooter && <Footer />}
+      
+      {/* PWA Install Banner for mobile users */}
+      <InstallBanner />
     </div>
   );
 };
