@@ -1026,33 +1026,48 @@ export type Database = {
       profiles: {
         Row: {
           account_number: string | null
+          address_line1: string | null
+          address_line2: string | null
+          adyen_account_holder_id: string | null
           adyen_account_id: string | null
+          adyen_balance_account_id: string | null
           avatar_url: string | null
+          bic: string | null
           bio: string | null
+          birthday: string | null
           business_type: string | null
           card_holder_name: string | null
           card_number_last4: string | null
+          city: string | null
           company_name: string | null
           company_registration: string | null
           country: string | null
+          country_of_residence: string | null
           created_at: string
           display_name: string | null
+          first_name: string | null
           iban: string | null
           id: string
           is_seller: boolean | null
           is_verified: boolean | null
           kyc_country: string | null
+          kyc_documents_submitted: boolean | null
           kyc_status: string | null
           kyc_submitted_at: string | null
+          kyc_verified_at: string | null
+          last_name: string | null
           location: string | null
           mangopay_user_id: string | null
           mangopay_wallet_id: string | null
           max_listings: number | null
+          nationality: string | null
           payout_balance: number | null
           payout_method: string | null
           paypal_email: string | null
           pending_balance: number | null
           phone: string | null
+          postal_code: string | null
+          region: string | null
           seller_terms_accepted_at: string | null
           sort_code: string | null
           store_name: string | null
@@ -1064,33 +1079,48 @@ export type Database = {
         }
         Insert: {
           account_number?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          adyen_account_holder_id?: string | null
           adyen_account_id?: string | null
+          adyen_balance_account_id?: string | null
           avatar_url?: string | null
+          bic?: string | null
           bio?: string | null
+          birthday?: string | null
           business_type?: string | null
           card_holder_name?: string | null
           card_number_last4?: string | null
+          city?: string | null
           company_name?: string | null
           company_registration?: string | null
           country?: string | null
+          country_of_residence?: string | null
           created_at?: string
           display_name?: string | null
+          first_name?: string | null
           iban?: string | null
           id?: string
           is_seller?: boolean | null
           is_verified?: boolean | null
           kyc_country?: string | null
+          kyc_documents_submitted?: boolean | null
           kyc_status?: string | null
           kyc_submitted_at?: string | null
+          kyc_verified_at?: string | null
+          last_name?: string | null
           location?: string | null
           mangopay_user_id?: string | null
           mangopay_wallet_id?: string | null
           max_listings?: number | null
+          nationality?: string | null
           payout_balance?: number | null
           payout_method?: string | null
           paypal_email?: string | null
           pending_balance?: number | null
           phone?: string | null
+          postal_code?: string | null
+          region?: string | null
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
           store_name?: string | null
@@ -1102,33 +1132,48 @@ export type Database = {
         }
         Update: {
           account_number?: string | null
+          address_line1?: string | null
+          address_line2?: string | null
+          adyen_account_holder_id?: string | null
           adyen_account_id?: string | null
+          adyen_balance_account_id?: string | null
           avatar_url?: string | null
+          bic?: string | null
           bio?: string | null
+          birthday?: string | null
           business_type?: string | null
           card_holder_name?: string | null
           card_number_last4?: string | null
+          city?: string | null
           company_name?: string | null
           company_registration?: string | null
           country?: string | null
+          country_of_residence?: string | null
           created_at?: string
           display_name?: string | null
+          first_name?: string | null
           iban?: string | null
           id?: string
           is_seller?: boolean | null
           is_verified?: boolean | null
           kyc_country?: string | null
+          kyc_documents_submitted?: boolean | null
           kyc_status?: string | null
           kyc_submitted_at?: string | null
+          kyc_verified_at?: string | null
+          last_name?: string | null
           location?: string | null
           mangopay_user_id?: string | null
           mangopay_wallet_id?: string | null
           max_listings?: number | null
+          nationality?: string | null
           payout_balance?: number | null
           payout_method?: string | null
           paypal_email?: string | null
           pending_balance?: number | null
           phone?: string | null
+          postal_code?: string | null
+          region?: string | null
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
           store_name?: string | null
