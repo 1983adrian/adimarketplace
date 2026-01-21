@@ -1,10 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useCoinSound } from '@/hooks/useCoinSound';
-import { useMessageSound } from '@/hooks/useMessageSound';
+import { useNotificationSound, NotificationSoundType } from '@/hooks/useNotificationSound';
+
 export interface Notification {
   id: string;
   user_id: string;
@@ -15,6 +15,30 @@ export interface Notification {
   is_read: boolean;
   created_at: string;
 }
+
+// Request browser notification permission
+const requestNotificationPermission = async () => {
+  if ('Notification' in window && Notification.permission === 'default') {
+    await Notification.requestPermission();
+  }
+};
+
+// Show browser notification
+const showBrowserNotification = (title: string, body: string, icon?: string) => {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(title, {
+        body,
+        icon: icon || '/icons/icon-192x192.png',
+        badge: '/icons/icon-72x72.png',
+        tag: `notification-${Date.now()}`,
+        requireInteraction: false,
+      });
+    } catch (error) {
+      console.log('Browser notification failed:', error);
+    }
+  }
+};
 
 export const useNotifications = () => {
   const { user } = useAuth();
@@ -106,6 +130,16 @@ export const useRealTimeNotifications = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const { playSound } = useNotificationSound();
+  const hasRequestedPermission = useRef(false);
+
+  // Request browser notification permission on mount
+  useEffect(() => {
+    if (!hasRequestedPermission.current) {
+      hasRequestedPermission.current = true;
+      requestNotificationPermission();
+    }
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -123,11 +157,24 @@ export const useRealTimeNotifications = () => {
         (payload) => {
           const notification = payload.new as Notification;
           
+          // Play sound based on notification type
+          const soundType: NotificationSoundType = 
+            notification.type === 'order' ? 'order' :
+            notification.type === 'message' ? 'message' :
+            notification.type === 'payout' ? 'payout' :
+            notification.type === 'shipping' ? 'shipping' :
+            'general';
+          
+          playSound(soundType);
+          
           // Show toast notification
           toast({
             title: notification.title,
             description: notification.message,
           });
+          
+          // Show browser notification
+          showBrowserNotification(notification.title, notification.message);
 
           // Invalidate queries to refresh data
           queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -141,7 +188,7 @@ export const useRealTimeNotifications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, toast, queryClient]);
+  }, [user, toast, queryClient, playSound]);
 
   return { isSubscribed };
 };
@@ -151,7 +198,7 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { playMessageSound } = useMessageSound();
+  const { playMessageSound } = useNotificationSound();
 
   useEffect(() => {
     if (!conversationId) return;
@@ -173,6 +220,9 @@ export const useRealTimeMessages = (conversationId: string | undefined) => {
           if (message.sender_id !== user?.id) {
             // Play message notification sound
             playMessageSound();
+            
+            // Show browser notification
+            showBrowserNotification('💬 Mesaj Nou', message.content?.substring(0, 50) || 'Ai primit un mesaj nou');
             
             toast({
               title: '💬 Mesaj Nou',
@@ -198,7 +248,7 @@ export const useGlobalMessageNotifications = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { playMessageSound } = useMessageSound();
+  const { playMessageSound } = useNotificationSound();
 
   useEffect(() => {
     if (!user) return;
@@ -250,9 +300,13 @@ export const useGlobalMessageNotifications = () => {
               .neq('sender_id', user.id);
 
             const unreadText = count && count > 1 ? `${count} mesaje noi` : '1 mesaj nou';
+            const senderName = sender?.display_name || sender?.username || 'Utilizator';
+            
+            // Show browser notification
+            showBrowserNotification(`💬 ${senderName}`, `${unreadText}: ${message.content?.substring(0, 40) || ''}`);
             
             toast({
-              title: `💬 ${sender?.display_name || sender?.username || 'Utilizator'}`,
+              title: `💬 ${senderName}`,
               description: `${unreadText}: ${message.content?.substring(0, 40) + (message.content?.length > 40 ? '...' : '')}`,
             });
           }
@@ -271,7 +325,7 @@ export const useRealTimeOrders = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { playCoinSound } = useCoinSound();
+  const { playOrderSound, playPayoutSound, playShippingSound } = useNotificationSound();
 
   useEffect(() => {
     if (!user) return;
@@ -294,8 +348,11 @@ export const useRealTimeOrders = () => {
             
             // 🎉 New order notification for seller with sound
             if (payload.eventType === 'INSERT' && order.seller_id === user.id) {
-              // Play coin sound for new order too!
-              playCoinSound();
+              // Play cha-ching sound for new order!
+              playOrderSound();
+              
+              // Show browser notification
+              showBrowserNotification('🎉 Comandă nouă primită!', `Ai vândut un produs pentru £${order.amount?.toFixed(2) || '0.00'}`);
               
               toast({
                 title: '🎉 Comandă nouă primită!',
@@ -305,6 +362,10 @@ export const useRealTimeOrders = () => {
             
             if (payload.eventType === 'UPDATE') {
               if (order.status === 'shipped' && order.buyer_id === user.id) {
+                playShippingSound();
+                
+                showBrowserNotification('📦 Comanda a fost expediată!', 'Vânzătorul a expediat comanda ta.');
+                
                 toast({
                   title: '📦 Comanda a fost expediată!',
                   description: 'Vânzătorul a expediat comanda ta.',
@@ -315,7 +376,9 @@ export const useRealTimeOrders = () => {
                 const payoutAmount = order.payout_amount || (order.amount * 0.9);
                 
                 // Play coin drop sound! 🎵
-                playCoinSound();
+                playPayoutSound();
+                
+                showBrowserNotification('💰 Bani Primiți!', `£${payoutAmount.toFixed(2)} au fost adăugați la soldul tău disponibil.`);
                 
                 toast({
                   title: '💰 Bani Primiți!',
@@ -331,7 +394,7 @@ export const useRealTimeOrders = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, toast, playCoinSound]);
+  }, [user, queryClient, toast, playOrderSound, playPayoutSound, playShippingSound]);
 };
 
 // Hook for real-time bids (for sellers)
@@ -339,6 +402,7 @@ export const useRealTimeBids = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { playBidSound } = useNotificationSound();
 
   useEffect(() => {
     if (!user) return;
@@ -366,6 +430,11 @@ export const useRealTimeBids = () => {
             queryClient.invalidateQueries({ queryKey: ['bids'] });
             queryClient.invalidateQueries({ queryKey: ['my-auction-listings'] });
             
+            // Play bid notification sound
+            playBidSound();
+            
+            showBrowserNotification('🔔 Licitație Nouă!', `Ai primit o ofertă de £${bid.amount.toFixed(2)} pe "${listing.title}".`);
+            
             toast({
               title: '🔔 Licitație Nouă!',
               description: `Ai primit o ofertă de £${bid.amount.toFixed(2)} pe "${listing.title}".`,
@@ -378,5 +447,5 @@ export const useRealTimeBids = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, toast]);
+  }, [user, queryClient, toast, playBidSound]);
 };

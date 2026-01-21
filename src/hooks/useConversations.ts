@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Conversation, Message, ConversationWithDetails } from '@/types/database';
-import { useEffect } from 'react';
 
 export const useConversations = (userId?: string) => {
   return useQuery({
@@ -52,9 +51,7 @@ export const useConversation = (conversationId?: string) => {
 };
 
 export const useMessages = (conversationId?: string) => {
-  const queryClient = useQueryClient();
-
-  const query = useQuery({
+  return useQuery({
     queryKey: ['messages', conversationId],
     queryFn: async () => {
       if (!conversationId) return [];
@@ -69,33 +66,9 @@ export const useMessages = (conversationId?: string) => {
       return data as Message[];
     },
     enabled: !!conversationId,
+    staleTime: 1000, // 1 second cache to prevent excessive refetches
+    refetchOnWindowFocus: false,
   });
-
-  useEffect(() => {
-    if (!conversationId) return;
-
-    const channel = supabase
-      .channel(`messages:${conversationId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${conversationId}`,
-        },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [conversationId, queryClient]);
-
-  return query;
 };
 
 export const useCreateConversation = () => {
