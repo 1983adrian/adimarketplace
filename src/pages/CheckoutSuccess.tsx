@@ -15,50 +15,46 @@ const CheckoutSuccess = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const sessionId = searchParams.get('session_id');
-  const listingId = searchParams.get('listing');
+  const orderIds = searchParams.get('order_ids');
+  const sessionId = searchParams.get('session_id'); // Legacy support
 
   useEffect(() => {
     const processPayment = async () => {
-      if (!sessionId) {
-        setError('Session ID missing');
+      // Handle new order_ids format
+      if (orderIds) {
+        setOrderId(orderIds.split(',')[0]); // Take first order ID for display
         setProcessing(false);
         return;
       }
 
-      try {
-        const { data, error: fnError } = await supabase.functions.invoke('stripe-payment-success', {
-          body: { sessionId, listingId },
-        });
-
-        if (fnError) {
-          throw new Error(fnError.message);
-        }
-
-        if (data?.success) {
-          setOrderId(data.orderId);
-          toast({
-            title: 'Plată reușită! 🎉',
-            description: 'Comanda ta a fost procesată cu succes.',
+      // Legacy: handle Stripe session_id
+      if (sessionId) {
+        try {
+          const { data, error: fnError } = await supabase.functions.invoke('stripe-payment-success', {
+            body: { sessionId },
           });
-        } else {
-          throw new Error(data?.error || 'Payment processing failed');
+
+          if (fnError) {
+            throw new Error(fnError.message);
+          }
+
+          if (data?.success) {
+            setOrderId(data.orderId);
+          } else {
+            throw new Error(data?.error || 'Payment processing failed');
+          }
+        } catch (err) {
+          console.error('Payment processing error:', err);
+          setError(err instanceof Error ? err.message : 'An error occurred');
         }
-      } catch (err) {
-        console.error('Payment processing error:', err);
-        setError(err instanceof Error ? err.message : 'An error occurred');
-        toast({
-          title: 'Eroare',
-          description: 'A apărut o problemă la procesarea plății',
-          variant: 'destructive',
-        });
-      } finally {
-        setProcessing(false);
+      } else {
+        setError('Missing order information');
       }
+      setProcessing(false);
     };
 
     processPayment();
-  }, [sessionId, listingId, toast]);
+  }, [sessionId, orderIds]);
 
   if (processing) {
     return (

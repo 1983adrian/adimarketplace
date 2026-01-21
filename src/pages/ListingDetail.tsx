@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useToast } from '@/hooks/use-toast';
-import { StripeButton } from '@/components/payments/StripeButton';
+
 import { StarRating } from '@/components/reviews/StarRating';
 import { SimilarListings } from '@/components/listings/SimilarListings';
 import { AuctionBidding } from '@/components/listings/AuctionBidding';
@@ -214,10 +214,17 @@ const ListingDetail = () => {
               />
             )}
 
-            {/* Stripe Buy Now Button - only for buy_now listings */}
+            {/* Buy Now Button - only for buy_now listings */}
             {isBuyNow && !isAuction && (
               <div className="mb-4">
-                <StripeButton listingId={listing.id} className="w-full" />
+                <Button 
+                  className="w-full" 
+                  size="lg"
+                  onClick={() => navigate(`/checkout?listing=${listing.id}`)}
+                  disabled={listing.is_sold}
+                >
+                  {listing.is_sold ? 'Vândut' : 'Cumpără Acum'}
+                </Button>
               </div>
             )}
 
@@ -292,7 +299,7 @@ const ListingDetail = () => {
 
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Shield className="h-4 w-4" />
-              <span>Plăți securizate prin Stripe</span>
+              <span>Plăți securizate prin MangoPay</span>
             </div>
           </div>
         </div>

@@ -133,18 +133,19 @@ export const useConfirmDelivery = () => {
       });
 
       if (error) throw error;
+      if (!data.success) throw new Error(data.error || 'Payout failed');
       return data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast({
-        title: 'Delivery confirmed',
-        description: `Seller will receive £${data.payout?.net_amount?.toFixed(2) || '0.00'} after fees`,
+        title: 'Livrare confirmată!',
+        description: `Vânzătorul va primi £${data.payout?.net_amount?.toFixed(2) || '0.00'} după deducerea comisioanelor`,
       });
     },
     onError: (error: Error) => {
       toast({
-        title: 'Error',
+        title: 'Eroare',
         description: error.message,
         variant: 'destructive',
       });
