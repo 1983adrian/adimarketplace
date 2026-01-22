@@ -70,7 +70,49 @@ const menuItems: MenuItem[] = [
   { id: 'received-returns', title: 'Returnări Primite', icon: Inbox, description: 'Cereri de retur de la cumpărători' },
 ];
 
-// Sidebar component
+// Grid navigation component - 2x2 style like reference image
+const OrdersNavGrid = ({ 
+  activeSection, 
+  onSectionChange 
+}: { 
+  activeSection: string; 
+  onSectionChange: (section: string) => void;
+}) => {
+  return (
+    <div className="grid grid-cols-2 gap-3 mb-6">
+      {menuItems.map((item) => {
+        const isActive = activeSection === item.id;
+        const Icon = item.icon;
+        
+        return (
+          <button
+            key={item.id}
+            onClick={() => onSectionChange(item.id)}
+            className={cn(
+              "flex flex-col items-center p-4 rounded-2xl border-2 transition-all duration-300",
+              isActive 
+                ? "bg-blue-500 border-blue-500 text-white shadow-lg" 
+                : "bg-card border-border/50 hover:border-primary/30 hover:shadow-md"
+            )}
+          >
+            <Icon className={cn(
+              "h-7 w-7 mb-2 transition-colors",
+              isActive ? "text-white" : "text-gray-500 dark:text-gray-400"
+            )} />
+            <span className={cn(
+              "font-medium text-sm text-center",
+              isActive ? "text-white" : "text-foreground"
+            )}>
+              {item.title}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
+
+// Desktop Sidebar component
 const OrdersSidebar = ({ 
   activeSection, 
   onSectionChange 
@@ -91,17 +133,17 @@ const OrdersSidebar = ({
             className={cn(
               "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
               isActive 
-                ? "bg-primary text-primary-foreground shadow-md" 
+                ? "bg-blue-500 text-white shadow-md" 
                 : "hover:bg-muted text-foreground"
             )}
           >
-            <Icon className={cn("h-5 w-5 flex-shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
+            <Icon className={cn("h-5 w-5 flex-shrink-0", isActive ? "text-white" : "text-muted-foreground")} />
             <div className="min-w-0">
-              <p className={cn("font-medium text-sm", isActive ? "text-primary-foreground" : "text-foreground")}>
+              <p className={cn("font-medium text-sm", isActive ? "text-white" : "text-foreground")}>
                 {item.title}
               </p>
               {item.description && (
-                <p className={cn("text-xs truncate", isActive ? "text-primary-foreground/80" : "text-muted-foreground")}>
+                <p className={cn("text-xs truncate", isActive ? "text-white/80" : "text-muted-foreground")}>
                   {item.description}
                 </p>
               )}
@@ -435,30 +477,12 @@ const Orders = () => {
             </div>
           </aside>
 
-          {/* Mobile Navigation - Grid */}
-          <div className="lg:hidden grid grid-cols-2 gap-2 mb-6">
-            {menuItems.map((item) => {
-              const isActive = activeSection === item.id;
-              const Icon = item.icon;
-              
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveSection(item.id)}
-                  className={cn(
-                    "flex flex-col items-center gap-2 p-4 rounded-xl border transition-all",
-                    isActive 
-                      ? "bg-primary text-primary-foreground border-primary shadow-md" 
-                      : "bg-card hover:bg-muted border-border"
-                  )}
-                >
-                  <Icon className={cn("h-6 w-6", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
-                  <span className={cn("text-xs font-medium text-center", isActive ? "text-primary-foreground" : "text-foreground")}>
-                    {item.title}
-                  </span>
-                </button>
-              );
-            })}
+          {/* Mobile Navigation - 2x2 Grid like reference image */}
+          <div className="lg:hidden">
+            <OrdersNavGrid 
+              activeSection={activeSection} 
+              onSectionChange={setActiveSection} 
+            />
           </div>
 
           {/* Main Content */}
