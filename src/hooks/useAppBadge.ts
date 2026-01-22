@@ -45,7 +45,7 @@ export const useAppBadge = () => {
 
   // Update document title to show unread count (works everywhere)
   useEffect(() => {
-    const baseTitle = 'C Market';
+    const baseTitle = 'Marketplace România';
     if (totalBadgeCount > 0) {
       document.title = `(${totalBadgeCount}) ${baseTitle}`;
     } else {

@@ -280,7 +280,7 @@ export const Header: React.FC = () => {
               <SheetContent side="right" className="w-80 p-0">
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b border-border flex items-center justify-between">
-                    <img src={logo} alt="CMarket" className="h-9 object-contain" style={{ mixBlendMode: 'multiply' }} />
+                    <img src={logo} alt="Marketplace România" className="h-9 object-contain" style={{ mixBlendMode: 'multiply' }} />
                     <AppDownloadButton />
                   </div>
                   
@@ -404,7 +404,7 @@ export const Header: React.FC = () => {
                             Bine ai venit!
                           </div>
                           <p className="text-muted-foreground text-sm">
-                            Alătură-te comunității C.Market
+                            Alătură-te comunității Marketplace România
                           </p>
                         </div>
                         

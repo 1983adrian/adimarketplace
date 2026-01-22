@@ -131,9 +131,9 @@ export const useExportData = () => {
         body: {
           type: 'email',
           to: adminEmail,
-          subject: `Raport Platformă AdiMarket - ${new Date().toLocaleDateString('ro-RO')}`,
+          subject: `Raport Platformă Marketplace România - ${new Date().toLocaleDateString('ro-RO')}`,
           message: `
-            <h2>Raport Platformă AdiMarket</h2>
+            <h2>Raport Platformă Marketplace România</h2>
             <p>Data: ${new Date().toLocaleString('ro-RO')}</p>
             <h3>Statistici</h3>
             <ul>

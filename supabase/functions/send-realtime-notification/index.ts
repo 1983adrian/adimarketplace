@@ -105,13 +105,13 @@ serve(async (req: Request) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              from: "C Market <notifications@cmarket.app>",
+              from: "Marketplace România <notifications@marketplace-romania.ro>",
               to: userEmail,
               subject: title,
               html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                   <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; text-align: center;">
-                    <h1 style="color: #fff; margin: 0;">C Market</h1>
+                    <h1 style="color: #fff; margin: 0;">Marketplace România</h1>
                   </div>
                   <div style="padding: 30px; background: #fff;">
                     <h2 style="color: #1a1a2e;">${title}</h2>
