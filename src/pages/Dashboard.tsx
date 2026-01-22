@@ -12,7 +12,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useMyListings } from '@/hooks/useListings';
 import { useFavorites } from '@/hooks/useFavorites';
-import { useSellerSubscription, useCreateSellerSubscription, useSellerPortal } from '@/hooks/useSellerSubscription';
+import { useSellerSubscription, useCreateSellerSubscription, useSellerPortal, useSubscriptionPrice } from '@/hooks/useSellerSubscription';
 import { useMyAuctionListings } from '@/hooks/useBids';
 import { ListingGrid } from '@/components/listings/ListingGrid';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +29,7 @@ const Dashboard = () => {
   const { data: favorites, isLoading: favoritesLoading } = useFavorites(user?.id);
   const { data: subscription, isLoading: subscriptionLoading, refetch: refetchSubscription } = useSellerSubscription();
   const { data: auctionListings, isLoading: auctionsLoading } = useMyAuctionListings();
+  const subscriptionPrice = useSubscriptionPrice();
   const createSubscription = useCreateSellerSubscription();
   const openPortal = useSellerPortal();
 
@@ -118,7 +119,7 @@ const Dashboard = () => {
                 className="gap-2"
               >
                 <Crown className="h-4 w-4" />
-                {createSubscription.isPending ? t('dashboard.loading') : `${t('dashboard.becomeSeller')} (£1)`}
+                {createSubscription.isPending ? t('dashboard.loading') : `${t('dashboard.becomeSeller')} (${subscriptionPrice.formattedPrice})`}
               </Button>
             )}
             <Button variant="outline" asChild>
@@ -143,19 +144,19 @@ const Dashboard = () => {
                     </CardTitle>
                     <CardDescription>
                       {isTrialPeriod 
-                        ? `${trialDaysRemaining} days remaining in your free trial`
+                        ? `${trialDaysRemaining} zile rămase în perioada de probă gratuită`
                         : isSubscribed 
                           ? `${t('dashboard.subscribed')} ${subscription?.subscription_end ? new Date(subscription.subscription_end).toLocaleDateString() : 'N/A'}`
                           : subscription?.trialExpired 
-                            ? 'Your free trial has expired'
-                            : `${t('dashboard.subscribe')} (£1/month after 3 months free)`
+                            ? 'Perioada de probă a expirat'
+                            : `${t('dashboard.subscribe')} (${subscriptionPrice.formattedPrice}/lună după 3 luni gratuite)`
                       }
                     </CardDescription>
                   </div>
                 </div>
                 {isTrialPeriod ? (
                   <Badge variant="secondary" className="gap-1 bg-green-100 text-green-800">
-                    Trial Active
+                    Trial Activ
                   </Badge>
                 ) : isSubscribed ? (
                   <Button 
@@ -180,7 +181,7 @@ const Dashboard = () => {
             {isTrialPeriod && (
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground">
-                  Enjoy free access to all seller features. After 3 months, a £1/month subscription is required to continue listing items.
+                  Bucură-te de acces gratuit la toate funcționalitățile de vânzător. După 3 luni, este necesar un abonament de {subscriptionPrice.formattedPrice}/lună pentru a continua să listezi produse.
                 </p>
               </CardContent>
             )}
@@ -188,7 +189,7 @@ const Dashboard = () => {
               <CardContent className="pt-0">
                 <p className="text-sm text-muted-foreground">
                   {subscription?.trialExpired 
-                    ? 'Subscribe now to continue creating listings and selling on the platform.'
+                    ? `Abonează-te acum (${subscriptionPrice.formattedPrice}/lună) pentru a continua să creezi anunțuri și să vinzi pe platformă.`
                     : t('dashboard.sellerBenefits')
                   }
                 </p>

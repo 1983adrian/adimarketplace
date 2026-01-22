@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useSellerSubscription, useCreateSellerSubscription } from '@/hooks/useSellerSubscription';
+import { useSellerSubscription, useCreateSellerSubscription, useSubscriptionPrice } from '@/hooks/useSellerSubscription';
 import { useListingLimit } from '@/hooks/useListingLimit';
 import { useCreateListing } from '@/hooks/useListings';
 import { useImageUpload } from '@/hooks/useImageUpload';
@@ -37,6 +37,7 @@ const CreateListing = () => {
   const { data: categories } = useCategories();
   const { data: subscription, isLoading: subscriptionLoading } = useSellerSubscription();
   const { data: listingLimit, isLoading: limitLoading } = useListingLimit();
+  const subscriptionPrice = useSubscriptionPrice();
   const createSubscription = useCreateSellerSubscription();
   const createListing = useCreateListing();
   const { uploadMultipleImages, uploading } = useImageUpload();
@@ -277,8 +278,8 @@ const CreateListing = () => {
           <Crown className="h-16 w-16 mx-auto mb-6 text-primary" />
           <h1 className="text-2xl font-bold mb-4">Devino Vânzător</h1>
           <p className="text-muted-foreground mb-6">
-            Pentru a lista produse spre vânzare, trebuie să plătești o taxă lunară de acces la platformă. 
-            Este doar £1/lună (debitată automat de pe card), plus un comision de 15% când faci o vânzare.
+            Pentru a lista produse spre vânzare, ai nevoie de un abonament de vânzător. 
+            Costă doar {subscriptionPrice.formattedPrice}/lună (debitată automat), plus un comision de 10% când faci o vânzare.
           </p>
           <div className="space-y-3">
             <Button 
@@ -288,7 +289,7 @@ const CreateListing = () => {
               disabled={createSubscription.isPending}
             >
               <Crown className="h-4 w-4" />
-              {createSubscription.isPending ? 'Se încarcă...' : 'Activează Accesul - £1/lună'}
+              {createSubscription.isPending ? 'Se încarcă...' : `Activează Accesul - ${subscriptionPrice.formattedPrice}/lună`}
             </Button>
             <Button variant="outline" className="w-full" asChild>
               <Link to="/dashboard">Înapoi la Dashboard</Link>
