@@ -74,12 +74,13 @@ const sizeClasses = {
   lg: { container: 'h-8 w-8', icon: 'h-5 w-5' },
 };
 
-// Inner badge component that can receive refs
-const BadgeIcon = forwardRef<HTMLDivElement, { size: 'sm' | 'md' | 'lg'; className?: string }>(
+// Inner badge component that can receive refs - uses button for proper ref forwarding
+const BadgeIcon = forwardRef<HTMLButtonElement, { size: 'sm' | 'md' | 'lg'; className?: string } & React.ButtonHTMLAttributes<HTMLButtonElement>>(
   ({ size, className, ...props }, ref) => (
-    <div 
+    <button 
       ref={ref}
-      className={`${sizeClasses[size].container} rounded-full bg-[#1d9bf0] flex items-center justify-center shrink-0 cursor-help ${className || ''}`}
+      type="button"
+      className={`${sizeClasses[size].container} rounded-full bg-[#1d9bf0] flex items-center justify-center shrink-0 cursor-help border-0 p-0 ${className || ''}`}
       style={{ 
         boxShadow: '0 2px 8px rgba(29, 155, 240, 0.4), 0 1px 3px rgba(0,0,0,0.3)',
       }}
@@ -89,34 +90,36 @@ const BadgeIcon = forwardRef<HTMLDivElement, { size: 'sm' | 'md' | 'lg'; classNa
         className={`${sizeClasses[size].icon} text-white`} 
         strokeWidth={3.5}
       />
-    </div>
+    </button>
   )
 );
 BadgeIcon.displayName = 'BadgeIcon';
 
-export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({ 
+export const VerifiedBadge = forwardRef<HTMLButtonElement, VerifiedBadgeProps>(({ 
   userId, 
   size = 'md',
   showTooltip = true 
-}) => {
+}, ref) => {
   const { data } = useIsSpecialUser(userId);
 
   if (!data?.isSpecial) return null;
 
   if (!showTooltip) {
-    return <BadgeIcon size={size} />;
+    return <BadgeIcon ref={ref} size={size} />;
   }
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <BadgeIcon size={size} />
+        <BadgeIcon ref={ref} size={size} />
       </TooltipTrigger>
       <TooltipContent>
         <p className="font-medium">{data.type}</p>
       </TooltipContent>
     </Tooltip>
   );
-};
+});
+
+VerifiedBadge.displayName = 'VerifiedBadge';
 
 export default VerifiedBadge;
