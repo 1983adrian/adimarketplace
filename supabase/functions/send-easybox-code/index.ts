@@ -45,7 +45,7 @@ serve(async (req) => {
       );
     }
 
-    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "C.Market <onboarding@resend.dev>";
+    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Marketplace România <onboarding@resend.dev>";
     
     // Get courier display name
     const courierNames: Record<string, string> = {

@@ -82,7 +82,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
 
       // Use Resend's default domain for testing, or custom domain if verified
-      const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "C.Market <onboarding@resend.dev>";
+      const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Marketplace România <onboarding@resend.dev>";
       
       const emailResponse = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -93,7 +93,7 @@ const handler = async (req: Request): Promise<Response> => {
         body: JSON.stringify({
           from: fromEmail,
           to: [to],
-          subject: subject || "Notificare de la C.Market",
+          subject: subject || "Notificare de la Marketplace România",
           html: message,
         }),
       });

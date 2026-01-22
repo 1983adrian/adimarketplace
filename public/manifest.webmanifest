@@ -1,7 +1,7 @@
 {
-  "name": "C Market - Marketplace România",
-  "short_name": "C Market",
-  "description": "Cumpără și vinde produse în siguranță pe C Market. Marketplace-ul românesc cu plăți securizate și livrare rapidă.",
+  "name": "Marketplace România - Cumpără și Vinde Online",
+  "short_name": "Marketplace RO",
+  "description": "Cumpără și vinde produse în siguranță pe Marketplace România. Marketplace-ul românesc cu plăți securizate și livrare rapidă.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",
@@ -66,7 +66,7 @@
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Pagina principală C Market"
+      "label": "Pagina principală Marketplace România"
     },
     {
       "src": "/screenshots/browse-mobile.png",
@@ -107,13 +107,13 @@
     },
     {
       "platform": "itunes",
-      "url": "https://apps.apple.com/app/c-market/id000000000"
+      "url": "https://apps.apple.com/app/marketplace-romania/id000000000"
     }
   ],
   "prefer_related_applications": false,
   "protocol_handlers": [
     {
-      "protocol": "web+cmarket",
+      "protocol": "web+marketplacero",
       "url": "/handle-protocol?url=%s"
     }
   ],

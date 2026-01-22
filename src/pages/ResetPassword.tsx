@@ -140,14 +140,11 @@ const ResetPassword = () => {
           <Link to="/" className="inline-flex flex-col items-center justify-center gap-3 mb-4 group">
             <img 
               src={cmarketLogo} 
-              alt="C.Market" 
+              alt="Marketplace România" 
               className="h-16 w-auto drop-shadow-lg"
             />
             <div className="flex items-center gap-1">
-              <span className="text-2xl font-bold bg-gradient-to-r from-[#4A90D9] via-[#5BA3EC] to-[#6BB5FF] bg-clip-text text-transparent">
-                C
-              </span>
-              <span className="text-2xl font-bold text-foreground">.Market</span>
+              <span className="text-xl font-bold text-foreground">Marketplace România</span>
             </div>
           </Link>
           <CardTitle className="text-2xl">Resetează Parola</CardTitle>

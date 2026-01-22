@@ -65,10 +65,10 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="CMarket" className="h-12 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
+              <img src={logo} alt="Marketplace România" className="h-12 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Your trusted marketplace for buying and selling quality items. Join thousands of happy customers today.
+              Marketplace-ul tău de încredere pentru cumpărare și vânzare de produse de calitate. Alătură-te miilor de clienți mulțumiți.
             </p>
             <div className="flex gap-3">
               {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
@@ -157,7 +157,7 @@ export const Footer: React.FC = () => {
       <div className="border-t border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>© {currentYear} AdiMarket. All rights reserved.</p>
+            <p>© {currentYear} Marketplace România. Toate drepturile rezervate.</p>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />

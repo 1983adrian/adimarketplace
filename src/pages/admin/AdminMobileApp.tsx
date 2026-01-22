@@ -127,7 +127,7 @@ FCM_PROJECT_ID: "your-firebase-project-id"
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <Smartphone className="h-8 w-8 text-primary" />
-              C Market - Aplicație Mobilă
+              Marketplace România - Aplicație Mobilă
             </h1>
             <p className="text-muted-foreground mt-1">
               Configurație completă pentru iOS și Android

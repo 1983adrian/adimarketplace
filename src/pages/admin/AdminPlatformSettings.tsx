@@ -46,9 +46,9 @@ interface PlatformSettings {
 
 const defaultSettings: PlatformSettings = {
   general: {
-    siteName: 'C.Market',
-    siteDescription: 'Your trusted online marketplace - Buy & Sell Smart',
-    supportEmail: 'support@cmarket.com',
+    siteName: 'Marketplace România',
+    siteDescription: 'Marketplace-ul tău de încredere - Cumpără și Vinde Smart',
+    supportEmail: 'support@marketplace-romania.ro',
   },
   localization: {
     defaultLanguage: 'en',
@@ -172,7 +172,7 @@ const AdminPlatformSettings = () => {
             <div>
               <h1 className="text-2xl font-bold tracking-tight">Setări Platformă</h1>
               <p className="text-sm text-muted-foreground">
-                Configurează setările globale ale platformei C.Market
+                Configurează setările globale ale platformei Marketplace România
               </p>
             </div>
           </div>
