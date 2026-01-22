@@ -1,22 +1,37 @@
 import React, { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Package, Truck, CheckCircle, Clock, AlertCircle, ExternalLink, Star, RotateCcw, AlertTriangle } from 'lucide-react';
+import { 
+  Package, 
+  Truck, 
+  CheckCircle, 
+  Clock, 
+  AlertCircle, 
+  ExternalLink, 
+  Star, 
+  RotateCcw, 
+  AlertTriangle,
+  ShoppingBag,
+  Store,
+  Undo2,
+  Inbox,
+  LucideIcon
+} from 'lucide-react';
 import { useMyOrders, useUpdateTracking, useConfirmDelivery, Order } from '@/hooks/useOrders';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { format } from 'date-fns';
 import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import { ReturnRequestDialog } from '@/components/dashboard/ReturnRequestDialog';
 import { ReturnsSection } from '@/components/dashboard/ReturnsSection';
+import { cn } from '@/lib/utils';
 
 const CARRIERS = [
   { value: 'fan_courier', label: 'FAN Courier' },
@@ -38,6 +53,64 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.R
   delivered: { label: 'Livrat', color: 'bg-green-100 text-green-800', icon: <CheckCircle className="h-4 w-4" /> },
   cancelled: { label: 'Anulat', color: 'bg-red-100 text-red-800', icon: <AlertCircle className="h-4 w-4" /> },
   refunded: { label: 'Rambursat', color: 'bg-gray-100 text-gray-800', icon: <AlertCircle className="h-4 w-4" /> },
+};
+
+// Sidebar menu items
+interface MenuItem {
+  id: string;
+  title: string;
+  icon: LucideIcon;
+  description?: string;
+}
+
+const menuItems: MenuItem[] = [
+  { id: 'buying', title: 'Cumpărături', icon: ShoppingBag, description: 'Comenzile tale ca cumpărător' },
+  { id: 'selling', title: 'Vânzări', icon: Store, description: 'Comenzile primite ca vânzător' },
+  { id: 'my-returns', title: 'Returnările Mele', icon: Undo2, description: 'Retururi solicitate de tine' },
+  { id: 'received-returns', title: 'Returnări Primite', icon: Inbox, description: 'Cereri de retur de la cumpărători' },
+];
+
+// Sidebar component
+const OrdersSidebar = ({ 
+  activeSection, 
+  onSectionChange 
+}: { 
+  activeSection: string; 
+  onSectionChange: (section: string) => void;
+}) => {
+  return (
+    <div className="space-y-1">
+      {menuItems.map((item) => {
+        const isActive = activeSection === item.id;
+        const Icon = item.icon;
+        
+        return (
+          <button
+            key={item.id}
+            onClick={() => onSectionChange(item.id)}
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
+              isActive 
+                ? "bg-primary text-primary-foreground shadow-md" 
+                : "hover:bg-muted text-foreground"
+            )}
+          >
+            <Icon className={cn("h-5 w-5 flex-shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
+            <div className="min-w-0">
+              <p className={cn("font-medium text-sm", isActive ? "text-primary-foreground" : "text-foreground")}>
+                {item.title}
+              </p>
+              {item.description && (
+                <p className={cn("text-xs truncate", isActive ? "text-primary-foreground/80" : "text-muted-foreground")}>
+                  {item.description}
+                </p>
+              )}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
 };
 
 const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }) => {
@@ -270,6 +343,7 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
 const Orders = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [activeSection, setActiveSection] = useState('buying');
   const { data: buyingOrders, isLoading: buyingLoading } = useMyOrders('buying');
   const { data: sellingOrders, isLoading: sellingLoading } = useMyOrders('selling');
 
@@ -289,69 +363,120 @@ const Orders = () => {
     );
   }
 
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'buying':
+        return buyingLoading ? (
+          <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
+        ) : buyingOrders?.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <ShoppingBag className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="font-semibold mb-2">Nu ai cumpărături încă</h3>
+              <p className="text-muted-foreground mb-4">Începe să cauți produse grozave</p>
+              <Button onClick={() => navigate('/browse')}>Caută Produse</Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {buyingOrders?.map((order) => (
+              <OrderCard key={order.id} order={order} type="buying" />
+            ))}
+          </div>
+        );
+
+      case 'selling':
+        return sellingLoading ? (
+          <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
+        ) : sellingOrders?.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Store className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+              <h3 className="font-semibold mb-2">Nu ai vânzări încă</h3>
+              <p className="text-muted-foreground mb-4">Creează anunțuri pentru a începe să vinzi</p>
+              <Button onClick={() => navigate('/sell')}>Creează Anunț</Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {sellingOrders?.map((order) => (
+              <OrderCard key={order.id} order={order} type="selling" />
+            ))}
+          </div>
+        );
+
+      case 'my-returns':
+        return <ReturnsSection type="buyer" />;
+
+      case 'received-returns':
+        return <ReturnsSection type="seller" />;
+
+      default:
+        return null;
+    }
+  };
+
+  const currentMenuItem = menuItems.find(item => item.id === activeSection);
+
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Comenzile Mele</h1>
 
-        <Tabs defaultValue="buying">
-          <TabsList className="mb-6">
-            <TabsTrigger value="buying">Cumpărături</TabsTrigger>
-            <TabsTrigger value="selling">Vânzări</TabsTrigger>
-            <TabsTrigger value="my-returns">Returnările Mele</TabsTrigger>
-            <TabsTrigger value="received-returns">Returnări Primite</TabsTrigger>
-          </TabsList>
+        <div className="flex flex-col lg:flex-row gap-8">
+          {/* Left Sidebar - Desktop */}
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <div className="sticky top-24 bg-card rounded-xl border p-4 shadow-sm">
+              <h2 className="text-sm font-semibold text-muted-foreground mb-4 px-2">NAVIGARE</h2>
+              <OrdersSidebar 
+                activeSection={activeSection} 
+                onSectionChange={setActiveSection} 
+              />
+            </div>
+          </aside>
 
-          <TabsContent value="buying">
-            {buyingLoading ? (
-              <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
-            ) : buyingOrders?.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="font-semibold mb-2">Nu ai cumpărături încă</h3>
-                  <p className="text-muted-foreground mb-4">Începe să cauți produse grozave</p>
-                  <Button onClick={() => navigate('/browse')}>Caută Produse</Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {buyingOrders?.map((order) => (
-                  <OrderCard key={order.id} order={order} type="buying" />
-                ))}
-              </div>
-            )}
-          </TabsContent>
+          {/* Mobile Navigation - Grid */}
+          <div className="lg:hidden grid grid-cols-2 gap-2 mb-6">
+            {menuItems.map((item) => {
+              const isActive = activeSection === item.id;
+              const Icon = item.icon;
+              
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveSection(item.id)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-4 rounded-xl border transition-all",
+                    isActive 
+                      ? "bg-primary text-primary-foreground border-primary shadow-md" 
+                      : "bg-card hover:bg-muted border-border"
+                  )}
+                >
+                  <Icon className={cn("h-6 w-6", isActive ? "text-primary-foreground" : "text-muted-foreground")} />
+                  <span className={cn("text-xs font-medium text-center", isActive ? "text-primary-foreground" : "text-foreground")}>
+                    {item.title}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
 
-          <TabsContent value="selling">
-            {sellingLoading ? (
-              <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
-            ) : sellingOrders?.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Package className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-                  <h3 className="font-semibold mb-2">Nu ai vânzări încă</h3>
-                  <p className="text-muted-foreground mb-4">Creează anunțuri pentru a începe să vinzi</p>
-                  <Button onClick={() => navigate('/sell')}>Creează Anunț</Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {sellingOrders?.map((order) => (
-                  <OrderCard key={order.id} order={order} type="selling" />
-                ))}
-              </div>
-            )}
-          </TabsContent>
+          {/* Main Content */}
+          <main className="flex-1 min-w-0">
+            {/* Section Header */}
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                {currentMenuItem && <currentMenuItem.icon className="h-5 w-5 text-primary" />}
+                {currentMenuItem?.title}
+              </h2>
+              {currentMenuItem?.description && (
+                <p className="text-sm text-muted-foreground mt-1">{currentMenuItem.description}</p>
+              )}
+            </div>
 
-          <TabsContent value="my-returns">
-            <ReturnsSection type="buyer" />
-          </TabsContent>
-
-          <TabsContent value="received-returns">
-            <ReturnsSection type="seller" />
-          </TabsContent>
-        </Tabs>
+            {renderContent()}
+          </main>
+        </div>
       </div>
     </Layout>
   );
