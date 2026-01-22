@@ -71,6 +71,9 @@ const useFeedbackNotifications = () => {
 export default function AdminUsers() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('users');
+  const [roleFilter, setRoleFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'buyers' | 'sellers'
   const { data: users, isLoading } = useAllUsers();
   const { data: feedbacks, isLoading: feedbackLoading } = useFeedbackNotifications();
   const updateRole = useUpdateUserRole();
@@ -87,11 +90,41 @@ export default function AdminUsers() {
   const [actionReason, setActionReason] = useState('');
   const [actionDuration, setActionDuration] = useState('7');
 
-  const filteredUsers = users?.filter(user => 
-    user.display_name?.toLowerCase().includes(search.toLowerCase()) ||
-    user.username?.toLowerCase().includes(search.toLowerCase()) ||
-    user.user_id?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = users?.filter(user => {
+    // Text search
+    const matchesSearch = 
+      user.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.username?.toLowerCase().includes(search.toLowerCase()) ||
+      user.user_id?.toLowerCase().includes(search.toLowerCase()) ||
+      user.phone?.toLowerCase().includes(search.toLowerCase()) ||
+      user.store_name?.toLowerCase().includes(search.toLowerCase());
+    
+    // Role filter
+    const userRole = user.user_roles?.[0]?.role || 'user';
+    const matchesRole = roleFilter === 'all' || userRole === roleFilter;
+    
+    // Status filter
+    let matchesStatus = true;
+    if (statusFilter === 'blocked') {
+      matchesStatus = user.bio?.includes('[CONT BLOCAT]');
+    } else if (statusFilter === 'suspended') {
+      matchesStatus = user.bio?.includes('[SUSPENDAT');
+    } else if (statusFilter === 'verified') {
+      matchesStatus = user.is_verified === true;
+    } else if (statusFilter === 'active') {
+      matchesStatus = !user.bio?.includes('[CONT BLOCAT]') && !user.bio?.includes('[SUSPENDAT');
+    }
+    
+    // Type filter (buyers/sellers)
+    let matchesType = true;
+    if (typeFilter === 'sellers') {
+      matchesType = user.is_seller === true;
+    } else if (typeFilter === 'buyers') {
+      matchesType = user.is_seller !== true;
+    }
+    
+    return matchesSearch && matchesRole && matchesStatus && matchesType;
+  });
 
   const handleRoleChange = async (userId: string, role: 'admin' | 'moderator' | 'user') => {
     try {
@@ -243,19 +276,64 @@ export default function AdminUsers() {
           <TabsContent value="users">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between flex-wrap gap-4">
-                  <div>
-                    <CardTitle>Toți Utilizatorii</CardTitle>
-                    <CardDescription>{users?.length || 0} utilizatori înregistrați</CardDescription>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                      <CardTitle>Toți Utilizatorii</CardTitle>
+                      <CardDescription>{filteredUsers?.length || 0} din {users?.length || 0} utilizatori</CardDescription>
+                    </div>
                   </div>
-                  <div className="relative w-64">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="Caută utilizatori..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      className="pl-9"
-                    />
+                  
+                  {/* Advanced Search & Filters */}
+                  <div className="flex flex-wrap gap-3">
+                    <div className="relative flex-1 min-w-[200px]">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        placeholder="Caută după nume, username, ID, telefon, magazin..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    
+                    {/* Type Filter */}
+                    <Select value={typeFilter} onValueChange={setTypeFilter}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Tip" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Toți</SelectItem>
+                        <SelectItem value="buyers">Cumpărători</SelectItem>
+                        <SelectItem value="sellers">Vânzători</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Role Filter */}
+                    <Select value={roleFilter} onValueChange={setRoleFilter}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Rol" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Toate Rolurile</SelectItem>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="moderator">Moderator</SelectItem>
+                        <SelectItem value="user">User</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    {/* Status Filter */}
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Toate</SelectItem>
+                        <SelectItem value="active">Activi</SelectItem>
+                        <SelectItem value="verified">Verificați</SelectItem>
+                        <SelectItem value="suspended">Suspendați</SelectItem>
+                        <SelectItem value="blocked">Blocați</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </CardHeader>
@@ -272,6 +350,8 @@ export default function AdminUsers() {
                       <TableHeader>
                         <TableRow>
                           <TableHead>Utilizator</TableHead>
+                          <TableHead>ID</TableHead>
+                          <TableHead>Tip</TableHead>
                           <TableHead>Rol</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead>Locație</TableHead>
@@ -293,10 +373,25 @@ export default function AdminUsers() {
                                 <div>
                                   <p className="font-medium">{user.display_name || 'Fără nume'}</p>
                                   <p className="text-sm text-muted-foreground">
-                                    @{user.username || user.user_id?.slice(0, 8)}
+                                    @{user.username || 'utilizator'}
                                   </p>
+                                  {user.store_name && (
+                                    <p className="text-xs text-primary">🏪 {user.store_name}</p>
+                                  )}
                                 </div>
                               </div>
+                            </TableCell>
+                            <TableCell>
+                              <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
+                                #{user.user_id?.slice(0, 8)}
+                              </code>
+                            </TableCell>
+                            <TableCell>
+                              {user.is_seller ? (
+                                <Badge className="bg-purple-100 text-purple-700">Vânzător</Badge>
+                              ) : (
+                                <Badge variant="outline">Cumpărător</Badge>
+                              )}
                             </TableCell>
                             <TableCell>
                               {getRoleBadge(user.user_roles)}

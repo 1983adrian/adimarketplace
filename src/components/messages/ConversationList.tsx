@@ -201,6 +201,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             const otherUser = getOtherUser(conversation);
             const isSelected = selectedId === conversation.id;
             const unreadCount = unreadCounts[conversation.id] || 0;
+            const userIdShort = otherUser?.user_id?.slice(0, 6)?.toUpperCase() || '------';
             
             return (
               <div
@@ -210,18 +211,26 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                   isSelected ? 'bg-gray-100' : ''
                 }`}
               >
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={otherUser?.avatar_url || ''} />
-                  <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-400 text-white">
-                    {getInitials(otherUser?.display_name || otherUser?.username)}
-                  </AvatarFallback>
-                </Avatar>
+                <div className="relative">
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={otherUser?.avatar_url || ''} />
+                    <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-400 text-white">
+                      {getInitials(otherUser?.display_name || otherUser?.username)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {/* User ID Badge */}
+                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">
+                    #{userIdShort}
+                  </span>
+                </div>
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between mb-0.5">
-                    <p className={`font-medium truncate ${unreadCount > 0 ? 'text-gray-900 font-semibold' : 'text-gray-700'}`}>
-                      {otherUser?.display_name || otherUser?.username || 'Utilizator'}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className={`font-medium truncate ${unreadCount > 0 ? 'text-gray-900 font-semibold' : 'text-gray-700'}`}>
+                        {otherUser?.display_name || otherUser?.username || 'Utilizator'}
+                      </p>
+                    </div>
                     <span className={`text-xs flex-shrink-0 ${unreadCount > 0 ? 'text-primary font-medium' : 'text-gray-400'}`}>
                       {formatDistanceToNow(new Date(conversation.updated_at), {
                         addSuffix: false,
