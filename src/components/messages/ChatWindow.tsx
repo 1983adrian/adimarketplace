@@ -158,12 +158,20 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         </Avatar>
         
         <div className="flex-1 min-w-0">
-          <p className="font-semibold truncate">
-            {otherUser?.display_name || otherUser?.username || 'Utilizator'}
+          <div className="flex items-center gap-2">
+            <p className="font-semibold truncate">
+              {otherUser?.display_name || otherUser?.username || 'Utilizator'}
+            </p>
             {(isAdminChat || otherUser?.isAdmin) && (
-              <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">Admin</span>
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Admin</span>
             )}
-          </p>
+            {/* User ID Badge */}
+            {!isAdminChat && !otherUser?.isAdmin && otherUser?.user_id && (
+              <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-mono">
+                #{otherUser.user_id.slice(0, 6).toUpperCase()}
+              </span>
+            )}
+          </div>
           {conversation.listings && (
             <Link 
               to={`/listing/${conversation.listing_id}`}
