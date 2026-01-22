@@ -81,28 +81,9 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
         <div className="flex items-center justify-between h-14 md:h-16 gap-2 md:gap-4">
-          {/* Navigation Buttons + Logo */}
-          <div className="flex items-center gap-1 shrink-0">
-            {/* Back/Forward Navigation Buttons */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 rounded-full hover:bg-primary/10"
-              onClick={handleGoBack}
-              disabled={!canGoBack}
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-8 w-8 rounded-full hover:bg-primary/10"
-              onClick={handleGoForward}
-            >
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            
-            <Link to="/" className="flex items-center ml-1">
+          {/* Logo */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Link to="/" className="flex items-center">
               <img 
                 src={logo} 
                 alt="CMarket" 
@@ -268,7 +249,25 @@ export const Header: React.FC = () => {
           </nav>
 
           {/* Mobile Menu Toggle */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-1.5 md:hidden">
+            {/* Back/Forward Navigation Buttons - Mobile */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-10 w-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 shadow-md border border-gray-200/50"
+              onClick={handleGoBack}
+              disabled={!canGoBack}
+            >
+              <ArrowLeft className="h-5 w-5 text-gray-600" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-10 w-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 hover:from-gray-200 hover:to-gray-100 shadow-md border border-gray-200/50"
+              onClick={handleGoForward}
+            >
+              <ArrowRight className="h-5 w-5 text-gray-600" />
+            </Button>
             <CartDropdown />
             <SearchDialog />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

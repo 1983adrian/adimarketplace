@@ -68,17 +68,7 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-200/50 md:hidden safe-area-bottom shadow-2xl shadow-black/10">
-      <div className="flex items-center justify-around px-1 py-2">
-        {/* Back Button */}
-        <button
-          onClick={() => window.history.back()}
-          className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[44px]"
-        >
-          <div className="p-1.5 rounded-xl transition-all duration-300">
-            <ArrowLeft className="h-4 w-4 text-gray-500" strokeWidth={2} />
-          </div>
-        </button>
-
+      <div className="flex items-center justify-around px-2 py-2">
         {navItems.slice(0, 2).map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -190,16 +180,6 @@ export const BottomNav: React.FC = () => {
             </Link>
           );
         })}
-
-        {/* Forward Button */}
-        <button
-          onClick={() => window.history.forward()}
-          className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[44px]"
-        >
-          <div className="p-1.5 rounded-xl transition-all duration-300">
-            <ArrowRight className="h-4 w-4 text-gray-500" strokeWidth={2} />
-          </div>
-        </button>
       </div>
     </nav>
   );
