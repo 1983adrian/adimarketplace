@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, CreditCard, Shield, Truck, HeadphonesIcon } from 'lucide-react';
+import { Facebook, Twitter, Instagram, Youtube, CreditCard, Shield, Truck, HeadphonesIcon, Ban, Leaf, Bomb } from 'lucide-react';
 import logo from '@/assets/cmarket-hero.png';
 
 export const Footer: React.FC = () => {
@@ -150,6 +150,24 @@ export const Footer: React.FC = () => {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+      </div>
+
+      {/* Platform Rules */}
+      <div className="border-t border-border bg-red-50/50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
+            <span className="text-red-600 font-medium">Interzis pe platformă:</span>
+            <span className="flex items-center gap-1.5 text-red-600">
+              <Ban className="h-4 w-4" /> Armament
+            </span>
+            <span className="flex items-center gap-1.5 text-red-600">
+              <Leaf className="h-4 w-4" /> Substanțe Interzise
+            </span>
+            <span className="flex items-center gap-1.5 text-red-600">
+              <Bomb className="h-4 w-4" /> Contrabandă
+            </span>
           </div>
         </div>
       </div>

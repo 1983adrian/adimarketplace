@@ -98,12 +98,32 @@ export const useAllOrders = () => {
         .from('orders')
         .select(`
           *,
-          listings:listing_id (title, price)
+          listings:listing_id (
+            id,
+            title, 
+            price,
+            listing_images (image_url, is_primary)
+          )
         `)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+
+      // Fetch buyer and seller profiles
+      const buyerIds = [...new Set(data.map(o => o.buyer_id))];
+      const sellerIds = [...new Set(data.map(o => o.seller_id))];
+      const allUserIds = [...new Set([...buyerIds, ...sellerIds])];
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, username')
+        .in('user_id', allUserIds);
+
+      return data.map(order => ({
+        ...order,
+        buyer_profile: profiles?.find(p => p.user_id === order.buyer_id),
+        seller_profile: profiles?.find(p => p.user_id === order.seller_id),
+      }));
     },
   });
 };

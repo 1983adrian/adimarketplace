@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
+import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Ban, Bomb, Leaf, Image } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,13 +36,20 @@ import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 
 const statusOptions = [
-  { value: 'all', label: 'All Orders' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'shipped', label: 'Shipped' },
-  { value: 'delivered', label: 'Delivered' },
-  { value: 'cancelled', label: 'Cancelled' },
-  { value: 'refunded', label: 'Refunded' },
+  { value: 'all', label: 'Toate Comenzile' },
+  { value: 'pending', label: 'În Așteptare' },
+  { value: 'paid', label: 'Plătite' },
+  { value: 'shipped', label: 'Expediate' },
+  { value: 'delivered', label: 'Livrate' },
+  { value: 'cancelled', label: 'Anulate' },
+  { value: 'refunded', label: 'Rambursate' },
+];
+
+// Platform forbidden items rules
+const PLATFORM_RULES = [
+  { icon: Ban, label: 'Armament', description: 'Arme de foc, arme albe, muniție, explozibili' },
+  { icon: Leaf, label: 'Substanțe Interzise', description: 'Droguri, medicamente fără rețetă, substanțe controlate' },
+  { icon: Bomb, label: 'Contrabandă', description: 'Bunuri furate, falsificate sau importate ilegal' },
 ];
 
 export default function AdminOrders() {
@@ -53,7 +61,9 @@ export default function AdminOrders() {
 
   const filteredOrders = orders?.filter(order => {
     const matchesSearch = order.listings?.title?.toLowerCase().includes(search.toLowerCase()) ||
-      order.id?.toLowerCase().includes(search.toLowerCase());
+      order.id?.toLowerCase().includes(search.toLowerCase()) ||
+      order.buyer_profile?.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+      order.seller_profile?.display_name?.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -68,29 +78,34 @@ export default function AdminOrders() {
       if (error) throw error;
       
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
-      toast({ title: 'Order status updated' });
+      toast({ title: 'Status comandă actualizat' });
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">Pending</Badge>;
+        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">În Așteptare</Badge>;
       case 'paid':
-        return <Badge className="bg-green-500">Paid</Badge>;
+        return <Badge className="bg-green-500">Plătit</Badge>;
       case 'shipped':
-        return <Badge className="bg-blue-500">Shipped</Badge>;
+        return <Badge className="bg-blue-500">Expediat</Badge>;
       case 'delivered':
-        return <Badge className="bg-purple-500">Delivered</Badge>;
+        return <Badge className="bg-purple-500">Livrat</Badge>;
       case 'cancelled':
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return <Badge variant="destructive">Anulat</Badge>;
       case 'refunded':
-        return <Badge variant="outline">Refunded</Badge>;
+        return <Badge variant="outline">Rambursat</Badge>;
       default:
         return <Badge variant="secondary">{status}</Badge>;
     }
+  };
+
+  const getOrderImage = (order: any) => {
+    const primaryImage = order.listings?.listing_images?.find((img: any) => img.is_primary)?.image_url;
+    return primaryImage || order.listings?.listing_images?.[0]?.image_url;
   };
 
   const stats = {
@@ -98,40 +113,66 @@ export default function AdminOrders() {
     pending: orders?.filter(o => o.status === 'pending').length || 0,
     paid: orders?.filter(o => o.status === 'paid').length || 0,
     shipped: orders?.filter(o => o.status === 'shipped').length || 0,
+    totalRevenue: orders?.filter(o => o.status === 'delivered').reduce((acc, o) => acc + Number(o.seller_commission || 0) + Number(o.buyer_fee || 0), 0) || 0,
   };
 
   return (
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Order Management</h1>
-          <p className="text-muted-foreground">View and manage all marketplace orders</p>
+          <h1 className="text-3xl font-bold">Gestionare Comenzi</h1>
+          <p className="text-muted-foreground">Vizualizează și gestionează toate comenzile platformei</p>
         </div>
 
+        {/* Platform Rules Alert */}
+        <Alert className="border-red-200 bg-red-50">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertTitle className="text-red-800">Reguli Platformă - Produse Interzise</AlertTitle>
+          <AlertDescription className="mt-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+              {PLATFORM_RULES.map((rule, index) => (
+                <div key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-red-100">
+                  <rule.icon className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-red-700">{rule.label}</p>
+                    <p className="text-sm text-red-600">{rule.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </AlertDescription>
+        </Alert>
+
         {/* Stats */}
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-sm text-muted-foreground">Total Orders</p>
+              <p className="text-sm text-muted-foreground">Total Comenzi</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-              <p className="text-sm text-muted-foreground">Pending</p>
+              <p className="text-sm text-muted-foreground">În Așteptare</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-green-600">{stats.paid}</div>
-              <p className="text-sm text-muted-foreground">Paid</p>
+              <p className="text-sm text-muted-foreground">Plătite</p>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="pt-6">
               <div className="text-2xl font-bold text-blue-600">{stats.shipped}</div>
-              <p className="text-sm text-muted-foreground">Shipped</p>
+              <p className="text-sm text-muted-foreground">Expediate</p>
+            </CardContent>
+          </Card>
+          <Card className="bg-gradient-to-r from-green-500 to-emerald-600 text-white">
+            <CardContent className="pt-6">
+              <div className="text-2xl font-bold">£{stats.totalRevenue.toFixed(2)}</div>
+              <p className="text-sm text-white/80">Venit Platformă</p>
             </CardContent>
           </Card>
         </div>
@@ -140,14 +181,14 @@ export default function AdminOrders() {
           <CardHeader>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <CardTitle>All Orders</CardTitle>
-                <CardDescription>{filteredOrders?.length || 0} orders found</CardDescription>
+                <CardTitle>Toate Comenzile</CardTitle>
+                <CardDescription>{filteredOrders?.length || 0} comenzi găsite</CardDescription>
               </div>
               <div className="flex gap-3">
                 <div className="relative w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
-                    placeholder="Search orders..."
+                    placeholder="Caută comenzi..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     className="pl-9"
@@ -170,80 +211,117 @@ export default function AdminOrders() {
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-16 w-full" />
+                  <Skeleton key={i} className="h-20 w-full" />
                 ))}
               </div>
             ) : filteredOrders && filteredOrders.length > 0 ? (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Item</TableHead>
-                    <TableHead>Amount</TableHead>
+                    <TableHead className="w-20">Poza</TableHead>
+                    <TableHead>Produs</TableHead>
+                    <TableHead>Cumpărător</TableHead>
+                    <TableHead>Vânzător</TableHead>
+                    <TableHead>Sumă</TableHead>
+                    <TableHead>Comisioane</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>Data</TableHead>
+                    <TableHead className="text-right">Acțiuni</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredOrders.map((order) => (
-                    <TableRow key={order.id}>
-                      <TableCell className="font-mono text-sm">
-                        {order.id.slice(0, 8)}...
-                      </TableCell>
-                      <TableCell>
-                        {order.listings?.title || 'Unknown Item'}
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        £{Number(order.amount).toFixed(2)}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(order.status)}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(order.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Update Status</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'paid')}>
-                              <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                              Mark as Paid
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'shipped')}>
-                              <Truck className="h-4 w-4 mr-2 text-blue-500" />
-                              Mark as Shipped
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'delivered')}>
-                              <Package className="h-4 w-4 mr-2 text-purple-500" />
-                              Mark as Delivered
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'cancelled')}>
-                              <XCircle className="h-4 w-4 mr-2 text-red-500" />
-                              Cancel Order
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'refunded')}>
-                              <RefreshCw className="h-4 w-4 mr-2" />
-                              Mark as Refunded
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredOrders.map((order) => {
+                    const orderImage = getOrderImage(order);
+                    return (
+                      <TableRow key={order.id}>
+                        <TableCell>
+                          <div className="w-14 h-14 rounded-lg bg-muted overflow-hidden">
+                            {orderImage ? (
+                              <img 
+                                src={orderImage} 
+                                alt={order.listings?.title || 'Produs'} 
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Image className="h-6 w-6 text-muted-foreground" />
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium truncate max-w-[150px]">{order.listings?.title || 'Produs Necunoscut'}</p>
+                            <p className="text-xs text-muted-foreground font-mono">{order.id.slice(0, 8)}...</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">
+                            {order.buyer_profile?.display_name || order.buyer_profile?.username || 'Cumpărător'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm">
+                            {order.seller_profile?.display_name || order.seller_profile?.username || 'Vânzător'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          £{Number(order.amount).toFixed(2)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-xs space-y-1">
+                            <p className="text-green-600">+£{Number(order.seller_commission || 0).toFixed(2)} vânz.</p>
+                            <p className="text-blue-600">+£{Number(order.buyer_fee || 0).toFixed(2)} cump.</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {getStatusBadge(order.status)}
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          {new Date(order.created_at).toLocaleDateString('ro-RO')}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuLabel>Actualizează Status</DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'paid')}>
+                                <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+                                Marchează Plătit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'shipped')}>
+                                <Truck className="h-4 w-4 mr-2 text-blue-500" />
+                                Marchează Expediat
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'delivered')}>
+                                <Package className="h-4 w-4 mr-2 text-purple-500" />
+                                Marchează Livrat
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'cancelled')}>
+                                <XCircle className="h-4 w-4 mr-2 text-red-500" />
+                                Anulează Comandă
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'refunded')}>
+                                <RefreshCw className="h-4 w-4 mr-2" />
+                                Marchează Rambursat
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                No orders found
+                Nu s-au găsit comenzi
               </div>
             )}
           </CardContent>
