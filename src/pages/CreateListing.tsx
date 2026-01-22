@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin, Ban, Leaf, Bomb } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -353,6 +353,28 @@ const CreateListing = () => {
             </Badge>
           </div>
         </div>
+
+        {/* Platform Rules Warning */}
+        <Alert className="border-red-200 bg-red-50">
+          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertTitle className="text-red-800">Produse Interzise pe Platformă</AlertTitle>
+          <AlertDescription className="mt-2">
+            <div className="flex flex-wrap gap-4 text-sm">
+              <span className="flex items-center gap-1.5 text-red-600">
+                <Ban className="h-4 w-4" /> Armament (arme, muniție, cuțite)
+              </span>
+              <span className="flex items-center gap-1.5 text-red-600">
+                <Leaf className="h-4 w-4" /> Substanțe Interzise (droguri, medicamente fără rețetă)
+              </span>
+              <span className="flex items-center gap-1.5 text-red-600">
+                <Bomb className="h-4 w-4" /> Contrabandă (bunuri furate, falsificate)
+              </span>
+            </div>
+            <p className="text-xs text-red-500 mt-2">
+              Încălcarea regulilor duce la suspendarea permanentă a contului și raportarea către autorități.
+            </p>
+          </AlertDescription>
+        </Alert>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Photos */}
