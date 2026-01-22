@@ -4,7 +4,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from './AdminSidebar';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, ArrowLeft, Shield, Sparkles } from 'lucide-react';
+import { Loader2, ArrowLeft, ArrowRight, Shield, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -69,9 +69,28 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </div>
           )}
           
-          <header className="h-16 border-b flex items-center justify-between px-6 bg-gradient-to-r from-card to-card/80 backdrop-blur-sm">
-            <div className="flex items-center gap-4">
+          <header className="h-16 border-b flex items-center justify-between px-4 md:px-6 bg-gradient-to-r from-card to-card/80 backdrop-blur-sm">
+            <div className="flex items-center gap-2 md:gap-4">
               <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
+              
+              {/* Back/Forward Navigation Buttons */}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 rounded-full hover:bg-primary/10"
+                onClick={() => window.history.back()}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-8 w-8 rounded-full hover:bg-primary/10"
+                onClick={() => window.history.forward()}
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -79,8 +98,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 className="gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary transition-all duration-200"
               >
                 <Link to="/">
-                  <ArrowLeft className="h-4 w-4" />
-                  Înapoi la Site
+                  <span className="hidden sm:inline">Înapoi la Site</span>
+                  <span className="sm:hidden">Site</span>
                 </Link>
               </Button>
             </div>

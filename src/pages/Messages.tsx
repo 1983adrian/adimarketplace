@@ -112,15 +112,15 @@ export default function Messages() {
           />
         </div>
 
-        <Card className="overflow-hidden" style={{ height: 'calc(100vh - 250px)', minHeight: '500px' }}>
-          <div className="flex h-full">
+        <Card className="overflow-hidden flex flex-col" style={{ height: 'calc(100vh - 250px)', minHeight: '500px' }}>
+          <div className="flex h-full overflow-hidden">
             {/* Conversation List - Hidden on mobile when chat is open */}
             <div 
               className={`${
                 isMobile 
                   ? showChat ? 'hidden' : 'w-full' 
                   : 'w-80 border-r'
-              } flex-shrink-0`}
+              } flex-shrink-0 overflow-hidden`}
             >
               <ConversationList
                 conversations={conversations || []}
@@ -131,13 +131,13 @@ export default function Messages() {
               />
             </div>
 
-            {/* Chat Window */}
+            {/* Chat Window - Takes full height */}
             <div 
               className={`${
                 isMobile 
                   ? showChat ? 'w-full' : 'hidden' 
                   : 'flex-1'
-              }`}
+              } flex flex-col overflow-hidden`}
             >
               <ChatWindow
                 conversation={selectedConversation}
