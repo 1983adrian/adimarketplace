@@ -14,12 +14,15 @@ import {
   LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { NotificationBadge } from '@/components/ui/NotificationBadge';
 
 interface MenuItem {
   title: string;
   url: string;
   icon: LucideIcon;
   premium?: boolean;
+  badgeKey?: 'messages';
 }
 
 // Organized by category - most used first
@@ -28,7 +31,7 @@ const principalItems: MenuItem[] = [
   { title: 'Adaugă Produs', url: '/sell', icon: Plus },
   { title: 'Produsele Mele', url: '/dashboard?tab=listings', icon: Package },
   { title: 'Comenzi Active', url: '/orders?tab=selling', icon: ShoppingBag },
-  { title: 'Mesaje Clienți', url: '/messages', icon: MessageCircle },
+  { title: 'Mesaje Clienți', url: '/messages', icon: MessageCircle, badgeKey: 'messages' },
 ];
 
 const financialItems: MenuItem[] = [
@@ -44,10 +47,12 @@ const otherItems: MenuItem[] = [
 interface MenuItemProps {
   item: MenuItem;
   isActive: boolean;
+  unreadMessages: number;
 }
 
-const SidebarMenuItem: React.FC<MenuItemProps> = ({ item, isActive }) => {
+const SidebarMenuItem: React.FC<MenuItemProps> = ({ item, isActive, unreadMessages }) => {
   const Icon = item.icon;
+  const badgeCount = item.badgeKey === 'messages' ? unreadMessages : 0;
   
   return (
     <Link 
@@ -62,7 +67,7 @@ const SidebarMenuItem: React.FC<MenuItemProps> = ({ item, isActive }) => {
       )}
     >
       <div className={cn(
-        "p-2 rounded-lg",
+        "relative p-2 rounded-lg",
         item.premium 
           ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white" 
           : isActive 
@@ -70,12 +75,20 @@ const SidebarMenuItem: React.FC<MenuItemProps> = ({ item, isActive }) => {
             : "bg-muted text-muted-foreground"
       )}>
         <Icon className="h-4 w-4" />
+        {badgeCount > 0 && (
+          <NotificationBadge count={badgeCount} size="sm" className="-top-2 -right-2" />
+        )}
       </div>
       <span className="text-sm">{item.title}</span>
       {item.premium && (
         <span className="ml-auto flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold">
           <Crown className="h-2.5 w-2.5" />
           PRO
+        </span>
+      )}
+      {badgeCount > 0 && !item.premium && (
+        <span className="ml-auto text-xs font-bold text-destructive">
+          {badgeCount} nou{badgeCount > 1 ? 'ă' : ''}
         </span>
       )}
     </Link>
@@ -86,9 +99,10 @@ interface CategoryGroupProps {
   title: string;
   items: MenuItem[];
   currentPath: string;
+  unreadMessages: number;
 }
 
-const CategoryGroup: React.FC<CategoryGroupProps> = ({ title, items, currentPath }) => {
+const CategoryGroup: React.FC<CategoryGroupProps> = ({ title, items, currentPath, unreadMessages }) => {
   const isActive = (url: string) => {
     const baseUrl = url.split('?')[0];
     return currentPath === baseUrl || currentPath.startsWith(baseUrl + '/');
@@ -105,6 +119,7 @@ const CategoryGroup: React.FC<CategoryGroupProps> = ({ title, items, currentPath
             key={item.url} 
             item={item} 
             isActive={isActive(item.url)}
+            unreadMessages={unreadMessages}
           />
         ))}
       </div>
@@ -115,6 +130,7 @@ const CategoryGroup: React.FC<CategoryGroupProps> = ({ title, items, currentPath
 export const SellerQuickActions: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { data: unreadMessages = 0 } = useUnreadMessages();
 
   return (
     <div className="mb-8">
@@ -130,9 +146,9 @@ export const SellerQuickActions: React.FC = () => {
               <span className="font-bold text-foreground">Panou Vânzător</span>
             </div>
             
-            <CategoryGroup title="Principal" items={principalItems} currentPath={currentPath} />
-            <CategoryGroup title="Finanțe" items={financialItems} currentPath={currentPath} />
-            <CategoryGroup title="Altele" items={otherItems} currentPath={currentPath} />
+            <CategoryGroup title="Principal" items={principalItems} currentPath={currentPath} unreadMessages={unreadMessages} />
+            <CategoryGroup title="Finanțe" items={financialItems} currentPath={currentPath} unreadMessages={unreadMessages} />
+            <CategoryGroup title="Altele" items={otherItems} currentPath={currentPath} unreadMessages={unreadMessages} />
           </div>
         </div>
         
@@ -158,7 +174,7 @@ export const SellerQuickActions: React.FC = () => {
               Principal
             </h3>
             {principalItems.map((item) => (
-              <MobileMenuItem key={item.url} item={item} />
+              <MobileMenuItem key={item.url} item={item} unreadMessages={unreadMessages} />
             ))}
           </div>
           
@@ -168,13 +184,13 @@ export const SellerQuickActions: React.FC = () => {
               Finanțe
             </h3>
             {financialItems.map((item) => (
-              <MobileMenuItem key={item.url} item={item} />
+              <MobileMenuItem key={item.url} item={item} unreadMessages={unreadMessages} />
             ))}
             <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1 mt-3">
               Altele
             </h3>
             {otherItems.map((item) => (
-              <MobileMenuItem key={item.url} item={item} />
+              <MobileMenuItem key={item.url} item={item} unreadMessages={unreadMessages} />
             ))}
           </div>
         </div>
@@ -183,8 +199,9 @@ export const SellerQuickActions: React.FC = () => {
   );
 };
 
-const MobileMenuItem: React.FC<{ item: MenuItem }> = ({ item }) => {
+const MobileMenuItem: React.FC<{ item: MenuItem; unreadMessages: number }> = ({ item, unreadMessages }) => {
   const Icon = item.icon;
+  const badgeCount = item.badgeKey === 'messages' ? unreadMessages : 0;
   
   return (
     <Link 
@@ -196,12 +213,15 @@ const MobileMenuItem: React.FC<{ item: MenuItem }> = ({ item }) => {
       )}
     >
       <div className={cn(
-        "p-1.5 rounded-lg",
+        "relative p-1.5 rounded-lg",
         item.premium 
           ? "bg-gradient-to-br from-amber-500 to-orange-500 text-white" 
           : "bg-muted text-muted-foreground"
       )}>
         <Icon className="h-3.5 w-3.5" />
+        {badgeCount > 0 && (
+          <NotificationBadge count={badgeCount} size="sm" className="-top-1.5 -right-1.5" />
+        )}
       </div>
       <span className="text-xs font-medium truncate">{item.title}</span>
       {item.premium && (
