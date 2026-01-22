@@ -6,9 +6,9 @@ import {
   ShoppingBag,
   Wallet,
   MessageCircle,
-  Settings,
   GraduationCap,
-  LucideIcon
+  LucideIcon,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,65 +19,59 @@ interface QuickAction {
   icon: LucideIcon;
   href: string;
   gradient: string;
+  isPro?: boolean;
 }
 
-// Only 7 essential actions - Amazon/eBay style
+// 6 essential actions - PRO style with no duplicates
 const essentialActions: QuickAction[] = [
   { 
     id: 'tutorial', 
-    label: 'Tutorial Vânzător', 
-    description: 'Învață să vinzi',
+    label: 'Tutorial PRO', 
+    description: 'Învață să vinzi ca un profesionist',
     icon: GraduationCap, 
     href: '/seller-tutorial', 
-    gradient: 'from-pink-500 to-rose-500' 
+    gradient: 'from-pink-500 via-rose-500 to-red-500',
+    isPro: true
   },
   { 
     id: 'add-product', 
     label: 'Adaugă Produs', 
-    description: 'Listează un produs nou',
+    description: 'Listează rapid un produs nou',
     icon: Plus, 
     href: '/sell', 
-    gradient: 'from-blue-500 to-blue-600' 
+    gradient: 'from-blue-500 via-cyan-500 to-teal-500' 
   },
   { 
     id: 'products', 
     label: 'Produsele Mele', 
-    description: 'Vezi toate produsele',
+    description: 'Gestionează toate produsele',
     icon: Package, 
     href: '/dashboard?tab=listings', 
-    gradient: 'from-violet-500 to-violet-600' 
+    gradient: 'from-violet-500 via-purple-500 to-fuchsia-500' 
   },
   { 
     id: 'orders', 
-    label: 'Comenzi', 
-    description: 'Gestionează comenzile',
+    label: 'Comenzi Active', 
+    description: 'Vezi și gestionează comenzile',
     icon: ShoppingBag, 
     href: '/orders?tab=selling', 
-    gradient: 'from-green-500 to-green-600' 
+    gradient: 'from-emerald-500 via-green-500 to-lime-500' 
   },
   { 
     id: 'messages', 
-    label: 'Mesaje', 
-    description: 'Chat cu clienții',
+    label: 'Mesaje Clienți', 
+    description: 'Chat în timp real',
     icon: MessageCircle, 
     href: '/messages', 
-    gradient: 'from-emerald-500 to-emerald-600' 
+    gradient: 'from-sky-500 via-blue-500 to-indigo-500' 
   },
   { 
     id: 'wallet', 
-    label: 'Bani & Plăți', 
-    description: 'Sold și retrageri',
+    label: 'Portofel & Bani', 
+    description: 'Sold, plăți și retrageri',
     icon: Wallet, 
     href: '/settings?tab=payouts', 
-    gradient: 'from-amber-500 to-amber-600' 
-  },
-  { 
-    id: 'settings', 
-    label: 'Setări', 
-    description: 'Configurează contul',
-    icon: Settings, 
-    href: '/settings', 
-    gradient: 'from-slate-500 to-slate-600' 
+    gradient: 'from-amber-500 via-orange-500 to-red-500' 
   },
 ];
 
@@ -87,29 +81,44 @@ const ActionCard: React.FC<{ action: QuickAction }> = ({ action }) => {
   return (
     <Link to={action.href} className="group">
       <div className={cn(
-        "flex flex-col items-center justify-center gap-3 p-6 rounded-2xl",
-        "bg-card border-2 border-border/50",
+        "relative flex flex-col items-center justify-center gap-3 p-5 rounded-2xl",
+        "bg-gradient-to-br from-card via-card to-muted/30",
+        "border-2 border-border/50 overflow-hidden",
         "transition-all duration-300 ease-out",
-        "hover:shadow-xl hover:shadow-primary/10",
-        "hover:border-primary/30 hover:-translate-y-1",
+        "hover:shadow-2xl hover:shadow-primary/20",
+        "hover:border-primary/40 hover:-translate-y-2",
         "active:scale-95",
-        "h-full min-h-[140px]"
+        "h-full min-h-[160px]"
       )}>
-        {/* Large Icon */}
+        {/* PRO Badge */}
+        {action.isPro && (
+          <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold shadow-lg">
+            <Sparkles className="h-2.5 w-2.5" />
+            PRO
+          </div>
+        )}
+        
+        {/* Gradient background glow on hover */}
         <div className={cn(
-          "p-4 rounded-2xl bg-gradient-to-br shadow-lg",
+          "absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500",
+          `bg-gradient-to-br ${action.gradient}`
+        )} />
+        
+        {/* Large Icon with gradient */}
+        <div className={cn(
+          "p-4 rounded-2xl bg-gradient-to-br shadow-xl",
           action.gradient,
-          "transition-transform duration-300 group-hover:scale-110"
+          "transition-all duration-300 group-hover:scale-110 group-hover:shadow-2xl group-hover:rotate-3"
         )}>
-          <Icon className="h-7 w-7 text-white" strokeWidth={2} />
+          <Icon className="h-8 w-8 text-white" strokeWidth={2} />
         </div>
         
         {/* Label */}
-        <div className="text-center">
-          <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+        <div className="text-center relative z-10">
+          <p className="font-bold text-foreground group-hover:text-primary transition-colors text-sm">
             {action.label}
           </p>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
             {action.description}
           </p>
         </div>
@@ -121,7 +130,12 @@ const ActionCard: React.FC<{ action: QuickAction }> = ({ action }) => {
 export const SellerQuickActions: React.FC = () => {
   return (
     <div className="mb-8">
-      <h2 className="text-lg font-semibold mb-4 text-foreground">Acțiuni Rapide</h2>
+      <div className="flex items-center gap-2 mb-4">
+        <div className="p-2 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+          <Sparkles className="h-4 w-4 text-white" />
+        </div>
+        <h2 className="text-lg font-bold text-foreground">Acțiuni Rapide PRO</h2>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {essentialActions.map((action) => (
           <ActionCard key={action.id} action={action} />

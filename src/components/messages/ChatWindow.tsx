@@ -185,43 +185,48 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         )}
       </div>
 
-      {/* Messages area with WhatsApp background */}
+      {/* Messages area with WhatsApp background - Fixed inner container */}
       <div 
         ref={scrollAreaRef}
-        className="flex-1 overflow-y-auto p-4"
+        className="flex-1 overflow-y-auto"
         style={{ 
           background: CHAT_BACKGROUND,
           backgroundImage: CHAT_PATTERN,
         }}
       >
-        {isLoading ? (
-          <div className="space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className={`flex gap-2 ${i % 2 === 0 ? '' : 'justify-end'}`}>
-                {i % 2 === 0 && <Skeleton className="h-8 w-8 rounded-full" />}
-                <Skeleton className="h-16 w-48 rounded-2xl" />
-              </div>
-            ))}
-          </div>
-        ) : messages && messages.length > 0 ? (
-          <div className="space-y-3">
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                isOwn={message.sender_id === currentUserId}
-                senderProfile={getSenderProfile(message.sender_id)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-md">
-              <p className="text-gray-600">👋 Niciun mesaj încă</p>
-              <p className="text-sm text-gray-400 mt-1">Trimite primul mesaj!</p>
+        <div className="p-4 min-h-full">
+          {isLoading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className={`flex gap-2 ${i % 2 === 0 ? '' : 'justify-end'}`}>
+                  {i % 2 === 0 && <Skeleton className="h-8 w-8 rounded-full" />}
+                  <Skeleton className="h-16 w-48 rounded-2xl" />
+                </div>
+              ))}
             </div>
-          </div>
-        )}
+          ) : messages && messages.length > 0 ? (
+            <div className="space-y-3">
+              {messages.map((message) => (
+                <MessageBubble
+                  key={message.id}
+                  message={message}
+                  isOwn={message.sender_id === currentUserId}
+                  senderProfile={getSenderProfile(message.sender_id)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center h-full min-h-[200px]">
+              <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-gray-100">
+                <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Send className="h-5 w-5 text-white" />
+                </div>
+                <p className="text-gray-700 font-medium">👋 Niciun mesaj încă</p>
+                <p className="text-sm text-gray-500 mt-1">Trimite primul mesaj!</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Input area - WhatsApp style */}
