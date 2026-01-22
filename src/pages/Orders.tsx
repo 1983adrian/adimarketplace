@@ -61,13 +61,14 @@ interface MenuItem {
   title: string;
   icon: LucideIcon;
   description?: string;
+  color: string;
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'buying', title: 'Cumpărături', icon: ShoppingBag, description: 'Comenzile tale ca cumpărător' },
-  { id: 'selling', title: 'Vânzări', icon: Store, description: 'Comenzile primite ca vânzător' },
-  { id: 'my-returns', title: 'Returnările Mele', icon: Undo2, description: 'Retururi solicitate de tine' },
-  { id: 'received-returns', title: 'Returnări Primite', icon: Inbox, description: 'Cereri de retur de la cumpărători' },
+  { id: 'buying', title: 'Cumpărături', icon: ShoppingBag, description: 'Comenzile tale ca cumpărător', color: 'bg-gradient-to-br from-cyan-400 to-blue-500' },
+  { id: 'selling', title: 'Vânzări', icon: Store, description: 'Comenzile primite ca vânzător', color: 'bg-gradient-to-br from-emerald-400 to-green-600' },
+  { id: 'my-returns', title: 'Returnările Mele', icon: Undo2, description: 'Retururi solicitate de tine', color: 'bg-gradient-to-br from-orange-400 to-red-500' },
+  { id: 'received-returns', title: 'Returnări Primite', icon: Inbox, description: 'Cereri de retur de la cumpărători', color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
 ];
 
 // Grid navigation component - 2x2 style like reference image
@@ -89,19 +90,23 @@ const OrdersNavGrid = ({
             key={item.id}
             onClick={() => onSectionChange(item.id)}
             className={cn(
-              "flex flex-col items-center p-4 rounded-2xl border-2 transition-all duration-300",
+              "flex flex-col items-center p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
               isActive 
-                ? "bg-blue-500 border-blue-500 text-white shadow-lg" 
-                : "bg-card border-border/50 hover:border-primary/30 hover:shadow-md"
+                ? "bg-primary/5 dark:bg-primary/10 border-primary/30 shadow-lg" 
+                : "bg-card border-border/50 hover:border-primary/20"
             )}
           >
-            <Icon className={cn(
-              "h-7 w-7 mb-2 transition-colors",
-              isActive ? "text-white" : "text-gray-500 dark:text-gray-400"
-            )} />
+            {/* Always colored icon */}
+            <div className={cn(
+              "w-12 h-12 rounded-xl flex items-center justify-center shadow-md mb-2 transition-all",
+              item.color,
+              isActive && "ring-2 ring-offset-2 ring-primary scale-110"
+            )}>
+              <Icon className="h-6 w-6 text-white" />
+            </div>
             <span className={cn(
               "font-medium text-sm text-center",
-              isActive ? "text-white" : "text-foreground"
+              isActive ? "text-primary" : "text-foreground"
             )}>
               {item.title}
             </span>
@@ -112,7 +117,7 @@ const OrdersNavGrid = ({
   );
 };
 
-// Desktop Sidebar component
+// Desktop Sidebar component with colored icons
 const OrdersSidebar = ({ 
   activeSection, 
   onSectionChange 
@@ -121,7 +126,7 @@ const OrdersSidebar = ({
   onSectionChange: (section: string) => void;
 }) => {
   return (
-    <div className="space-y-1">
+    <div className="space-y-2">
       {menuItems.map((item) => {
         const isActive = activeSection === item.id;
         const Icon = item.icon;
@@ -131,19 +136,26 @@ const OrdersSidebar = ({
             key={item.id}
             onClick={() => onSectionChange(item.id)}
             className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
+              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200 hover:shadow-md",
               isActive 
-                ? "bg-blue-500 text-white shadow-md" 
-                : "hover:bg-muted text-foreground"
+                ? "bg-primary/5 dark:bg-primary/10 border border-primary/20 shadow-md" 
+                : "hover:bg-muted"
             )}
           >
-            <Icon className={cn("h-5 w-5 flex-shrink-0", isActive ? "text-white" : "text-muted-foreground")} />
+            {/* Always colored icon */}
+            <div className={cn(
+              "w-10 h-10 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0",
+              item.color,
+              isActive && "ring-2 ring-offset-1 ring-primary"
+            )}>
+              <Icon className="h-5 w-5 text-white" />
+            </div>
             <div className="min-w-0">
-              <p className={cn("font-medium text-sm", isActive ? "text-white" : "text-foreground")}>
+              <p className={cn("font-medium text-sm", isActive ? "text-primary" : "text-foreground")}>
                 {item.title}
               </p>
               {item.description && (
-                <p className={cn("text-xs truncate", isActive ? "text-white/80" : "text-muted-foreground")}>
+                <p className="text-xs truncate text-muted-foreground">
                   {item.description}
                 </p>
               )}
