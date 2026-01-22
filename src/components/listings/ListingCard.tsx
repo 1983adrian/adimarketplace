@@ -53,11 +53,35 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Conectează-te pentru a salva favorite",
+        description: "Trebuie să fii autentificat pentru a adăuga produse la favorite.",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
     toggleFavorite.mutate({
       listingId: listing.id,
       userId: user.id,
       isFavorite: !!isFavorite,
+    }, {
+      onSuccess: () => {
+        toast({
+          title: isFavorite ? "Eliminat din favorite" : "Adăugat la favorite",
+          description: isFavorite 
+            ? "Produsul a fost eliminat din lista ta de favorite."
+            : "Produsul a fost salvat în favorite. Îl poți găsi în pagina Favorite.",
+        });
+      },
+      onError: () => {
+        toast({
+          title: "Eroare",
+          description: "Nu s-a putut salva produsul. Încearcă din nou.",
+          variant: "destructive",
+        });
+      }
     });
   };
 
@@ -93,20 +117,18 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             loading="lazy"
           />
           
-          {/* Favorite Button */}
-          {user && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className={cn(
-                'absolute top-2 right-2 h-9 w-9 rounded-full bg-card/90 backdrop-blur-sm shadow-sm hover:bg-card transition-all',
-                isFavorite && 'text-destructive'
-              )}
-              onClick={handleToggleFavorite}
-            >
-              <Heart className={cn('h-5 w-5', isFavorite && 'fill-current')} />
-            </Button>
-          )}
+          {/* Favorite Button - Always visible */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              'absolute top-2 right-2 h-9 w-9 rounded-full bg-card/90 backdrop-blur-sm shadow-sm hover:bg-card transition-all',
+              isFavorite && 'text-destructive'
+            )}
+            onClick={handleToggleFavorite}
+          >
+            <Heart className={cn('h-5 w-5', isFavorite && 'fill-current')} />
+          </Button>
           
           {/* Condition Badge */}
           <Badge className={cn('absolute bottom-2 left-2 font-medium', conditionStyles[listing.condition])}>

@@ -1,15 +1,19 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Search, PlusCircle, Heart, User, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Home, Search, PlusCircle, Heart, User, Sparkles, ArrowLeft, ArrowRight, MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
+import { NotificationBadge } from '@/components/ui/NotificationBadge';
 
 export const BottomNav: React.FC = () => {
   const location = useLocation();
   const { t } = useLanguage();
   const { user } = useAuth();
+  const { data: unreadMessages = 0 } = useUnreadMessages();
+  const { data: unreadNotifications = 0 } = useUnreadNotifications();
 
   const navItems = [
     {
@@ -21,12 +25,13 @@ export const BottomNav: React.FC = () => {
       iconColor: 'text-emerald-500',
     },
     {
-      id: 'search',
-      icon: Search,
-      label: 'Caută',
-      href: '/browse',
+      id: 'messages',
+      icon: MessageCircle,
+      label: 'Mesaje',
+      href: user ? '/messages' : '/login',
       gradient: 'from-sky-400 to-blue-500',
       iconColor: 'text-sky-500',
+      badge: unreadMessages,
     },
     {
       id: 'sell',
@@ -52,6 +57,7 @@ export const BottomNav: React.FC = () => {
       href: user ? '/dashboard' : '/login',
       gradient: 'from-violet-400 to-purple-500',
       iconColor: 'text-violet-500',
+      badge: unreadNotifications,
     },
   ];
 
@@ -66,12 +72,11 @@ export const BottomNav: React.FC = () => {
         {/* Back Button */}
         <button
           onClick={() => window.history.back()}
-          className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[48px]"
+          className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[44px]"
         >
-          <div className="p-2 rounded-xl transition-all duration-300">
-            <ArrowLeft className="h-5 w-5 text-gray-500" strokeWidth={2} />
+          <div className="p-1.5 rounded-xl transition-all duration-300">
+            <ArrowLeft className="h-4 w-4 text-gray-500" strokeWidth={2} />
           </div>
-          <span className="text-[10px] font-semibold text-gray-500">Înapoi</span>
         </button>
 
         {navItems.slice(0, 2).map((item) => {
@@ -83,12 +88,12 @@ export const BottomNav: React.FC = () => {
               key={item.id}
               to={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[48px]",
+                "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[48px]",
                 active && !item.isMain && "bg-gradient-to-br from-gray-100 to-gray-50"
               )}
             >
               <div className={cn(
-                "p-2 rounded-xl transition-all duration-300",
+                "relative p-2 rounded-xl transition-all duration-300",
                 active && `bg-gradient-to-br ${item.gradient} shadow-lg`
               )}>
                 <Icon 
@@ -98,6 +103,13 @@ export const BottomNav: React.FC = () => {
                   )} 
                   strokeWidth={active ? 2.5 : 2}
                 />
+                {item.badge && item.badge > 0 && (
+                  <NotificationBadge 
+                    count={item.badge} 
+                    size="sm" 
+                    className="-top-1 -right-1"
+                  />
+                )}
               </div>
               <span 
                 className={cn(
@@ -144,12 +156,12 @@ export const BottomNav: React.FC = () => {
               key={item.id}
               to={item.href}
               className={cn(
-                "flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[48px]",
+                "relative flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[48px]",
                 active && !item.isMain && "bg-gradient-to-br from-gray-100 to-gray-50"
               )}
             >
               <div className={cn(
-                "p-2 rounded-xl transition-all duration-300",
+                "relative p-2 rounded-xl transition-all duration-300",
                 active && `bg-gradient-to-br ${item.gradient} shadow-lg`
               )}>
                 <Icon 
@@ -159,6 +171,13 @@ export const BottomNav: React.FC = () => {
                   )} 
                   strokeWidth={active ? 2.5 : 2}
                 />
+                {item.badge && item.badge > 0 && (
+                  <NotificationBadge 
+                    count={item.badge} 
+                    size="sm" 
+                    className="-top-1 -right-1"
+                  />
+                )}
               </div>
               <span 
                 className={cn(
@@ -175,12 +194,11 @@ export const BottomNav: React.FC = () => {
         {/* Forward Button */}
         <button
           onClick={() => window.history.forward()}
-          className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[48px]"
+          className="flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-2xl transition-all duration-300 min-w-[44px]"
         >
-          <div className="p-2 rounded-xl transition-all duration-300">
-            <ArrowRight className="h-5 w-5 text-gray-500" strokeWidth={2} />
+          <div className="p-1.5 rounded-xl transition-all duration-300">
+            <ArrowRight className="h-4 w-4 text-gray-500" strokeWidth={2} />
           </div>
-          <span className="text-[10px] font-semibold text-gray-500">Înainte</span>
         </button>
       </div>
     </nav>

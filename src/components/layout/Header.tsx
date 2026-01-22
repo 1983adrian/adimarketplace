@@ -23,6 +23,8 @@ import { AppDownloadButton } from './AppDownloadButton';
 import { useRealTimeNotifications, useRealTimeOrders } from '@/hooks/useRealTimeNotifications';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useSafeArea } from '@/hooks/useSafeArea';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { NotificationBadge } from '@/components/ui/NotificationBadge';
 
 export const Header: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -36,6 +38,7 @@ export const Header: React.FC = () => {
   useRealTimeOrders();
   
   const { headerPadding } = useSafeArea();
+  const { data: unreadMessages = 0 } = useUnreadMessages();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,9 +151,12 @@ export const Header: React.FC = () => {
                     <Heart className="h-5 w-5" />
                   </Link>
                 </Button>
-                <Button variant="ghost" size="icon" asChild>
+                <Button variant="ghost" size="icon" className="relative" asChild>
                   <Link to="/messages">
                     <MessageCircle className="h-5 w-5" />
+                    {unreadMessages > 0 && (
+                      <NotificationBadge count={unreadMessages} size="sm" className="-top-1 -right-1" />
+                    )}
                   </Link>
                 </Button>
                 <NotificationBell />
