@@ -1,6 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
+
+// Exchange rates for subscription price display (base: GBP = £1)
+const EXCHANGE_RATES: Record<string, number> = {
+  GBP: 1,
+  EUR: 1.17,
+  USD: 1.27,
+  RON: 5.82,
+  PLN: 5.06,
+  CZK: 29.5,
+  HUF: 460,
+  BGN: 2.29,
+  SEK: 13.5,
+  DKK: 8.72,
+  NOK: 13.8,
+  CHF: 1.12,
+};
+
+const BASE_SUBSCRIPTION_GBP = 1.00;
 
 interface SubscriptionStatus {
   subscribed: boolean;
@@ -10,6 +29,8 @@ interface SubscriptionStatus {
   isTrialPeriod?: boolean;
   trialDaysRemaining?: number;
   trialExpired?: boolean;
+  localAmount?: number;
+  localCurrency?: string;
 }
 
 export const useSellerSubscription = () => {
@@ -44,6 +65,21 @@ export const useSellerSubscription = () => {
         };
       }
 
+      // Get user's country for currency conversion
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('kyc_country, country_of_residence')
+        .eq('user_id', user.id)
+        .single();
+
+      const userCountry = profile?.kyc_country || profile?.country_of_residence || 'GB';
+      const countryCurrency: Record<string, string> = {
+        GB: 'GBP', UK: 'GBP', RO: 'RON', DE: 'EUR', FR: 'EUR', PL: 'PLN',
+        CZ: 'CZK', HU: 'HUF', US: 'USD', BG: 'BGN',
+      };
+      const userCurrency = countryCurrency[userCountry] || 'GBP';
+      const localAmount = Math.ceil(BASE_SUBSCRIPTION_GBP * (EXCHANGE_RATES[userCurrency] || 1) * 100) / 100;
+
       // No subscription found - check if they should get trial
       if (!subscription) {
         // Create trial subscription for new sellers
@@ -57,7 +93,7 @@ export const useSellerSubscription = () => {
             status: 'trial',
             trial_start_date: new Date().toISOString(),
             trial_end_date: trialEndDate.toISOString(),
-            subscription_amount: 1.00,
+            subscription_amount: localAmount,
           })
           .select()
           .single();
@@ -82,6 +118,8 @@ export const useSellerSubscription = () => {
           isTrialPeriod: true,
           trialDaysRemaining: daysRemaining,
           trialExpired: false,
+          localAmount,
+          localCurrency: userCurrency,
         };
       }
 
@@ -101,6 +139,8 @@ export const useSellerSubscription = () => {
           isTrialPeriod: true,
           trialDaysRemaining: daysRemaining,
           trialExpired: false,
+          localAmount,
+          localCurrency: userCurrency,
         };
       }
 
@@ -113,6 +153,8 @@ export const useSellerSubscription = () => {
           canCreateListings: true,
           isTrialPeriod: false,
           trialExpired: false,
+          localAmount,
+          localCurrency: userCurrency,
         };
       }
 
@@ -124,6 +166,8 @@ export const useSellerSubscription = () => {
         canCreateListings: false,
         isTrialPeriod: false,
         trialExpired: true,
+        localAmount,
+        localCurrency: userCurrency,
       };
     },
     enabled: !!user,
@@ -136,25 +180,44 @@ export const useCreateSellerSubscription = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  return useMutation<unknown, Error, string | void>({
+    mutationFn: async (currency) => {
+      if (!user) throw new Error('User not authenticated');
+
+      // Call the edge function to process subscription payment
+      const { data, error } = await supabase.functions.invoke('process-subscription', {
+        body: {
+          action: 'charge',
+          user_id: user.id,
+          currency: currency || undefined,
+        },
+      });
+
+      if (error) throw error;
+      if (!data.success) throw new Error(data.error || 'Subscription failed');
+      
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seller-subscription'] });
+    },
+  });
+};
+
+export const useCancelSubscription = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   return useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('User not authenticated');
 
-      // For now, just activate the subscription (payment will be handled by Adyen/Mangopay later)
-      const periodEnd = new Date();
-      periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-      const { data, error } = await supabase
-        .from('seller_subscriptions')
-        .upsert({
+      const { data, error } = await supabase.functions.invoke('process-subscription', {
+        body: {
+          action: 'cancel',
           user_id: user.id,
-          status: 'active',
-          current_period_end: periodEnd.toISOString(),
-          subscription_amount: 1.00,
-          payment_processor: 'pending',
-        })
-        .select()
-        .single();
+        },
+      });
 
       if (error) throw error;
       return data;
@@ -168,7 +231,7 @@ export const useCreateSellerSubscription = () => {
 export const useSellerPortal = () => {
   return useMutation({
     mutationFn: async () => {
-      // This will be handled by Adyen/Mangopay portal later
+      // Redirect to settings payout section
       return { url: '/settings?tab=payouts' };
     },
     onSuccess: (data) => {
@@ -177,6 +240,22 @@ export const useSellerPortal = () => {
       }
     },
   });
+};
+
+// Hook to get subscription price in user's local currency
+export const useSubscriptionPrice = () => {
+  const { currency, convertPrice, formatPrice } = useCurrency();
+  
+  const priceInLocalCurrency = convertPrice(BASE_SUBSCRIPTION_GBP);
+  const formattedPrice = formatPrice(BASE_SUBSCRIPTION_GBP);
+  
+  return {
+    basePrice: BASE_SUBSCRIPTION_GBP,
+    localPrice: Math.ceil(priceInLocalCurrency * 100) / 100,
+    currency,
+    formattedPrice,
+    displayPrice: formattedPrice,
+  };
 };
 
 export const usePlatformFees = () => {
