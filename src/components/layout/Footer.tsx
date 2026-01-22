@@ -21,10 +21,11 @@ export const Footer: React.FC = () => {
       { label: 'Pricing & Fees', href: '/help' },
     ],
     support: [
-      { label: 'Help Center', href: '/help' },
-      { label: 'Safety Tips', href: '/safety' },
-      { label: 'Contact Us', href: '/contact' },
+      { label: 'Centru Ajutor', href: '/help' },
+      { label: 'Sfaturi Siguranță', href: '/safety' },
+      { label: 'Contactează-ne', href: '/contact' },
       { label: 'FAQ', href: '/faq' },
+      { label: 'Feedback', href: '/feedback' },
     ],
     legal: [
       { label: 'Terms of Service', href: '/terms' },
