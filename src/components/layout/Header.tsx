@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight } from 'lucide-react';
 import logo from '@/assets/cmarket-hero.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,17 +59,47 @@ export const Header: React.FC = () => {
   // Use the larger of: calculated safe area OR minimum 64px for notch devices
   const safePadding = Math.max(headerPadding, 64);
 
+  const location = useLocation();
+  const canGoBack = window.history.length > 1;
+
+  const handleGoBack = () => {
+    window.history.back();
+  };
+
+  const handleGoForward = () => {
+    window.history.forward();
+  };
+
   return (
     <header 
-      className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm md:pt-0"
-      style={{ paddingTop: window.innerWidth < 768 ? `${safePadding}px` : '0px' }}
+      className="sticky top-0 z-50 bg-card/95 backdrop-blur-xl border-b border-border shadow-sm"
+      style={{ paddingTop: window.innerWidth < 768 ? `${Math.min(safePadding, 48)}px` : '0px' }}
     >
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
         <div className="flex items-center justify-between h-14 md:h-16 gap-2 md:gap-4">
-          {/* Logo + Download Button */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Link to="/" className="flex items-center">
+          {/* Navigation Buttons + Logo */}
+          <div className="flex items-center gap-1 shrink-0">
+            {/* Back/Forward Navigation Buttons */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-full hover:bg-primary/10"
+              onClick={handleGoBack}
+              disabled={!canGoBack}
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-8 w-8 rounded-full hover:bg-primary/10"
+              onClick={handleGoForward}
+            >
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            
+            <Link to="/" className="flex items-center ml-1">
               <img 
                 src={logo} 
                 alt="CMarket" 

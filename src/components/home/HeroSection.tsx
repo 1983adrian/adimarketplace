@@ -77,12 +77,12 @@ export const HeroSection: React.FC = () => {
           className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10"
         />
         
-        {/* Hero image seamlessly integrated */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 hidden md:flex items-center justify-center opacity-20 pointer-events-none">
+        {/* Hero image seamlessly integrated - Reduced size for better mobile/desktop visibility */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 w-32 md:w-48 lg:w-64 hidden sm:flex items-center justify-center opacity-15 pointer-events-none">
           <img 
             src={cmarketHero} 
             alt="" 
-            className="w-full h-full object-contain mix-blend-multiply"
+            className="w-full h-auto object-contain mix-blend-multiply"
           />
         </div>
         

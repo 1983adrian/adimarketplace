@@ -132,9 +132,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Header - WhatsApp style */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#075E54] to-[#128C7E] text-white shadow-md">
+      <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#075E54] to-[#128C7E] text-white shadow-md">
         {isMobile && onBack && (
           <Button 
             variant="ghost" 
@@ -185,16 +185,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         )}
       </div>
 
-      {/* Messages area with WhatsApp background - Fixed inner container */}
+      {/* Messages area with WhatsApp background - Fixed container with proper scrolling */}
       <div 
         ref={scrollAreaRef}
-        className="flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{ 
           background: CHAT_BACKGROUND,
           backgroundImage: CHAT_PATTERN,
         }}
       >
-        <div className="p-4 min-h-full">
+        <div className="p-4 flex flex-col justify-end" style={{ minHeight: '100%' }}>
           {isLoading ? (
             <div className="space-y-4">
               {[...Array(5)].map((_, i) => (
@@ -229,8 +229,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         </div>
       </div>
 
-      {/* Input area - WhatsApp style */}
-      <form onSubmit={handleSend} className="p-2 bg-[#F0F0F0] border-t">
+      {/* Input area - WhatsApp style - Fixed at bottom */}
+      <form onSubmit={handleSend} className="flex-shrink-0 p-2 bg-[#F0F0F0] border-t">
         <div className="flex items-center gap-1">
           <EmojiPicker onEmojiSelect={handleEmojiSelect} />
           <ImageUploadButton 
