@@ -161,8 +161,8 @@ export const Footer: React.FC = () => {
             <p>© {currentYear} Marketplace România. Toate drepturile rezervate.</p>
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4" />
-                Secure payments by PayPal
+                <Shield className="h-4 w-4" />
+                Plăți securizate prin Adyen & MangoPay
               </span>
             </div>
           </div>
