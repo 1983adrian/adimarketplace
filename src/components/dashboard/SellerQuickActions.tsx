@@ -103,10 +103,10 @@ export const SellerQuickActions: React.FC = () => {
               key={item.id}
               to={item.url}
               className={cn(
-                "relative flex flex-col items-center p-5 rounded-2xl transition-all duration-300 border-2",
+                "relative flex flex-col items-center p-5 rounded-2xl transition-all duration-300 border-2 hover:shadow-lg hover:-translate-y-0.5",
                 active 
-                  ? "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 shadow-lg" 
-                  : "bg-card border-border/50 hover:border-primary/30 hover:shadow-md"
+                  ? "bg-primary/5 dark:bg-primary/10 border-primary/30 shadow-lg" 
+                  : "bg-card border-border/50 hover:border-primary/20"
               )}
             >
               {/* PRO Badge */}
@@ -117,15 +117,13 @@ export const SellerQuickActions: React.FC = () => {
                 </div>
               )}
               
-              {/* Icon Container - colored when active, gray when inactive */}
+              {/* Icon Container - always colored */}
               <div className={cn(
                 "relative w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-3 transition-all duration-300",
-                active ? item.activeColor : "bg-gray-100 dark:bg-gray-800"
+                item.activeColor,
+                active && "ring-2 ring-offset-2 ring-primary scale-110"
               )}>
-                <Icon className={cn(
-                  "h-7 w-7 transition-colors",
-                  active ? "text-white" : "text-gray-500 dark:text-gray-400"
-                )} strokeWidth={2} />
+                <Icon className="h-7 w-7 text-white transition-colors" strokeWidth={2} />
                 {badgeCount > 0 && (
                   <NotificationBadge count={badgeCount} size="sm" className="-top-1 -right-1" />
                 )}
