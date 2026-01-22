@@ -7,10 +7,6 @@ import {
   Wallet,
   MessageCircle,
   GraduationCap,
-  BarChart3,
-  Settings,
-  Heart,
-  Crown,
   LucideIcon,
   Sparkles
 } from 'lucide-react';
@@ -19,69 +15,67 @@ import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { NotificationBadge } from '@/components/ui/NotificationBadge';
 
 interface MenuItem {
+  id: string;
   title: string;
   description: string;
   url: string;
   icon: LucideIcon;
-  gradient: string;
-  iconBg: string;
+  activeColor: string; // Color when active
   premium?: boolean;
   badgeKey?: 'messages';
-  highlight?: boolean;
 }
 
-// Colorful items matching the reference design
+// Items with their specific active colors
 const mainItems: MenuItem[] = [
   { 
+    id: 'tutorial',
     title: 'Tutorial PRO', 
     description: 'Învață să vinzi ca u...',
     url: '/seller-tutorial', 
     icon: GraduationCap, 
-    gradient: 'from-pink-500 via-rose-500 to-red-500',
-    iconBg: 'bg-gradient-to-br from-pink-500 to-rose-600',
+    activeColor: 'bg-gradient-to-br from-pink-500 to-rose-600',
     premium: true 
   },
   { 
+    id: 'sell',
     title: 'Adaugă Produs', 
     description: 'Listează rapid un...',
     url: '/sell', 
     icon: Plus,
-    gradient: 'from-cyan-400 to-blue-500',
-    iconBg: 'bg-gradient-to-br from-cyan-400 to-blue-500'
+    activeColor: 'bg-gradient-to-br from-cyan-400 to-blue-500'
   },
   { 
+    id: 'products',
     title: 'Produsele Mele', 
     description: 'Gestionează toate...',
     url: '/dashboard?tab=listings', 
     icon: Package,
-    gradient: 'from-violet-500 to-purple-600',
-    iconBg: 'bg-gradient-to-br from-violet-500 to-purple-600'
+    activeColor: 'bg-gradient-to-br from-violet-500 to-purple-600'
   },
   { 
+    id: 'orders',
     title: 'Comenzi Active', 
     description: 'Vezi și gestionează...',
     url: '/orders?tab=selling', 
     icon: ShoppingBag,
-    gradient: 'from-emerald-400 to-green-600',
-    iconBg: 'bg-gradient-to-br from-emerald-400 to-green-600'
+    activeColor: 'bg-gradient-to-br from-emerald-400 to-green-600'
   },
   { 
+    id: 'messages',
     title: 'Mesaje Clienți', 
     description: 'Chat în timp real',
     url: '/messages', 
     icon: MessageCircle,
-    gradient: 'from-blue-400 to-indigo-500',
-    iconBg: 'bg-gradient-to-br from-blue-400 to-indigo-500',
+    activeColor: 'bg-gradient-to-br from-blue-400 to-indigo-500',
     badgeKey: 'messages' 
   },
   { 
+    id: 'wallet',
     title: 'Portofel & Bani', 
     description: 'Sold, plăți și retrageri',
     url: '/settings?tab=payouts', 
     icon: Wallet,
-    gradient: 'from-orange-400 to-red-500',
-    iconBg: 'bg-gradient-to-br from-orange-400 to-red-500',
-    highlight: true
+    activeColor: 'bg-gradient-to-br from-orange-400 to-red-500'
   },
 ];
 
@@ -97,8 +91,8 @@ export const SellerQuickActions: React.FC = () => {
 
   return (
     <div className="mb-8">
-      {/* Grid for both mobile and desktop - 2 columns */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Grid 2x3 for both mobile and desktop */}
+      <div className="grid grid-cols-2 gap-3">
         {mainItems.map((item) => {
           const Icon = item.icon;
           const badgeCount = item.badgeKey === 'messages' ? unreadMessages : 0;
@@ -106,15 +100,13 @@ export const SellerQuickActions: React.FC = () => {
           
           return (
             <Link 
-              key={item.url}
+              key={item.id}
               to={item.url}
               className={cn(
-                "relative flex flex-col items-center p-5 rounded-2xl transition-all duration-300",
-                "bg-card border-2 hover:shadow-xl hover:-translate-y-1",
-                item.highlight 
-                  ? "border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20" 
-                  : "border-border/50 hover:border-primary/30",
-                active && "ring-2 ring-primary ring-offset-2"
+                "relative flex flex-col items-center p-5 rounded-2xl transition-all duration-300 border-2",
+                active 
+                  ? "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 shadow-lg" 
+                  : "bg-card border-border/50 hover:border-primary/30 hover:shadow-md"
               )}
             >
               {/* PRO Badge */}
@@ -125,12 +117,15 @@ export const SellerQuickActions: React.FC = () => {
                 </div>
               )}
               
-              {/* Icon Container */}
+              {/* Icon Container - colored when active, gray when inactive */}
               <div className={cn(
-                "w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg mb-3",
-                item.iconBg
+                "relative w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-3 transition-all duration-300",
+                active ? item.activeColor : "bg-gray-100 dark:bg-gray-800"
               )}>
-                <Icon className="h-8 w-8 text-white" strokeWidth={2} />
+                <Icon className={cn(
+                  "h-7 w-7 transition-colors",
+                  active ? "text-white" : "text-gray-500 dark:text-gray-400"
+                )} strokeWidth={2} />
                 {badgeCount > 0 && (
                   <NotificationBadge count={badgeCount} size="sm" className="-top-1 -right-1" />
                 )}
@@ -138,14 +133,14 @@ export const SellerQuickActions: React.FC = () => {
               
               {/* Title */}
               <h3 className={cn(
-                "font-semibold text-center mb-1",
-                item.highlight ? "text-orange-600 dark:text-orange-400" : "text-foreground"
+                "font-semibold text-center text-sm mb-0.5 transition-colors",
+                active ? "text-blue-600 dark:text-blue-400" : "text-foreground"
               )}>
                 {item.title}
               </h3>
               
               {/* Description */}
-              <p className="text-xs text-muted-foreground text-center line-clamp-1">
+              <p className="text-[11px] text-muted-foreground text-center line-clamp-1">
                 {item.description}
               </p>
             </Link>
