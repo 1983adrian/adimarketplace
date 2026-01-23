@@ -27,6 +27,11 @@ import Messages from "./pages/Messages";
 import SellerProfile from "./pages/SellerProfile";
 import SellerAnalytics from "./pages/SellerAnalytics";
 import Favorites from "./pages/Favorites";
+// New dedicated pages
+import SellerMode from "./pages/SellerMode";
+import MyProducts from "./pages/MyProducts";
+import Wallet from "./pages/Wallet";
+import ProfileSettings from "./pages/ProfileSettings";
 // Public pages
 import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
@@ -97,6 +102,10 @@ const App = () => (
                 <Route path="/sell" element={<CreateListing />} />
                 <Route path="/listing/:id/edit" element={<EditListing />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/seller-mode" element={<SellerMode />} />
+                <Route path="/my-products" element={<MyProducts />} />
+                <Route path="/wallet" element={<Wallet />} />
+                <Route path="/profile-settings" element={<ProfileSettings />} />
                 <Route path="/seller-analytics" element={<SellerAnalytics />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/checkout" element={<Checkout />} />
