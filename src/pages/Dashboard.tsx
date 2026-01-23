@@ -2,7 +2,8 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Plus, Package, ShoppingBag, GraduationCap, MessageCircle, 
-  Wallet, BarChart3, Heart, Settings, Bell, LogOut, Store, User
+  Wallet, BarChart3, Heart, Settings, Bell, LogOut, Store, User,
+  Undo2, MailOpen
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -18,8 +19,11 @@ const menuItems = [
   { id: 'seller-mode', title: 'Mod Vânzător', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-orange-500' },
   { id: 'sell', title: 'Adaugă Produs', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-cyan-400 to-blue-500' },
   { id: 'wallet', title: 'Portofel', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-green-500 to-emerald-600' },
-  { id: 'orders', title: 'Comenzi', url: '/orders', icon: ShoppingBag, color: 'bg-gradient-to-br from-rose-400 to-pink-600' },
   { id: 'messages', title: 'Mesaje', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-teal-400 to-cyan-600', showBadge: 'messages' },
+  { id: 'purchases', title: 'Cumpărături', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-sky-400 to-blue-500' },
+  { id: 'sales', title: 'Vânzări', url: '/orders?section=selling', icon: Store, color: 'bg-gradient-to-br from-green-400 to-emerald-500' },
+  { id: 'my-returns', title: 'Returnările Mele', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-400 to-red-500' },
+  { id: 'received-returns', title: 'Returnări Primite', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-purple-400 to-violet-500' },
   { id: 'products', title: 'Produsele Mele', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
   { id: 'analytics', title: 'Statistici', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-400 to-blue-600' },
   { id: 'favorites', title: 'Favorite', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-400 to-pink-500' },
