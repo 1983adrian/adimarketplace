@@ -12,18 +12,30 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useMyListings } from '@/hooks/useListings';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
+import { useDashboardBadges } from '@/hooks/useDashboardBadges';
 import { cn } from '@/lib/utils';
 
-const menuItems = [
+type BadgeType = 'messages' | 'purchases' | 'sales' | 'my-returns' | 'received-returns' | null;
+
+interface MenuItem {
+  id: string;
+  title: string;
+  url: string;
+  icon: React.ElementType;
+  color: string;
+  showBadge?: BadgeType;
+}
+
+const menuItems: MenuItem[] = [
   { id: 'profile', title: 'Setări Profil', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-400 to-indigo-500' },
   { id: 'seller-mode', title: 'Mod Vânzător', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-orange-500' },
   { id: 'sell', title: 'Adaugă Produs', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-cyan-400 to-blue-500' },
   { id: 'wallet', title: 'Portofel', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-green-500 to-emerald-600' },
   { id: 'messages', title: 'Mesaje', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-teal-400 to-cyan-600', showBadge: 'messages' },
-  { id: 'purchases', title: 'Cumpărăturile Mele', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-sky-400 to-blue-500' },
-  { id: 'sales', title: 'Vânzările Mele', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-green-400 to-emerald-500' },
-  { id: 'my-returns', title: 'Returnările Mele', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-400 to-red-500' },
-  { id: 'received-returns', title: 'Returnări Primite', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-purple-400 to-violet-500' },
+  { id: 'purchases', title: 'Cumpărăturile Mele', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-sky-400 to-blue-500', showBadge: 'purchases' },
+  { id: 'sales', title: 'Vânzările Mele', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-green-400 to-emerald-500', showBadge: 'sales' },
+  { id: 'my-returns', title: 'Returnările Mele', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-400 to-red-500', showBadge: 'my-returns' },
+  { id: 'received-returns', title: 'Returnări Primite', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-purple-400 to-violet-500', showBadge: 'received-returns' },
   { id: 'products', title: 'Produsele Mele', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
   { id: 'analytics', title: 'Statistici', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-400 to-blue-600' },
   { id: 'favorites', title: 'Favorite', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-400 to-pink-500' },
@@ -38,6 +50,7 @@ const Dashboard = () => {
   const { data: myListings } = useMyListings(user?.id);
   const { data: unreadMessages = 0 } = useUnreadMessages();
   const { data: unreadNotifications = 0 } = useUnreadNotifications();
+  const { pendingPurchases, pendingSales, myPendingReturns, receivedPendingReturns } = useDashboardBadges();
 
   React.useEffect(() => {
     if (!loading && !user) {
@@ -108,7 +121,14 @@ const Dashboard = () => {
           <div className="grid grid-cols-3 gap-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const badgeCount = item.showBadge === 'messages' ? unreadMessages : 0;
+              
+              // Calculate badge count based on badge type
+              let badgeCount = 0;
+              if (item.showBadge === 'messages') badgeCount = unreadMessages;
+              else if (item.showBadge === 'purchases') badgeCount = pendingPurchases;
+              else if (item.showBadge === 'sales') badgeCount = pendingSales;
+              else if (item.showBadge === 'my-returns') badgeCount = myPendingReturns;
+              else if (item.showBadge === 'received-returns') badgeCount = receivedPendingReturns;
               
               return (
                 <Link 
@@ -117,7 +137,7 @@ const Dashboard = () => {
                   className="relative flex flex-col items-center p-2 rounded-lg bg-muted/50 hover:bg-muted hover:shadow-md transition-all duration-200 min-h-[72px] active:scale-95"
                 >
                   {badgeCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-[10px] font-bold animate-pulse shadow-md">
                       {badgeCount > 99 ? '99+' : badgeCount}
                     </span>
                   )}
