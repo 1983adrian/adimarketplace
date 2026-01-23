@@ -24,10 +24,10 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(({
     <div ref={ref} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
       <div className={`flex flex-col max-w-[80%] ${isOwn ? 'items-end' : 'items-start'}`}>
         <div
-          className={`relative px-3 py-2 shadow-sm ${
+          className={`relative px-4 py-2.5 shadow-lg ${
             isOwn
-              ? 'bg-[#DCF8C6] text-gray-900 rounded-2xl rounded-br-sm'
-              : 'bg-white text-gray-900 rounded-2xl rounded-bl-sm'
+              ? 'bg-gradient-to-br from-primary to-primary/80 text-white rounded-2xl rounded-br-sm shadow-primary/20'
+              : 'bg-white/10 backdrop-blur-sm text-white rounded-2xl rounded-bl-sm border border-white/10 shadow-black/20'
           }`}
         >
           {isImage ? (
@@ -35,7 +35,7 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(({
               <img 
                 src={message.content} 
                 alt="Shared image"
-                className="max-w-full h-auto rounded-lg max-h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                className="max-w-full h-auto rounded-lg max-h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity ring-1 ring-white/20"
               />
             </a>
           ) : (
@@ -43,13 +43,13 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(({
           )}
           
           {/* Time and read status */}
-          <div className={`flex items-center gap-1 mt-1 text-[10px] ${isOwn ? 'text-gray-600 justify-end' : 'text-gray-500'}`}>
+          <div className={`flex items-center gap-1 mt-1.5 text-[10px] ${isOwn ? 'text-white/70 justify-end' : 'text-white/50'}`}>
             <span>{format(new Date(message.created_at), 'HH:mm')}</span>
             {isOwn && (
               message.is_read ? (
-                <CheckCheck className="h-3.5 w-3.5 text-blue-500" />
+                <CheckCheck className="h-3.5 w-3.5 text-emerald-400" />
               ) : (
-                <Check className="h-3.5 w-3.5 text-gray-400" />
+                <Check className="h-3.5 w-3.5 text-white/50" />
               )
             )}
           </div>
