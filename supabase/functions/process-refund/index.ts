@@ -75,17 +75,20 @@ serve(async (req) => {
     // Create refund record
     const refundTransactionId = `REF-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
-    // Update order status
+    // Update order status - use 'refunded' for full refunds since it's in the enum
+    const newStatus = isPartialRefund ? "partially_refunded" : "refunded";
+    
     const { error: updateError } = await supabase
       .from("orders")
       .update({
-        status: isPartialRefund ? "partially_refunded" : "refund_pending",
+        status: newStatus,
         refund_status: "processing",
         refund_amount: refundAmount,
         refund_reason: reason,
         refund_requested_at: new Date().toISOString(),
         refund_transaction_id: refundTransactionId,
         refunded_by: user.id,
+        refunded_at: new Date().toISOString(),
       })
       .eq("id", order_id);
 

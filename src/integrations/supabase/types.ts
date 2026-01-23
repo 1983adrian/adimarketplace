@@ -1699,6 +1699,8 @@ export type Database = {
         | "delivered"
         | "cancelled"
         | "refunded"
+        | "partially_refunded"
+        | "refund_pending"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1835,6 +1837,8 @@ export const Constants = {
         "delivered",
         "cancelled",
         "refunded",
+        "partially_refunded",
+        "refund_pending",
       ],
     },
   },
