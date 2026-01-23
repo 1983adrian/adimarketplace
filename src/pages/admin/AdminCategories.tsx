@@ -137,28 +137,28 @@ export default function AdminCategories() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h1 className="text-3xl font-bold">Categories</h1>
-            <p className="text-muted-foreground">Manage product categories</p>
+            <h1 className="text-xl md:text-2xl font-bold">Categorii</h1>
+            <p className="text-xs text-muted-foreground">Gestionează categoriile</p>
           </div>
-          <Button onClick={handleAdd} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Add Category
+          <Button onClick={handleAdd} size="sm" className="gap-1 h-8 text-xs">
+            <Plus className="h-3 w-3" />
+            Adaugă
           </Button>
         </div>
 
         {/* Add/Edit Form */}
         {(isAdding || isEditing) && (
           <Card>
-            <CardHeader>
-              <CardTitle>{isAdding ? 'Add New Category' : 'Edit Category'}</CardTitle>
+            <CardHeader className="p-3">
+              <CardTitle className="text-sm">{isAdding ? 'Adaugă Categorie' : 'Editează'}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Category Name</Label>
+            <CardContent className="p-3 space-y-3">
+              <div className="grid gap-3 grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Nume</Label>
                   <Input
                     value={form.name}
                     onChange={(e) => {
@@ -168,30 +168,33 @@ export default function AdminCategories() {
                         slug: generateSlug(e.target.value)
                       }));
                     }}
-                    placeholder="Electronics"
+                    placeholder="Electronice"
+                    className="h-8 text-xs"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Slug</Label>
+                <div className="space-y-1">
+                  <Label className="text-xs">Slug</Label>
                   <Input
                     value={form.slug}
                     onChange={(e) => setForm(prev => ({ ...prev, slug: e.target.value }))}
-                    placeholder="electronics"
+                    placeholder="electronice"
+                    className="h-8 text-xs"
                   />
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Icon (Emoji)</Label>
+              <div className="grid gap-3 grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Iconiță</Label>
                   <Input
                     value={form.icon}
                     onChange={(e) => setForm(prev => ({ ...prev, icon: e.target.value }))}
                     placeholder="📦"
+                    className="h-8 text-xs"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>Parent Category</Label>
+                <div className="space-y-1">
+                  <Label className="text-xs">Categorie Părinte</Label>
                   <Select
                     value={form.parent_id || 'none'}
                     onValueChange={(value) => setForm(prev => ({ 
@@ -199,11 +202,11 @@ export default function AdminCategories() {
                       parent_id: value === 'none' ? null : value 
                     }))}
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="None (Top Level)" />
+                    <SelectTrigger className="h-8 text-xs">
+                      <SelectValue placeholder="Niciuna" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None (Top Level)</SelectItem>
+                      <SelectItem value="none">Niciuna (Top)</SelectItem>
                       {parentCategories
                         .filter(c => c.id !== isEditing)
                         .map(cat => (
@@ -217,13 +220,13 @@ export default function AdminCategories() {
               </div>
 
               <div className="flex gap-2">
-                <Button onClick={handleSave} disabled={isSaving} className="gap-2">
-                  <Save className="h-4 w-4" />
-                  {isAdding ? 'Create Category' : 'Save Changes'}
+                <Button onClick={handleSave} disabled={isSaving} size="sm" className="gap-1 h-7 text-xs">
+                  <Save className="h-3 w-3" />
+                  {isAdding ? 'Creează' : 'Salvează'}
                 </Button>
-                <Button variant="outline" onClick={handleCancel} className="gap-2">
-                  <X className="h-4 w-4" />
-                  Cancel
+                <Button variant="outline" onClick={handleCancel} size="sm" className="gap-1 h-7 text-xs">
+                  <X className="h-3 w-3" />
+                  Anulează
                 </Button>
               </div>
             </CardContent>
@@ -231,46 +234,47 @@ export default function AdminCategories() {
         )}
 
         {/* Categories List */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
           {parentCategories.map((category) => {
             const children = getChildCategories(category.id);
             
             return (
-              <Card key={category.id}>
-                <CardHeader className="pb-3">
+              <Card key={category.id} className="overflow-hidden">
+                <CardHeader className="p-2 pb-1">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{category.icon}</span>
-                      <div>
-                        <CardTitle className="text-base">{category.name}</CardTitle>
-                        <CardDescription className="text-xs">/{category.slug}</CardDescription>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-lg">{category.icon}</span>
+                      <div className="min-w-0">
+                        <CardTitle className="text-xs font-medium truncate">{category.name}</CardTitle>
+                        <CardDescription className="text-[10px]">/{category.slug}</CardDescription>
                       </div>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-0.5">
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-6 w-6"
                         onClick={() => handleEdit(category)}
                       >
-                        <Edit2 className="h-4 w-4" />
+                        <Edit2 className="h-3 w-3" />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="text-destructive">
-                            <Trash2 className="h-4 w-4" />
+                          <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive">
+                            <Trash2 className="h-3 w-3" />
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Category?</AlertDialogTitle>
+                            <AlertDialogTitle>Șterge Categoria?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              This will permanently delete "{category.name}" and may affect listings in this category.
+                              Aceasta va șterge "{category.name}" permanent.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>Anulează</AlertDialogCancel>
                             <AlertDialogAction onClick={() => handleDelete(category.id)}>
-                              Delete
+                              Șterge
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -279,41 +283,41 @@ export default function AdminCategories() {
                   </div>
                 </CardHeader>
                 {children.length > 0 && (
-                  <CardContent className="pt-0">
+                  <CardContent className="p-2 pt-0">
                     <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground mb-2">Subcategories:</p>
+                      <p className="text-[10px] text-muted-foreground">Subcategorii:</p>
                       {children.map((child) => (
                         <div 
                           key={child.id} 
-                          className="flex items-center justify-between p-2 rounded bg-muted/50 text-sm"
+                          className="flex items-center justify-between p-1.5 rounded bg-muted/50 text-xs"
                         >
-                          <span>{child.icon} {child.name}</span>
-                          <div className="flex gap-1">
+                          <span className="truncate">{child.icon} {child.name}</span>
+                          <div className="flex gap-0.5">
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-6 w-6"
+                              className="h-5 w-5"
                               onClick={() => handleEdit(child)}
                             >
-                              <Edit2 className="h-3 w-3" />
+                              <Edit2 className="h-2.5 w-2.5" />
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive">
-                                  <Trash2 className="h-3 w-3" />
+                                <Button variant="ghost" size="icon" className="h-5 w-5 text-destructive">
+                                  <Trash2 className="h-2.5 w-2.5" />
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Subcategory?</AlertDialogTitle>
+                                  <AlertDialogTitle>Șterge Subcategoria?</AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    This will permanently delete "{child.name}".
+                                    Aceasta va șterge "{child.name}" permanent.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogCancel>Anulează</AlertDialogCancel>
                                   <AlertDialogAction onClick={() => handleDelete(child.id)}>
-                                    Delete
+                                    Șterge
                                   </AlertDialogAction>
                                 </AlertDialogFooter>
                               </AlertDialogContent>
@@ -331,27 +335,27 @@ export default function AdminCategories() {
 
         {/* Stats */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FolderTree className="h-5 w-5" />
-              Category Statistics
+          <CardHeader className="p-3">
+            <CardTitle className="flex items-center gap-1.5 text-sm">
+              <FolderTree className="h-4 w-4" />
+              Statistici Categorii
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <div className="text-2xl font-bold">{parentCategories.length}</div>
-                <p className="text-sm text-muted-foreground">Parent Categories</p>
+          <CardContent className="p-3 pt-0">
+            <div className="grid gap-2 grid-cols-3">
+              <div className="p-2 rounded-lg bg-muted/50 text-center">
+                <div className="text-lg font-bold">{parentCategories.length}</div>
+                <p className="text-[10px] text-muted-foreground">Principale</p>
               </div>
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <div className="text-2xl font-bold">
+              <div className="p-2 rounded-lg bg-muted/50 text-center">
+                <div className="text-lg font-bold">
                   {categories?.filter(c => c.parent_id).length || 0}
                 </div>
-                <p className="text-sm text-muted-foreground">Subcategories</p>
+                <p className="text-[10px] text-muted-foreground">Sub</p>
               </div>
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <div className="text-2xl font-bold">{categories?.length || 0}</div>
-                <p className="text-sm text-muted-foreground">Total Categories</p>
+              <div className="p-2 rounded-lg bg-muted/50 text-center">
+                <div className="text-lg font-bold">{categories?.length || 0}</div>
+                <p className="text-[10px] text-muted-foreground">Total</p>
               </div>
             </div>
           </CardContent>

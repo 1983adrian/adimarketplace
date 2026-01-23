@@ -113,67 +113,66 @@ const AdminAuctions = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h1 className="text-3xl font-bold">Gestionare Licitații</h1>
-            <p className="text-muted-foreground">
-              Monitorizează și controlează licitațiile platformei
-            </p>
+            <h1 className="text-xl md:text-2xl font-bold">Licitații</h1>
+            <p className="text-xs text-muted-foreground">Monitorizează licitațiile</p>
           </div>
-          <div className="flex items-center gap-3 p-4 rounded-lg bg-muted">
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-muted">
             <Switch
               id="auctions-enabled"
               checked={auctionsEnabled}
               onCheckedChange={setAuctionsEnabled}
+              className="scale-90"
             />
-            <Label htmlFor="auctions-enabled">Licitații Active Global</Label>
+            <Label htmlFor="auctions-enabled" className="text-xs">Active Global</Label>
           </div>
         </div>
 
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-2 grid-cols-2 lg:grid-cols-4">
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Active</CardTitle>
+            <CardHeader className="p-2 pb-1">
+              <CardTitle className="text-[10px] font-medium">Active</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Gavel className="h-8 w-8 text-green-500" />
-                <span className="text-3xl font-bold">{activeAuctions.length}</span>
+            <CardContent className="p-2 pt-0">
+              <div className="flex items-center gap-1.5">
+                <Gavel className="h-5 w-5 text-green-500" />
+                <span className="text-xl font-bold">{activeAuctions.length}</span>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Încheiate</CardTitle>
+            <CardHeader className="p-2 pb-1">
+              <CardTitle className="text-[10px] font-medium">Încheiate</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-8 w-8 text-blue-500" />
-                <span className="text-3xl font-bold">{endedAuctions.length}</span>
+            <CardContent className="p-2 pt-0">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle className="h-5 w-5 text-blue-500" />
+                <span className="text-xl font-bold">{endedAuctions.length}</span>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Anulate</CardTitle>
+            <CardHeader className="p-2 pb-1">
+              <CardTitle className="text-[10px] font-medium">Anulate</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <XCircle className="h-8 w-8 text-red-500" />
-                <span className="text-3xl font-bold">{cancelledAuctions.length}</span>
+            <CardContent className="p-2 pt-0">
+              <div className="flex items-center gap-1.5">
+                <XCircle className="h-5 w-5 text-red-500" />
+                <span className="text-xl font-bold">{cancelledAuctions.length}</span>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Total Oferte</CardTitle>
+            <CardHeader className="p-2 pb-1">
+              <CardTitle className="text-[10px] font-medium">Oferte</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-8 w-8 text-primary" />
-                <span className="text-3xl font-bold">
+            <CardContent className="p-2 pt-0">
+              <div className="flex items-center gap-1.5">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <span className="text-xl font-bold">
                   {auctions?.reduce((acc, a) => acc + a.bid_count, 0) || 0}
                 </span>
               </div>
@@ -183,32 +182,32 @@ const AdminAuctions = () => {
 
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
           <Input
             placeholder="Caută licitații..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-7 h-8 text-xs"
           />
         </div>
 
         {/* Tabs */}
         <Tabs defaultValue="active">
-          <TabsList>
-            <TabsTrigger value="active" className="gap-2">
-              <Gavel className="h-4 w-4" />
+          <TabsList className="h-auto p-0.5 flex-wrap">
+            <TabsTrigger value="active" className="gap-1 text-xs py-1.5">
+              <Gavel className="h-3 w-3" />
               Active ({activeAuctions.length})
             </TabsTrigger>
-            <TabsTrigger value="ended" className="gap-2">
-              <CheckCircle className="h-4 w-4" />
+            <TabsTrigger value="ended" className="gap-1 text-xs py-1.5">
+              <CheckCircle className="h-3 w-3" />
               Încheiate ({endedAuctions.length})
             </TabsTrigger>
-            <TabsTrigger value="all" className="gap-2">
+            <TabsTrigger value="all" className="gap-1 text-xs py-1.5">
               Toate ({auctions?.length || 0})
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="active">
+          <TabsContent value="active" className="mt-3">
             <AuctionTable
               auctions={activeAuctions}
               isLoading={isLoading}
@@ -218,7 +217,7 @@ const AdminAuctions = () => {
             />
           </TabsContent>
 
-          <TabsContent value="ended">
+          <TabsContent value="ended" className="mt-3">
             <AuctionTable
               auctions={endedAuctions}
               isLoading={isLoading}
@@ -228,7 +227,7 @@ const AdminAuctions = () => {
             />
           </TabsContent>
 
-          <TabsContent value="all">
+          <TabsContent value="all" className="mt-3">
             <AuctionTable
               auctions={filteredAuctions}
               isLoading={isLoading}
@@ -241,9 +240,9 @@ const AdminAuctions = () => {
 
         {/* Auction Detail Dialog */}
         <Dialog open={!!selectedAuction} onOpenChange={() => setSelectedAuction(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Detalii Licitație</DialogTitle>
+              <DialogTitle className="text-sm">Detalii Licitație</DialogTitle>
             </DialogHeader>
 
             {selectedAuction && (
