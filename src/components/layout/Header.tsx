@@ -134,14 +134,14 @@ export const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
-            {/* Big SELL Button */}
+            {/* Big Browse/Shop Button */}
             <Button 
               asChild
               className="h-11 px-5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 hover:scale-105 mr-2"
             >
               <Link to="/browse" className="flex items-center gap-2">
                 <Store className="h-5 w-5" />
-                <span>Vinde</span>
+                <span>Produse</span>
               </Link>
             </Button>
             <CartDropdown />

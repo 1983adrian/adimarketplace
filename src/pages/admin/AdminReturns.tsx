@@ -103,54 +103,54 @@ const AdminReturns = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold">Gestionare Retururi</h1>
-          <p className="text-muted-foreground">Administrează cererile de retur</p>
+          <h1 className="text-xl md:text-2xl font-bold">Gestionare Retururi</h1>
+          <p className="text-xs text-muted-foreground">Administrează cererile de retur</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Package className="h-8 w-8 text-muted-foreground" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-muted-foreground" />
                 <div>
-                  <p className="text-2xl font-bold">{stats.total}</p>
-                  <p className="text-sm text-muted-foreground">Total Retururi</p>
+                  <p className="text-lg font-bold">{stats.total}</p>
+                  <p className="text-[10px] text-muted-foreground">Total</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Clock className="h-8 w-8 text-yellow-500" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <Clock className="h-5 w-5 text-yellow-500" />
                 <div>
-                  <p className="text-2xl font-bold">{stats.pending}</p>
-                  <p className="text-sm text-muted-foreground">În așteptare</p>
+                  <p className="text-lg font-bold">{stats.pending}</p>
+                  <p className="text-[10px] text-muted-foreground">Așteptare</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <CheckCircle className="h-8 w-8 text-blue-500" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-blue-500" />
                 <div>
-                  <p className="text-2xl font-bold">{stats.approved}</p>
-                  <p className="text-sm text-muted-foreground">Aprobate</p>
+                  <p className="text-lg font-bold">{stats.approved}</p>
+                  <p className="text-[10px] text-muted-foreground">Aprobate</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <RefreshCw className="h-8 w-8 text-green-500" />
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2">
+                <RefreshCw className="h-5 w-5 text-green-500" />
                 <div>
-                  <p className="text-2xl font-bold">{stats.completed}</p>
-                  <p className="text-sm text-muted-foreground">Finalizate</p>
+                  <p className="text-lg font-bold">{stats.completed}</p>
+                  <p className="text-[10px] text-muted-foreground">Finalizate</p>
                 </div>
               </div>
             </CardContent>
@@ -159,27 +159,24 @@ const AdminReturns = () => {
 
         {/* Filters */}
         <Card>
-          <CardHeader>
-            <CardTitle>Filtre</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4">
+          <CardContent className="p-3">
+            <div className="flex flex-col sm:flex-row gap-2">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
                 <Input
-                  placeholder="Caută după ID sau motiv..."
+                  placeholder="Caută..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9"
+                  className="pl-7 h-8 text-xs"
                 />
               </div>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full md:w-48">
+                <SelectTrigger className="w-full sm:w-32 h-8 text-xs">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Toate</SelectItem>
-                  <SelectItem value="pending">În așteptare</SelectItem>
+                  <SelectItem value="pending">Așteptare</SelectItem>
                   <SelectItem value="approved">Aprobate</SelectItem>
                   <SelectItem value="rejected">Respinse</SelectItem>
                   <SelectItem value="completed">Finalizate</SelectItem>
@@ -193,78 +190,81 @@ const AdminReturns = () => {
         {/* Returns Table */}
         <Card>
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>ID Retur</TableHead>
-                  <TableHead>Produs</TableHead>
-                  <TableHead>Motiv</TableHead>
-                  <TableHead>Sumă</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Data</TableHead>
-                  <TableHead className="text-right">Acțiuni</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoading ? (
-                  [...Array(5)].map((_, i) => (
-                    <TableRow key={i}>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-16" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-8 w-20" /></TableCell>
-                    </TableRow>
-                  ))
-                ) : filteredReturns.length === 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
-                      Nu există retururi
-                    </TableCell>
+                    <TableHead className="text-xs">ID</TableHead>
+                    <TableHead className="text-xs hidden sm:table-cell">Produs</TableHead>
+                    <TableHead className="text-xs">Motiv</TableHead>
+                    <TableHead className="text-xs hidden md:table-cell">Sumă</TableHead>
+                    <TableHead className="text-xs">Status</TableHead>
+                    <TableHead className="text-xs hidden lg:table-cell">Data</TableHead>
+                    <TableHead className="text-right text-xs">Acțiuni</TableHead>
                   </TableRow>
-                ) : (
-                  filteredReturns.map((returnItem) => {
-                    const config = statusConfig[returnItem.status] || statusConfig.pending;
-                    return (
-                      <TableRow key={returnItem.id}>
-                        <TableCell className="font-mono text-xs">
-                          {returnItem.id.slice(0, 8)}...
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          {returnItem.orders?.listings?.title || 'N/A'}
-                        </TableCell>
-                        <TableCell>{returnItem.reason}</TableCell>
-                        <TableCell>£{returnItem.orders?.amount?.toFixed(2) || '0.00'}</TableCell>
-                        <TableCell>
-                          <Badge className={`gap-1 ${config.color}`}>
-                            {config.icon}
-                            {config.label}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {format(new Date(returnItem.created_at), 'dd MMM yyyy')}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedReturn(returnItem);
-                              setAdminNotes(returnItem.admin_notes || '');
-                              setRefundAmount(returnItem.refund_amount?.toString() || '');
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
+                </TableHeader>
+                <TableBody>
+                  {isLoading ? (
+                    [...Array(5)].map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton className="h-3 w-16" /></TableCell>
+                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-3 w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-3 w-16" /></TableCell>
+                        <TableCell className="hidden md:table-cell"><Skeleton className="h-3 w-12" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-14" /></TableCell>
+                        <TableCell className="hidden lg:table-cell"><Skeleton className="h-3 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-6 w-6" /></TableCell>
                       </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+                    ))
+                  ) : filteredReturns.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground text-xs">
+                        Nu există retururi
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredReturns.map((returnItem) => {
+                      const config = statusConfig[returnItem.status] || statusConfig.pending;
+                      return (
+                        <TableRow key={returnItem.id}>
+                          <TableCell className="font-mono text-[10px] p-2">
+                            {returnItem.id.slice(0, 6)}...
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-xs p-2">
+                            {returnItem.orders?.listings?.title?.slice(0, 20) || 'N/A'}...
+                          </TableCell>
+                          <TableCell className="text-xs p-2">{returnItem.reason}</TableCell>
+                          <TableCell className="hidden md:table-cell text-xs p-2">£{returnItem.orders?.amount?.toFixed(2) || '0.00'}</TableCell>
+                          <TableCell className="p-2">
+                            <Badge className={`gap-0.5 ${config.color} text-[10px] px-1 py-0`}>
+                              {config.icon}
+                              {config.label}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-xs p-2">
+                            {format(new Date(returnItem.created_at), 'dd MMM')}
+                          </TableCell>
+                          <TableCell className="text-right p-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6"
+                              onClick={() => {
+                                setSelectedReturn(returnItem);
+                                setAdminNotes(returnItem.admin_notes || '');
+                                setRefundAmount(returnItem.refund_amount?.toString() || '');
+                              }}
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 

@@ -99,99 +99,99 @@ export default function AdminDisputes() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div>
-          <h1 className="text-3xl font-bold">Disputes Management</h1>
-          <p className="text-muted-foreground">Handle buyer-seller conflicts and reports</p>
+          <h1 className="text-xl md:text-2xl font-bold">Gestionare Dispute</h1>
+          <p className="text-xs text-muted-foreground">Rezolvă conflictele cumpărător-vânzător</p>
         </div>
 
         {/* Stats */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-2 grid-cols-2 lg:grid-cols-4">
           <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold">{disputes?.length || 0}</div>
-              <p className="text-sm text-muted-foreground">Total Disputes</p>
+            <CardContent className="p-3">
+              <div className="text-xl font-bold">{disputes?.length || 0}</div>
+              <p className="text-[10px] text-muted-foreground">Total</p>
             </CardContent>
           </Card>
           <Card className="border-yellow-200 bg-yellow-50/50 dark:bg-yellow-900/10">
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-yellow-700">{pendingCount}</div>
-              <p className="text-sm text-muted-foreground">Pending Review</p>
+            <CardContent className="p-3">
+              <div className="text-xl font-bold text-yellow-700">{pendingCount}</div>
+              <p className="text-[10px] text-muted-foreground">În așteptare</p>
             </CardContent>
           </Card>
           <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-900/10">
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-blue-700">{investigatingCount}</div>
-              <p className="text-sm text-muted-foreground">Under Investigation</p>
+            <CardContent className="p-3">
+              <div className="text-xl font-bold text-blue-700">{investigatingCount}</div>
+              <p className="text-[10px] text-muted-foreground">Investigare</p>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-green-600">
+            <CardContent className="p-3">
+              <div className="text-xl font-bold text-green-600">
                 {disputes?.filter(d => d.status === 'resolved').length || 0}
               </div>
-              <p className="text-sm text-muted-foreground">Resolved</p>
+              <p className="text-[10px] text-muted-foreground">Rezolvate</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Disputes List */}
         <Card>
-          <CardHeader>
-            <CardTitle>All Disputes</CardTitle>
-            <CardDescription>Review and manage reported issues</CardDescription>
+          <CardHeader className="p-3">
+            <CardTitle className="text-sm">Toate Disputele</CardTitle>
+            <CardDescription className="text-xs">Administrează problemele raportate</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-3">
             {isLoading ? (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-24 w-full" />
+                  <Skeleton key={i} className="h-16 w-full" />
                 ))}
               </div>
             ) : disputes && disputes.length > 0 ? (
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {disputes.map((dispute) => {
                   const config = statusConfig[dispute.status];
                   return (
-                    <div key={dispute.id} className="p-4 rounded-lg border space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge className={config.color}>
+                    <div key={dispute.id} className="p-2 rounded-lg border space-y-2">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                            <Badge className={`${config.color} text-[10px] px-1.5 py-0`}>
                               {config.icon}
-                              <span className="ml-1">{config.label}</span>
+                              <span className="ml-0.5">{config.label}</span>
                             </Badge>
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(dispute.created_at).toLocaleDateString()}
+                            <span className="text-[10px] text-muted-foreground">
+                              {new Date(dispute.created_at).toLocaleDateString('ro-RO')}
                             </span>
                           </div>
-                          <p className="font-semibold">{dispute.reason}</p>
+                          <p className="font-medium text-xs">{dispute.reason}</p>
                           {dispute.description && (
-                            <p className="text-sm text-muted-foreground mt-1">{dispute.description}</p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2">{dispute.description}</p>
                           )}
                         </div>
                         <Select 
                           value={dispute.status} 
                           onValueChange={(value) => handleStatusChange(dispute.id, value)}
                         >
-                          <SelectTrigger className="w-36">
+                          <SelectTrigger className="w-28 h-7 text-xs">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="investigating">Investigating</SelectItem>
-                            <SelectItem value="resolved">Resolved</SelectItem>
-                            <SelectItem value="dismissed">Dismissed</SelectItem>
+                            <SelectItem value="pending">În așteptare</SelectItem>
+                            <SelectItem value="investigating">Investigare</SelectItem>
+                            <SelectItem value="resolved">Rezolvat</SelectItem>
+                            <SelectItem value="dismissed">Respins</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="text-xs text-muted-foreground grid grid-cols-2 gap-2">
-                        <div>Order ID: <code>{dispute.order_id.slice(0, 8)}...</code></div>
-                        <div>Reporter: <code>{dispute.reporter_id.slice(0, 8)}...</code></div>
+                      <div className="text-[10px] text-muted-foreground flex gap-3 flex-wrap">
+                        <span>Comandă: <code>{dispute.order_id.slice(0, 8)}...</code></span>
+                        <span>Raportor: <code>{dispute.reporter_id.slice(0, 8)}...</code></span>
                       </div>
                       {dispute.resolution && (
-                        <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 rounded text-sm">
-                          <strong>Resolution:</strong> {dispute.resolution}
+                        <div className="p-1.5 bg-green-50 dark:bg-green-900/20 rounded text-[10px]">
+                          <strong>Rezoluție:</strong> {dispute.resolution}
                         </div>
                       )}
                     </div>
@@ -199,7 +199,7 @@ export default function AdminDisputes() {
                 })}
               </div>
             ) : (
-              <p className="text-center text-muted-foreground py-8">No disputes reported</p>
+              <p className="text-center text-muted-foreground py-6 text-xs">Nicio dispută</p>
             )}
           </CardContent>
         </Card>
@@ -207,33 +207,35 @@ export default function AdminDisputes() {
         {/* Resolution Dialog */}
         {selectedDispute && (
           <Card className="border-primary">
-            <CardHeader>
-              <CardTitle>Resolve Dispute</CardTitle>
-              <CardDescription>Provide resolution details for: {selectedDispute.reason}</CardDescription>
+            <CardHeader className="p-3">
+              <CardTitle className="text-sm">Rezolvă Disputa</CardTitle>
+              <CardDescription className="text-xs">Pentru: {selectedDispute.reason}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="p-3 space-y-3">
               <div>
-                <label className="text-sm font-medium mb-2 block">Resolution</label>
+                <label className="text-xs font-medium mb-1 block">Rezoluție</label>
                 <Textarea
-                  placeholder="Describe how this dispute was resolved..."
+                  placeholder="Descrie rezoluția..."
                   value={resolution}
                   onChange={(e) => setResolution(e.target.value)}
+                  className="text-xs min-h-[60px]"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">Admin Notes (internal)</label>
+                <label className="text-xs font-medium mb-1 block">Note Admin</label>
                 <Textarea
-                  placeholder="Internal notes about this case..."
+                  placeholder="Note interne..."
                   value={adminNotes}
                   onChange={(e) => setAdminNotes(e.target.value)}
+                  className="text-xs min-h-[60px]"
                 />
               </div>
               <div className="flex gap-2">
-                <Button onClick={handleResolve} disabled={!resolution}>
-                  Resolve Dispute
+                <Button onClick={handleResolve} disabled={!resolution} size="sm" className="h-7 text-xs">
+                  Rezolvă
                 </Button>
-                <Button variant="outline" onClick={() => setSelectedDispute(null)}>
-                  Cancel
+                <Button variant="outline" onClick={() => setSelectedDispute(null)} size="sm" className="h-7 text-xs">
+                  Anulează
                 </Button>
               </div>
             </CardContent>
