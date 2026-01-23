@@ -6,41 +6,52 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MessageBubble } from './MessageBubble';
 import { EmojiPicker } from './EmojiPicker';
 import { ImageUploadButton } from './ImageUploadButton';
-import { useMessages, useSendMessage, useMarkMessagesRead } from '@/hooks/useConversations';
+import { useMessages, useSendMessage, useMarkMessagesRead, useDeleteConversation } from '@/hooks/useConversations';
 import { useRealTimeMessages } from '@/hooks/useRealTimeNotifications';
-import { Send, ArrowLeft, Shield } from 'lucide-react';
+import { Send, ArrowLeft, Shield, Trash2, MoreVertical, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 interface ChatWindowProps {
   conversation: any;
   currentUserId: string;
   onBack?: () => void;
+  onConversationDeleted?: () => void;
   isMobile?: boolean;
 }
-
-// WhatsApp-like chat background pattern
-const CHAT_BACKGROUND = `
-  radial-gradient(circle at 25% 25%, rgba(37, 211, 102, 0.03) 0%, transparent 50%),
-  radial-gradient(circle at 75% 75%, rgba(37, 211, 102, 0.03) 0%, transparent 50%),
-  linear-gradient(to bottom, #E5DDD5 0%, #D1C7BC 100%)
-`;
-
-const CHAT_PATTERN = `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`;
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({
   conversation,
   currentUserId,
   onBack,
+  onConversationDeleted,
   isMobile,
 }) => {
   const [newMessage, setNewMessage] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   
   const { data: messages, isLoading } = useMessages(conversation?.id !== 'admin-new' ? conversation?.id : undefined);
   const sendMessage = useSendMessage();
   const markRead = useMarkMessagesRead();
+  const deleteConversation = useDeleteConversation();
   
   // Enable real-time updates for this conversation
   useRealTimeMessages(conversation?.id !== 'admin-new' ? conversation?.id : undefined);
@@ -53,6 +64,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     : conversation?.buyer_id === currentUserId
       ? conversation?.seller
       : conversation?.buyer;
+
+  const handleDeleteConversation = async () => {
+    if (!conversation?.id) return;
+    
+    try {
+      await deleteConversation.mutateAsync({ conversationId: conversation.id });
+      toast.success('Conversația a fost ștearsă');
+      setShowDeleteDialog(false);
+      onConversationDeleted?.();
+      onBack?.();
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      toast.error('Nu s-a putut șterge conversația');
+    }
+  };
 
   const getInitials = (name?: string | null) => {
     if (!name) return '?';
@@ -114,18 +140,23 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   if (!conversation) {
     return (
       <div 
-        className="flex items-center justify-center h-full text-muted-foreground"
+        className="flex items-center justify-center h-full text-muted-foreground relative overflow-hidden"
         style={{ 
-          background: CHAT_BACKGROUND,
-          backgroundImage: CHAT_PATTERN,
+          background: '#0a0a0a',
         }}
       >
-        <div className="text-center bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Send className="h-8 w-8 text-primary" />
+        {/* Background watermark text */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <p className="text-[#1a1a1a] text-2xl md:text-4xl font-bold tracking-widest uppercase select-none">
+            Marketplace Romania
+          </p>
+        </div>
+        <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/10 z-10">
+          <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Send className="h-8 w-8 text-white/60" />
           </div>
-          <p className="text-lg font-medium text-gray-800">Selectează o conversație</p>
-          <p className="text-sm text-gray-500 mt-1">Alege o conversație din lista din stânga</p>
+          <p className="text-lg font-medium text-white/80">Selectează o conversație</p>
+          <p className="text-sm text-white/50 mt-1">Alege o conversație din lista din stânga</p>
         </div>
       </div>
     );
@@ -191,25 +222,80 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             />
           </Link>
         )}
+
+        {/* Delete/Close conversation menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-white hover:bg-white/10 flex-shrink-0"
+            >
+              <MoreVertical className="h-5 w-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem 
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-red-600 focus:text-red-600 focus:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Șterge conversația
+            </DropdownMenuItem>
+            {isMobile && onBack && (
+              <DropdownMenuItem onClick={onBack}>
+                <X className="h-4 w-4 mr-2" />
+                Închide chat
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {/* Messages area with WhatsApp background - SCROLLABLE container */}
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Șterge conversația?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Această acțiune este permanentă. Toate mesajele din această conversație vor fi șterse și nu pot fi recuperate.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteConversation}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Messages area with dark background - SCROLLABLE container */}
       <div 
         ref={scrollAreaRef}
-        className="flex-1 overflow-y-auto overflow-x-hidden"
+        className="flex-1 overflow-y-auto overflow-x-hidden relative"
         style={{ 
-          background: CHAT_BACKGROUND,
-          backgroundImage: CHAT_PATTERN,
+          background: '#0a0a0a',
           minHeight: 0, // Critical for flex scroll
         }}
       >
-        <div className="p-4 min-h-full flex flex-col">
+        {/* Background watermark text */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <p className="text-[#1a1a1a] text-xl md:text-3xl font-bold tracking-widest uppercase select-none whitespace-nowrap">
+            Marketplace Romania
+          </p>
+        </div>
+        
+        <div className="p-4 min-h-full flex flex-col relative z-10">
           {isLoading ? (
             <div className="space-y-4 flex-1">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className={`flex gap-2 ${i % 2 === 0 ? '' : 'justify-end'}`}>
-                  {i % 2 === 0 && <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />}
-                  <Skeleton className="h-16 w-48 rounded-2xl" />
+                  {i % 2 === 0 && <Skeleton className="h-8 w-8 rounded-full flex-shrink-0 bg-white/10" />}
+                  <Skeleton className="h-16 w-48 rounded-2xl bg-white/10" />
                 </div>
               ))}
             </div>
@@ -225,12 +311,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             </div>
           ) : (
             <div className="flex items-center justify-center flex-1 min-h-[200px]">
-              <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-gray-100">
+              <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-white/10">
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Send className="h-5 w-5 text-white" />
                 </div>
-                <p className="text-gray-700 font-medium">👋 Niciun mesaj încă</p>
-                <p className="text-sm text-gray-500 mt-1">Trimite primul mesaj!</p>
+                <p className="text-white/80 font-medium">👋 Niciun mesaj încă</p>
+                <p className="text-sm text-white/50 mt-1">Trimite primul mesaj!</p>
               </div>
             </div>
           )}

@@ -47,6 +47,12 @@ export default function Messages() {
     setSelectedConversation(null);
   };
 
+  const handleConversationDeleted = () => {
+    setShowChat(false);
+    setSelectedConversation(null);
+    refetch();
+  };
+
   const handleNewConversation = async (sellerId: string, listingId?: string) => {
     if (!user?.id || !listingId) {
       toast.error('Lipsesc informații necesare pentru a crea conversația');
@@ -121,6 +127,7 @@ export default function Messages() {
               conversation={selectedConversation}
               currentUserId={user.id}
               onBack={handleBack}
+              onConversationDeleted={handleConversationDeleted}
               isMobile={true}
             />
           </Card>
@@ -180,6 +187,7 @@ export default function Messages() {
                   conversation={selectedConversation}
                   currentUserId={user.id}
                   onBack={handleBack}
+                  onConversationDeleted={handleConversationDeleted}
                   isMobile={false}
                 />
               </div>
