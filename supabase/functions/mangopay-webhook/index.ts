@@ -162,26 +162,92 @@ serve(async (req) => {
 
       // KYC events
       case "KYC_SUCCEEDED": {
-        await supabase
+        // Get user_id from profile
+        const { data: verifiedProfile } = await supabase
           .from("profiles")
-          .update({ kyc_status: "verified" })
-          .eq("mangopay_user_id", event.RessourceId);
+          .select("user_id, display_name, store_name")
+          .eq("mangopay_user_id", event.RessourceId)
+          .single();
+
+        if (verifiedProfile) {
+          // Update KYC status
+          await supabase
+            .from("profiles")
+            .update({ 
+              kyc_status: "verified",
+              kyc_verified_at: new Date().toISOString()
+            })
+            .eq("user_id", verifiedProfile.user_id);
+
+          // Send notification to seller
+          await supabase.from("notifications").insert({
+            user_id: verifiedProfile.user_id,
+            type: "kyc_approved",
+            title: "🎉 Verificare KYC Aprobată!",
+            message: "Felicitări! Contul tău a fost verificat cu succes. Acum poți primi plăți și retrage fonduri.",
+            data: { kyc_status: "verified" },
+          });
+
+          console.log("KYC approved notification sent to:", verifiedProfile.user_id);
+        }
         break;
       }
 
       case "KYC_FAILED": {
-        await supabase
+        // Get user_id from profile
+        const { data: rejectedProfile } = await supabase
           .from("profiles")
-          .update({ kyc_status: "rejected" })
-          .eq("mangopay_user_id", event.RessourceId);
+          .select("user_id, display_name, store_name")
+          .eq("mangopay_user_id", event.RessourceId)
+          .single();
+
+        if (rejectedProfile) {
+          // Update KYC status
+          await supabase
+            .from("profiles")
+            .update({ kyc_status: "rejected" })
+            .eq("user_id", rejectedProfile.user_id);
+
+          // Send notification to seller
+          await supabase.from("notifications").insert({
+            user_id: rejectedProfile.user_id,
+            type: "kyc_rejected",
+            title: "⚠️ Verificare KYC Respinsă",
+            message: "Documentele tale nu au putut fi verificate. Te rugăm să le reîncarci din Setări → Încasări.",
+            data: { kyc_status: "rejected" },
+          });
+
+          console.log("KYC rejected notification sent to:", rejectedProfile.user_id);
+        }
         break;
       }
 
       case "KYC_VALIDATION_ASKED": {
-        await supabase
+        // Get user_id from profile
+        const { data: pendingProfile } = await supabase
           .from("profiles")
-          .update({ kyc_status: "pending" })
-          .eq("mangopay_user_id", event.RessourceId);
+          .select("user_id, display_name, store_name")
+          .eq("mangopay_user_id", event.RessourceId)
+          .single();
+
+        if (pendingProfile) {
+          // Update KYC status
+          await supabase
+            .from("profiles")
+            .update({ kyc_status: "pending" })
+            .eq("user_id", pendingProfile.user_id);
+
+          // Send notification to seller
+          await supabase.from("notifications").insert({
+            user_id: pendingProfile.user_id,
+            type: "kyc_submitted",
+            title: "📋 Documente KYC în Procesare",
+            message: "Documentele tale sunt în curs de verificare. Vei primi o notificare când procesul este finalizat.",
+            data: { kyc_status: "pending" },
+          });
+
+          console.log("KYC pending notification sent to:", pendingProfile.user_id);
+        }
         break;
       }
 
