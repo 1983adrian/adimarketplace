@@ -2,10 +2,27 @@ import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
-import { MessageCircle, Image } from 'lucide-react';
+import { MessageCircle, Image, Trash2, MoreVertical } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface ConversationListProps {
   conversations: any[];
@@ -13,6 +30,7 @@ interface ConversationListProps {
   selectedId?: string;
   currentUserId: string;
   onSelect: (conversation: any) => void;
+  onDelete?: (conversationId: string) => void;
 }
 
 export const ConversationList: React.FC<ConversationListProps> = ({
@@ -21,8 +39,11 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   selectedId,
   currentUserId,
   onSelect,
+  onDelete,
 }) => {
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState<string | null>(null);
 
   // Fetch unread counts for each conversation
   useEffect(() => {
@@ -65,6 +86,20 @@ export const ConversationList: React.FC<ConversationListProps> = ({
            content.includes('supabase.co/storage');
   };
 
+  const handleDeleteClick = (e: React.MouseEvent, conversationId: string) => {
+    e.stopPropagation();
+    setConversationToDelete(conversationId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (conversationToDelete && onDelete) {
+      onDelete(conversationToDelete);
+    }
+    setDeleteDialogOpen(false);
+    setConversationToDelete(null);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-0 bg-white h-full">
@@ -105,62 +140,111 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             return (
               <div
                 key={conversation.id}
-                onClick={() => onSelect(conversation)}
                 className={`flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-gray-50 ${
                   isSelected ? 'bg-gray-100' : ''
                 }`}
               >
-                {/* User Avatar */}
-                <div className="relative flex-shrink-0">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={otherUser?.avatar_url || ''} />
-                    <AvatarFallback className="bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white">
-                      {getInitials(otherUser?.display_name || otherUser?.username)}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <div className="flex items-center gap-2">
-                      <p className={`font-medium truncate ${unreadCount > 0 ? 'text-gray-900 font-semibold' : 'text-gray-700'}`}>
-                        {otherUser?.display_name || otherUser?.username || 'Utilizator'}
-                      </p>
-                    </div>
-                    <span className={`text-xs flex-shrink-0 ${unreadCount > 0 ? 'text-[#25D366] font-medium' : 'text-gray-400'}`}>
-                      {formatDistanceToNow(new Date(conversation.updated_at), {
-                        addSuffix: false,
-                        locale: ro,
-                      })}
-                    </span>
+                {/* Clickable area for selecting conversation */}
+                <div 
+                  className="flex items-center gap-3 flex-1 min-w-0"
+                  onClick={() => onSelect(conversation)}
+                >
+                  {/* User Avatar */}
+                  <div className="relative flex-shrink-0">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={otherUser?.avatar_url || ''} />
+                      <AvatarFallback className="bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white">
+                        {getInitials(otherUser?.display_name || otherUser?.username)}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   
-                  <div className="flex items-center justify-between">
-                    <p className={`text-sm truncate flex items-center gap-1 ${unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                      {isImageUrl(conversation.last_message) ? (
-                        <>
-                          <Image className="h-3.5 w-3.5" />
-                          <span>Imagine</span>
-                        </>
-                      ) : conversation.last_message ? (
-                        conversation.last_message
-                      ) : (
-                        <span className="text-gray-400 italic">Niciun mesaj încă</span>
-                      )}
-                    </p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <div className="flex items-center gap-2">
+                        <p className={`font-medium truncate ${unreadCount > 0 ? 'text-gray-900 font-semibold' : 'text-gray-700'}`}>
+                          {otherUser?.display_name || otherUser?.username || 'Utilizator'}
+                        </p>
+                      </div>
+                      <span className={`text-xs flex-shrink-0 ${unreadCount > 0 ? 'text-[#25D366] font-medium' : 'text-gray-400'}`}>
+                        {formatDistanceToNow(new Date(conversation.updated_at), {
+                          addSuffix: false,
+                          locale: ro,
+                        })}
+                      </span>
+                    </div>
                     
-                    {unreadCount > 0 && (
-                      <Badge className="bg-[#25D366] hover:bg-[#25D366] text-white text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full px-1.5">
-                        {unreadCount}
-                      </Badge>
-                    )}
+                    <div className="flex items-center justify-between">
+                      <p className={`text-sm truncate flex items-center gap-1 ${unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+                        {isImageUrl(conversation.last_message) ? (
+                          <>
+                            <Image className="h-3.5 w-3.5" />
+                            <span>Imagine</span>
+                          </>
+                        ) : conversation.last_message ? (
+                          conversation.last_message
+                        ) : (
+                          <span className="text-gray-400 italic">Niciun mesaj încă</span>
+                        )}
+                      </p>
+                      
+                      {unreadCount > 0 && (
+                        <Badge className="bg-[#25D366] hover:bg-[#25D366] text-white text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full px-1.5">
+                          {unreadCount}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </div>
+
+                {/* Delete button */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 flex-shrink-0 text-gray-400 hover:text-gray-600"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem 
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                      onClick={(e) => handleDeleteClick(e, conversation.id)}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Șterge conversația
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             );
           })
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Șterge conversația?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Această acțiune nu poate fi anulată. Toate mesajele din această conversație vor fi șterse permanent.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
