@@ -5,10 +5,12 @@ import {
   Package, 
   ShoppingBag,
   GraduationCap,
+  MessageCircle,
   LucideIcon,
   Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 
 interface MenuItem {
   id: string;
@@ -56,11 +58,20 @@ const mainItems: MenuItem[] = [
     icon: ShoppingBag,
     activeColor: 'bg-gradient-to-br from-emerald-400 to-green-600'
   },
+  { 
+    id: 'messages',
+    title: 'Mesaje', 
+    description: 'Conversații și chat...',
+    url: '/messages', 
+    icon: MessageCircle,
+    activeColor: 'bg-gradient-to-br from-green-500 to-emerald-600'
+  },
 ];
 
 export const SellerQuickActions: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { data: unreadCount = 0 } = useUnreadMessages();
 
   const isActive = (url: string) => {
     const baseUrl = url.split('?')[0];
@@ -69,11 +80,12 @@ export const SellerQuickActions: React.FC = () => {
 
   return (
     <div className="mb-8">
-      {/* Grid 2x2 for 4 items */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Grid 2x3 for 5 items */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {mainItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.url);
+          const showBadge = item.id === 'messages' && unreadCount > 0;
           
           return (
             <Link 
@@ -91,6 +103,13 @@ export const SellerQuickActions: React.FC = () => {
                 <div className="absolute -top-2 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold shadow-lg">
                   <Sparkles className="h-3 w-3" />
                   PRO
+                </div>
+              )}
+              
+              {/* Unread Messages Badge */}
+              {showBadge && (
+                <div className="absolute -top-2 -right-2 min-w-[22px] h-[22px] flex items-center justify-center px-1.5 rounded-full bg-red-500 text-white text-xs font-bold shadow-lg animate-pulse">
+                  {unreadCount > 99 ? '99+' : unreadCount}
                 </div>
               )}
               
