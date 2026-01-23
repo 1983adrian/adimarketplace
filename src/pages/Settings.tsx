@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   User, Store, Bell, Shield, MapPin, Save, 
-  Wallet, Package, Building2, EyeOff, Globe,
-  Plus, GraduationCap, ShoppingBag, ClipboardList, MessageCircle, LayoutDashboard, Settings as SettingsIcon, Sparkles
+  Wallet, Package, Building2, EyeOff, Globe
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -66,7 +64,7 @@ const Settings = () => {
   const { language, setLanguage } = useLanguage();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { data: unreadMessages = 0 } = useUnreadMessages();
+  
   
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
@@ -198,113 +196,6 @@ const Settings = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           
-          {/* Quick Actions Section - like in the image */}
-          <div className="mb-8 space-y-4">
-            {/* User Info Card */}
-            <div className="flex items-center gap-4 p-4 bg-muted/50 rounded-2xl">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-xl font-bold text-primary-foreground overflow-hidden">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  profile?.display_name?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'
-                )}
-              </div>
-              <div>
-                <p className="font-semibold text-lg">{profile?.display_name || 'Utilizator'}</p>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
-              </div>
-            </div>
-
-            {/* ACȚIUNI RAPIDE */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-                <Sparkles className="h-4 w-4" />
-                ACȚIUNI RAPIDE
-              </div>
-              
-              {/* Main CTA - Adaugă Produs */}
-              <Button asChild className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 text-white rounded-2xl shadow-lg">
-                <Link to="/sell" className="flex items-center gap-3">
-                  <Plus className="h-6 w-6" />
-                  Adaugă Produs
-                </Link>
-              </Button>
-
-              {/* Action Buttons Grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <Button asChild variant="ghost" className="h-14 justify-start gap-3 rounded-xl hover:bg-pink-50 dark:hover:bg-pink-950/20">
-                  <Link to="/seller-tutorial">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-rose-400 flex items-center justify-center">
-                      <GraduationCap className="h-5 w-5 text-white" />
-                    </div>
-                    <span className="font-medium">Tutorial PRO</span>
-                  </Link>
-                </Button>
-
-                <Button asChild variant="ghost" className="h-14 justify-start gap-3 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-950/20">
-                  <Link to="/dashboard?tab=listings">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-400 flex items-center justify-center">
-                      <ShoppingBag className="h-5 w-5 text-white" />
-                    </div>
-                    <span className="font-medium">Produsele Mele</span>
-                  </Link>
-                </Button>
-
-                <Button asChild variant="ghost" className="h-14 justify-start gap-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-950/20">
-                  <Link to="/orders">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-400 flex items-center justify-center">
-                      <ClipboardList className="h-5 w-5 text-white" />
-                    </div>
-                    <span className="font-medium">Comenzi Active</span>
-                  </Link>
-                </Button>
-
-                <Button asChild variant="ghost" className="h-14 justify-start gap-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-950/20 relative">
-                  <Link to="/messages">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-600 to-teal-500 flex items-center justify-center relative">
-                      <MessageCircle className="h-5 w-5 text-white" />
-                      {unreadMessages > 0 && (
-                        <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                          {unreadMessages > 9 ? '9+' : unreadMessages}
-                        </span>
-                      )}
-                    </div>
-                    <span className="font-medium">Mesaje</span>
-                    {unreadMessages > 0 && (
-                      <span className="ml-auto w-6 h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                        {unreadMessages > 9 ? '9+' : unreadMessages}
-                      </span>
-                    )}
-                  </Link>
-                </Button>
-              </div>
-            </div>
-
-            {/* CONT Section */}
-            <div className="space-y-2 pt-4">
-              <p className="text-muted-foreground font-semibold text-sm">CONT</p>
-              
-              <Button asChild variant="ghost" className="w-full h-12 justify-start gap-3 rounded-xl">
-                <Link to="/dashboard">
-                  <User className="h-5 w-5 text-muted-foreground" />
-                  <span>Tabloul Meu</span>
-                </Link>
-              </Button>
-
-              <Button asChild variant="ghost" className="w-full h-12 justify-start gap-3 rounded-xl">
-                <Link to="/dashboard?tab=wallet">
-                  <Wallet className="h-5 w-5 text-muted-foreground" />
-                  <span>Portofel & Încasări</span>
-                </Link>
-              </Button>
-
-              <Button variant="ghost" className="w-full h-12 justify-start gap-3 rounded-xl bg-primary/5 border border-primary/20">
-                <SettingsIcon className="h-5 w-5 text-primary" />
-                <span className="text-primary font-medium">Setări</span>
-              </Button>
-            </div>
-          </div>
-
           <h2 className="text-2xl font-bold mb-6">Setări Cont</h2>
           
           <Tabs defaultValue="profile" className="space-y-6">
