@@ -200,7 +200,79 @@ const createFriendSoundBuffer = async (audioContext: AudioContext): Promise<Audi
   return buffer;
 };
 
-export type NotificationSoundType = 'message' | 'order' | 'payout' | 'shipping' | 'bid' | 'general' | 'cancel' | 'friend';
+// Favorite/Save sound - heart beat with magical sparkle
+const createFavoriteSoundBuffer = async (audioContext: AudioContext): Promise<AudioBuffer> => {
+  const sampleRate = audioContext.sampleRate;
+  const duration = 0.35;
+  const samples = sampleRate * duration;
+  const buffer = audioContext.createBuffer(1, samples, sampleRate);
+  const channelData = buffer.getChannelData(0);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    let sample = 0;
+    
+    // First "pop" - like a heart beat
+    if (t < 0.08) {
+      const envelope = Math.exp(-t * 40);
+      sample += Math.sin(2 * Math.PI * 400 * t) * envelope * 0.6;
+      sample += Math.sin(2 * Math.PI * 600 * t) * envelope * 0.3;
+    }
+    
+    // Magical sparkle ascending
+    if (t > 0.05 && t < 0.25) {
+      const localT = t - 0.05;
+      const envelope = Math.exp(-localT * 8);
+      const freq = 800 + localT * 3000; // Sweep up
+      sample += Math.sin(2 * Math.PI * freq * localT) * envelope * 0.25;
+    }
+    
+    // Final soft chime
+    if (t > 0.12) {
+      const localT = t - 0.12;
+      const envelope = Math.exp(-localT * 6);
+      sample += Math.sin(2 * Math.PI * 1200 * localT) * envelope * 0.2;
+      sample += Math.sin(2 * Math.PI * 1500 * localT) * envelope * 0.15;
+    }
+    
+    channelData[i] = sample * 0.5;
+  }
+
+  return buffer;
+};
+
+// Bell/Notification sound - classic bell ding
+const createBellSoundBuffer = async (audioContext: AudioContext): Promise<AudioBuffer> => {
+  const sampleRate = audioContext.sampleRate;
+  const duration = 0.6;
+  const samples = sampleRate * duration;
+  const buffer = audioContext.createBuffer(1, samples, sampleRate);
+  const channelData = buffer.getChannelData(0);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    
+    // Bell frequencies (fundamental + harmonics)
+    const f1 = 880; // A5
+    const f2 = 1760; // A6
+    const f3 = 2640; // E7
+    
+    const envelope = Math.exp(-t * 5);
+    const strike = t < 0.02 ? (1 - t / 0.02) * 0.3 : 0;
+    
+    let sample = 0;
+    sample += Math.sin(2 * Math.PI * f1 * t) * envelope * 0.4;
+    sample += Math.sin(2 * Math.PI * f2 * t) * envelope * 0.25;
+    sample += Math.sin(2 * Math.PI * f3 * t) * envelope * 0.15;
+    sample += strike * (Math.random() * 2 - 1);
+    
+    channelData[i] = sample * 0.5;
+  }
+
+  return buffer;
+};
+
+export type NotificationSoundType = 'message' | 'order' | 'payout' | 'shipping' | 'bid' | 'general' | 'cancel' | 'friend' | 'favorite' | 'bell';
 
 export const useNotificationSound = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -214,13 +286,15 @@ export const useNotificationSound = () => {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       
       // Pre-generate all sound buffers
-      const [messageBuf, saleBuf, payoutBuf, shippingBuf, cancelBuf, friendBuf] = await Promise.all([
+      const [messageBuf, saleBuf, payoutBuf, shippingBuf, cancelBuf, friendBuf, favoriteBuf, bellBuf] = await Promise.all([
         createNotificationSoundBuffer(audioContextRef.current),
         createSaleSoundBuffer(audioContextRef.current),
         createPayoutSoundBuffer(audioContextRef.current),
         createShippingSoundBuffer(audioContextRef.current),
         createCancelSoundBuffer(audioContextRef.current),
         createFriendSoundBuffer(audioContextRef.current),
+        createFavoriteSoundBuffer(audioContextRef.current),
+        createBellSoundBuffer(audioContextRef.current),
       ]);
       
       soundBuffersRef.current.set('message', messageBuf);
@@ -230,6 +304,8 @@ export const useNotificationSound = () => {
       soundBuffersRef.current.set('shipping', shippingBuf);
       soundBuffersRef.current.set('cancel', cancelBuf);
       soundBuffersRef.current.set('friend', friendBuf);
+      soundBuffersRef.current.set('favorite', favoriteBuf);
+      soundBuffersRef.current.set('bell', bellBuf);
       soundBuffersRef.current.set('general', messageBuf); // Default
       
       initializedRef.current = true;
@@ -290,6 +366,8 @@ export const useNotificationSound = () => {
     playBidSound: () => playSound('bid'),
     playCancelSound: () => playSound('cancel'),
     playFriendSound: () => playSound('friend'),
+    playFavoriteSound: () => playSound('favorite'),
+    playBellSound: () => playSound('bell'),
     initializeAudio 
   };
 };

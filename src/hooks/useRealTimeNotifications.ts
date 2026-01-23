@@ -130,7 +130,7 @@ export const useRealTimeNotifications = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const { playSound } = useNotificationSound();
+  const { playSound, playBellSound } = useNotificationSound();
   const hasRequestedPermission = useRef(false);
 
   // Request browser notification permission on mount
@@ -163,7 +163,7 @@ export const useRealTimeNotifications = () => {
             notification.type === 'message' ? 'message' :
             notification.type === 'payout' ? 'payout' :
             notification.type === 'shipping' ? 'shipping' :
-            'general';
+            'bell'; // Default to bell sound for general notifications
           
           playSound(soundType);
           
