@@ -1722,6 +1722,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_generalized_location: { Args: { loc: string }; Returns: string }
+      get_public_seller_profile: {
+        Args: { seller_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          created_at: string
+          display_name: string
+          is_seller: boolean
+          is_verified: boolean
+          store_name: string
+          user_id: string
+          username: string
+        }[]
+      }
       get_user_special_status: {
         Args: { check_user_id: string }
         Returns: Json
