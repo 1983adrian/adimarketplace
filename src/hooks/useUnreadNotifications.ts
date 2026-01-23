@@ -16,11 +16,15 @@ export const useUnreadNotifications = () => {
         .eq('user_id', user.id)
         .eq('is_read', false);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching unread notifications:', error);
+        return 0;
+      }
       return count || 0;
     },
     enabled: !!user,
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 30000,
+    staleTime: 10000,
   });
 };
 
