@@ -94,34 +94,37 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* BUTOANE - Grid direct pe pagină */}
-        <div className="grid grid-cols-2 gap-3">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const badgeCount = item.showBadge === 'messages' ? unreadMessages : 0;
-            
-            return (
-              <Link 
-                key={item.id}
-                to={item.url}
-                className="relative flex flex-col items-center p-4 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-lg transition-all duration-200"
-              >
-                {badgeCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-xs font-bold">
-                    {badgeCount > 99 ? '99+' : badgeCount}
+        {/* UN SINGUR PĂTRAT cu toate butoanele */}
+        <div className="bg-card border-2 border-border rounded-3xl p-6 shadow-lg">
+          <h2 className="text-xl font-bold text-center mb-4">Meniu</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const badgeCount = item.showBadge === 'messages' ? unreadMessages : 0;
+              
+              return (
+                <Link 
+                  key={item.id}
+                  to={item.url}
+                  className="relative flex flex-col items-center p-3 rounded-xl bg-muted/50 hover:bg-muted transition-all duration-200"
+                >
+                  {badgeCount > 0 && (
+                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                      {badgeCount > 99 ? '99+' : badgeCount}
+                    </span>
+                  )}
+                  
+                  <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center mb-2", item.color)}>
+                    <Icon className="h-5 w-5 text-white" strokeWidth={2} />
+                  </div>
+                  
+                  <span className="text-xs font-medium text-foreground text-center">
+                    {item.title}
                   </span>
-                )}
-                
-                <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-2", item.color)}>
-                  <Icon className="h-6 w-6 text-white" strokeWidth={2} />
-                </div>
-                
-                <span className="text-sm font-medium text-foreground text-center">
-                  {item.title}
-                </span>
-              </Link>
-            );
-          })}
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
       </div>
