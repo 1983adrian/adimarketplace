@@ -308,28 +308,14 @@ const Settings = () => {
           <h2 className="text-2xl font-bold mb-6">Setări Cont</h2>
           
           <Tabs defaultValue="profile" className="space-y-6">
-            {/* Simplified 4-tab navigation with large icons - Amazon/eBay style */}
-            <TabsList className="w-full grid grid-cols-4 gap-2 h-auto p-2 bg-muted/50 rounded-2xl">
+            {/* Simplified 2-tab navigation */}
+            <TabsList className="w-full grid grid-cols-2 gap-2 h-auto p-2 bg-muted/50 rounded-2xl">
               <TabsTrigger 
                 value="profile" 
                 className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg transition-all duration-300"
               >
                 <User className="h-6 w-6" />
-                <span className="text-xs font-medium">Profil</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="seller" 
-                className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl data-[state=active]:bg-amber-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-              >
-                <Store className="h-6 w-6" />
-                <span className="text-xs font-medium">Magazin</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="payouts" 
-                className="flex flex-col items-center gap-2 py-4 px-3 rounded-xl data-[state=active]:bg-green-500 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300"
-              >
-                <Wallet className="h-6 w-6" />
-                <span className="text-xs font-medium">Bani</span>
+                <span className="text-xs font-medium">Profil Complet</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="security" 
@@ -340,26 +326,25 @@ const Settings = () => {
               </TabsTrigger>
             </TabsList>
 
-            {/* Tab Profil */}
-            <TabsContent value="profile">
+            {/* Tab Profil Complet - Tot într-un singur loc */}
+            <TabsContent value="profile" className="space-y-6">
+              {/* Avatar & Basic Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Informații Profil</CardTitle>
-                  <CardDescription>Actualizează informațiile personale vizibile pentru alți utilizatori</CardDescription>
+                  <CardTitle>Informații Personale</CardTitle>
+                  <CardDescription>Avatar, nume și date de contact</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <AvatarUpload
                     currentAvatarUrl={profile?.avatar_url || null}
                     displayName={displayName || user?.email || 'User'}
                     userId={user?.id || ''}
-                    onAvatarChange={(url) => {
-                      // Profile se va actualiza automat prin refetch
-                    }}
+                    onAvatarChange={(url) => {}}
                   />
                   
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="displayName">Nume Afișat</Label>
+                      <Label htmlFor="displayName">Nume Afișat *</Label>
                       <Input 
                         id="displayName" 
                         value={displayName} 
@@ -381,18 +366,6 @@ const Settings = () => {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input id="email" value={user?.email || ''} disabled className="bg-muted" />
-                    <p className="text-xs text-muted-foreground">Email-ul nu poate fi schimbat</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="bio">Descriere</Label>
-                    <Textarea 
-                      id="bio" 
-                      value={bio} 
-                      onChange={(e) => setBio(e.target.value)}
-                      placeholder="Spune-le altora despre tine..."
-                      rows={3}
-                    />
                   </div>
 
                   <div className="grid gap-4 md:grid-cols-2">
@@ -423,13 +396,21 @@ const Settings = () => {
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="0712 345 678"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Numărul tău de telefon este vizibil doar pentru tine și nu va fi partajat cu alți utilizatori.
-                      </p>
                     </div>
                   </div>
 
-                  {/* Language Selector - Simplified */}
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">Descriere Profil / Magazin</Label>
+                    <Textarea 
+                      id="bio" 
+                      value={bio} 
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="Spune-le altora despre tine..."
+                      rows={3}
+                    />
+                  </div>
+
+                  {/* Language Selector */}
                   <div className="space-y-2 pt-4 border-t">
                     <Label>Limbă platformă</Label>
                     <Select 
@@ -457,34 +438,28 @@ const Settings = () => {
                     onClick={handleSaveProfile} 
                     disabled={saving} 
                     size="lg"
-                    className="gap-2 w-full sm:w-auto bg-primary hover:bg-primary/90 shadow-lg text-base font-semibold"
+                    className="gap-2 w-full sm:w-auto bg-primary hover:bg-primary/90 shadow-lg"
                   >
                     <Save className="h-5 w-5" />
-                    {saving ? 'Se salvează...' : 'Salvează'}
+                    {saving ? 'Se salvează...' : 'Salvează Profil'}
                   </Button>
                 </CardContent>
               </Card>
-            </TabsContent>
 
-            {/* Tab Limbă removed - moved to Profile */}
-
-            {/* Tab Încasări (Vânzător) - IBAN/Card */}
-            <TabsContent value="payouts">
-              <PayoutSection />
-            </TabsContent>
-
-            {/* Tab Vânzător / Magazin */}
-            <TabsContent value="seller">
+              {/* Seller Mode & Store */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Setări Magazin</CardTitle>
-                  <CardDescription>Gestionează profilul și preferințele de vânzător</CardDescription>
+                  <CardTitle className="flex items-center gap-2">
+                    <Store className="h-5 w-5 text-amber-500" />
+                    Mod Vânzător
+                  </CardTitle>
+                  <CardDescription>Activează pentru a lista produse de vânzare</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-4">
                   <div className="flex items-center justify-between p-4 rounded-lg border">
                     <div className="space-y-1">
-                      <p className="font-medium">Mod Vânzător</p>
-                      <p className="text-sm text-muted-foreground">Activează pentru a lista articole de vânzare</p>
+                      <p className="font-medium">Activează Modul Vânzător</p>
+                      <p className="text-sm text-muted-foreground">Permite listarea produselor</p>
                     </div>
                     <Switch 
                       checked={isSeller} 
@@ -494,63 +469,34 @@ const Settings = () => {
 
                   {isSeller && (
                     <>
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="storeName">Nume Magazin *</Label>
-                          <Input 
-                            id="storeName"
-                            value={storeName}
-                            onChange={(e) => setStoreName(e.target.value)}
-                            placeholder="Magazinul Meu Super" 
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            Acest nume va fi afișat pe toate produsele tale
-                          </p>
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Descriere Magazin</Label>
-                          <Textarea 
-                            value={bio}
-                            onChange={(e) => setBio(e.target.value)}
-                            placeholder="Spune-le cumpărătorilor despre magazinul tău..." 
-                            rows={3} 
-                          />
-                        </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="storeName">Nume Magazin *</Label>
+                        <Input 
+                          id="storeName"
+                          value={storeName}
+                          onChange={(e) => setStoreName(e.target.value)}
+                          placeholder="Magazinul Meu" 
+                        />
                       </div>
 
                       <Alert>
                         <Package className="h-4 w-4" />
                         <AlertDescription>
-                          <strong>Limită produse:</strong> Poți avea maxim 10 produse active simultan. Vânzările sunt nelimitate!
+                          <strong>Limită:</strong> Max 10 produse active simultan. Vânzările sunt nelimitate!
                         </AlertDescription>
                       </Alert>
 
-                      <Alert className="border-primary/20 bg-primary/5">
-                        <Building2 className="h-4 w-4" />
-                        <AlertDescription>
-                          <strong>Livrare:</strong> Costul și curierul de livrare se setează la crearea fiecărui anunț. 
-                          Du-te la <strong>Vinde</strong> pentru a adăuga un produs nou.
-                        </AlertDescription>
-                      </Alert>
-
-                      {/* Terms and Conditions - only show if not accepted before */}
+                      {/* Terms - only if not accepted */}
                       {!hasAcceptedTermsBefore && (
                         <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 space-y-3">
                           <div className="flex items-start gap-3">
                             <Shield className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                             <div className="space-y-2">
-                              <h4 className="font-semibold text-primary">Termeni și Condiții Vânzător</h4>
-                              <p className="text-sm text-muted-foreground">
-                                Pentru a deveni vânzător pe platformă, trebuie să accepți Termenii și Condițiile noastre. 
-                                Aceasta include responsabilitățile tale privind:
-                              </p>
+                              <h4 className="font-semibold text-primary">Termeni Vânzător</h4>
                               <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-                                <li>Descrierea corectă și onestă a produselor</li>
-                                <li>Expedierea la timp a comenzilor</li>
+                                <li>Descriere corectă a produselor</li>
+                                <li>Expediere la timp</li>
                                 <li>Respectarea politicii de returnări</li>
-                                <li>Conformitatea cu legislația în vigoare</li>
-                                <li>Acceptarea comisioanelor platformei</li>
-                                <li>Actualizările ulterioare ale termenilor</li>
                               </ul>
                             </div>
                           </div>
@@ -560,11 +506,10 @@ const Settings = () => {
                               id="sellerTerms"
                               checked={sellerTermsAccepted}
                               onChange={(e) => setSellerTermsAccepted(e.target.checked)}
-                              className="h-5 w-5 rounded border-primary text-primary focus:ring-primary cursor-pointer"
+                              className="h-5 w-5 rounded border-primary text-primary cursor-pointer"
                             />
-                            <label htmlFor="sellerTerms" className="text-sm font-medium cursor-pointer">
-                              Accept <a href="/terms-of-service" target="_blank" className="text-primary underline hover:no-underline">Termenii și Condițiile</a> platformei, 
-                              inclusiv modificările ulterioare *
+                            <label htmlFor="sellerTerms" className="text-sm cursor-pointer">
+                              Accept <a href="/terms-of-service" target="_blank" className="text-primary underline">Termenii</a> *
                             </label>
                           </div>
                         </div>
@@ -574,7 +519,7 @@ const Settings = () => {
                         <Alert className="border-green-500/30 bg-green-500/10">
                           <Shield className="h-4 w-4 text-green-600" />
                           <AlertDescription className="text-green-700">
-                            <strong>✓ Termeni acceptați</strong> - Ai acceptat Termenii și Condițiile pentru vânzători.
+                            ✓ Termeni acceptați
                           </AlertDescription>
                         </Alert>
                       )}
@@ -585,16 +530,17 @@ const Settings = () => {
                     onClick={handleSaveSellerSettings} 
                     disabled={saving || (isSeller && !hasAcceptedTermsBefore && !sellerTermsAccepted)} 
                     size="lg"
-                    className="gap-2 w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg hover:shadow-xl transition-all duration-300 text-base font-semibold disabled:opacity-50"
+                    className="gap-2 w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
                   >
                     <Save className="h-5 w-5" />
-                    {saving ? 'Se salvează...' : 'Salvează Setările Magazin'}
+                    {saving ? 'Se salvează...' : 'Salvează Magazin'}
                   </Button>
                 </CardContent>
               </Card>
-            </TabsContent>
 
-            {/* Tab Notificări removed - simplified to security tab */}
+              {/* Payout / Bank Details - Integrated */}
+              <PayoutSection />
+            </TabsContent>
 
             {/* Tab Securitate */}
             <TabsContent value="security">
@@ -604,26 +550,21 @@ const Settings = () => {
                   <CardDescription>Gestionează securitatea contului</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-4">
-                    {/* Componenta pentru resetare/schimbare parolă */}
-                    <PasswordReset userEmail={user?.email || ''} />
+                  <PasswordReset userEmail={user?.email || ''} />
 
-                    {/* Informații date private */}
-                    <Card className="border-primary/20 bg-primary/5">
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3">
-                          <EyeOff className="h-5 w-5 text-primary mt-0.5" />
-                          <div>
-                            <p className="font-medium">Protecția Datelor Personale</p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Numărul tău de telefon și adresa sunt vizibile doar pentru tine. 
-                              Aceste informații nu sunt partajate cu alți utilizatori sau vânzători fără acordul tău explicit.
-                            </p>
-                          </div>
+                  <Card className="border-primary/20 bg-primary/5">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <EyeOff className="h-5 w-5 text-primary mt-0.5" />
+                        <div>
+                          <p className="font-medium">Protecția Datelor</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Telefonul și adresa sunt vizibile doar pentru tine.
+                          </p>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
