@@ -272,7 +272,45 @@ const createBellSoundBuffer = async (audioContext: AudioContext): Promise<AudioB
   return buffer;
 };
 
-export type NotificationSoundType = 'message' | 'order' | 'payout' | 'shipping' | 'bid' | 'general' | 'cancel' | 'friend' | 'favorite' | 'bell';
+// Refund sound - reassuring chime with coins returning
+const createRefundSoundBuffer = async (audioContext: AudioContext): Promise<AudioBuffer> => {
+  const sampleRate = audioContext.sampleRate;
+  const duration = 0.6;
+  const samples = sampleRate * duration;
+  const buffer = audioContext.createBuffer(1, samples, sampleRate);
+  const channelData = buffer.getChannelData(0);
+
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    let sample = 0;
+    
+    // Reassuring ascending tones
+    const frequencies = [440, 554.37, 659.25, 880]; // A4, C#5, E5, A5
+    
+    frequencies.forEach((freq, idx) => {
+      const startTime = idx * 0.1;
+      if (t >= startTime) {
+        const localT = t - startTime;
+        const envelope = Math.exp(-localT * 6);
+        sample += Math.sin(2 * Math.PI * freq * localT) * envelope * 0.25;
+      }
+    });
+    
+    // Add soft "ding" at the end
+    if (t > 0.35) {
+      const localT = t - 0.35;
+      const envelope = Math.exp(-localT * 4);
+      sample += Math.sin(2 * Math.PI * 1046.5 * localT) * envelope * 0.2; // C6
+      sample += Math.sin(2 * Math.PI * 1318.51 * localT) * envelope * 0.15; // E6
+    }
+    
+    channelData[i] = sample * 0.5;
+  }
+
+  return buffer;
+};
+
+export type NotificationSoundType = 'message' | 'order' | 'payout' | 'shipping' | 'bid' | 'general' | 'cancel' | 'friend' | 'favorite' | 'bell' | 'refund';
 
 export const useNotificationSound = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -286,7 +324,7 @@ export const useNotificationSound = () => {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       
       // Pre-generate all sound buffers
-      const [messageBuf, saleBuf, payoutBuf, shippingBuf, cancelBuf, friendBuf, favoriteBuf, bellBuf] = await Promise.all([
+      const [messageBuf, saleBuf, payoutBuf, shippingBuf, cancelBuf, friendBuf, favoriteBuf, bellBuf, refundBuf] = await Promise.all([
         createNotificationSoundBuffer(audioContextRef.current),
         createSaleSoundBuffer(audioContextRef.current),
         createPayoutSoundBuffer(audioContextRef.current),
@@ -295,6 +333,7 @@ export const useNotificationSound = () => {
         createFriendSoundBuffer(audioContextRef.current),
         createFavoriteSoundBuffer(audioContextRef.current),
         createBellSoundBuffer(audioContextRef.current),
+        createRefundSoundBuffer(audioContextRef.current),
       ]);
       
       soundBuffersRef.current.set('message', messageBuf);
@@ -306,6 +345,7 @@ export const useNotificationSound = () => {
       soundBuffersRef.current.set('friend', friendBuf);
       soundBuffersRef.current.set('favorite', favoriteBuf);
       soundBuffersRef.current.set('bell', bellBuf);
+      soundBuffersRef.current.set('refund', refundBuf);
       soundBuffersRef.current.set('general', messageBuf); // Default
       
       initializedRef.current = true;
@@ -368,6 +408,7 @@ export const useNotificationSound = () => {
     playFriendSound: () => playSound('friend'),
     playFavoriteSound: () => playSound('favorite'),
     playBellSound: () => playSound('bell'),
+    playRefundSound: () => playSound('refund'),
     initializeAudio 
   };
 };
