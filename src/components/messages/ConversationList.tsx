@@ -102,13 +102,13 @@ export const ConversationList: React.FC<ConversationListProps> = ({
 
   if (isLoading) {
     return (
-      <div className="space-y-0 bg-white h-full">
+      <div className="space-y-0 h-full" style={{ background: 'linear-gradient(180deg, hsl(215 30% 14%) 0%, hsl(215 30% 10%) 100%)' }}>
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 border-b">
-            <Skeleton className="h-12 w-12 rounded-full" />
+          <div key={i} className="flex items-center gap-3 p-3 border-b border-white/10">
+            <Skeleton className="h-12 w-12 rounded-full bg-white/10" />
             <div className="flex-1 space-y-2">
-              <Skeleton className="h-4 w-24" />
-              <Skeleton className="h-3 w-full" />
+              <Skeleton className="h-4 w-24 bg-white/10" />
+              <Skeleton className="h-3 w-full bg-white/10" />
             </div>
           </div>
         ))}
@@ -117,19 +117,21 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-white">
-      {/* Header */}
-      <div className="sticky top-0 bg-gradient-to-r from-[#075E54] to-[#128C7E] text-white px-4 py-3 z-10">
+    <div className="h-full overflow-y-auto" style={{ background: 'linear-gradient(180deg, hsl(215 30% 14%) 0%, hsl(215 30% 10%) 100%)' }}>
+      {/* Header - Premium dark blue style */}
+      <div className="sticky top-0 bg-gradient-to-r from-[hsl(215_30%_18%)] to-[hsl(215_30%_14%)] text-white px-4 py-3 z-10 shadow-lg border-b border-white/10">
         <h2 className="font-bold text-lg">Chat</h2>
       </div>
 
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-white/10">
         {/* Conversations */}
         {conversations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 p-8 text-center text-muted-foreground">
-            <MessageCircle className="h-12 w-12 mb-4 opacity-50" />
-            <p className="font-medium">Nicio conversație</p>
-            <p className="text-sm">Începe o conversație din pagina unui produs</p>
+          <div className="flex flex-col items-center justify-center h-64 p-8 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/60 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary/20">
+              <MessageCircle className="h-8 w-8 text-white" />
+            </div>
+            <p className="font-medium text-white">Nicio conversație</p>
+            <p className="text-sm text-white/50">Începe o conversație din pagina unui produs</p>
           </div>
         ) : (
           conversations.map((conversation) => {
@@ -140,8 +142,8 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             return (
               <div
                 key={conversation.id}
-                className={`flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-gray-50 ${
-                  isSelected ? 'bg-gray-100' : ''
+                className={`flex items-center gap-3 p-3 cursor-pointer transition-all duration-200 hover:bg-white/5 ${
+                  isSelected ? 'bg-white/10 border-l-2 border-primary' : ''
                 }`}
               >
                 {/* Clickable area for selecting conversation */}
@@ -151,9 +153,9 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                 >
                   {/* User Avatar */}
                   <div className="relative flex-shrink-0">
-                    <Avatar className="h-12 w-12">
+                    <Avatar className="h-12 w-12 ring-2 ring-primary/20 shadow-lg">
                       <AvatarImage src={otherUser?.avatar_url || ''} />
-                      <AvatarFallback className="bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white">
+                      <AvatarFallback className="bg-gradient-to-br from-primary to-primary/60 text-white">
                         {getInitials(otherUser?.display_name || otherUser?.username)}
                       </AvatarFallback>
                     </Avatar>
@@ -162,11 +164,11 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-0.5">
                       <div className="flex items-center gap-2">
-                        <p className={`font-medium truncate ${unreadCount > 0 ? 'text-gray-900 font-semibold' : 'text-gray-700'}`}>
+                        <p className={`font-medium truncate ${unreadCount > 0 ? 'text-white font-semibold' : 'text-white/80'}`}>
                           {otherUser?.display_name || otherUser?.username || 'Utilizator'}
                         </p>
                       </div>
-                      <span className={`text-xs flex-shrink-0 ${unreadCount > 0 ? 'text-[#25D366] font-medium' : 'text-gray-400'}`}>
+                      <span className={`text-xs flex-shrink-0 ${unreadCount > 0 ? 'text-primary font-medium' : 'text-white/40'}`}>
                         {formatDistanceToNow(new Date(conversation.updated_at), {
                           addSuffix: false,
                           locale: ro,
@@ -175,7 +177,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <p className={`text-sm truncate flex items-center gap-1 ${unreadCount > 0 ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
+                      <p className={`text-sm truncate flex items-center gap-1 ${unreadCount > 0 ? 'text-white font-medium' : 'text-white/50'}`}>
                         {isImageUrl(conversation.last_message) ? (
                           <>
                             <Image className="h-3.5 w-3.5" />
@@ -184,12 +186,12 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                         ) : conversation.last_message ? (
                           conversation.last_message
                         ) : (
-                          <span className="text-gray-400 italic">Niciun mesaj încă</span>
+                          <span className="text-white/30 italic">Niciun mesaj încă</span>
                         )}
                       </p>
                       
                       {unreadCount > 0 && (
-                        <Badge className="bg-[#25D366] hover:bg-[#25D366] text-white text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full px-1.5">
+                        <Badge className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 text-white text-xs min-w-[20px] h-5 flex items-center justify-center rounded-full px-1.5 shadow-lg shadow-primary/30">
                           {unreadCount}
                         </Badge>
                       )}
@@ -203,15 +205,15 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="h-8 w-8 flex-shrink-0 text-gray-400 hover:text-gray-600"
+                      className="h-8 w-8 flex-shrink-0 text-white/40 hover:text-white hover:bg-white/10 rounded-full transition-all duration-200"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="bg-card/95 backdrop-blur-md border-white/10">
                     <DropdownMenuItem 
-                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                      className="text-red-500 focus:text-red-500 focus:bg-red-500/10"
                       onClick={(e) => handleDeleteClick(e, conversation.id)}
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
