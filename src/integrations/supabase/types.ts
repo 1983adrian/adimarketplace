@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_emails: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          email: string
+          id: string
+          is_active: boolean
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          email: string
+          id?: string
+          is_active?: boolean
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          email?: string
+          id?: string
+          is_active?: boolean
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -1636,6 +1660,7 @@ export type Database = {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
       }
+      is_admin_email: { Args: { check_email: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
