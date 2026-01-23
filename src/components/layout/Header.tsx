@@ -304,83 +304,26 @@ export const Header: React.FC = () => {
                           </div>
                         </div>
                         
-                        {/* PRO Actions Section */}
-                        <div className="space-y-1 border-b border-border pb-3 mb-3">
-                          <p className="text-xs font-semibold text-primary uppercase tracking-wide px-3 py-1 flex items-center gap-2">
-                            <Sparkles className="h-3 w-3" />
-                            Acțiuni Rapide
-                          </p>
-                          
-                          
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-pink-50 dark:hover:bg-pink-950/20" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/seller-tutorial">
-                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600">
-                                <GraduationCap className="h-4 w-4 text-white" />
-                              </div>
-                              <span>Tutorial PRO</span>
-                            </Link>
-                          </Button>
-                          
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-violet-50 dark:hover:bg-violet-950/20" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/dashboard?tab=listings">
-                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
-                                <Package className="h-4 w-4 text-white" />
-                              </div>
-                              <span>Produsele Mele</span>
-                            </Link>
-                          </Button>
-                          
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-emerald-50 dark:hover:bg-emerald-950/20" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/orders?tab=selling">
-                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-400 to-green-600">
-                                <ShoppingBag className="h-4 w-4 text-white" />
-                              </div>
-                              <span>Comenzi Active</span>
-                            </Link>
-                          </Button>
-                          
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-green-50 dark:hover:bg-green-950/20 relative" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/messages">
-                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 relative">
-                                <MessageCircle className="h-4 w-4 text-white" />
-                                {unreadMessages > 0 && (
-                                  <NotificationBadge count={unreadMessages} size="sm" className="-top-2 -right-2" />
-                                )}
-                              </div>
-                              <span>Mesaje</span>
-                              {unreadMessages > 0 && (
-                                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                                  {unreadMessages > 99 ? '99+' : unreadMessages}
-                                </span>
-                              )}
-                            </Link>
-                          </Button>
-                        </div>
-                        
-                        {/* Account Section */}
+                        {/* All Menu Items - Clean List */}
                         <div className="space-y-1">
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-3 py-1">
-                            Cont
-                          </p>
-                          
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-11" asChild onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-12" asChild onClick={() => setMobileMenuOpen(false)}>
                             <Link to="/dashboard">
-                              <User className="h-4 w-4" />
-                              {t('header.dashboard')}
+                              <User className="h-5 w-5" />
+                              My Dashboard
                             </Link>
                           </Button>
                           
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-11" asChild onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-12" asChild onClick={() => setMobileMenuOpen(false)}>
                             <Link to="/settings?tab=payouts">
-                              <Wallet className="h-4 w-4" />
-                              Portofel & Încasări
+                              <Bell className="h-5 w-5" />
+                              Notificări Cont
                             </Link>
                           </Button>
                           
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-11" asChild onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-12" asChild onClick={() => setMobileMenuOpen(false)}>
                             <Link to="/settings">
-                              <Settings className="h-4 w-4" />
-                              {t('header.settings')}
+                              <Settings className="h-5 w-5" />
+                              Settings
                             </Link>
                           </Button>
                         </div>
