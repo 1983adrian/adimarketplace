@@ -146,19 +146,6 @@ export const Header: React.FC = () => {
             
             {user ? (
               <>
-                <Button variant="ghost" size="icon" className="relative" asChild>
-                  <Link to="/favorites">
-                    <Heart className="h-5 w-5" />
-                  </Link>
-                </Button>
-                <Button variant="ghost" size="icon" className="relative" asChild>
-                  <Link to="/messages">
-                    <MessageCircle className="h-5 w-5" />
-                    {unreadMessages > 0 && (
-                      <NotificationBadge count={unreadMessages} size="sm" className="-top-1 -right-1" />
-                    )}
-                  </Link>
-                </Button>
                 <NotificationBell />
                 <Button asChild className="gap-2 ml-2 gradient-primary text-primary-foreground font-medium">
                   <Link to="/sell">
