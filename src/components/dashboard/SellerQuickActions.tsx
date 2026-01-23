@@ -1,143 +1,160 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { 
+  Menu,
   Plus, 
   Package, 
   ShoppingBag,
   GraduationCap,
   MessageCircle,
-  LucideIcon,
-  Sparkles
+  Wallet,
+  BarChart3,
+  Heart,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
+import { Button } from '@/components/ui/button';
 
-interface MenuItem {
-  id: string;
-  title: string;
-  description: string;
-  url: string;
-  icon: LucideIcon;
-  activeColor: string;
-  premium?: boolean;
-}
-
-// Items with their specific active colors
-// 4 main items - removed duplicates (Messages in BottomNav, Wallet in Settings)
-const mainItems: MenuItem[] = [
+const menuItems = [
   { 
     id: 'tutorial',
     title: 'Tutorial PRO', 
-    description: 'Învață să vinzi ca u...',
     url: '/seller-tutorial', 
     icon: GraduationCap, 
-    activeColor: 'bg-gradient-to-br from-pink-500 to-rose-600',
-    premium: true 
+    color: 'bg-gradient-to-br from-pink-500 to-rose-600',
   },
   { 
     id: 'sell',
     title: 'Adaugă Produs', 
-    description: 'Listează rapid un...',
     url: '/sell', 
     icon: Plus,
-    activeColor: 'bg-gradient-to-br from-cyan-400 to-blue-500'
+    color: 'bg-gradient-to-br from-cyan-400 to-blue-500'
   },
   { 
     id: 'products',
     title: 'Produsele Mele', 
-    description: 'Gestionează toate...',
     url: '/dashboard?tab=listings', 
     icon: Package,
-    activeColor: 'bg-gradient-to-br from-violet-500 to-purple-600'
+    color: 'bg-gradient-to-br from-violet-500 to-purple-600'
   },
   { 
     id: 'orders',
     title: 'Comenzi Active', 
-    description: 'Vezi și gestionează...',
     url: '/orders?tab=selling', 
     icon: ShoppingBag,
-    activeColor: 'bg-gradient-to-br from-emerald-400 to-green-600'
+    color: 'bg-gradient-to-br from-emerald-400 to-green-600'
   },
   { 
     id: 'messages',
     title: 'Mesaje', 
-    description: 'Conversații și chat...',
     url: '/messages', 
     icon: MessageCircle,
-    activeColor: 'bg-gradient-to-br from-green-500 to-emerald-600'
+    color: 'bg-gradient-to-br from-green-500 to-emerald-600',
+    showBadge: true
+  },
+  { 
+    id: 'wallet',
+    title: 'Portofel', 
+    url: '/settings?tab=payouts', 
+    icon: Wallet,
+    color: 'bg-gradient-to-br from-amber-400 to-orange-500'
+  },
+  { 
+    id: 'analytics',
+    title: 'Statistici', 
+    url: '/seller-analytics', 
+    icon: BarChart3,
+    color: 'bg-gradient-to-br from-indigo-400 to-blue-600'
+  },
+  { 
+    id: 'favorites',
+    title: 'Favorite', 
+    url: '/favorites', 
+    icon: Heart,
+    color: 'bg-gradient-to-br from-red-400 to-pink-500'
   },
 ];
 
 export const SellerQuickActions: React.FC = () => {
-  const location = useLocation();
-  const currentPath = location.pathname;
+  const [isOpen, setIsOpen] = useState(false);
   const { data: unreadCount = 0 } = useUnreadMessages();
-
-  const isActive = (url: string) => {
-    const baseUrl = url.split('?')[0];
-    return currentPath === baseUrl || currentPath.startsWith(baseUrl + '/');
-  };
 
   return (
     <div className="mb-8">
-      {/* Grid 2x3 for 5 items */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        {mainItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.url);
-          const showBadge = item.id === 'messages' && unreadCount > 0;
-          
-          return (
-            <Link 
-              key={item.id}
-              to={item.url}
-              className={cn(
-                "relative flex flex-col items-center p-5 rounded-2xl transition-all duration-300 border-2 hover:shadow-lg hover:-translate-y-0.5",
-                active 
-                  ? "bg-primary/5 dark:bg-primary/10 border-primary/30 shadow-lg" 
-                  : "bg-card border-border/50 hover:border-primary/20"
-              )}
-            >
-              {/* PRO Badge */}
-              {item.premium && (
-                <div className="absolute -top-2 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold shadow-lg">
-                  <Sparkles className="h-3 w-3" />
-                  PRO
-                </div>
-              )}
-              
-              {/* Unread Messages Badge */}
-              {showBadge && (
-                <div className="absolute -top-2 -right-2 min-w-[22px] h-[22px] flex items-center justify-center px-1.5 rounded-full bg-red-500 text-white text-xs font-bold shadow-lg animate-pulse">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </div>
-              )}
-              
-              {/* Icon Container - always colored */}
-              <div className={cn(
-                "relative w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg mb-3 transition-all duration-300",
-                item.activeColor,
-                active && "ring-2 ring-offset-2 ring-primary scale-110"
-              )}>
-                <Icon className="h-7 w-7 text-white transition-colors" strokeWidth={2} />
-              </div>
-              
-              {/* Title */}
-              <h3 className={cn(
-                "font-semibold text-center text-sm mb-0.5 transition-colors",
-                active ? "text-blue-600 dark:text-blue-400" : "text-foreground"
-              )}>
-                {item.title}
-              </h3>
-              
-              {/* Description */}
-              <p className="text-[11px] text-muted-foreground text-center line-clamp-1">
-                {item.description}
-              </p>
-            </Link>
-          );
-        })}
-      </div>
+      {/* Single Menu Button */}
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="w-full h-16 text-lg font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg"
+        size="lg"
+      >
+        <Menu className="h-6 w-6 mr-3" />
+        Meniu
+      </Button>
+
+      {/* Menu Panel Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setIsOpen(false)}
+        >
+          {/* Menu Box */}
+          <div 
+            className="bg-card border-2 border-border rounded-3xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-foreground">Meniu</h2>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsOpen(false)}
+                className="rounded-full"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* All Menu Items */}
+            <div className="grid grid-cols-2 gap-3">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const showBadge = item.showBadge && unreadCount > 0;
+                
+                return (
+                  <Link 
+                    key={item.id}
+                    to={item.url}
+                    onClick={() => setIsOpen(false)}
+                    className="relative flex flex-col items-center p-4 rounded-2xl bg-muted/50 hover:bg-muted transition-all duration-200 border border-border/50 hover:border-primary/30 hover:shadow-lg"
+                  >
+                    {/* Badge for Messages */}
+                    {showBadge && (
+                      <div className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </div>
+                    )}
+                    
+                    {/* Icon */}
+                    <div className={cn(
+                      "w-12 h-12 rounded-xl flex items-center justify-center mb-2",
+                      item.color
+                    )}>
+                      <Icon className="h-6 w-6 text-white" strokeWidth={2} />
+                    </div>
+                    
+                    {/* Title */}
+                    <span className="text-sm font-medium text-foreground text-center">
+                      {item.title}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
