@@ -158,7 +158,7 @@ export default function Messages() {
         {/* Header */}
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#25D366] to-[#128C7E] rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/60 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
               <MessageCircle className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -172,11 +172,12 @@ export default function Messages() {
           />
         </div>
 
-        {/* Simple Chat Container */}
-        <Card className="overflow-hidden flex flex-col border-2" style={{ 
+        {/* Premium Chat Container */}
+        <Card className="overflow-hidden flex flex-col border border-white/10 shadow-2xl" style={{ 
           height: isMobile ? 'calc(100vh - 200px)' : 'calc(100vh - 220px)', 
           minHeight: '400px',
-          maxHeight: isMobile ? 'calc(100vh - 160px)' : '800px'
+          maxHeight: isMobile ? 'calc(100vh - 160px)' : '800px',
+          background: 'linear-gradient(145deg, hsl(215 30% 14%) 0%, hsl(215 30% 10%) 100%)'
         }}>
           <div className="flex h-full overflow-hidden">
             {/* Left Panel: Conversation List Only */}
