@@ -12,7 +12,10 @@ export const useConversations = (userId?: string) => {
         .from('conversations')
         .select(`
           *,
-          listings (*),
+          listings (
+            *,
+            listing_images (*)
+          ),
           buyer:profiles!conversations_buyer_id_fkey (*),
           seller:profiles!conversations_seller_id_fkey (*)
         `)

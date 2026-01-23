@@ -203,6 +203,10 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             const unreadCount = unreadCounts[conversation.id] || 0;
             const userIdShort = otherUser?.user_id?.slice(0, 6)?.toUpperCase() || '------';
             
+            // Get product image
+            const productImage = conversation.listings?.listing_images?.find((img: any) => img.is_primary)?.image_url
+              || conversation.listings?.listing_images?.[0]?.image_url;
+            
             return (
               <div
                 key={conversation.id}
@@ -211,15 +215,33 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                   isSelected ? 'bg-gray-100' : ''
                 }`}
               >
-                <div className="relative">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={otherUser?.avatar_url || ''} />
-                    <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-400 text-white">
-                      {getInitials(otherUser?.display_name || otherUser?.username)}
-                    </AvatarFallback>
-                  </Avatar>
+                {/* Product Image or User Avatar */}
+                <div className="relative flex-shrink-0">
+                  {productImage ? (
+                    <div className="relative">
+                      <img 
+                        src={productImage} 
+                        alt={conversation.listings?.title || 'Produs'}
+                        className="h-12 w-12 rounded-lg object-cover border border-gray-200"
+                      />
+                      {/* Small user avatar overlay */}
+                      <Avatar className="h-5 w-5 absolute -bottom-1 -right-1 border-2 border-white">
+                        <AvatarImage src={otherUser?.avatar_url || ''} />
+                        <AvatarFallback className="bg-gray-400 text-white text-[8px]">
+                          {getInitials(otherUser?.display_name || otherUser?.username)}
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                  ) : (
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={otherUser?.avatar_url || ''} />
+                      <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-400 text-white">
+                        {getInitials(otherUser?.display_name || otherUser?.username)}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
                   {/* User ID Badge */}
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">
+                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[8px] px-1 py-0.5 rounded font-mono">
                     #{userIdShort}
                   </span>
                 </div>
@@ -247,7 +269,9 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                           <span>Imagine</span>
                         </>
                       ) : (
-                        conversation.listings?.title || 'Produs șters'
+                        <>
+                          📦 {conversation.listings?.title || 'Produs șters'}
+                        </>
                       )}
                     </p>
                     
