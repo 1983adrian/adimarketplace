@@ -2,7 +2,6 @@ import React from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { InstallBanner } from './InstallBanner';
-import { FloatingChatButton } from './FloatingChatButton';
 import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids, useGlobalMessageNotifications, useRealTimeFriendRequests } from '@/hooks/useRealTimeNotifications';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAppBadge } from '@/hooks/useAppBadge';
@@ -31,9 +30,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideFooter = false }) 
       <Header />
       <main className="flex-1">{children}</main>
       {!hideFooter && <Footer />}
-      
-      {/* Floating Chat Button - always visible */}
-      <FloatingChatButton />
       
       {/* PWA Install Banner for mobile users */}
       <InstallBanner />
