@@ -144,7 +144,7 @@ const MyProducts = () => {
                             variant="outline" 
                             size="sm" 
                             className="gap-1"
-                            onClick={() => navigate(`/edit-listing/${listing.id}`)}
+                            onClick={() => navigate(`/listing/${listing.id}/edit`)}
                           >
                             <Edit className="h-4 w-4" />
                             Editează
