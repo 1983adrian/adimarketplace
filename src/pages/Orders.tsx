@@ -69,8 +69,8 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'buying', title: 'Cumpărături', icon: ShoppingBag, description: 'Comenzile tale ca cumpărător', color: 'bg-gradient-to-br from-cyan-400 to-blue-500' },
-  { id: 'selling', title: 'Vânzări', icon: Store, description: 'Comenzile primite ca vânzător', color: 'bg-gradient-to-br from-emerald-400 to-green-600' },
+  { id: 'buying', title: 'Cumpărăturile Mele', icon: ShoppingBag, description: 'Produsele cumpărate de tine', color: 'bg-gradient-to-br from-cyan-400 to-blue-500' },
+  { id: 'selling', title: 'Vânzările Mele', icon: Store, description: 'Produsele tale vândute', color: 'bg-gradient-to-br from-emerald-400 to-green-600' },
   { id: 'my-returns', title: 'Returnările Mele', icon: Undo2, description: 'Retururi solicitate de tine', color: 'bg-gradient-to-br from-orange-400 to-red-500' },
   { id: 'received-returns', title: 'Returnări Primite', icon: Inbox, description: 'Cereri de retur de la cumpărători', color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
 ];
@@ -308,218 +308,81 @@ const BuyerPurchaseCard = ({
   );
 };
 
-// Seller order card with full functionality
-const SellerOrderCard = ({ order }: { order: Order }) => {
-  const [trackingOpen, setTrackingOpen] = useState(false);
-  const [trackingNumber, setTrackingNumber] = useState('');
-  const [carrier, setCarrier] = useState('');
-  const [cancelOpen, setCancelOpen] = useState(false);
-  const [cancelReason, setCancelReason] = useState('');
+// Simple sold product card - just displays what was sold (no management buttons)
+const SoldProductCard = ({ order }: { order: Order }) => {
   const { formatPrice } = useCurrency();
-
-  const updateTracking = useUpdateTracking();
-  const cancelOrder = useCancelOrder();
+  const navigate = useNavigate();
 
   const status = statusConfig[order.status] || statusConfig.pending;
   const primaryImage = order.listings?.listing_images?.find(img => img.is_primary)?.image_url
     || order.listings?.listing_images?.[0]?.image_url;
 
-  const handleAddTracking = () => {
-    if (!trackingNumber || !carrier) return;
-    updateTracking.mutate(
-      { orderId: order.id, trackingNumber, carrier },
-      { onSuccess: () => setTrackingOpen(false) }
-    );
-  };
-
-  const handleCancelOrder = () => {
-    if (!cancelReason.trim()) return;
-    cancelOrder.mutate(
-      { orderId: order.id, reason: cancelReason },
-      { 
-        onSuccess: () => {
-          setCancelOpen(false);
-          setCancelReason('');
-        }
-      }
-    );
-  };
-
   return (
-    <Card>
-      <CardContent className="p-4">
-        <div className="flex gap-4">
-          {/* Image */}
-          <div className="w-20 h-20 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <CardContent className="p-0">
+        <div className="flex gap-4 p-4">
+          {/* Product Image */}
+          <div 
+            className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl bg-muted overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => order.listings?.id && navigate(`/listing/${order.listings.id}`)}
+          >
             {primaryImage ? (
-              <img src={primaryImage} alt="" className="w-full h-full object-cover" />
+              <img src={primaryImage} alt={order.listings?.title || 'Produs'} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package className="h-8 w-8 text-muted-foreground" />
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10">
+                <Package className="h-10 w-10 text-muted-foreground" />
               </div>
             )}
           </div>
 
-          {/* Details */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h3 className="font-medium truncate">{order.listings?.title || 'Item'}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {format(new Date(order.created_at), 'MMM d, yyyy')}
-                </p>
+          {/* Product Details */}
+          <div className="flex-1 min-w-0 flex flex-col justify-between">
+            <div>
+              {/* Title and Status */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h3 
+                  className="font-semibold text-base sm:text-lg truncate cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => order.listings?.id && navigate(`/listing/${order.listings.id}`)}
+                >
+                  {order.listings?.title || 'Produs necunoscut'}
+                </h3>
+                <Badge className={`${status.color} flex items-center gap-1 flex-shrink-0`}>
+                  {status.icon}
+                  <span className="hidden sm:inline">{status.label}</span>
+                </Badge>
               </div>
-              <Badge className={`${status.color} flex items-center gap-1`}>
-                {status.icon}
-                {status.label}
-              </Badge>
-            </div>
 
-            <div className="mt-2 flex items-center justify-between">
-              <p className="font-semibold">{formatPrice(Number(order.amount))}</p>
-              
-              <div className="flex gap-2">
-                {/* Add tracking when order is pending or paid */}
-                {(order.status === 'pending' || order.status === 'paid') && !order.tracking_number && (
-                  <Dialog open={trackingOpen} onOpenChange={setTrackingOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
-                        <Truck className="h-4 w-4 mr-1" />
-                        Adaugă Tracking
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Adaugă Informații de Livrare</DialogTitle>
-                        <DialogDescription>
-                          Introdu numărul de urmărire și curierul pentru această comandă.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="carrier">Curier</Label>
-                          <Select value={carrier} onValueChange={setCarrier}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Selectează curierul" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {CARRIERS.map((c) => (
-                                <SelectItem key={c.value} value={c.value}>
-                                  {c.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="tracking">Număr de Urmărire (AWB)</Label>
-                          <Input
-                            id="tracking"
-                            placeholder="Introdu numărul de urmărire"
-                            value={trackingNumber}
-                            onChange={(e) => setTrackingNumber(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setTrackingOpen(false)}>
-                          Anulează
-                        </Button>
-                        <Button 
-                          onClick={handleAddTracking}
-                          disabled={!trackingNumber || !carrier || updateTracking.isPending}
-                        >
-                          {updateTracking.isPending ? 'Se salvează...' : 'Marchează ca Expediat'}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
+              {/* Buyer Info */}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                <ShoppingBag className="h-4 w-4" />
+                <span>Cumpărat de: <span className="font-medium text-foreground">
+                  {order.buyer_profile?.display_name || order.buyer_profile?.username || 'Cumpărător'}
+                </span></span>
+              </div>
 
-                {/* Cancel Order button for pending/paid orders */}
-                {(order.status === 'pending' || order.status === 'paid') && (
-                  <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" variant="destructive">
-                        <XCircle className="h-4 w-4 mr-1" />
-                        Anulează Comanda
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-destructive">
-                          <AlertTriangle className="h-5 w-5" />
-                          Anulează Comanda
-                        </DialogTitle>
-                        <DialogDescription>
-                          Ești sigur că vrei să anulezi această comandă? Cumpărătorul va fi notificat.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                        <div className="bg-muted p-4 rounded-lg space-y-2">
-                          <p className="text-sm"><strong>Produs:</strong> {order.listings?.title}</p>
-                          <p className="text-sm"><strong>Sumă:</strong> {formatPrice(Number(order.amount))}</p>
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cancel-reason">Motivul anulării *</Label>
-                          <Textarea
-                            id="cancel-reason"
-                            placeholder="Explică de ce anulezi comanda (ex: produs indisponibil, eroare de preț...)"
-                            value={cancelReason}
-                            onChange={(e) => setCancelReason(e.target.value)}
-                            rows={3}
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setCancelOpen(false)}>
-                          Înapoi
-                        </Button>
-                        <Button 
-                          variant="destructive"
-                          onClick={handleCancelOrder}
-                          disabled={!cancelReason.trim() || cancelOrder.isPending}
-                        >
-                          {cancelOrder.isPending ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                              Se procesează...
-                            </>
-                          ) : (
-                            <>
-                              <XCircle className="h-4 w-4 mr-1" />
-                              Confirmă Anularea
-                            </>
-                          )}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-
-                {/* Show tracking link when shipped */}
-                {order.tracking_number && order.status === 'shipped' && (
-                  <Button size="sm" variant="ghost" asChild>
-                    <a 
-                      href={`https://www.google.com/search?q=${order.carrier}+tracking+${order.tracking_number}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="h-4 w-4 mr-1" />
-                      Urmărește
-                    </a>
-                  </Button>
-                )}
+              {/* Price and Date */}
+              <div className="flex items-center gap-4 text-sm">
+                <span className="font-bold text-lg text-green-600">{formatPrice(Number(order.amount))}</span>
+                <span className="text-muted-foreground">
+                  {format(new Date(order.created_at), 'dd MMM yyyy')}
+                </span>
               </div>
             </div>
 
-            {/* Payout info for seller */}
+            {/* Payout info */}
             {order.status === 'delivered' && order.payout_amount && (
-              <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/30 rounded text-sm text-green-800 dark:text-green-200">
-                <p>💰 Încasat: £{Number(order.payout_amount).toFixed(2)}</p>
-                <p className="text-xs text-green-600 dark:text-green-400">
-                  Comision dedus: £{Number(order.seller_commission || 0).toFixed(2)}
+              <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/30 rounded-lg text-sm">
+                <p className="text-green-700 dark:text-green-300 font-medium">
+                  💰 Încasat: {formatPrice(Number(order.payout_amount))}
                 </p>
+              </div>
+            )}
+
+            {/* Tracking Info if shipped */}
+            {order.tracking_number && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-2 py-1">
+                <Truck className="h-3.5 w-3.5" />
+                <span>AWB: {order.tracking_number}</span>
               </div>
             )}
           </div>
@@ -607,7 +470,7 @@ const Orders = () => {
         ) : (
           <div className="space-y-4">
             {sellingOrders?.map((order) => (
-              <SellerOrderCard key={order.id} order={order} />
+              <SoldProductCard key={order.id} order={order} />
             ))}
           </div>
         );
