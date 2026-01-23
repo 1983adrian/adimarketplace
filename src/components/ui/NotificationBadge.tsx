@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface NotificationBadgeProps {
@@ -7,11 +7,11 @@ interface NotificationBadgeProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export const NotificationBadge: React.FC<NotificationBadgeProps> = ({ 
+export const NotificationBadge = forwardRef<HTMLSpanElement, NotificationBadgeProps>(({ 
   count, 
   className,
   size = 'md' 
-}) => {
+}, ref) => {
   if (count <= 0) return null;
 
   const sizeClasses = {
@@ -22,6 +22,7 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
 
   return (
     <span
+      ref={ref}
       className={cn(
         'absolute flex items-center justify-center font-bold rounded-full',
         'bg-destructive text-destructive-foreground',
@@ -33,6 +34,8 @@ export const NotificationBadge: React.FC<NotificationBadgeProps> = ({
       {count > 99 ? '99+' : count}
     </span>
   );
-};
+});
+
+NotificationBadge.displayName = 'NotificationBadge';
 
 export default NotificationBadge;
