@@ -149,12 +149,6 @@ export const Header: React.FC = () => {
               <>
                 <SellerNotificationBell />
                 <NotificationBell />
-                <Button asChild className="gap-2 ml-2 gradient-primary text-primary-foreground font-medium">
-                  <Link to="/sell">
-                    <Plus className="h-4 w-4" />
-                    {t('header.sell')}
-                  </Link>
-                </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button 
