@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight, GraduationCap, Wallet } from 'lucide-react';
 import logo from '@/assets/cmarket-hero.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -292,29 +292,88 @@ export const Header: React.FC = () => {
                           </div>
                         </div>
                         
-                        <Button asChild className="w-full gap-2 gradient-primary" onClick={() => setMobileMenuOpen(false)}>
-                          <Link to="/sell">
-                            <Plus className="h-4 w-4" />
-                            {t('header.sellItem')}
-                          </Link>
-                        </Button>
+                        {/* PRO Actions Section */}
+                        <div className="space-y-1 border-b border-border pb-3 mb-3">
+                          <p className="text-xs font-semibold text-primary uppercase tracking-wide px-3 py-1 flex items-center gap-2">
+                            <Sparkles className="h-3 w-3" />
+                            Acțiuni Rapide
+                          </p>
+                          
+                          <Button asChild className="w-full justify-start gap-3 h-12 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl" onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/sell">
+                              <Plus className="h-5 w-5" />
+                              Adaugă Produs
+                            </Link>
+                          </Button>
+                          
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-pink-50 dark:hover:bg-pink-950/20" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/seller-tutorial">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600">
+                                <GraduationCap className="h-4 w-4 text-white" />
+                              </div>
+                              <span>Tutorial PRO</span>
+                            </Link>
+                          </Button>
+                          
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-violet-50 dark:hover:bg-violet-950/20" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/dashboard?tab=listings">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
+                                <Package className="h-4 w-4 text-white" />
+                              </div>
+                              <span>Produsele Mele</span>
+                            </Link>
+                          </Button>
+                          
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-emerald-50 dark:hover:bg-emerald-950/20" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/orders?tab=selling">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-400 to-green-600">
+                                <ShoppingBag className="h-4 w-4 text-white" />
+                              </div>
+                              <span>Comenzi Active</span>
+                            </Link>
+                          </Button>
+                          
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-green-50 dark:hover:bg-green-950/20 relative" asChild onClick={() => setMobileMenuOpen(false)}>
+                            <Link to="/messages">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 relative">
+                                <MessageCircle className="h-4 w-4 text-white" />
+                                {unreadMessages > 0 && (
+                                  <NotificationBadge count={unreadMessages} size="sm" className="-top-2 -right-2" />
+                                )}
+                              </div>
+                              <span>Mesaje</span>
+                              {unreadMessages > 0 && (
+                                <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                  {unreadMessages > 99 ? '99+' : unreadMessages}
+                                </span>
+                              )}
+                            </Link>
+                          </Button>
+                        </div>
                         
-                        <div className="space-y-1 pt-2">
-                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                        {/* Account Section */}
+                        <div className="space-y-1">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-3 py-1">
+                            Cont
+                          </p>
+                          
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-11" asChild onClick={() => setMobileMenuOpen(false)}>
                             <Link to="/dashboard">
-                              <User className="mr-3 h-4 w-4" />
+                              <User className="h-4 w-4" />
                               {t('header.dashboard')}
                             </Link>
                           </Button>
-                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                          
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-11" asChild onClick={() => setMobileMenuOpen(false)}>
                             <Link to="/settings?tab=payouts">
-                              <Bell className="mr-3 h-4 w-4" />
-                              Notificări Cont
+                              <Wallet className="h-4 w-4" />
+                              Portofel & Încasări
                             </Link>
                           </Button>
-                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
+                          
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-11" asChild onClick={() => setMobileMenuOpen(false)}>
                             <Link to="/settings">
-                              <Settings className="mr-3 h-4 w-4" />
+                              <Settings className="h-4 w-4" />
                               {t('header.settings')}
                             </Link>
                           </Button>

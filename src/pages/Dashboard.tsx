@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Package, Heart, Eye, DollarSign, CreditCard, Crown, TrendingUp, Pencil, Gavel, Clock, Plus, Settings, MessageCircle, BookOpen, Users } from 'lucide-react';
+import { Package, Heart, Eye, DollarSign, CreditCard, Crown, TrendingUp, Pencil, Gavel, Clock, Plus, Settings } from 'lucide-react';
 import { AuctionCard } from '@/components/dashboard/AuctionCard';
 import { Layout } from '@/components/layout/Layout';
-import { SellerQuickActions } from '@/components/dashboard/SellerQuickActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -312,8 +311,7 @@ const Dashboard = () => {
           </Card>
         )}
 
-        {/* Ultra Pro Quick Actions - Categorized */}
-        <SellerQuickActions />
+        {/* Quick Actions removed - all actions now in hamburger menu */}
 
         {/* My Auctions Section - for sellers */}
         {isSubscribed && auctionListings && auctionListings.length > 0 && (
