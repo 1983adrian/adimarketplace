@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   TrendingUp, 
-  DollarSign, 
   Package, 
   Eye, 
   ShoppingCart,
@@ -81,21 +80,21 @@ const SellerAnalytics = () => {
           </Button>
         </div>
 
-        {/* Stats Overview - Real Data Only */}
+        {/* Stats Overview - Only performance metrics, no balance (balance is in Wallet) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Câștiguri Confirmate</p>
-                  <p className="text-2xl font-bold text-green-600">{formatPrice(totalEarnings)}</p>
+                  <p className="text-sm text-muted-foreground">Comenzi Livrate</p>
+                  <p className="text-2xl font-bold text-green-600">{completedOrders.length}</p>
                 </div>
                 <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/20">
-                  <DollarSign className="h-6 w-6 text-green-600" />
+                  <ShoppingCart className="h-6 w-6 text-green-600" />
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                Din {completedOrders.length} comenzi livrate (după -10% comision)
+                Vânzări finalizate cu succes
               </p>
             </CardContent>
           </Card>
@@ -104,15 +103,15 @@ const SellerAnalytics = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">În Așteptare</p>
-                  <p className="text-2xl font-bold text-amber-600">{formatPrice(pendingEarnings)}</p>
+                  <p className="text-sm text-muted-foreground">În Procesare</p>
+                  <p className="text-2xl font-bold text-amber-600">{pendingOrders.length}</p>
                 </div>
                 <div className="p-3 rounded-full bg-amber-100 dark:bg-amber-900/20">
-                  <ShoppingCart className="h-6 w-6 text-amber-600" />
+                  <Package className="h-6 w-6 text-amber-600" />
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
-                {pendingOrders.length} comenzi în procesare (după -10% comision)
+                Comenzi în așteptare/expediere
               </p>
             </CardContent>
           </Card>
