@@ -99,9 +99,9 @@ const Dashboard = () => {
         </div>
 
         {/* Menu Grid */}
-        <div className="bg-card border-2 border-border rounded-3xl p-6 shadow-lg">
-          <h2 className="text-xl font-bold text-center mb-4">Meniu</h2>
-          <div className="grid grid-cols-3 gap-3">
+        <div className="bg-card border-2 border-border rounded-3xl p-4 shadow-lg max-w-md mx-auto">
+          <h2 className="text-lg font-bold text-center mb-3">Meniu</h2>
+          <div className="grid grid-cols-3 gap-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const badgeCount = item.showBadge === 'messages' ? unreadMessages : 0;
@@ -110,19 +110,19 @@ const Dashboard = () => {
                 <Link 
                   key={item.id}
                   to={item.url}
-                  className="relative flex flex-col items-center p-3 rounded-xl bg-muted/50 hover:bg-muted hover:shadow-md transition-all duration-200"
+                  className="relative flex flex-col items-center p-2 rounded-lg bg-muted/50 hover:bg-muted hover:shadow-md transition-all duration-200 min-h-[72px] active:scale-95"
                 >
                   {badgeCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                    <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
                       {badgeCount > 99 ? '99+' : badgeCount}
                     </span>
                   )}
                   
-                  <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center mb-2 shadow-md", item.color)}>
-                    <Icon className="h-5 w-5 text-white" strokeWidth={2} />
+                  <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center mb-1 shadow-sm", item.color)}>
+                    <Icon className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </div>
                   
-                  <span className="text-xs font-medium text-foreground text-center leading-tight">
+                  <span className="text-[10px] font-medium text-foreground text-center leading-tight line-clamp-2">
                     {item.title}
                   </span>
                 </Link>
