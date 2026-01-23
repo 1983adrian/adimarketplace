@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Menu, X, Plus, Package, ShoppingBag, GraduationCap, MessageCircle, 
-  Wallet, BarChart3, Heart, Settings, Bell, LogOut, Crown
+  Plus, Package, ShoppingBag, GraduationCap, MessageCircle, 
+  Wallet, BarChart3, Heart, Settings, Bell, LogOut
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
-import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useMyListings } from '@/hooks/useListings';
@@ -30,7 +28,6 @@ const Dashboard = () => {
   const { user, profile, loading, signOut } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   
   const { data: myListings } = useMyListings(user?.id);
   const { data: unreadMessages = 0 } = useUnreadMessages();
@@ -62,104 +59,70 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6">
         
-        {/* Simple Header: Avatar + Name + Balance */}
-        <div className="flex items-center justify-between mb-8">
-          {/* Left: Avatar + Name */}
+        {/* Header: Avatar + Name + Balance + Actions */}
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Avatar className="h-14 w-14">
+            <Avatar className="h-12 w-12">
               <AvatarImage src={profile?.avatar_url || undefined} />
               <AvatarFallback className="text-lg">
                 {profile?.display_name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-xl font-bold">{profile?.display_name || 'Bun venit'}</h1>
+              <h1 className="text-lg font-bold">{profile?.display_name || 'Bun venit'}</h1>
               <p className="text-lg font-semibold text-green-600">£{totalEarnings.toFixed(2)}</p>
             </div>
           </div>
 
-          {/* Right: Quick Actions - Bell, Settings, Logout */}
           <div className="flex items-center gap-2">
             <Link to="/notifications" className="relative p-2 rounded-full hover:bg-muted transition-colors">
-              <Bell className="h-6 w-6" />
+              <Bell className="h-5 w-5" />
               {unreadNotifications > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
                   {unreadNotifications > 99 ? '99+' : unreadNotifications}
                 </span>
               )}
             </Link>
             <Link to="/settings" className="p-2 rounded-full hover:bg-muted transition-colors">
-              <Settings className="h-6 w-6" />
+              <Settings className="h-5 w-5" />
             </Link>
             <button onClick={handleSignOut} className="p-2 rounded-full hover:bg-muted transition-colors text-red-500">
-              <LogOut className="h-6 w-6" />
+              <LogOut className="h-5 w-5" />
             </button>
           </div>
         </div>
 
-        {/* ONE SINGLE MENU BUTTON */}
-        <Button
-          onClick={() => setIsMenuOpen(true)}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-xl rounded-2xl"
-          size="lg"
-        >
-          <Menu className="h-7 w-7 mr-3" />
-          Meniu
-        </Button>
-
-        {/* Menu Panel */}
-        {isMenuOpen && (
-          <div 
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            <div 
-              className="bg-card border-2 border-border rounded-3xl p-6 w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Meniu</h2>
-                <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(false)} className="rounded-full h-10 w-10">
-                  <X className="h-6 w-6" />
-                </Button>
-              </div>
-
-              {/* All Menu Items */}
-              <div className="grid grid-cols-2 gap-4">
-                {menuItems.map((item) => {
-                  const Icon = item.icon;
-                  const badgeCount = item.showBadge === 'messages' ? unreadMessages : 0;
-                  
-                  return (
-                    <Link 
-                      key={item.id}
-                      to={item.url}
-                      onClick={() => setIsMenuOpen(false)}
-                      className="relative flex flex-col items-center p-5 rounded-2xl bg-muted/50 hover:bg-muted transition-all duration-200 border border-border/50 hover:border-primary/40 hover:shadow-lg"
-                    >
-                      {badgeCount > 0 && (
-                        <span className="absolute -top-1 -right-1 min-w-[22px] h-[22px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-xs font-bold">
-                          {badgeCount > 99 ? '99+' : badgeCount}
-                        </span>
-                      )}
-                      
-                      <div className={cn("w-14 h-14 rounded-2xl flex items-center justify-center mb-3", item.color)}>
-                        <Icon className="h-7 w-7 text-white" strokeWidth={2} />
-                      </div>
-                      
-                      <span className="text-sm font-semibold text-foreground text-center">
-                        {item.title}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
+        {/* BUTOANE - Grid direct pe pagină */}
+        <div className="grid grid-cols-2 gap-3">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const badgeCount = item.showBadge === 'messages' ? unreadMessages : 0;
+            
+            return (
+              <Link 
+                key={item.id}
+                to={item.url}
+                className="relative flex flex-col items-center p-4 rounded-2xl bg-card border border-border hover:border-primary/40 hover:shadow-lg transition-all duration-200"
+              >
+                {badgeCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-xs font-bold">
+                    {badgeCount > 99 ? '99+' : badgeCount}
+                  </span>
+                )}
+                
+                <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mb-2", item.color)}>
+                  <Icon className="h-6 w-6 text-white" strokeWidth={2} />
+                </div>
+                
+                <span className="text-sm font-medium text-foreground text-center">
+                  {item.title}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
 
       </div>
     </Layout>
