@@ -19,6 +19,7 @@ import { useCreateConversation } from '@/hooks/useConversations';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
+import { AddFriendButton } from '@/components/messages/AddFriendButton';
 
 const SellerProfile = () => {
   const { id } = useParams<{ id: string }>();
@@ -144,10 +145,13 @@ const SellerProfile = () => {
                 </div>
               </div>
 
-              <Button onClick={handleContactSeller} disabled={createConversation.isPending} className="gap-2">
-                <MessageCircle className="h-4 w-4" />
-                Contactează Vânzătorul
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <AddFriendButton targetUserId={id!} />
+                <Button onClick={handleContactSeller} disabled={createConversation.isPending} className="gap-2">
+                  <MessageCircle className="h-4 w-4" />
+                  Contactează
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
