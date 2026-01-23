@@ -171,17 +171,153 @@ const OrdersSidebar = ({
   );
 };
 
-const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }) => {
+// Simple purchase card for buyers - shows product photo, details, seller info, and delete option
+const BuyerPurchaseCard = ({ 
+  order, 
+  onHide 
+}: { 
+  order: Order; 
+  onHide: (orderId: string) => void;
+}) => {
+  const { formatPrice } = useCurrency();
+  const navigate = useNavigate();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  
+  const primaryImage = order.listings?.listing_images?.find(img => img.is_primary)?.image_url
+    || order.listings?.listing_images?.[0]?.image_url;
+  
+  const status = statusConfig[order.status] || statusConfig.pending;
+
+  return (
+    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+      <CardContent className="p-0">
+        <div className="flex gap-4 p-4">
+          {/* Product Image - Larger */}
+          <div 
+            className="w-24 h-24 sm:w-32 sm:h-32 rounded-xl bg-muted overflow-hidden flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+            onClick={() => order.listings?.id && navigate(`/listing/${order.listings.id}`)}
+          >
+            {primaryImage ? (
+              <img src={primaryImage} alt={order.listings?.title || 'Produs'} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted-foreground/10">
+                <Package className="h-10 w-10 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+
+          {/* Product Details */}
+          <div className="flex-1 min-w-0 flex flex-col justify-between">
+            <div>
+              {/* Title and Status */}
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <h3 
+                  className="font-semibold text-base sm:text-lg truncate cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => order.listings?.id && navigate(`/listing/${order.listings.id}`)}
+                >
+                  {order.listings?.title || 'Produs necunoscut'}
+                </h3>
+                <Badge className={`${status.color} flex items-center gap-1 flex-shrink-0`}>
+                  {status.icon}
+                  <span className="hidden sm:inline">{status.label}</span>
+                </Badge>
+              </div>
+
+              {/* Seller Info */}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                <Store className="h-4 w-4" />
+                <span>De la: <span className="font-medium text-foreground">
+                  {order.seller_profile?.display_name || order.seller_profile?.username || 'Vânzător'}
+                </span></span>
+              </div>
+
+              {/* Price and Date */}
+              <div className="flex items-center gap-4 text-sm">
+                <span className="font-bold text-lg text-primary">{formatPrice(Number(order.amount))}</span>
+                <span className="text-muted-foreground">
+                  {format(new Date(order.created_at), 'dd MMM yyyy')}
+                </span>
+              </div>
+            </div>
+
+            {/* Tracking Info if shipped */}
+            {order.tracking_number && (
+              <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-2 py-1">
+                <Truck className="h-3.5 w-3.5" />
+                <span>AWB: {order.tracking_number}</span>
+                <a 
+                  href={`https://www.google.com/search?q=${order.carrier}+tracking+${order.tracking_number}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-primary hover:underline ml-auto"
+                >
+                  Urmărește
+                </a>
+              </div>
+            )}
+          </div>
+
+          {/* Delete/Hide Button */}
+          <div className="flex flex-col justify-start">
+            <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+              <DialogTrigger asChild>
+                <Button 
+                  size="icon" 
+                  variant="ghost" 
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                >
+                  <XCircle className="h-5 w-5" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Șterge din istoric?</DialogTitle>
+                  <DialogDescription>
+                    Această comandă va fi ascunsă din lista ta de cumpărături. Poți vedea întotdeauna detaliile în setări.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  {primaryImage && (
+                    <img src={primaryImage} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                  )}
+                  <div>
+                    <p className="font-medium text-sm">{order.listings?.title}</p>
+                    <p className="text-xs text-muted-foreground">{formatPrice(Number(order.amount))}</p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
+                    Anulează
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    onClick={() => {
+                      onHide(order.id);
+                      setShowDeleteConfirm(false);
+                    }}
+                  >
+                    Șterge din listă
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Seller order card with full functionality
+const SellerOrderCard = ({ order }: { order: Order }) => {
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState('');
   const [carrier, setCarrier] = useState('');
-  const [confirmOpen, setConfirmOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const { formatPrice } = useCurrency();
 
   const updateTracking = useUpdateTracking();
-  const confirmDelivery = useConfirmDelivery();
   const cancelOrder = useCancelOrder();
 
   const status = statusConfig[order.status] || statusConfig.pending;
@@ -194,12 +330,6 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
       { orderId: order.id, trackingNumber, carrier },
       { onSuccess: () => setTrackingOpen(false) }
     );
-  };
-
-  const handleConfirmDelivery = () => {
-    confirmDelivery.mutate(order.id, {
-      onSuccess: () => setConfirmOpen(false),
-    });
   };
 
   const handleCancelOrder = () => {
@@ -249,8 +379,8 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
               <p className="font-semibold">{formatPrice(Number(order.amount))}</p>
               
               <div className="flex gap-2">
-                {/* Seller: Add tracking when order is pending or paid */}
-                {type === 'selling' && (order.status === 'pending' || order.status === 'paid') && !order.tracking_number && (
+                {/* Add tracking when order is pending or paid */}
+                {(order.status === 'pending' || order.status === 'paid') && !order.tracking_number && (
                   <Dialog open={trackingOpen} onOpenChange={setTrackingOpen}>
                     <DialogTrigger asChild>
                       <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">
@@ -306,8 +436,8 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                   </Dialog>
                 )}
 
-                {/* Seller: Cancel Order button for pending/paid orders */}
-                {type === 'selling' && (order.status === 'pending' || order.status === 'paid') && (
+                {/* Cancel Order button for pending/paid orders */}
+                {(order.status === 'pending' || order.status === 'paid') && (
                   <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
                     <DialogTrigger asChild>
                       <Button size="sm" variant="destructive">
@@ -367,45 +497,6 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                   </Dialog>
                 )}
 
-                {/* Buyer: Confirm delivery when shipped */}
-                {type === 'buying' && order.status === 'shipped' && (
-                  <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="sm">
-                        <CheckCircle className="h-4 w-4 mr-1" />
-                        Confirmă Primirea
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Confirmă Livrarea</DialogTitle>
-                        <DialogDescription>
-                          Prin confirmare, recunoști că ai primit produsul.
-                          Vânzătorul va fi plătit după deducerea comisioanelor.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="py-4">
-                        <div className="bg-muted p-4 rounded-lg space-y-2">
-                          <p className="text-sm"><strong>Produs:</strong> {order.listings?.title}</p>
-                          <p className="text-sm"><strong>Curier:</strong> {CARRIERS.find(c => c.value === order.carrier)?.label || order.carrier}</p>
-                          <p className="text-sm"><strong>AWB:</strong> {order.tracking_number}</p>
-                        </div>
-                      </div>
-                      <DialogFooter>
-                        <Button variant="outline" onClick={() => setConfirmOpen(false)}>
-                          Anulează
-                        </Button>
-                        <Button 
-                          onClick={handleConfirmDelivery}
-                          disabled={confirmDelivery.isPending}
-                        >
-                          {confirmDelivery.isPending ? 'Se procesează...' : 'Confirmă Primirea'}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                )}
-
                 {/* Show tracking link when shipped */}
                 {order.tracking_number && order.status === 'shipped' && (
                   <Button size="sm" variant="ghost" asChild>
@@ -423,49 +514,12 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
             </div>
 
             {/* Payout info for seller */}
-            {type === 'selling' && order.status === 'delivered' && order.payout_amount && (
-              <div className="mt-2 p-2 bg-green-50 rounded text-sm text-green-800">
+            {order.status === 'delivered' && order.payout_amount && (
+              <div className="mt-2 p-2 bg-green-50 dark:bg-green-950/30 rounded text-sm text-green-800 dark:text-green-200">
                 <p>💰 Încasat: £{Number(order.payout_amount).toFixed(2)}</p>
-                <p className="text-xs text-green-600">
+                <p className="text-xs text-green-600 dark:text-green-400">
                   Comision dedus: £{Number(order.seller_commission || 0).toFixed(2)}
                 </p>
-              </div>
-            )}
-
-            {/* Review button for buyer after delivery */}
-            {type === 'buying' && order.status === 'delivered' && (
-              <div className="mt-3 flex gap-2">
-                <ReviewDialog 
-                  orderId={order.id} 
-                  sellerId={order.seller_id}
-                  sellerName={order.seller_profile?.display_name || order.seller_profile?.username}
-                >
-                  <Button size="sm" variant="outline" className="gap-2">
-                    <Star className="h-4 w-4" />
-                    Lasă o recenzie
-                  </Button>
-                </ReviewDialog>
-                <ReturnRequestDialog
-                  orderId={order.id}
-                  buyerId={order.buyer_id}
-                  sellerId={order.seller_id}
-                  productTitle={order.listings?.title || 'Produs'}
-                >
-                  <Button size="sm" variant="ghost" className="gap-2">
-                    <RotateCcw className="h-4 w-4" />
-                    Solicită Retur
-                  </Button>
-                </ReturnRequestDialog>
-              </div>
-            )}
-
-            {/* Dispute button for problematic orders */}
-            {type === 'buying' && (order.status === 'shipped' || order.status === 'delivered') && (
-              <div className="mt-2">
-                <Button size="sm" variant="ghost" className="gap-2 text-muted-foreground">
-                  <AlertTriangle className="h-4 w-4" />
-                  Raportează o problemă
-                </Button>
               </div>
             )}
           </div>
@@ -479,6 +533,11 @@ const Orders = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('buying');
+  const [hiddenOrders, setHiddenOrders] = useState<string[]>(() => {
+    const saved = localStorage.getItem('hiddenBuyingOrders');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
   const { data: buyingOrders, isLoading: buyingLoading } = useMyOrders('buying');
   const { data: sellingOrders, isLoading: sellingLoading } = useMyOrders('selling');
 
@@ -487,6 +546,15 @@ const Orders = () => {
       navigate('/login');
     }
   }, [user, loading, navigate]);
+
+  const handleHideOrder = (orderId: string) => {
+    const newHidden = [...hiddenOrders, orderId];
+    setHiddenOrders(newHidden);
+    localStorage.setItem('hiddenBuyingOrders', JSON.stringify(newHidden));
+  };
+
+  // Filter out hidden orders
+  const visibleBuyingOrders = buyingOrders?.filter(order => !hiddenOrders.includes(order.id));
 
   if (loading || !user) {
     return (
@@ -503,7 +571,7 @@ const Orders = () => {
       case 'buying':
         return buyingLoading ? (
           <p className="text-center text-muted-foreground py-8">Se încarcă...</p>
-        ) : buyingOrders?.length === 0 ? (
+        ) : !visibleBuyingOrders || visibleBuyingOrders.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <ShoppingBag className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -513,9 +581,13 @@ const Orders = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
-            {buyingOrders?.map((order) => (
-              <OrderCard key={order.id} order={order} type="buying" />
+          <div className="space-y-3">
+            {visibleBuyingOrders.map((order) => (
+              <BuyerPurchaseCard 
+                key={order.id} 
+                order={order} 
+                onHide={handleHideOrder}
+              />
             ))}
           </div>
         );
@@ -535,7 +607,7 @@ const Orders = () => {
         ) : (
           <div className="space-y-4">
             {sellingOrders?.map((order) => (
-              <OrderCard key={order.id} order={order} type="selling" />
+              <SellerOrderCard key={order.id} order={order} />
             ))}
           </div>
         );
