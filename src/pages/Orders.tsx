@@ -169,22 +169,39 @@ const OrdersSidebar = ({
   );
 };
 
-// Simple purchase card for buyers - shows product photo, details, seller info, and delete option
+// Simple purchase card for buyers - shows product photo, details, seller info, cancel button
 const BuyerPurchaseCard = ({ 
   order, 
-  onHide 
+  onHide,
+  onCancel,
+  isCancelling
 }: { 
   order: Order; 
   onHide: (orderId: string) => void;
+  onCancel: (orderId: string, reason: string) => void;
+  isCancelling: boolean;
 }) => {
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
   
   const primaryImage = order.listings?.listing_images?.find(img => img.is_primary)?.image_url
     || order.listings?.listing_images?.[0]?.image_url;
   
   const status = statusConfig[order.status] || statusConfig.pending;
+  
+  // Can cancel only pending or paid orders (before shipping)
+  const canCancel = ['pending', 'paid'].includes(order.status);
+
+  const handleCancelOrder = () => {
+    if (cancelReason.trim()) {
+      onCancel(order.id, cancelReason);
+      setShowCancelDialog(false);
+      setCancelReason('');
+    }
+  };
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
@@ -253,6 +270,85 @@ const BuyerPurchaseCard = ({
                 </a>
               </div>
             )}
+
+            {/* Action Buttons */}
+            <div className="mt-3 flex items-center gap-2 flex-wrap">
+              {/* Cancel Button - only for pending/paid orders */}
+              {canCancel && (
+                <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <XCircle className="h-4 w-4 mr-1" />
+                      Anulează Comanda
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-destructive" />
+                        Anulează Comanda
+                      </DialogTitle>
+                      <DialogDescription>
+                        Ești sigur că vrei să anulezi această comandă? Vânzătorul va fi notificat.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                      {primaryImage && (
+                        <img src={primaryImage} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                      )}
+                      <div>
+                        <p className="font-medium text-sm">{order.listings?.title}</p>
+                        <p className="text-xs text-muted-foreground">{formatPrice(Number(order.amount))}</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="cancelReason">Motivul anulării *</Label>
+                      <Textarea
+                        id="cancelReason"
+                        placeholder="Te rugăm să ne spui de ce vrei să anulezi comanda..."
+                        value={cancelReason}
+                        onChange={(e) => setCancelReason(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowCancelDialog(false)}>
+                        Înapoi
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        onClick={handleCancelOrder}
+                        disabled={!cancelReason.trim() || isCancelling}
+                      >
+                        {isCancelling ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Se procesează...
+                          </>
+                        ) : (
+                          'Confirmă Anularea'
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              )}
+
+              {/* Confirm Delivery - for shipped orders */}
+              {order.status === 'shipped' && (
+                <Button size="sm" variant="default" className="bg-green-600 hover:bg-green-700">
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  Confirmă Primirea
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Delete/Hide Button */}
@@ -263,6 +359,7 @@ const BuyerPurchaseCard = ({
                   size="icon" 
                   variant="ghost" 
                   className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  title="Ascunde din listă"
                 >
                   <XCircle className="h-5 w-5" />
                 </Button>
@@ -394,6 +491,7 @@ const Orders = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const cancelOrder = useCancelOrder();
   
   // Read section from URL query params (e.g., /orders?section=selling)
   const searchParams = new URLSearchParams(location.search);
@@ -436,6 +534,10 @@ const Orders = () => {
     localStorage.setItem('hiddenBuyingOrders', JSON.stringify(newHidden));
   };
 
+  const handleCancelOrder = (orderId: string, reason: string) => {
+    cancelOrder.mutate({ orderId, reason });
+  };
+
   // Filter out hidden orders
   const visibleBuyingOrders = buyingOrders?.filter(order => !hiddenOrders.includes(order.id));
 
@@ -470,6 +572,8 @@ const Orders = () => {
                 key={order.id} 
                 order={order} 
                 onHide={handleHideOrder}
+                onCancel={handleCancelOrder}
+                isCancelling={cancelOrder.isPending}
               />
             ))}
           </div>
