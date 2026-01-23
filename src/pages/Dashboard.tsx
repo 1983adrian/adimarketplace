@@ -84,16 +84,20 @@ const Dashboard = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link to="/notifications" className="relative p-2 rounded-full hover:bg-muted transition-colors">
-              <Bell className="h-5 w-5" />
+            <Link to="/notifications" className="relative p-2 rounded-full bg-amber-500/10 hover:bg-amber-500/20 transition-colors">
+              <Bell className="h-5 w-5 text-amber-500" fill="currentColor" />
               {unreadNotifications > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-[10px] font-bold animate-pulse">
                   {unreadNotifications > 99 ? '99+' : unreadNotifications}
                 </span>
               )}
             </Link>
-            <button onClick={handleSignOut} className="p-2 rounded-full hover:bg-muted transition-colors text-red-500">
-              <LogOut className="h-5 w-5" />
+            <button 
+              onClick={handleSignOut} 
+              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-red-500/10 hover:bg-red-500/20 transition-colors text-red-500 font-medium text-sm"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Ieșire</span>
             </button>
           </div>
         </div>
