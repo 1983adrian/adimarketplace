@@ -299,12 +299,6 @@ export const Header: React.FC = () => {
                             Acțiuni Rapide
                           </p>
                           
-                          <Button asChild className="w-full justify-start gap-3 h-12 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white rounded-xl" onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/sell">
-                              <Plus className="h-5 w-5" />
-                              Adaugă Produs
-                            </Link>
-                          </Button>
                           
                           <Button variant="ghost" className="w-full justify-start gap-3 h-11 hover:bg-pink-50 dark:hover:bg-pink-950/20" asChild onClick={() => setMobileMenuOpen(false)}>
                             <Link to="/seller-tutorial">
