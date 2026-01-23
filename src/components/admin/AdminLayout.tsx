@@ -55,9 +55,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
+      <div className="min-h-screen flex w-full bg-background overflow-x-hidden">
         <AdminSidebar />
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0 max-w-full">
           {/* Welcome Message - Green, fades after 2 seconds */}
           {showWelcome && (
             <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] animate-fade-in">
@@ -114,8 +114,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               </div>
             </div>
           </header>
-          <main className="flex-1 p-2 sm:p-4 md:p-6 overflow-auto overflow-x-hidden">
-            <div className="w-full max-w-full">
+          <main className="flex-1 p-2 sm:p-4 md:p-6 overflow-y-auto overflow-x-hidden min-w-0">
+            <div className="w-full min-w-0 max-w-full">
               {children}
             </div>
           </main>

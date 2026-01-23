@@ -118,24 +118,24 @@ export default function AdminOrders() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 w-full min-w-0 overflow-hidden">
         <div>
-          <h1 className="text-3xl font-bold">Gestionare Comenzi</h1>
-          <p className="text-muted-foreground">Vizualizează și gestionează toate comenzile platformei</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Gestionare Comenzi</h1>
+          <p className="text-sm text-muted-foreground">Vizualizează și gestionează toate comenzile platformei</p>
         </div>
 
         {/* Platform Rules Alert */}
-        <Alert className="border-red-200 bg-red-50">
-          <AlertTriangle className="h-4 w-4 text-red-600" />
-          <AlertTitle className="text-red-800">Reguli Platformă - Produse Interzise</AlertTitle>
+        <Alert className="border-red-200 bg-red-50 overflow-hidden">
+          <AlertTriangle className="h-4 w-4 text-red-600 flex-shrink-0" />
+          <AlertTitle className="text-red-800 text-sm">Reguli Platformă - Produse Interzise</AlertTitle>
           <AlertDescription className="mt-2">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
               {PLATFORM_RULES.map((rule, index) => (
-                <div key={index} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-red-100">
-                  <rule.icon className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-semibold text-red-700">{rule.label}</p>
-                    <p className="text-sm text-red-600">{rule.description}</p>
+                <div key={index} className="flex items-start gap-2 p-2 bg-white rounded-lg border border-red-100">
+                  <rule.icon className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="font-semibold text-red-700 text-xs">{rule.label}</p>
+                    <p className="text-xs text-red-600 break-words">{rule.description}</p>
                   </div>
                 </div>
               ))}
@@ -144,58 +144,58 @@ export default function AdminOrders() {
         </Alert>
 
         {/* Stats */}
-        <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-sm text-muted-foreground">Total Comenzi</p>
+        <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+          <Card className="p-0">
+            <CardContent className="p-3">
+              <div className="text-lg sm:text-xl font-bold">{stats.total}</div>
+              <p className="text-xs text-muted-foreground">Total</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-              <p className="text-sm text-muted-foreground">În Așteptare</p>
+          <Card className="p-0">
+            <CardContent className="p-3">
+              <div className="text-lg sm:text-xl font-bold text-yellow-600">{stats.pending}</div>
+              <p className="text-xs text-muted-foreground">Așteptare</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-green-600">{stats.paid}</div>
-              <p className="text-sm text-muted-foreground">Plătite</p>
+          <Card className="p-0">
+            <CardContent className="p-3">
+              <div className="text-lg sm:text-xl font-bold text-green-600">{stats.paid}</div>
+              <p className="text-xs text-muted-foreground">Plătite</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-blue-600">{stats.shipped}</div>
-              <p className="text-sm text-muted-foreground">Expediate</p>
+          <Card className="p-0">
+            <CardContent className="p-3">
+              <div className="text-lg sm:text-xl font-bold text-blue-600">{stats.shipped}</div>
+              <p className="text-xs text-muted-foreground">Expediate</p>
             </CardContent>
           </Card>
-          <Card className="bg-gradient-to-r from-green-500 to-emerald-600 text-white">
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold">£{stats.totalRevenue.toFixed(2)}</div>
-              <p className="text-sm text-white/80">Venit Platformă</p>
+          <Card className="p-0 bg-gradient-to-r from-green-500 to-emerald-600 text-white col-span-2 sm:col-span-1">
+            <CardContent className="p-3">
+              <div className="text-lg sm:text-xl font-bold">£{stats.totalRevenue.toFixed(2)}</div>
+              <p className="text-xs text-white/80">Venit</p>
             </CardContent>
           </Card>
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <Card className="overflow-hidden">
+          <CardHeader className="p-3 sm:p-4">
+            <div className="flex flex-col gap-3">
               <div>
-                <CardTitle>Toate Comenzile</CardTitle>
-                <CardDescription>{filteredOrders?.length || 0} comenzi găsite</CardDescription>
+                <CardTitle className="text-base sm:text-lg">Toate Comenzile</CardTitle>
+                <CardDescription className="text-xs">{filteredOrders?.length || 0} comenzi găsite</CardDescription>
               </div>
-              <div className="flex gap-3">
-                <div className="relative w-64">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <div className="relative flex-1 min-w-0">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
                     placeholder="Caută comenzi..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 text-sm"
                   />
                 </div>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="w-full sm:w-[140px] text-xs">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -207,7 +207,7 @@ export default function AdminOrders() {
               </div>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 sm:p-2">
             {isLoading ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
