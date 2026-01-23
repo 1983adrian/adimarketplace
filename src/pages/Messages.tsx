@@ -4,7 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { ConversationList } from '@/components/messages/ConversationList';
 import { ChatWindow } from '@/components/messages/ChatWindow';
 import { NewConversationDialog } from '@/components/messages/NewConversationDialog';
-import { useConversations, useCreateConversation } from '@/hooks/useConversations';
+import { useConversations, useCreateConversation, useDeleteConversation } from '@/hooks/useConversations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card } from '@/components/ui/card';
@@ -24,6 +24,7 @@ export default function Messages() {
   
   const { data: conversations, isLoading, refetch } = useConversations(user?.id);
   const createConversation = useCreateConversation();
+  const deleteConversation = useDeleteConversation();
 
   useEffect(() => {
     if (conversationIdParam && conversations) {
@@ -51,6 +52,21 @@ export default function Messages() {
     setShowChat(false);
     setSelectedConversation(null);
     refetch();
+  };
+
+  const handleDeleteConversation = async (conversationId: string) => {
+    try {
+      await deleteConversation.mutateAsync({ conversationId });
+      toast.success('Conversație ștearsă');
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+        setShowChat(false);
+      }
+      refetch();
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      toast.error('Nu s-a putut șterge conversația');
+    }
   };
 
   const handleNewConversation = async (sellerId: string, listingId?: string) => {
@@ -177,6 +193,7 @@ export default function Messages() {
                 selectedId={selectedConversation?.id}
                 currentUserId={user.id}
                 onSelect={handleSelectConversation}
+                onDelete={handleDeleteConversation}
               />
             </div>
 
