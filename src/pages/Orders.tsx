@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Package, 
   Truck, 
@@ -21,9 +22,12 @@ import {
   Store,
   Undo2,
   Inbox,
-  LucideIcon
+  LucideIcon,
+  XCircle,
+  Loader2
 } from 'lucide-react';
 import { useMyOrders, useUpdateTracking, useConfirmDelivery, Order } from '@/hooks/useOrders';
+import { useCancelOrder } from '@/hooks/useCancelOrder';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -172,10 +176,13 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
   const [trackingNumber, setTrackingNumber] = useState('');
   const [carrier, setCarrier] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
   const { formatPrice } = useCurrency();
 
   const updateTracking = useUpdateTracking();
   const confirmDelivery = useConfirmDelivery();
+  const cancelOrder = useCancelOrder();
 
   const status = statusConfig[order.status] || statusConfig.pending;
   const primaryImage = order.listings?.listing_images?.find(img => img.is_primary)?.image_url
@@ -193,6 +200,19 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
     confirmDelivery.mutate(order.id, {
       onSuccess: () => setConfirmOpen(false),
     });
+  };
+
+  const handleCancelOrder = () => {
+    if (!cancelReason.trim()) return;
+    cancelOrder.mutate(
+      { orderId: order.id, reason: cancelReason },
+      { 
+        onSuccess: () => {
+          setCancelOpen(false);
+          setCancelReason('');
+        }
+      }
+    );
   };
 
   return (
@@ -280,6 +300,67 @@ const OrderCard = ({ order, type }: { order: Order; type: 'buying' | 'selling' }
                           disabled={!trackingNumber || !carrier || updateTracking.isPending}
                         >
                           {updateTracking.isPending ? 'Se salvează...' : 'Marchează ca Expediat'}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
+                )}
+
+                {/* Seller: Cancel Order button for pending/paid orders */}
+                {type === 'selling' && (order.status === 'pending' || order.status === 'paid') && (
+                  <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" variant="destructive">
+                        <XCircle className="h-4 w-4 mr-1" />
+                        Anulează Comanda
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-destructive">
+                          <AlertTriangle className="h-5 w-5" />
+                          Anulează Comanda
+                        </DialogTitle>
+                        <DialogDescription>
+                          Ești sigur că vrei să anulezi această comandă? Cumpărătorul va fi notificat.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="bg-muted p-4 rounded-lg space-y-2">
+                          <p className="text-sm"><strong>Produs:</strong> {order.listings?.title}</p>
+                          <p className="text-sm"><strong>Sumă:</strong> {formatPrice(Number(order.amount))}</p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="cancel-reason">Motivul anulării *</Label>
+                          <Textarea
+                            id="cancel-reason"
+                            placeholder="Explică de ce anulezi comanda (ex: produs indisponibil, eroare de preț...)"
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setCancelOpen(false)}>
+                          Înapoi
+                        </Button>
+                        <Button 
+                          variant="destructive"
+                          onClick={handleCancelOrder}
+                          disabled={!cancelReason.trim() || cancelOrder.isPending}
+                        >
+                          {cancelOrder.isPending ? (
+                            <>
+                              <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                              Se procesează...
+                            </>
+                          ) : (
+                            <>
+                              <XCircle className="h-4 w-4 mr-1" />
+                              Confirmă Anularea
+                            </>
+                          )}
                         </Button>
                       </DialogFooter>
                     </DialogContent>
