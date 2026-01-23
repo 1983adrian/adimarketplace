@@ -180,13 +180,20 @@ serve(async (req) => {
         p_amount: payoutAmount,
       });
 
-      // Create notification for seller - remind to add tracking number
+      // Create notification for seller - include shipping address
       await supabase.from("notifications").insert({
         user_id: listing.seller_id,
         type: "new_order",
         title: "📦 Comandă Nouă - Adaugă Tracking!",
-        message: `Ai o comandă nouă pentru "${listing.title}"! Te rugăm să expediezi produsul și să adaugi numărul de urmărire (AWB) în secțiunea "Vânzările Mele". Vei primi ${payoutAmount.toFixed(2)} RON după confirmarea livrării.`,
-        data: { order_id: order.id, listing_id: listing.id, needs_tracking: true },
+        message: `Ai o comandă nouă pentru "${listing.title}"! Expediază la adresa: ${shippingAddress}. Vei primi ${payoutAmount.toFixed(2)} RON după confirmarea livrării.`,
+        data: { 
+          order_id: order.id, 
+          listing_id: listing.id, 
+          needs_tracking: true,
+          shipping_address: shippingAddress,
+          payment_method: paymentMethod || 'card',
+          courier: courier || null,
+        },
       });
     }
 
