@@ -114,7 +114,7 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* Center Section - Mobile: Green Button (only for logged-in users) */}
+          {/* Center Section - Mobile: Green Button - Home (only for logged-in users) */}
           {user && (
             <div className="flex-1 flex justify-center md:hidden">
               <Button 
@@ -122,7 +122,7 @@ export const Header: React.FC = () => {
                 size="icon"
                 className="h-12 w-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg shadow-green-500/30 hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
-                <Link to="/browse">
+                <Link to="/">
                   <Store className="h-6 w-6" />
                 </Link>
               </Button>
