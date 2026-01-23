@@ -8,7 +8,7 @@ import { useNotificationSound, NotificationSoundType } from '@/hooks/useNotifica
 export interface Notification {
   id: string;
   user_id: string;
-  type: 'order' | 'message' | 'review' | 'payout' | 'shipping';
+  type: 'order' | 'message' | 'review' | 'payout' | 'shipping' | 'refund' | 'refund_initiated';
   title: string;
   message: string;
   data: Record<string, any>;
@@ -163,6 +163,7 @@ export const useRealTimeNotifications = () => {
             notification.type === 'message' ? 'message' :
             notification.type === 'payout' ? 'payout' :
             notification.type === 'shipping' ? 'shipping' :
+            notification.type === 'refund' || notification.type === 'refund_initiated' ? 'refund' :
             'bell'; // Default to bell sound for general notifications
           
           playSound(soundType);
@@ -325,7 +326,7 @@ export const useRealTimeOrders = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { playOrderSound, playPayoutSound, playShippingSound, playCancelSound } = useNotificationSound();
+  const { playOrderSound, playPayoutSound, playShippingSound, playCancelSound, playRefundSound } = useNotificationSound();
 
   useEffect(() => {
     if (!user) return;
@@ -443,23 +444,50 @@ export const useRealTimeOrders = () => {
                 });
               }
               
-              // 💸 Refund notification
-              if (order.status === 'refunded' && oldOrder?.status !== 'refunded' && order.buyer_id === user.id) {
-                playPayoutSound();
+              // 💸 Refund notification for BUYER
+              if ((order.status === 'refunded' || order.refund_status === 'processing') && 
+                  oldOrder?.status !== 'refunded' && order.buyer_id === user.id) {
+                playRefundSound();
+                
+                const refundAmount = order.refund_amount || order.amount;
                 
                 await supabase.from('notifications').insert({
                   user_id: user.id,
                   type: 'payout',
-                  title: '💸 Rambursare Procesată',
-                  message: `Ai primit rambursarea de £${order.refund_amount?.toFixed(2) || order.amount?.toFixed(2) || '0.00'}.`,
-                  data: { order_id: order.id, refunded: true }
+                  title: '💸 Rambursare în Curs',
+                  message: `Rambursarea de £${refundAmount?.toFixed(2) || '0.00'} este în procesare. Vei primi banii în curând.`,
+                  data: { order_id: order.id, refunded: true, refund_amount: refundAmount }
                 });
                 
-                showBrowserNotification('💸 Rambursare Procesată', `Ai primit rambursarea de £${order.refund_amount?.toFixed(2) || order.amount?.toFixed(2)}.`);
+                showBrowserNotification('💸 Rambursare în Curs', `Rambursarea de £${refundAmount?.toFixed(2)} este în procesare.`);
                 
                 toast({
-                  title: '💸 Rambursare Procesată',
-                  description: `Ai primit rambursarea de £${order.refund_amount?.toFixed(2) || order.amount?.toFixed(2) || '0.00'}.`,
+                  title: '💸 Rambursare în Curs',
+                  description: `Rambursarea de £${refundAmount?.toFixed(2) || '0.00'} este în procesare. Vei primi banii în curând.`,
+                });
+              }
+              
+              // 💸 Refund notification for SELLER
+              if ((order.status === 'refunded' || order.refund_status === 'processing') && 
+                  oldOrder?.status !== 'refunded' && order.seller_id === user.id) {
+                playCancelSound(); // Seller hears a different sound
+                
+                const refundAmount = order.refund_amount || order.amount;
+                
+                await supabase.from('notifications').insert({
+                  user_id: user.id,
+                  type: 'order',
+                  title: '🔄 Comandă Rambursată',
+                  message: `O comandă de £${refundAmount?.toFixed(2) || '0.00'} a fost rambursată. Motiv: ${order.refund_reason || 'Nespecificat'}`,
+                  data: { order_id: order.id, refunded: true, refund_amount: refundAmount, reason: order.refund_reason }
+                });
+                
+                showBrowserNotification('🔄 Comandă Rambursată', `O comandă de £${refundAmount?.toFixed(2)} a fost rambursată.`);
+                
+                toast({
+                  title: '🔄 Comandă Rambursată',
+                  description: `O comandă de £${refundAmount?.toFixed(2) || '0.00'} a fost rambursată.`,
+                  variant: 'destructive',
                 });
               }
             }
@@ -471,7 +499,7 @@ export const useRealTimeOrders = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, toast, playOrderSound, playPayoutSound, playShippingSound, playCancelSound]);
+  }, [user, queryClient, toast, playOrderSound, playPayoutSound, playShippingSound, playCancelSound, playRefundSound]);
 };
 
 // Hook for real-time bids (for sellers)
