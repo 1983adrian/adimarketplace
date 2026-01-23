@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { QRCodeSVG } from 'qrcode.react';
-import cmarketHero from '@/assets/cmarket-hero-clean.png';
+
 
 export const HeroSection: React.FC = () => {
   const { t } = useLanguage();
@@ -72,63 +72,63 @@ export const HeroSection: React.FC = () => {
     <section className="relative bg-background">
       {/* Hero Banner - eBay/Amazon Style with seamless image */}
       <div className="relative overflow-hidden">
-        {/* Background with hero image integrated seamlessly */}
+        {/* Premium Background Gradient - Professional Marketplace Style */}
         <div 
-          className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10"
+          className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5"
         />
+        {/* Subtle decorative elements */}
+        <div className="absolute top-0 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
         
-        {/* Hero image seamlessly integrated - Reduced size for better mobile/desktop visibility */}
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 w-32 md:w-48 lg:w-64 hidden sm:flex items-center justify-center opacity-15 pointer-events-none">
-          <img 
-            src={cmarketHero} 
-            alt="" 
-            className="w-full h-auto object-contain mix-blend-multiply"
-          />
-        </div>
-        
-        <div className="container mx-auto px-4 py-8 md:py-12 relative z-10">
-          <div className="max-w-4xl">
-            {/* Brand Title - Clean eBay/Amazon style */}
-            <div className="mb-6">
-              <div className="flex items-center gap-3 mb-3">
-                <img 
-                  src={cmarketHero} 
-                  alt="Marketplace România" 
-                  className="h-16 md:h-20 w-auto object-contain"
-                />
-                <div>
-                  <h1 className="text-2xl md:text-4xl font-bold text-foreground">
-                    Marketplace România
-                  </h1>
-                  <p className="text-sm md:text-base text-muted-foreground">
+        <div className="container mx-auto px-4 py-10 md:py-16 relative z-10">
+          <div className="max-w-4xl mx-auto text-center">
+            {/* Brand Title - Premium eBay/Amazon Professional Style */}
+            <div className="mb-8">
+              {/* Main Title - Professional Marketplace Typography */}
+              <div className="mb-4">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight">
+                  <span className="bg-gradient-to-r from-primary via-blue-600 to-primary bg-clip-text text-transparent drop-shadow-sm">
+                    Market
+                  </span>
+                  <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent">
+                    place
+                  </span>
+                  <span className="text-foreground ml-2">România</span>
+                </h1>
+                
+                {/* Premium Tagline */}
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <div className="h-[2px] w-8 md:w-12 bg-gradient-to-r from-transparent to-primary rounded-full" />
+                  <p className="text-sm md:text-base lg:text-lg font-semibold text-muted-foreground uppercase tracking-widest">
                     #1 Platformă de cumpărături online
                   </p>
+                  <div className="h-[2px] w-8 md:w-12 bg-gradient-to-l from-transparent to-primary rounded-full" />
                 </div>
               </div>
               
-              <p className="text-base md:text-lg text-foreground/80 max-w-xl">
-                Cumpără și vinde <span className="font-semibold text-primary">produse noi sau second-hand</span> de la mii de vânzători verificați din România.
+              <p className="text-base md:text-lg lg:text-xl text-foreground/80 max-w-2xl mx-auto">
+                Cumpără și vinde <span className="font-bold text-primary">produse noi sau second-hand</span> de la mii de vânzători verificați din România.
               </p>
             </div>
             
-            {/* CTA Buttons - eBay/Amazon style */}
-            <div className="flex flex-wrap gap-3 mb-6">
+            {/* CTA Buttons - eBay/Amazon style - Centered */}
+            <div className="flex flex-wrap gap-3 mb-6 justify-center">
               <Link to="/browse">
-                <Button size="lg" className="h-12 px-6 gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg">
+                <Button size="lg" className="h-12 px-8 gap-2 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-primary-foreground font-bold shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5">
                   Cumpără Acum
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               </Link>
               <Link to="/sell">
-                <Button size="lg" variant="outline" className="h-12 px-6 gap-2 border-2 border-primary text-primary hover:bg-primary/10 font-semibold">
+                <Button size="lg" variant="outline" className="h-12 px-8 gap-2 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-bold transition-all duration-300 hover:-translate-y-0.5">
                   Vinde Gratuit
                 </Button>
               </Link>
             </div>
             
-            {/* App Download Buttons - Clean horizontal style like eMAG */}
+            {/* App Download Buttons - Clean horizontal style like eMAG - Centered */}
             {showDownloadButtons && (
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap justify-center">
                 <span className="text-sm text-muted-foreground mr-2">Descarcă aplicația:</span>
                 
                 {/* iOS */}
