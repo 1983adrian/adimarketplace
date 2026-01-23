@@ -8,6 +8,7 @@ import {
   BarChart3,
   Shield,
   Crown,
+  Megaphone,
   LucideIcon
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -34,6 +35,7 @@ interface MenuItem {
 // Simplified to 4 main categories with essential pages only
 const mainItems: MenuItem[] = [
   { title: 'Owner Dashboard', url: '/admin/owner', icon: Crown, premium: true },
+  { title: 'Broadcast', url: '/admin/broadcast', icon: Megaphone, premium: true },
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Utilizatori', url: '/admin/users', icon: Users },
   { title: 'Produse', url: '/admin/listings', icon: Package },

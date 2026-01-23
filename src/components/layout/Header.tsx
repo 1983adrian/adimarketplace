@@ -18,6 +18,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { LanguageSelector } from './LanguageSelector';
 import { SearchDialog } from './SearchDialog';
 import { NotificationBell } from './NotificationBell';
+import { SellerNotificationBell } from './SellerNotificationBell';
 import { CartDropdown } from './CartDropdown';
 import { AppDownloadButton } from './AppDownloadButton';
 import { useRealTimeNotifications, useRealTimeOrders } from '@/hooks/useRealTimeNotifications';
@@ -146,6 +147,7 @@ export const Header: React.FC = () => {
             
             {user ? (
               <>
+                <SellerNotificationBell />
                 <NotificationBell />
                 <Button asChild className="gap-2 ml-2 gradient-primary text-primary-foreground font-medium">
                   <Link to="/sell">
