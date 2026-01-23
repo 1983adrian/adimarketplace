@@ -4,19 +4,14 @@ import { Layout } from '@/components/layout/Layout';
 import { ConversationList } from '@/components/messages/ConversationList';
 import { ChatWindow } from '@/components/messages/ChatWindow';
 import { NewConversationDialog } from '@/components/messages/NewConversationDialog';
-import { FriendsList } from '@/components/messages/FriendsList';
 import { useConversations, useCreateConversation } from '@/hooks/useConversations';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card } from '@/components/ui/card';
-import { MessageCircle, ArrowLeft, Users } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { usePendingFriendRequests } from '@/hooks/useFriendships';
-import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
 
 export default function Messages() {
   const { user } = useAuth();
@@ -26,12 +21,9 @@ export default function Messages() {
   
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [showChat, setShowChat] = useState(false);
-  const [activeTab, setActiveTab] = useState<'conversations' | 'friends'>('conversations');
   
   const { data: conversations, isLoading, refetch } = useConversations(user?.id);
   const createConversation = useCreateConversation();
-  const { data: pendingRequests } = usePendingFriendRequests(user?.id);
-  const pendingCount = pendingRequests?.length || 0;
 
   useEffect(() => {
     if (conversationIdParam && conversations) {
@@ -68,17 +60,14 @@ export default function Messages() {
         sellerId
       });
       
-      // Refetch to get the full conversation with details
       await refetch();
       
-      // Wait a bit for the refetch to complete, then find and select the conversation
       setTimeout(() => {
         const conv = conversations?.find((c: any) => c.id === result.id);
         if (conv) {
           setSelectedConversation(conv);
           setShowChat(true);
         } else {
-          // If not found in list, use the result directly
           setSelectedConversation({
             id: result.id,
             listing_id: listingId,
@@ -92,52 +81,6 @@ export default function Messages() {
     } catch (error) {
       console.error('Error creating conversation:', error);
       toast.error('Nu s-a putut crea conversația');
-    }
-  };
-  // Start chat from friends list
-  const handleStartChatFromFriend = async (friendUserId: string) => {
-    if (!user) return;
-    
-    try {
-      // First find if we have a listing from this user
-      const { data: listings } = await supabase
-        .from('listings')
-        .select('id')
-        .eq('seller_id', friendUserId)
-        .eq('is_active', true)
-        .limit(1);
-
-      if (listings && listings.length > 0) {
-        const result = await createConversation.mutateAsync({
-          listingId: listings[0].id,
-          buyerId: user.id,
-          sellerId: friendUserId
-        });
-        
-        await refetch();
-        setActiveTab('conversations');
-        
-        setTimeout(() => {
-          const conv = conversations?.find((c: any) => c.id === result.id);
-          if (conv) {
-            setSelectedConversation(conv);
-            setShowChat(true);
-          } else {
-            setSelectedConversation({
-              id: result.id,
-              listing_id: listings[0].id,
-              buyer_id: user.id,
-              seller_id: friendUserId
-            });
-            setShowChat(true);
-          }
-        }, 100);
-      } else {
-        toast.error('Utilizatorul nu are produse active pentru a iniția o conversație');
-      }
-    } catch (error) {
-      console.error('Error starting chat from friend:', error);
-      toast.error('Nu s-a putut iniția conversația');
     }
   };
 
@@ -165,7 +108,7 @@ export default function Messages() {
     );
   }
 
-  // Mobile chat - within Layout (not fullscreen)
+  // Mobile: Show chat fullscreen when conversation selected
   if (isMobile && showChat && selectedConversation) {
     return (
       <Layout hideFooter>
@@ -189,14 +132,15 @@ export default function Messages() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-4 md:py-6">
+        {/* Header */}
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-sky-400 to-blue-500 rounded-xl flex items-center justify-center shadow-md">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#25D366] to-[#128C7E] rounded-xl flex items-center justify-center shadow-md">
               <MessageCircle className="h-5 w-5 text-white" />
             </div>
             <div>
               <h1 className="text-xl md:text-2xl font-bold">Mesaje</h1>
-              <p className="text-sm text-muted-foreground hidden md:block">Conversațiile tale cu vânzătorii și cumpărătorii</p>
+              <p className="text-sm text-muted-foreground hidden md:block">Conversațiile tale</p>
             </div>
           </div>
           <NewConversationDialog
@@ -205,14 +149,14 @@ export default function Messages() {
           />
         </div>
 
-        {/* Main Chat Container - Responsive height */}
+        {/* Simple Chat Container */}
         <Card className="overflow-hidden flex flex-col border-2" style={{ 
           height: isMobile ? 'calc(100vh - 200px)' : 'calc(100vh - 220px)', 
           minHeight: '400px',
           maxHeight: isMobile ? 'calc(100vh - 160px)' : '800px'
         }}>
           <div className="flex h-full overflow-hidden">
-            {/* Left Panel: Conversations + Friends Tabs */}
+            {/* Left Panel: Conversation List Only */}
             <div 
               className={`${
                 isMobile 
@@ -220,41 +164,16 @@ export default function Messages() {
                   : 'w-80 lg:w-96 border-r'
               } flex-shrink-0 overflow-hidden flex flex-col`}
             >
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'conversations' | 'friends')} className="h-full flex flex-col">
-                <TabsList className="grid w-full grid-cols-2 m-2" style={{ width: 'calc(100% - 16px)' }}>
-                  <TabsTrigger value="conversations" className="flex items-center gap-2">
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="hidden sm:inline">Conversații</span>
-                    <span className="sm:hidden">Chat</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="friends" className="flex items-center gap-2 relative">
-                    <Users className="h-4 w-4" />
-                    Prieteni
-                    {pendingCount > 0 && (
-                      <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                        {pendingCount}
-                      </Badge>
-                    )}
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="conversations" className="flex-1 m-0 overflow-hidden">
-                  <ConversationList
-                    conversations={conversations || []}
-                    isLoading={isLoading}
-                    selectedId={selectedConversation?.id}
-                    currentUserId={user.id}
-                    onSelect={handleSelectConversation}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="friends" className="flex-1 m-0 overflow-hidden">
-                  <FriendsList onStartChat={handleStartChatFromFriend} />
-                </TabsContent>
-              </Tabs>
+              <ConversationList
+                conversations={conversations || []}
+                isLoading={isLoading}
+                selectedId={selectedConversation?.id}
+                currentUserId={user.id}
+                onSelect={handleSelectConversation}
+              />
             </div>
 
-            {/* Chat Window - Desktop only, mobile uses fullscreen overlay */}
+            {/* Right Panel: Chat Window (Desktop only) */}
             {!isMobile && (
               <div className="flex-1 flex flex-col overflow-hidden min-w-0">
                 <ChatWindow

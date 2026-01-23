@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { ro } from 'date-fns/locale';
-import { MessageCircle, Shield, CheckCheck, Check, Image } from 'lucide-react';
+import { MessageCircle, Image } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface ConversationListProps {
@@ -22,55 +22,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
   currentUserId,
   onSelect,
 }) => {
-  const [adminProfile, setAdminProfile] = useState<any>(null);
-  const [adminConversation, setAdminConversation] = useState<any>(null);
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
-
-  // Fetch admin profile
-  useEffect(() => {
-    const fetchAdmin = async () => {
-      const { data: adminRoles } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', 'admin')
-        .limit(1);
-      
-      if (adminRoles && adminRoles.length > 0) {
-        const adminUserId = adminRoles[0].user_id;
-        
-        // Don't show admin to themselves
-        if (adminUserId === currentUserId) return;
-        
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('user_id', adminUserId)
-          .single();
-        
-        if (profile) {
-          setAdminProfile({
-            ...profile,
-            display_name: profile.display_name || 'Admin C Market',
-            isAdmin: true
-          });
-        }
-      }
-    };
-
-    if (currentUserId) {
-      fetchAdmin();
-    }
-  }, [currentUserId]);
-
-  // Check if there's already a conversation with admin
-  useEffect(() => {
-    if (adminProfile && conversations) {
-      const existing = conversations.find(
-        c => c.buyer_id === adminProfile.user_id || c.seller_id === adminProfile.user_id
-      );
-      setAdminConversation(existing);
-    }
-  }, [adminProfile, conversations]);
 
   // Fetch unread counts for each conversation
   useEffect(() => {
@@ -129,67 +81,15 @@ export const ConversationList: React.FC<ConversationListProps> = ({
     );
   }
 
-  const handleAdminClick = () => {
-    if (adminConversation) {
-      onSelect(adminConversation);
-    } else if (adminProfile) {
-      onSelect({
-        id: 'admin-new',
-        buyer_id: currentUserId,
-        seller_id: adminProfile.user_id,
-        seller: adminProfile,
-        buyer: null,
-        isNewAdminChat: true,
-        listings: null
-      });
-    }
-  };
-
   return (
     <div className="h-full overflow-y-auto bg-white">
       {/* Header */}
       <div className="sticky top-0 bg-gradient-to-r from-[#075E54] to-[#128C7E] text-white px-4 py-3 z-10">
-        <h2 className="font-bold text-lg">Mesaje</h2>
+        <h2 className="font-bold text-lg">Chat</h2>
       </div>
 
       <div className="divide-y divide-gray-100">
-        {/* Admin Contact - Always at top */}
-        {adminProfile && (
-          <div
-            onClick={handleAdminClick}
-            className={`flex items-center gap-3 p-3 cursor-pointer transition-all hover:bg-gray-50 ${
-              selectedId === 'admin-new' || (adminConversation && selectedId === adminConversation.id) 
-                ? 'bg-primary/5' 
-                : ''
-            }`}
-          >
-            <div className="relative">
-              <Avatar className="h-12 w-12 ring-2 ring-primary/30">
-                <AvatarImage src={adminProfile.avatar_url || ''} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-white">
-                  <Shield className="h-5 w-5" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-0.5 -right-0.5 bg-green-500 rounded-full w-3.5 h-3.5 border-2 border-white" />
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between mb-0.5">
-                <p className="font-semibold text-gray-900 flex items-center gap-1.5">
-                  Admin C Market
-                  <Badge variant="secondary" className="text-[10px] bg-primary/10 text-primary px-1.5 py-0">
-                    Suport
-                  </Badge>
-                </p>
-              </div>
-              <p className="text-sm text-gray-500 truncate">
-                💬 Întreabă orice! Suntem aici să te ajutăm.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Regular conversations */}
+        {/* Conversations */}
         {conversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 p-8 text-center text-muted-foreground">
             <MessageCircle className="h-12 w-12 mb-4 opacity-50" />
@@ -201,11 +101,6 @@ export const ConversationList: React.FC<ConversationListProps> = ({
             const otherUser = getOtherUser(conversation);
             const isSelected = selectedId === conversation.id;
             const unreadCount = unreadCounts[conversation.id] || 0;
-            const userIdShort = otherUser?.user_id?.slice(0, 6)?.toUpperCase() || '------';
-            
-            // Get product image
-            const productImage = conversation.listings?.listing_images?.find((img: any) => img.is_primary)?.image_url
-              || conversation.listings?.listing_images?.[0]?.image_url;
             
             return (
               <div
@@ -215,35 +110,14 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                   isSelected ? 'bg-gray-100' : ''
                 }`}
               >
-                {/* Product Image or User Avatar */}
+                {/* User Avatar */}
                 <div className="relative flex-shrink-0">
-                  {productImage ? (
-                    <div className="relative">
-                      <img 
-                        src={productImage} 
-                        alt={conversation.listings?.title || 'Produs'}
-                        className="h-12 w-12 rounded-lg object-cover border border-gray-200"
-                      />
-                      {/* Small user avatar overlay */}
-                      <Avatar className="h-5 w-5 absolute -bottom-1 -right-1 border-2 border-white">
-                        <AvatarImage src={otherUser?.avatar_url || ''} />
-                        <AvatarFallback className="bg-gray-400 text-white text-[8px]">
-                          {getInitials(otherUser?.display_name || otherUser?.username)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </div>
-                  ) : (
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={otherUser?.avatar_url || ''} />
-                      <AvatarFallback className="bg-gradient-to-br from-gray-300 to-gray-400 text-white">
-                        {getInitials(otherUser?.display_name || otherUser?.username)}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  {/* User ID Badge */}
-                  <span className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[8px] px-1 py-0.5 rounded font-mono">
-                    #{userIdShort}
-                  </span>
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={otherUser?.avatar_url || ''} />
+                    <AvatarFallback className="bg-gradient-to-br from-[#25D366] to-[#128C7E] text-white">
+                      {getInitials(otherUser?.display_name || otherUser?.username)}
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
                 
                 <div className="flex-1 min-w-0">
@@ -253,7 +127,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                         {otherUser?.display_name || otherUser?.username || 'Utilizator'}
                       </p>
                     </div>
-                    <span className={`text-xs flex-shrink-0 ${unreadCount > 0 ? 'text-primary font-medium' : 'text-gray-400'}`}>
+                    <span className={`text-xs flex-shrink-0 ${unreadCount > 0 ? 'text-[#25D366] font-medium' : 'text-gray-400'}`}>
                       {formatDistanceToNow(new Date(conversation.updated_at), {
                         addSuffix: false,
                         locale: ro,
@@ -268,10 +142,10 @@ export const ConversationList: React.FC<ConversationListProps> = ({
                           <Image className="h-3.5 w-3.5" />
                           <span>Imagine</span>
                         </>
+                      ) : conversation.last_message ? (
+                        conversation.last_message
                       ) : (
-                        <>
-                          📦 {conversation.listings?.title || 'Produs șters'}
-                        </>
+                        <span className="text-gray-400 italic">Niciun mesaj încă</span>
                       )}
                     </p>
                     

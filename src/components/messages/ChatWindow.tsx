@@ -10,7 +10,7 @@ import { useMessages, useSendMessage, useMarkMessagesRead } from '@/hooks/useCon
 import { useRealTimeMessages } from '@/hooks/useRealTimeNotifications';
 import { Send, ArrowLeft, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Profile } from '@/types/database';
+
 
 interface ChatWindowProps {
   conversation: any;
@@ -110,11 +110,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     });
   };
 
-  const getSenderProfile = (senderId: string): Profile | undefined => {
-    if (senderId === conversation?.buyer_id) return conversation?.buyer;
-    if (senderId === conversation?.seller_id) return conversation?.seller;
-    return undefined;
-  };
 
   if (!conversation) {
     return (
@@ -225,7 +220,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                   key={message.id}
                   message={message}
                   isOwn={message.sender_id === currentUserId}
-                  senderProfile={getSenderProfile(message.sender_id)}
                 />
               ))}
             </div>
