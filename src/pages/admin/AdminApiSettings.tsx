@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Key, Save, Eye, EyeOff, AlertTriangle, CheckCircle, ExternalLink, Shield, ScanSearch, Wallet, CreditCard } from 'lucide-react';
+import { Key, Save, Eye, EyeOff, AlertTriangle, CheckCircle, ExternalLink, Shield, Wallet } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminSettingsCheck } from '@/components/admin/AdminSettingsCheck';
-import { AIImageVerification } from '@/components/admin/AIImageVerification';
 
 interface ApiKeyConfig {
   key: string;
@@ -251,14 +250,10 @@ export default function AdminApiSettings() {
         </div>
 
         <Tabs defaultValue="status" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="status" className="gap-2">
               <Shield className="h-4 w-4" />
               Status Servicii
-            </TabsTrigger>
-            <TabsTrigger value="images" className="gap-2">
-              <ScanSearch className="h-4 w-4" />
-              Verificare Imagini AI
             </TabsTrigger>
             <TabsTrigger value="payments" className="gap-2">
               <Wallet className="h-4 w-4" />
@@ -277,10 +272,6 @@ export default function AdminApiSettings() {
 
           <TabsContent value="status">
             <AdminSettingsCheck />
-          </TabsContent>
-
-          <TabsContent value="images">
-            <AIImageVerification />
           </TabsContent>
 
           <TabsContent value="payments" className="space-y-4">
