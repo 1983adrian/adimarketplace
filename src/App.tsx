@@ -39,6 +39,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import InstallApp from "./pages/InstallApp";
 import SellerTutorial from "./pages/SellerTutorial";
 import Feedback from "./pages/Feedback";
+import Notifications from "./pages/Notifications";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -116,6 +117,7 @@ const App = () => (
                 <Route path="/install" element={<InstallApp />} />
                 <Route path="/seller-tutorial" element={<SellerTutorial />} />
                 <Route path="/feedback" element={<Feedback />} />
+                <Route path="/notifications" element={<Notifications />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/owner" element={<OwnerDashboard />} />
