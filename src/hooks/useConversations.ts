@@ -8,6 +8,8 @@ export const useConversations = (userId?: string) => {
     queryFn: async () => {
       if (!userId) return [];
       
+      console.log('[useConversations] Fetching for userId:', userId);
+      
       // Fetch conversations with related data
       const { data: conversations, error } = await supabase
         .from('conversations')
@@ -21,7 +23,12 @@ export const useConversations = (userId?: string) => {
         .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
         .order('updated_at', { ascending: false });
       
-      if (error) throw error;
+      console.log('[useConversations] Result:', { conversations, error });
+      
+      if (error) {
+        console.error('[useConversations] Error:', error);
+        throw error;
+      }
       if (!conversations || conversations.length === 0) return [];
       
       // Get all unique user IDs from conversations
