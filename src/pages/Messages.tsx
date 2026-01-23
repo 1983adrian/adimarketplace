@@ -165,17 +165,24 @@ export default function Messages() {
     );
   }
 
-  // Full screen mobile chat experience
+  // Mobile chat - within Layout (not fullscreen)
   if (isMobile && showChat && selectedConversation) {
     return (
-      <div className="fixed inset-0 z-50 bg-background flex flex-col">
-        <ChatWindow
-          conversation={selectedConversation}
-          currentUserId={user.id}
-          onBack={handleBack}
-          isMobile={true}
-        />
-      </div>
+      <Layout hideFooter>
+        <div className="container mx-auto px-2 py-2">
+          <Card className="overflow-hidden flex flex-col border-2" style={{ 
+            height: 'calc(100vh - 180px)', 
+            minHeight: '400px'
+          }}>
+            <ChatWindow
+              conversation={selectedConversation}
+              currentUserId={user.id}
+              onBack={handleBack}
+              isMobile={true}
+            />
+          </Card>
+        </div>
+      </Layout>
     );
   }
 
