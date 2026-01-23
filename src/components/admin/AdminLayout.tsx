@@ -69,35 +69,35 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             </div>
           )}
           
-          <header className="h-16 border-b flex items-center justify-between px-4 md:px-6 bg-gradient-to-r from-card to-card/80 backdrop-blur-sm">
-            <div className="flex items-center gap-2 md:gap-4">
+          <header className="h-20 border-b flex items-end justify-between px-4 md:px-6 pb-2 bg-gradient-to-r from-card to-card/80 backdrop-blur-sm">
+            <div className="flex items-center gap-3 md:gap-4">
               <SidebarTrigger className="hover:bg-primary/10 transition-colors" />
               
               {/* Back/Forward Navigation Buttons */}
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 rounded-full hover:bg-primary/10"
+                className="h-12 w-12 rounded-full hover:bg-primary/10 border border-primary/20"
                 onClick={() => window.history.back()}
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-6 w-6" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-8 w-8 rounded-full hover:bg-primary/10"
+                className="h-12 w-12 rounded-full hover:bg-primary/10 border border-primary/20"
                 onClick={() => window.history.forward()}
               >
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-6 w-6" />
               </Button>
               
               <Button 
                 variant="outline" 
-                size="sm" 
                 asChild
-                className="gap-2 border-primary/30 hover:bg-primary/10 hover:border-primary transition-all duration-200"
+                className="h-10 px-4 gap-2 text-sm font-medium border-primary/30 hover:bg-primary/10 hover:border-primary transition-all duration-200"
               >
                 <Link to="/">
+                  <ArrowLeft className="h-4 w-4" />
                   <span className="hidden sm:inline">Înapoi la Site</span>
                   <span className="sm:hidden">Site</span>
                 </Link>
