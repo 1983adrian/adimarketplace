@@ -325,7 +325,7 @@ export const useRealTimeOrders = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { playOrderSound, playPayoutSound, playShippingSound } = useNotificationSound();
+  const { playOrderSound, playPayoutSound, playShippingSound, playCancelSound } = useNotificationSound();
 
   useEffect(() => {
     if (!user) return;
@@ -339,17 +339,29 @@ export const useRealTimeOrders = () => {
           schema: 'public',
           table: 'orders',
         },
-        (payload) => {
+        async (payload) => {
           const order = payload.new as any;
+          const oldOrder = payload.old as any;
           
           // Check if user is involved in this order
           if (order.buyer_id === user.id || order.seller_id === user.id) {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
             
             // 🎉 New order notification for seller with sound
             if (payload.eventType === 'INSERT' && order.seller_id === user.id) {
               // Play cha-ching sound for new order!
               playOrderSound();
+              
+              // Create notification in database
+              await supabase.from('notifications').insert({
+                user_id: user.id,
+                type: 'order',
+                title: '🎉 Comandă nouă primită!',
+                message: `Ai vândut un produs pentru £${order.amount?.toFixed(2) || '0.00'}`,
+                data: { order_id: order.id }
+              });
               
               // Show browser notification
               showBrowserNotification('🎉 Comandă nouă primită!', `Ai vândut un produs pentru £${order.amount?.toFixed(2) || '0.00'}`);
@@ -361,8 +373,17 @@ export const useRealTimeOrders = () => {
             }
             
             if (payload.eventType === 'UPDATE') {
-              if (order.status === 'shipped' && order.buyer_id === user.id) {
+              // 📦 Order shipped notification for buyer
+              if (order.status === 'shipped' && oldOrder?.status !== 'shipped' && order.buyer_id === user.id) {
                 playShippingSound();
+                
+                await supabase.from('notifications').insert({
+                  user_id: user.id,
+                  type: 'shipping',
+                  title: '📦 Comanda a fost expediată!',
+                  message: 'Vânzătorul a expediat comanda ta.',
+                  data: { order_id: order.id, tracking: order.tracking_number }
+                });
                 
                 showBrowserNotification('📦 Comanda a fost expediată!', 'Vânzătorul a expediat comanda ta.');
                 
@@ -371,18 +392,74 @@ export const useRealTimeOrders = () => {
                   description: 'Vânzătorul a expediat comanda ta.',
                 });
               }
+              
               // 🪙 COIN SOUND: When seller receives payout (delivery confirmed)
-              if (order.status === 'delivered' && order.seller_id === user.id) {
+              if (order.status === 'delivered' && oldOrder?.status !== 'delivered' && order.seller_id === user.id) {
                 const payoutAmount = order.payout_amount || (order.amount * 0.9);
                 
                 // Play coin drop sound! 🎵
                 playPayoutSound();
+                
+                await supabase.from('notifications').insert({
+                  user_id: user.id,
+                  type: 'payout',
+                  title: '💰 Bani Primiți!',
+                  message: `£${payoutAmount.toFixed(2)} au fost adăugați la soldul tău disponibil.`,
+                  data: { order_id: order.id, amount: payoutAmount }
+                });
                 
                 showBrowserNotification('💰 Bani Primiți!', `£${payoutAmount.toFixed(2)} au fost adăugați la soldul tău disponibil.`);
                 
                 toast({
                   title: '💰 Bani Primiți!',
                   description: `£${payoutAmount.toFixed(2)} au fost adăugați la soldul tău disponibil.`,
+                });
+              }
+              
+              // ❌ Order cancelled notification
+              if (order.status === 'cancelled' && oldOrder?.status !== 'cancelled') {
+                playCancelSound();
+                
+                const isBuyer = order.buyer_id === user.id;
+                const title = isBuyer ? '❌ Comanda a fost anulată' : '❌ Comandă anulată';
+                const message = isBuyer 
+                  ? 'Comanda ta a fost anulată. Vei primi rambursarea în curând.'
+                  : 'O comandă a fost anulată de cumpărător.';
+                
+                await supabase.from('notifications').insert({
+                  user_id: user.id,
+                  type: 'order',
+                  title,
+                  message,
+                  data: { order_id: order.id, cancelled: true }
+                });
+                
+                showBrowserNotification(title, message);
+                
+                toast({
+                  title,
+                  description: message,
+                  variant: 'destructive',
+                });
+              }
+              
+              // 💸 Refund notification
+              if (order.status === 'refunded' && oldOrder?.status !== 'refunded' && order.buyer_id === user.id) {
+                playPayoutSound();
+                
+                await supabase.from('notifications').insert({
+                  user_id: user.id,
+                  type: 'payout',
+                  title: '💸 Rambursare Procesată',
+                  message: `Ai primit rambursarea de £${order.refund_amount?.toFixed(2) || order.amount?.toFixed(2) || '0.00'}.`,
+                  data: { order_id: order.id, refunded: true }
+                });
+                
+                showBrowserNotification('💸 Rambursare Procesată', `Ai primit rambursarea de £${order.refund_amount?.toFixed(2) || order.amount?.toFixed(2)}.`);
+                
+                toast({
+                  title: '💸 Rambursare Procesată',
+                  description: `Ai primit rambursarea de £${order.refund_amount?.toFixed(2) || order.amount?.toFixed(2) || '0.00'}.`,
                 });
               }
             }
@@ -394,7 +471,7 @@ export const useRealTimeOrders = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient, toast, playOrderSound, playPayoutSound, playShippingSound]);
+  }, [user, queryClient, toast, playOrderSound, playPayoutSound, playShippingSound, playCancelSound]);
 };
 
 // Hook for real-time bids (for sellers)
@@ -429,6 +506,17 @@ export const useRealTimeBids = () => {
           if (listing?.seller_id === user.id) {
             queryClient.invalidateQueries({ queryKey: ['bids'] });
             queryClient.invalidateQueries({ queryKey: ['my-auction-listings'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+            
+            // Create notification in database
+            await supabase.from('notifications').insert({
+              user_id: user.id,
+              type: 'order',
+              title: '🔔 Licitație Nouă!',
+              message: `Ai primit o ofertă de £${bid.amount.toFixed(2)} pe "${listing.title}".`,
+              data: { listing_id: bid.listing_id, bid_amount: bid.amount }
+            });
             
             // Play bid notification sound
             playBidSound();
@@ -448,4 +536,117 @@ export const useRealTimeBids = () => {
       supabase.removeChannel(channel);
     };
   }, [user, queryClient, toast, playBidSound]);
+};
+
+// Hook for real-time friend requests
+export const useRealTimeFriendRequests = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { playFriendSound } = useNotificationSound();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`friendships:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'friendships',
+          filter: `addressee_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const friendship = payload.new as any;
+          
+          if (friendship.status === 'pending') {
+            // Get requester info
+            const { data: requester } = await supabase
+              .from('profiles')
+              .select('display_name, username')
+              .eq('user_id', friendship.requester_id)
+              .single();
+            
+            const requesterName = requester?.display_name || requester?.username || 'Cineva';
+            
+            queryClient.invalidateQueries({ queryKey: ['friend-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+            
+            // Create notification in database
+            await supabase.from('notifications').insert({
+              user_id: user.id,
+              type: 'message',
+              title: '👋 Cerere de prietenie nouă',
+              message: `${requesterName} vrea să fie prieten cu tine.`,
+              data: { friendship_id: friendship.id, requester_id: friendship.requester_id }
+            });
+            
+            // Play friend sound
+            playFriendSound();
+            
+            showBrowserNotification('👋 Cerere de prietenie', `${requesterName} vrea să fie prieten cu tine.`);
+            
+            toast({
+              title: '👋 Cerere de prietenie nouă',
+              description: `${requesterName} vrea să fie prieten cu tine.`,
+            });
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'friendships',
+          filter: `requester_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const friendship = payload.new as any;
+          
+          if (friendship.status === 'accepted') {
+            // Get addressee info
+            const { data: addressee } = await supabase
+              .from('profiles')
+              .select('display_name, username')
+              .eq('user_id', friendship.addressee_id)
+              .single();
+            
+            const addresseeName = addressee?.display_name || addressee?.username || 'Utilizator';
+            
+            queryClient.invalidateQueries({ queryKey: ['friends'] });
+            queryClient.invalidateQueries({ queryKey: ['sent-friend-requests'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+            
+            // Create notification in database
+            await supabase.from('notifications').insert({
+              user_id: user.id,
+              type: 'message',
+              title: '🎉 Cerere acceptată!',
+              message: `${addresseeName} a acceptat cererea ta de prietenie.`,
+              data: { friendship_id: friendship.id, friend_id: friendship.addressee_id }
+            });
+            
+            // Play friend sound
+            playFriendSound();
+            
+            showBrowserNotification('🎉 Cerere acceptată!', `${addresseeName} a acceptat cererea ta de prietenie.`);
+            
+            toast({
+              title: '🎉 Cerere acceptată!',
+              description: `${addresseeName} a acceptat cererea ta de prietenie.`,
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient, toast, playFriendSound]);
 };

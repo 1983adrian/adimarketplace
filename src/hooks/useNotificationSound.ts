@@ -130,7 +130,77 @@ const createShippingSoundBuffer = async (audioContext: AudioContext): Promise<Au
   return buffer;
 };
 
-export type NotificationSoundType = 'message' | 'order' | 'payout' | 'shipping' | 'bid' | 'general';
+// Cancel/Error sound - descending tones
+const createCancelSoundBuffer = async (audioContext: AudioContext): Promise<AudioBuffer> => {
+  const sampleRate = audioContext.sampleRate;
+  const duration = 0.5;
+  const samples = sampleRate * duration;
+  const buffer = audioContext.createBuffer(1, samples, sampleRate);
+  const channelData = buffer.getChannelData(0);
+
+  // Descending sad tones
+  const frequencies = [523.25, 392, 329.63]; // C5, G4, E4
+  
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    let sample = 0;
+    
+    // First tone (0-0.15s)
+    if (t < 0.15) {
+      const envelope = Math.exp(-t * 12);
+      sample += Math.sin(2 * Math.PI * frequencies[0] * t) * envelope;
+    }
+    // Second tone (0.15-0.30s)
+    else if (t < 0.30) {
+      const localT = t - 0.15;
+      const envelope = Math.exp(-localT * 12);
+      sample += Math.sin(2 * Math.PI * frequencies[1] * localT) * envelope;
+    }
+    // Third tone (0.30-0.5s)
+    else {
+      const localT = t - 0.30;
+      const envelope = Math.exp(-localT * 8);
+      sample += Math.sin(2 * Math.PI * frequencies[2] * localT) * envelope;
+    }
+    
+    channelData[i] = sample * 0.35;
+  }
+
+  return buffer;
+};
+
+// Friend request sound - gentle chime
+const createFriendSoundBuffer = async (audioContext: AudioContext): Promise<AudioBuffer> => {
+  const sampleRate = audioContext.sampleRate;
+  const duration = 0.4;
+  const samples = sampleRate * duration;
+  const buffer = audioContext.createBuffer(1, samples, sampleRate);
+  const channelData = buffer.getChannelData(0);
+
+  // Happy ascending chime
+  const frequencies = [523.25, 659.25, 783.99]; // C5, E5, G5
+  
+  for (let i = 0; i < samples; i++) {
+    const t = i / sampleRate;
+    let sample = 0;
+    
+    // All tones together with staggered starts
+    frequencies.forEach((freq, idx) => {
+      const startTime = idx * 0.08;
+      if (t >= startTime) {
+        const localT = t - startTime;
+        const envelope = Math.exp(-localT * 6);
+        sample += Math.sin(2 * Math.PI * freq * localT) * envelope * 0.3;
+      }
+    });
+    
+    channelData[i] = sample * 0.5;
+  }
+
+  return buffer;
+};
+
+export type NotificationSoundType = 'message' | 'order' | 'payout' | 'shipping' | 'bid' | 'general' | 'cancel' | 'friend';
 
 export const useNotificationSound = () => {
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -144,11 +214,13 @@ export const useNotificationSound = () => {
       audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       
       // Pre-generate all sound buffers
-      const [messageBuf, saleBuf, payoutBuf, shippingBuf] = await Promise.all([
+      const [messageBuf, saleBuf, payoutBuf, shippingBuf, cancelBuf, friendBuf] = await Promise.all([
         createNotificationSoundBuffer(audioContextRef.current),
         createSaleSoundBuffer(audioContextRef.current),
         createPayoutSoundBuffer(audioContextRef.current),
         createShippingSoundBuffer(audioContextRef.current),
+        createCancelSoundBuffer(audioContextRef.current),
+        createFriendSoundBuffer(audioContextRef.current),
       ]);
       
       soundBuffersRef.current.set('message', messageBuf);
@@ -156,6 +228,8 @@ export const useNotificationSound = () => {
       soundBuffersRef.current.set('bid', saleBuf); // Same as order
       soundBuffersRef.current.set('payout', payoutBuf);
       soundBuffersRef.current.set('shipping', shippingBuf);
+      soundBuffersRef.current.set('cancel', cancelBuf);
+      soundBuffersRef.current.set('friend', friendBuf);
       soundBuffersRef.current.set('general', messageBuf); // Default
       
       initializedRef.current = true;
@@ -214,6 +288,8 @@ export const useNotificationSound = () => {
     playPayoutSound: () => playSound('payout'),
     playShippingSound: () => playSound('shipping'),
     playBidSound: () => playSound('bid'),
+    playCancelSound: () => playSound('cancel'),
+    playFriendSound: () => playSound('friend'),
     initializeAudio 
   };
 };

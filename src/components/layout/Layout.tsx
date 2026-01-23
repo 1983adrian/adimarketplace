@@ -3,7 +3,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { InstallBanner } from './InstallBanner';
 import { FloatingChatButton } from './FloatingChatButton';
-import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids, useGlobalMessageNotifications } from '@/hooks/useRealTimeNotifications';
+import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids, useGlobalMessageNotifications, useRealTimeFriendRequests } from '@/hooks/useRealTimeNotifications';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAppBadge } from '@/hooks/useAppBadge';
 
@@ -18,6 +18,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideFooter = false }) 
   useRealTimeOrders();
   useRealTimeBids();
   useGlobalMessageNotifications(); // Global message notifications
+  useRealTimeFriendRequests(); // Friend request notifications
   
   // Initialize native push notifications (only active on iOS/Android)
   usePushNotifications();
