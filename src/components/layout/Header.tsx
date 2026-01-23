@@ -82,7 +82,7 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
         <div className="flex items-center justify-between h-14 md:h-16 gap-2 md:gap-4">
-          {/* Navigation Buttons */}
+          {/* Left Section - Navigation Buttons */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Back/Forward Navigation - Larger & More Visible */}
             <Button 
@@ -107,6 +107,21 @@ export const Header: React.FC = () => {
               <AppDownloadButton />
             </div>
           </div>
+
+          {/* Center Section - Mobile: Green Button (only for logged-in users) */}
+          {user && (
+            <div className="flex-1 flex justify-center md:hidden">
+              <Button 
+                asChild
+                size="icon"
+                className="h-12 w-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg shadow-green-500/30 hover:shadow-xl transition-all duration-200 hover:scale-105"
+              >
+                <Link to="/browse">
+                  <Store className="h-6 w-6" />
+                </Link>
+              </Button>
+            </div>
+          )}
 
           {/* Desktop Search Bar */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-xl mx-4">
@@ -228,20 +243,8 @@ export const Header: React.FC = () => {
             )}
           </nav>
 
-          {/* Mobile Menu Toggle */}
-          <div className="flex items-center gap-1.5 md:hidden">
-            {/* Big SELL Button - Mobile - Only for logged-in users */}
-            {user && (
-              <Button 
-                asChild
-                size="icon"
-                className="h-11 w-11 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg shadow-green-500/30 hover:shadow-xl transition-all duration-200 hover:scale-105"
-              >
-                <Link to="/browse">
-                  <Store className="h-6 w-6" />
-                </Link>
-              </Button>
-            )}
+          {/* Right Section - Mobile Menu Toggle */}
+          <div className="flex items-center gap-1.5 md:hidden shrink-0">
             <CartDropdown />
             <SearchDialog />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
