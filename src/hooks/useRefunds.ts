@@ -29,11 +29,21 @@ export function useMyRefunds() {
 
       const { data, error } = await supabase
         .from('refunds')
-        .select('*')
+        .select(`
+          *,
+          orders (
+            id,
+            amount,
+            status,
+            listing_id,
+            listings (title, price)
+          )
+        `)
+        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Refund[];
+      return data as (Refund & { orders?: { id: string; amount: number; status: string; listing_id: string; listings?: { title: string; price: number } } })[];
     },
     enabled: !!user,
   });
