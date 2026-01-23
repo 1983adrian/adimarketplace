@@ -193,18 +193,6 @@ export const Header: React.FC = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/dashboard/listings">
-                        <Package className="mr-2 h-4 w-4" />
-                        {t('header.listings')}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/orders">
-                        <ShoppingBag className="mr-2 h-4 w-4" />
-                        {t('header.orders')}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="cursor-pointer">
                       <Link to="/favorites">
                         <Heart className="mr-2 h-4 w-4" />
                         {t('header.favorites')}
@@ -333,18 +321,6 @@ export const Header: React.FC = () => {
                             <Link to="/favorites">
                               <Heart className="mr-3 h-4 w-4" />
                               {t('header.favorites')}
-                            </Link>
-                          </Button>
-                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/orders">
-                              <Package className="mr-3 h-4 w-4" />
-                              {t('header.orders')}
-                            </Link>
-                          </Button>
-                          <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/messages">
-                              <MessageCircle className="mr-3 h-4 w-4" />
-                              {t('header.messages')}
                             </Link>
                           </Button>
                           <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
