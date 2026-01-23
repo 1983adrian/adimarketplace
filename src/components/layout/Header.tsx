@@ -297,14 +297,26 @@ export const Header: React.FC = () => {
                           </div>
                         </div>
                         
-                        {/* Simplified - just go to Meniu/Dashboard */}
-                        <div className="space-y-1">
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-12 bg-primary/5" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/dashboard">
-                              <User className="h-5 w-5 text-primary" />
-                              <span className="font-medium">Meniu & Cont</span>
-                            </Link>
-                          </Button>
+                        {/* Premium Meniu & Cont Button */}
+                        <div className="mt-2">
+                          <Link 
+                            to="/dashboard" 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="group flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 hover:from-primary/25 hover:via-primary/15 hover:to-primary/10 transition-all duration-300 shadow-lg shadow-primary/5 hover:shadow-primary/15"
+                          >
+                            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform duration-300">
+                              <User className="h-6 w-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-bold text-foreground text-lg group-hover:text-primary transition-colors duration-300">Meniu & Cont</p>
+                              <p className="text-sm text-muted-foreground">Setări, comenzi și profil</p>
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
+                              <svg className="w-4 h-4 text-primary group-hover:translate-x-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </div>
+                          </Link>
                         </div>
                         
                         {isAdmin && (
