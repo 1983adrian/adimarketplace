@@ -4,15 +4,11 @@ import {
   Plus, 
   Package, 
   ShoppingBag,
-  Wallet,
-  MessageCircle,
   GraduationCap,
   LucideIcon,
   Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUnreadMessages } from '@/hooks/useUnreadMessages';
-import { NotificationBadge } from '@/components/ui/NotificationBadge';
 
 interface MenuItem {
   id: string;
@@ -20,12 +16,12 @@ interface MenuItem {
   description: string;
   url: string;
   icon: LucideIcon;
-  activeColor: string; // Color when active
+  activeColor: string;
   premium?: boolean;
-  badgeKey?: 'messages';
 }
 
 // Items with their specific active colors
+// 4 main items - removed duplicates (Messages in BottomNav, Wallet in Settings)
 const mainItems: MenuItem[] = [
   { 
     id: 'tutorial',
@@ -60,29 +56,11 @@ const mainItems: MenuItem[] = [
     icon: ShoppingBag,
     activeColor: 'bg-gradient-to-br from-emerald-400 to-green-600'
   },
-  { 
-    id: 'messages',
-    title: 'Mesaje Clienți', 
-    description: 'Chat în timp real',
-    url: '/messages', 
-    icon: MessageCircle,
-    activeColor: 'bg-gradient-to-br from-blue-400 to-indigo-500',
-    badgeKey: 'messages' 
-  },
-  { 
-    id: 'wallet',
-    title: 'Portofel & Bani', 
-    description: 'Sold, plăți și retrageri',
-    url: '/settings?tab=payouts', 
-    icon: Wallet,
-    activeColor: 'bg-gradient-to-br from-orange-400 to-red-500'
-  },
 ];
 
 export const SellerQuickActions: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
-  const { data: unreadMessages = 0 } = useUnreadMessages();
 
   const isActive = (url: string) => {
     const baseUrl = url.split('?')[0];
@@ -91,11 +69,10 @@ export const SellerQuickActions: React.FC = () => {
 
   return (
     <div className="mb-8">
-      {/* Grid 2x3 for both mobile and desktop */}
+      {/* Grid 2x2 for 4 items */}
       <div className="grid grid-cols-2 gap-3">
         {mainItems.map((item) => {
           const Icon = item.icon;
-          const badgeCount = item.badgeKey === 'messages' ? unreadMessages : 0;
           const active = isActive(item.url);
           
           return (
@@ -124,9 +101,6 @@ export const SellerQuickActions: React.FC = () => {
                 active && "ring-2 ring-offset-2 ring-primary scale-110"
               )}>
                 <Icon className="h-7 w-7 text-white transition-colors" strokeWidth={2} />
-                {badgeCount > 0 && (
-                  <NotificationBadge count={badgeCount} size="sm" className="-top-1 -right-1" />
-                )}
               </div>
               
               {/* Title */}
