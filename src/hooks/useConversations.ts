@@ -8,22 +8,46 @@ export const useConversations = (userId?: string) => {
     queryFn: async () => {
       if (!userId) return [];
       
-      const { data, error } = await supabase
+      // Fetch conversations with related data
+      const { data: conversations, error } = await supabase
         .from('conversations')
         .select(`
           *,
           listings (
             *,
             listing_images (*)
-          ),
-          buyer:profiles!conversations_buyer_id_fkey (*),
-          seller:profiles!conversations_seller_id_fkey (*)
+          )
         `)
         .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
         .order('updated_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      if (!conversations || conversations.length === 0) return [];
+      
+      // Get all unique user IDs from conversations
+      const userIds = new Set<string>();
+      conversations.forEach(conv => {
+        userIds.add(conv.buyer_id);
+        userIds.add(conv.seller_id);
+      });
+      
+      // Fetch all profiles at once
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('user_id', Array.from(userIds));
+      
+      // Create profile lookup map
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+      
+      // Attach buyer and seller profiles to each conversation
+      const enrichedConversations = conversations.map(conv => ({
+        ...conv,
+        buyer: profileMap.get(conv.buyer_id) || null,
+        seller: profileMap.get(conv.seller_id) || null,
+      }));
+      
+      return enrichedConversations;
     },
     enabled: !!userId,
   });
@@ -35,19 +59,32 @@ export const useConversation = (conversationId?: string) => {
     queryFn: async () => {
       if (!conversationId) return null;
       
-      const { data, error } = await supabase
+      // Fetch conversation with listing
+      const { data: conversation, error } = await supabase
         .from('conversations')
         .select(`
           *,
-          listings (*),
-          buyer:profiles!conversations_buyer_id_fkey (*),
-          seller:profiles!conversations_seller_id_fkey (*)
+          listings (*)
         `)
         .eq('id', conversationId)
         .maybeSingle();
       
       if (error) throw error;
-      return data;
+      if (!conversation) return null;
+      
+      // Fetch buyer and seller profiles
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('user_id', [conversation.buyer_id, conversation.seller_id]);
+      
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+      
+      return {
+        ...conversation,
+        buyer: profileMap.get(conversation.buyer_id) || null,
+        seller: profileMap.get(conversation.seller_id) || null,
+      };
     },
     enabled: !!conversationId,
   });
