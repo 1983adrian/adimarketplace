@@ -6,28 +6,24 @@ import { Link } from 'react-router-dom';
 import { 
   Camera, 
   Tag, 
-  FileText, 
-  Upload, 
   CheckCircle2, 
   ShoppingBag, 
   MessageCircle, 
-  Package, 
   Truck, 
   BadgeCheck, 
-  IdCard, 
-  Shield, 
   Wallet, 
-  CreditCard, 
   ArrowRight,
   Sparkles,
   Star,
-  Clock,
   Users,
   TrendingUp,
   CircleDollarSign,
-  Plus,
   Eye,
-  Bell
+  Store,
+  CreditCard,
+  Package,
+  Settings,
+  Banknote
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
@@ -35,96 +31,113 @@ const SellerTutorial: React.FC = () => {
   const steps = [
     {
       number: 1,
-      title: "Creează Cont de Vânzător",
-      description: "Înregistrează-te gratuit și activează opțiunea de vânzător din setări",
-      icon: Users,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200",
+      title: "Activează Modul Vânzător",
+      description: "Accesează Mod Vânzător din Meniu pentru a activa contul de vânzări",
+      icon: Store,
+      color: "from-amber-500 to-orange-500",
+      bgColor: "bg-amber-50",
+      borderColor: "border-amber-200",
       details: [
-        "Apasă pe 'Înregistrare' în colțul din dreapta sus",
-        "Completează datele tale: email, parolă, nume",
-        "Confirmă emailul primit în inbox",
-        "Mergi la Setări → Magazin pentru a activa vânzarea"
+        "Din Dashboard, apasă pe 'Mod Vânzător'",
+        "Activează toggle-ul 'Permite listarea produselor'",
+        "Completează numele magazinului tău",
+        "Alege tipul de vânzător: Persoană Fizică sau Firmă",
+        "Limită: maxim 10 produse active simultan"
       ]
     },
     {
       number: 2,
-      title: "Adaugă Primul Produs",
-      description: "Fotografiază produsul și completează detaliile pentru a-l lista",
-      icon: Camera,
+      title: "Configurează Încasările",
+      description: "Setează metoda de plată pentru a primi banii din vânzări",
+      icon: CreditCard,
       color: "from-green-500 to-emerald-500",
       bgColor: "bg-green-50",
       borderColor: "border-green-200",
       details: [
-        "Apasă butonul '+ Adaugă Produs' din Dashboard",
-        "Încarcă fotografii clare ale produsului (minim 3)",
-        "Adaugă titlu descriptiv și descriere detaliată",
-        "Setează prețul și categoria potrivită",
-        "Alege metoda de livrare și costul transportului"
+        "În Mod Vânzător, alege țara contului bancar",
+        "Selectează metoda: Transfer Bancar (IBAN) sau Card de Debit",
+        "Introdu IBAN-ul complet fără spații",
+        "Completează numele titularului de cont",
+        "Apasă 'Salvează Setările de Plată'"
       ]
     },
     {
       number: 3,
-      title: "Gestionează Comenzile",
-      description: "Primești notificare când cineva cumpără - răspunde rapid!",
-      icon: ShoppingBag,
-      color: "from-orange-500 to-amber-500",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200",
+      title: "Verificare Identitate (KYC)",
+      description: "Verifică-ți identitatea pentru a putea încasa banii",
+      icon: BadgeCheck,
+      color: "from-sky-500 to-blue-500",
+      bgColor: "bg-sky-50",
+      borderColor: "border-sky-200",
       details: [
-        "Vei primi notificare pe email și în aplicație",
-        "Accesează 'Comenzi' pentru a vedea detaliile",
-        "Contactează cumpărătorul prin chat dacă ai întrebări",
-        "Confirmă disponibilitatea și pregătește coletul"
+        "Verificarea este procesată de Adyen/Mangopay",
+        "Încarcă un act de identitate valid (CI/Pașaport)",
+        "Adaugă o poză selfie pentru confirmare",
+        "Procesul durează 1-3 zile lucrătoare",
+        "Primești notificare când ești aprobat"
       ]
     },
     {
       number: 4,
-      title: "Expediază Coletul",
-      description: "Împachetează frumos și trimite prin curierul ales",
+      title: "Adaugă Produse de Vânzare",
+      description: "Fotografiază și listează produsele tale",
+      icon: Camera,
+      color: "from-violet-500 to-purple-500",
+      bgColor: "bg-violet-50",
+      borderColor: "border-violet-200",
+      details: [
+        "Din Meniu, apasă pe 'Adaugă Produs'",
+        "Încarcă fotografii clare (minim 3 poze)",
+        "Adaugă titlu descriptiv și descriere detaliată",
+        "Setează prețul și categoria potrivită",
+        "Alege curierul și costul de transport"
+      ]
+    },
+    {
+      number: 5,
+      title: "Gestionează Comenzile",
+      description: "Primești notificare când cineva cumpără",
+      icon: ShoppingBag,
+      color: "from-rose-500 to-pink-500",
+      bgColor: "bg-rose-50",
+      borderColor: "border-rose-200",
+      details: [
+        "Vei primi notificare pe email și în aplicație",
+        "Din Meniu → Comenzi, vezi secțiunea 'Vânzări'",
+        "Contactează cumpărătorul prin Mesaje dacă ai întrebări",
+        "Pregătește coletul pentru expediere"
+      ]
+    },
+    {
+      number: 6,
+      title: "Expediază și Adaugă Tracking",
+      description: "Trimite coletul și introdu numărul AWB",
       icon: Truck,
       color: "from-purple-500 to-violet-500",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
       details: [
         "Împachetează produsul în siguranță",
-        "Alege curierul (FAN Courier, Sameday, etc.)",
-        "Generează AWB-ul din secțiunea comenzi",
-        "Introdu numărul de tracking pentru cumpărător",
+        "Trimite prin curierul ales (FAN, Sameday, etc.)",
+        "În Comenzi → Vânzări, apasă 'Adaugă Tracking'",
+        "Introdu numărul AWB și selectează curierul",
         "Cumpărătorul primește actualizări automat"
       ]
     },
     {
-      number: 5,
-      title: "Verifică-ți Contul",
-      description: "Conturile verificate primesc mai multă încredere și vânzări",
-      icon: BadgeCheck,
-      color: "from-sky-500 to-blue-500",
-      bgColor: "bg-sky-50",
-      borderColor: "border-sky-200",
-      details: [
-        "Mergi la Setări → Verificare",
-        "Încarcă un act de identitate valid (CI/Pașaport)",
-        "Adaugă o poză selfie pentru confirmare",
-        "Așteaptă aprobarea (24-48 ore)",
-        "Primești badge-ul ✓ Verificat pe profil"
-      ]
-    },
-    {
-      number: 6,
-      title: "Retrage Banii",
-      description: "După livrare, banii sunt disponibili pentru retragere",
+      number: 7,
+      title: "Retrage Banii din Portofel",
+      description: "După confirmarea livrării, banii sunt disponibili",
       icon: Wallet,
       color: "from-emerald-500 to-teal-500",
       bgColor: "bg-emerald-50",
       borderColor: "border-emerald-200",
       details: [
-        "Banii ajung în portofelul tău după confirmarea livrării",
-        "Mergi la Setări → Bani & Plăți",
-        "Adaugă contul bancar (IBAN) sau PayPal",
-        "Solicită retragerea sumei dorite",
-        "Transferul durează 1-3 zile lucrătoare"
+        "Din Meniu, accesează 'Portofel'",
+        "Vezi Sold Disponibil (gata pentru transfer)",
+        "Vezi În Așteptare (se procesează)",
+        "Apasă 'Retrage' pentru a solicita transferul",
+        "Banii ajung în cont în 1-3 zile lucrătoare"
       ]
     }
   ];
@@ -160,6 +173,14 @@ const SellerTutorial: React.FC = () => {
     }
   ];
 
+  const menuLocations = [
+    { icon: Store, title: "Mod Vânzător", description: "Activare, KYC, setări cont bancar", color: "from-amber-400 to-orange-500" },
+    { icon: Package, title: "Produsele Mele", description: "Vezi produsele tale active", color: "from-violet-500 to-purple-600" },
+    { icon: Wallet, title: "Portofel", description: "Sold disponibil și retrageri", color: "from-green-500 to-emerald-600" },
+    { icon: ShoppingBag, title: "Comenzi", description: "Cumpărături și vânzări", color: "from-rose-400 to-pink-600" },
+    { icon: Settings, title: "Setări Profil", description: "Avatar, nume, contact", color: "from-blue-400 to-indigo-500" },
+  ];
+
   return (
     <Layout>
       <div className="min-h-screen bg-gradient-to-b from-primary/5 via-background to-background">
@@ -176,19 +197,38 @@ const SellerTutorial: React.FC = () => {
                 Ghid Complet pentru Vânzători
               </Badge>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary to-accent bg-clip-text text-transparent">
-                Învață să Vinzi pe C Market
+                Învață să Vinzi pe Marketplace România
               </h1>
               <p className="text-lg text-muted-foreground mb-6">
                 Urmează pașii simpli de mai jos și începe să câștigi bani din produsele tale!
               </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <Button asChild size="lg" className="gap-2 shadow-lg">
-                  <Link to="/create-listing">
-                    <Plus className="h-5 w-5" />
-                    Începe Acum - Adaugă Produs
-                  </Link>
-                </Button>
-              </div>
+              <Button asChild size="lg" className="gap-2 shadow-lg">
+                <Link to="/dashboard">
+                  <Eye className="h-5 w-5" />
+                  Începe Acum
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Menu Reference */}
+        <section className="container mx-auto px-4 py-6">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-6">
+              <h2 className="text-xl font-bold">Unde Găsești Totul în Meniu</h2>
+              <p className="text-sm text-muted-foreground">Toate funcțiile sunt centralizate în Dashboard</p>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {menuLocations.map((item, index) => (
+                <div key={index} className="flex flex-col items-center p-3 bg-card rounded-xl border text-center">
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-2`}>
+                    <item.icon className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="text-xs font-semibold">{item.title}</span>
+                  <span className="text-[10px] text-muted-foreground leading-tight">{item.description}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -207,7 +247,7 @@ const SellerTutorial: React.FC = () => {
                 <CardHeader className="pb-2">
                   <div className="flex items-start gap-4">
                     {/* Step Number & Icon */}
-                    <div className={`relative flex-shrink-0`}>
+                    <div className="relative flex-shrink-0">
                       <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}>
                         <step.icon className="h-8 w-8 md:h-10 md:w-10 text-white" />
                       </div>
@@ -330,15 +370,15 @@ const SellerTutorial: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button asChild size="lg" className="gap-2 shadow-lg">
-                <Link to="/create-listing">
-                  <Plus className="h-5 w-5" />
-                  Adaugă Primul Produs
+                <Link to="/seller-mode">
+                  <Store className="h-5 w-5" />
+                  Activează Mod Vânzător
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="gap-2">
                 <Link to="/dashboard">
                   <Eye className="h-5 w-5" />
-                  Mergi la Dashboard
+                  Mergi la Meniu
                 </Link>
               </Button>
             </div>
