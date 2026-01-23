@@ -99,7 +99,7 @@ const Dashboard = () => {
         {/* Menu Grid */}
         <div className="bg-card border-2 border-border rounded-3xl p-6 shadow-lg">
           <h2 className="text-xl font-bold text-center mb-4">Meniu</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const badgeCount = item.showBadge === 'messages' ? unreadMessages : 0;
