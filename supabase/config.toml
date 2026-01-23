@@ -21,9 +21,6 @@ verify_jwt = false
 [functions.ai-sales-manager]
 verify_jwt = false
 
-[functions.verify-image]
-verify_jwt = false
-
 [functions.admin-settings-check]
 verify_jwt = false
 
