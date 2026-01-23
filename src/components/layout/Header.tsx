@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight, GraduationCap, Wallet } from 'lucide-react';
+import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight, GraduationCap, Wallet, Store } from 'lucide-react';
 import logo from '@/assets/cmarket-hero.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -134,6 +134,16 @@ export const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
+            {/* Big SELL Button */}
+            <Button 
+              asChild
+              className="h-11 px-5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 hover:scale-105 mr-2"
+            >
+              <Link to="/browse" className="flex items-center gap-2">
+                <Store className="h-5 w-5" />
+                <span>Vinde</span>
+              </Link>
+            </Button>
             <CartDropdown />
             <LanguageSelector />
             
@@ -220,6 +230,16 @@ export const Header: React.FC = () => {
 
           {/* Mobile Menu Toggle */}
           <div className="flex items-center gap-1.5 md:hidden">
+            {/* Big SELL Button - Mobile */}
+            <Button 
+              asChild
+              size="icon"
+              className="h-11 w-11 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg shadow-green-500/30 hover:shadow-xl transition-all duration-200 hover:scale-105"
+            >
+              <Link to="/browse">
+                <Store className="h-6 w-6" />
+              </Link>
+            </Button>
             <CartDropdown />
             <SearchDialog />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
