@@ -130,18 +130,19 @@ const Dashboard = () => {
               else if (item.showBadge === 'my-returns') badgeCount = myPendingReturns;
               else if (item.showBadge === 'received-returns') badgeCount = receivedPendingReturns;
               
+              // Format notification text
+              const notificationText = badgeCount === 1 
+                ? '1 notificare' 
+                : badgeCount > 1 
+                  ? `${badgeCount > 99 ? '99+' : badgeCount} notificări`
+                  : null;
+              
               return (
                 <Link 
                   key={item.id}
                   to={item.url}
-                  className="relative flex flex-col items-center p-2 rounded-lg bg-muted/50 hover:bg-muted hover:shadow-md transition-all duration-200 min-h-[72px] active:scale-95"
+                  className="relative flex flex-col items-center p-2 rounded-lg bg-muted/50 hover:bg-muted hover:shadow-md transition-all duration-200 min-h-[88px] active:scale-95"
                 >
-                  {badgeCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 rounded-full bg-red-500 text-white text-[10px] font-bold animate-pulse shadow-md">
-                      {badgeCount > 99 ? '99+' : badgeCount}
-                    </span>
-                  )}
-                  
                   <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center mb-1 shadow-sm", item.color)}>
                     <Icon className="h-4 w-4 text-white" strokeWidth={2.5} />
                   </div>
@@ -149,6 +150,12 @@ const Dashboard = () => {
                   <span className="text-[10px] font-medium text-foreground text-center leading-tight line-clamp-2">
                     {item.title}
                   </span>
+                  
+                  {notificationText && (
+                    <span className="mt-1 px-2 py-0.5 rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold animate-pulse shadow-sm">
+                      {notificationText}
+                    </span>
+                  )}
                 </Link>
               );
             })}
