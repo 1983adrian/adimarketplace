@@ -190,7 +190,7 @@ export const ConversationList: React.FC<ConversationListProps> = ({
         )}
 
         {/* Regular conversations */}
-        {conversations.length === 0 && !adminProfile ? (
+        {conversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 p-8 text-center text-muted-foreground">
             <MessageCircle className="h-12 w-12 mb-4 opacity-50" />
             <p className="font-medium">Nicio conversație</p>
