@@ -77,7 +77,9 @@ const Dashboard = () => {
             </Avatar>
             <div>
               <h1 className="text-lg font-bold">{profile?.display_name || 'Bun venit'}</h1>
-              <p className="text-sm text-muted-foreground">Meniu & Cont</p>
+              <p className="text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
+                Vânzător Marketplace România
+              </p>
             </div>
           </div>
 
