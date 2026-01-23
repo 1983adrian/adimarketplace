@@ -99,15 +99,18 @@ export const HeroSection: React.FC = () => {
                 {/* Premium Tagline */}
                 <div className="flex items-center justify-center gap-2 mt-3">
                   <div className="h-[2px] w-8 md:w-12 bg-gradient-to-r from-transparent to-primary rounded-full" />
-                  <p className="text-sm md:text-base lg:text-lg font-semibold text-muted-foreground uppercase tracking-widest">
-                    #1 Platformă de cumpărături online
+                  <p className="text-xs md:text-sm lg:text-base font-semibold text-muted-foreground uppercase tracking-widest">
+                    Cumpără • Vinde • Licitează
                   </p>
                   <div className="h-[2px] w-8 md:w-12 bg-gradient-to-l from-transparent to-primary rounded-full" />
                 </div>
               </div>
               
-              <p className="text-base md:text-lg lg:text-xl text-foreground/80 max-w-2xl mx-auto">
-                Cumpără și vinde <span className="font-bold text-primary">produse noi sau second-hand</span> de la mii de vânzători verificați din România.
+              <p className="text-base md:text-lg lg:text-xl text-foreground/80 max-w-2xl mx-auto leading-relaxed">
+                <span className="font-bold text-primary">Cumpără sau vinde</span> produse noi și second-hand, 
+                <span className="font-bold text-amber-500"> licitează</span> pentru oferte unice sau 
+                <span className="font-bold text-emerald-500"> pune la licitație</span> propriile produse. 
+                Mii de vânzători verificați din România te așteaptă!
               </p>
             </div>
             
@@ -126,95 +129,125 @@ export const HeroSection: React.FC = () => {
               </Link>
             </div>
             
-            {/* App Download Buttons - Clean horizontal style like eMAG - Centered */}
+            {/* App Download Buttons - Premium visible style - Centered */}
             {showDownloadButtons && (
-              <div className="flex items-center gap-2 flex-wrap justify-center">
-                <span className="text-sm text-muted-foreground mr-2">Descarcă aplicația:</span>
+              <div className="flex flex-col items-center gap-4 mt-8">
+                <span className="text-sm font-medium text-foreground">📱 Descarcă aplicația:</span>
                 
-                {/* iOS */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="gap-2 h-9 px-4 border-border hover:bg-secondary"
-                    >
-                      <Apple className="h-4 w-4" />
-                      iPhone
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-4" align="start">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 font-semibold text-sm">
-                        <Apple className="h-4 w-4" />
-                        Instalare pe iPhone
-                      </div>
-                      <div className="space-y-2 text-sm text-muted-foreground">
-                        <p>1. Apasă <Share className="h-3 w-3 inline" /> Share în Safari</p>
-                        <p>2. Selectează "Add to Home Screen"</p>
-                        <p>3. Confirmă cu "Add"</p>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Android */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="gap-2 h-9 px-4 border-border hover:bg-secondary"
-                      onClick={canPrompt ? async () => { await promptInstall(); } : undefined}
-                    >
-                      <Smartphone className="h-4 w-4" />
-                      Android
-                    </Button>
-                  </PopoverTrigger>
-                  {!canPrompt && (
-                    <PopoverContent className="w-64 p-4" align="start">
+                <div className="flex items-center gap-3 flex-wrap justify-center">
+                  {/* iOS - Premium Black Style like App Store */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        size="lg"
+                        className="gap-3 h-14 px-6 bg-black hover:bg-gray-800 text-white font-semibold rounded-xl shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+                      >
+                        <Apple className="h-6 w-6" />
+                        <div className="text-left">
+                          <div className="text-[10px] opacity-80">Descarcă pe</div>
+                          <div className="text-sm font-bold">iPhone</div>
+                        </div>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-4" align="center">
                       <div className="space-y-3">
-                        <div className="flex items-center gap-2 font-semibold text-sm">
-                          <Smartphone className="h-4 w-4" />
-                          Instalare pe Android
+                        <div className="flex items-center gap-2 font-semibold text-base">
+                          <Apple className="h-5 w-5" />
+                          Instalare pe iPhone
                         </div>
                         <div className="space-y-2 text-sm text-muted-foreground">
-                          <p>1. Apasă meniul browserului</p>
-                          <p>2. "Install app" sau "Add to Home screen"</p>
-                          <p>3. Confirmă instalarea</p>
+                          <p className="flex items-center gap-2">
+                            <span className="bg-primary/10 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
+                            Apasă <Share className="h-4 w-4 inline text-primary" /> Share în Safari
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <span className="bg-primary/10 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">2</span>
+                            Selectează "Add to Home Screen"
+                          </p>
+                          <p className="flex items-center gap-2">
+                            <span className="bg-primary/10 text-primary rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">3</span>
+                            Confirmă cu "Add"
+                          </p>
                         </div>
                       </div>
                     </PopoverContent>
-                  )}
-                </Popover>
+                  </Popover>
 
-                {/* QR */}
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2 h-9 px-4 border-border hover:bg-secondary">
-                      <QrCode className="h-4 w-4" />
-                      <span className="hidden sm:inline">Cod QR</span>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-sm">
-                    <DialogHeader>
-                      <DialogTitle className="text-center">Scanează pentru Descărcare</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex flex-col items-center gap-4 py-4">
-                      <div className="p-4 bg-white rounded-xl border">
-                        <QRCodeSVG 
-                          value="https://adimarketplace.lovable.app/install" 
-                          size={180}
-                          level="H"
-                          includeMargin={true}
-                        />
+                  {/* Android - Premium Green Style like Play Store */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        size="lg"
+                        className="gap-3 h-14 px-6 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white font-semibold rounded-xl shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+                        onClick={canPrompt ? async () => { await promptInstall(); } : undefined}
+                      >
+                        <Smartphone className="h-6 w-6" />
+                        <div className="text-left">
+                          <div className="text-[10px] opacity-80">Disponibil pe</div>
+                          <div className="text-sm font-bold">Android</div>
+                        </div>
+                      </Button>
+                    </PopoverTrigger>
+                    {!canPrompt && (
+                      <PopoverContent className="w-72 p-4" align="center">
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 font-semibold text-base">
+                            <Smartphone className="h-5 w-5 text-emerald-600" />
+                            Instalare pe Android
+                          </div>
+                          <div className="space-y-2 text-sm text-muted-foreground">
+                            <p className="flex items-center gap-2">
+                              <span className="bg-emerald-500/10 text-emerald-600 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
+                              Apasă meniul browserului
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <span className="bg-emerald-500/10 text-emerald-600 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">2</span>
+                              "Install app" sau "Add to Home screen"
+                            </p>
+                            <p className="flex items-center gap-2">
+                              <span className="bg-emerald-500/10 text-emerald-600 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">3</span>
+                              Confirmă instalarea
+                            </p>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    )}
+                  </Popover>
+
+                  {/* QR Code - Premium Blue Style */}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button 
+                        size="lg"
+                        className="gap-3 h-14 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/20 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl"
+                      >
+                        <QrCode className="h-6 w-6" />
+                        <div className="text-left">
+                          <div className="text-[10px] opacity-80">Scanează</div>
+                          <div className="text-sm font-bold">Cod QR</div>
+                        </div>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-sm">
+                      <DialogHeader>
+                        <DialogTitle className="text-center text-lg">📱 Scanează pentru Descărcare</DialogTitle>
+                      </DialogHeader>
+                      <div className="flex flex-col items-center gap-4 py-4">
+                        <div className="p-4 bg-white rounded-2xl border-2 border-primary/20 shadow-lg">
+                          <QRCodeSVG 
+                            value="https://adimarketplace.lovable.app/install" 
+                            size={200}
+                            level="H"
+                            includeMargin={true}
+                          />
+                        </div>
+                        <p className="text-sm text-muted-foreground text-center">
+                          Scanează codul QR cu camera telefonului pentru a deschide aplicația
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground text-center">
-                        Scanează codul QR cu telefonul pentru a deschide aplicația
-                      </p>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </div>
             )}
           </div>
