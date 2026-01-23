@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight, GraduationCap, Wallet, Store } from 'lucide-react';
 import logo from '@/assets/cmarket-hero.png';
@@ -26,6 +26,12 @@ import { useIsAdmin } from '@/hooks/useAdmin';
 import { useSafeArea } from '@/hooks/useSafeArea';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { NotificationBadge } from '@/components/ui/NotificationBadge';
+
+// ForwardRef wrapper for DropdownMenuTrigger compatibility
+const AvatarTriggerButton = forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<typeof Button>>(
+  (props, ref) => <Button ref={ref} {...props} />
+);
+AvatarTriggerButton.displayName = 'AvatarTriggerButton';
 
 export const Header: React.FC = () => {
   const { user, profile, signOut } = useAuth();
@@ -168,7 +174,7 @@ export const Header: React.FC = () => {
                 <NotificationBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
+                    <AvatarTriggerButton 
                       variant="ghost" 
                       size="icon" 
                       className="rounded-full ml-1 p-0 h-11 w-11 ring-2 ring-primary/20 hover:ring-primary/50 hover:ring-4 transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-primary/20 bg-gradient-to-br from-background to-muted"
@@ -179,7 +185,7 @@ export const Header: React.FC = () => {
                           {profile?.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
-                    </Button>
+                    </AvatarTriggerButton>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52 shadow-dropdown">
                     <div className="px-2 py-2 border-b border-border">
