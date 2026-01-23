@@ -105,14 +105,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex gap-3">
-            {isSubscribed ? (
-              <Button asChild>
-                <Link to="/sell" className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  {t('dashboard.newListing')}
-                </Link>
-              </Button>
-            ) : (
+            {!isSubscribed && !isTrialPeriod && (
               <Button 
                 onClick={() => createSubscription.mutate()} 
                 disabled={createSubscription.isPending}
