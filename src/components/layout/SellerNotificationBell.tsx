@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Bell, FileCheck, FileX, CreditCard, AlertTriangle, BadgeCheck, Clock, Check, Megaphone, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -43,6 +43,14 @@ const notificationIcons: Record<string, React.ReactNode> = {
   info: <Info className="h-4 w-4 text-green-500" />,
   kyc_update: <FileCheck className="h-4 w-4 text-cyan-500" />,
 };
+
+// ForwardRef wrapper component for DropdownMenuTrigger compatibility
+const TriggerButton = forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<typeof Button>>(
+  (props, ref) => (
+    <Button ref={ref} {...props} />
+  )
+);
+TriggerButton.displayName = 'TriggerButton';
 
 const useSellerNotifications = () => {
   const { user } = useAuth();
@@ -173,7 +181,7 @@ export const SellerNotificationBell: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative h-9 w-9">
+        <TriggerButton variant="ghost" size="icon" className="relative h-9 w-9">
           <Bell className="h-5 w-5" />
           {unreadCount > 0 && (
             <Badge 
@@ -183,7 +191,7 @@ export const SellerNotificationBell: React.FC = () => {
               {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>
           )}
-        </Button>
+        </TriggerButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 shadow-xl border-border bg-popover z-[100]">
         <DropdownMenuLabel className="flex items-center justify-between py-3">

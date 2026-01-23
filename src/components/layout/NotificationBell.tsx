@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Bell, Package, MessageCircle, Star, CreditCard, Truck, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,6 +22,14 @@ const notificationIcons: Record<string, React.ReactNode> = {
   payout: <CreditCard className="h-4 w-4 text-purple-500" />,
   shipping: <Truck className="h-4 w-4 text-orange-500" />,
 };
+
+// ForwardRef wrapper component for DropdownMenuTrigger compatibility
+const TriggerButton = forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<typeof Button>>(
+  (props, ref) => (
+    <Button ref={ref} {...props} />
+  )
+);
+TriggerButton.displayName = 'TriggerButton';
 
 export const NotificationBell: React.FC = () => {
   const navigate = useNavigate();
@@ -58,7 +66,7 @@ export const NotificationBell: React.FC = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative">
+        <TriggerButton variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           {unreadCount && unreadCount > 0 && (
             <Badge 
@@ -68,7 +76,7 @@ export const NotificationBell: React.FC = () => {
               {unreadCount > 9 ? '9+' : unreadCount}
             </Badge>
           )}
-        </Button>
+        </TriggerButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center justify-between">
