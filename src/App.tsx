@@ -64,6 +64,7 @@ import AdminDeliveryManagement from "./pages/admin/AdminDeliveryManagement";
 import AdminReturns from "./pages/admin/AdminReturns";
 import AdminSellerVerifications from "./pages/admin/AdminSellerVerifications";
 import AdminAuctions from "./pages/admin/AdminAuctions";
+import AdminBroadcast from "./pages/admin/AdminBroadcast";
 
 import AdminSecuritySettings from "./pages/admin/AdminSecuritySettings";
 import AdminPaymentProcessors from "./pages/admin/AdminPaymentProcessors";
@@ -146,6 +147,7 @@ const App = () => (
                 <Route path="/admin/seller-payouts" element={<AdminSellerPayouts />} />
                 <Route path="/admin/couriers" element={<AdminCouriers />} />
                 <Route path="/admin/mobile-app" element={<AdminMobileApp />} />
+                <Route path="/admin/broadcast" element={<AdminBroadcast />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

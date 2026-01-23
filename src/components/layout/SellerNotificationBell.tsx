@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, FileCheck, FileX, CreditCard, AlertTriangle, BadgeCheck, Clock, Check } from 'lucide-react';
+import { Bell, FileCheck, FileX, CreditCard, AlertTriangle, BadgeCheck, Clock, Check, Megaphone, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 interface SellerNotification {
   id: string;
   user_id: string;
-  type: 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected' | 'payment_received' | 'payment_pending' | 'subscription_reminder' | 'subscription_due' | 'payout';
+  type: 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected' | 'payment_received' | 'payment_pending' | 'subscription_reminder' | 'subscription_due' | 'payout' | 'announcement' | 'important' | 'info' | 'kyc_update';
   title: string;
   message: string;
   is_read: boolean;
@@ -37,6 +37,11 @@ const notificationIcons: Record<string, React.ReactNode> = {
   payment_pending: <Clock className="h-4 w-4 text-amber-500" />,
   subscription_reminder: <AlertTriangle className="h-4 w-4 text-amber-500" />,
   subscription_due: <CreditCard className="h-4 w-4 text-red-500" />,
+  payout: <CreditCard className="h-4 w-4 text-purple-500" />,
+  announcement: <Megaphone className="h-4 w-4 text-blue-500" />,
+  important: <AlertTriangle className="h-4 w-4 text-amber-500" />,
+  info: <Info className="h-4 w-4 text-green-500" />,
+  kyc_update: <FileCheck className="h-4 w-4 text-cyan-500" />,
 };
 
 const useSellerNotifications = () => {
@@ -51,9 +56,9 @@ const useSellerNotifications = () => {
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
-        .in('type', ['kyc_submitted', 'kyc_approved', 'kyc_rejected', 'payment_received', 'payment_pending', 'subscription_reminder', 'subscription_due', 'payout'])
+        .in('type', ['kyc_submitted', 'kyc_approved', 'kyc_rejected', 'payment_received', 'payment_pending', 'subscription_reminder', 'subscription_due', 'payout', 'announcement', 'important', 'info', 'kyc_update'])
         .order('created_at', { ascending: false })
-        .limit(20);
+        .limit(30);
       
       if (error) throw error;
       return (data || []) as SellerNotification[];
@@ -75,7 +80,7 @@ const useSellerUnreadCount = () => {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('is_read', false)
-        .in('type', ['kyc_submitted', 'kyc_approved', 'kyc_rejected', 'payment_received', 'payment_pending', 'subscription_reminder', 'subscription_due', 'payout']);
+        .in('type', ['kyc_submitted', 'kyc_approved', 'kyc_rejected', 'payment_received', 'payment_pending', 'subscription_reminder', 'subscription_due', 'payout', 'announcement', 'important', 'info', 'kyc_update']);
       
       if (error) throw error;
       return count || 0;
@@ -117,7 +122,7 @@ const useMarkAllSellerNotificationsRead = () => {
         .update({ is_read: true })
         .eq('user_id', user.id)
         .eq('is_read', false)
-        .in('type', ['kyc_submitted', 'kyc_approved', 'kyc_rejected', 'payment_received', 'payment_pending', 'subscription_reminder', 'subscription_due', 'payout']);
+        .in('type', ['kyc_submitted', 'kyc_approved', 'kyc_rejected', 'payment_received', 'payment_pending', 'subscription_reminder', 'subscription_due', 'payout', 'announcement', 'important', 'info', 'kyc_update']);
       
       if (error) throw error;
     },
