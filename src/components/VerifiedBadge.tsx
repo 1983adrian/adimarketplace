@@ -93,13 +93,12 @@ const sizeClasses = {
   lg: { container: 'h-8 w-8', icon: 'h-5 w-5' },
 };
 
-// Inner badge component that can receive refs - uses button for proper ref forwarding
-const BadgeIcon = forwardRef<HTMLButtonElement, { size: 'sm' | 'md' | 'lg'; className?: string } & React.ButtonHTMLAttributes<HTMLButtonElement>>(
+// Inner badge component that can receive refs - uses span for proper inline display
+const BadgeIcon = forwardRef<HTMLSpanElement, { size: 'sm' | 'md' | 'lg'; className?: string } & React.HTMLAttributes<HTMLSpanElement>>(
   ({ size, className, ...props }, ref) => (
-    <button 
+    <span 
       ref={ref}
-      type="button"
-      className={`${sizeClasses[size].container} rounded-full bg-[#1d9bf0] flex items-center justify-center shrink-0 cursor-help border-0 p-0 ${className || ''}`}
+      className={`${sizeClasses[size].container} rounded-full bg-[#1d9bf0] inline-flex items-center justify-center shrink-0 cursor-help ${className || ''}`}
       style={{ 
         boxShadow: '0 2px 8px rgba(29, 155, 240, 0.4), 0 1px 3px rgba(0,0,0,0.3)',
       }}
@@ -109,12 +108,12 @@ const BadgeIcon = forwardRef<HTMLButtonElement, { size: 'sm' | 'md' | 'lg'; clas
         className={`${sizeClasses[size].icon} text-white`} 
         strokeWidth={3.5}
       />
-    </button>
+    </span>
   )
 );
 BadgeIcon.displayName = 'BadgeIcon';
 
-export const VerifiedBadge = forwardRef<HTMLButtonElement, VerifiedBadgeProps>(({ 
+export const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(({ 
   userId, 
   size = 'md',
   showTooltip = true 
