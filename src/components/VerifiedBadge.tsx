@@ -33,11 +33,33 @@ const useIsSpecialUser = (userId: string) => {
         return { isSpecial: true, type: 'Moderator ✓' };
       }
 
-      // Check if in top 10 sellers
+      // Check if user is verified seller first (faster check)
+      if (status?.is_verified) {
+        return { isSpecial: true, type: 'Vânzător Verificat' };
+      }
+
+      // Top seller check is now cached more aggressively
+      // This uses a separate query with longer staleTime to reduce DB load
+      return { isSpecial: false, type: null };
+    },
+    enabled: !!userId,
+    staleTime: 10 * 60 * 1000, // 10 minutes - increased for scalability
+    gcTime: 30 * 60 * 1000, // 30 minutes garbage collection
+    refetchOnWindowFocus: false, // Reduce unnecessary refetches
+  });
+};
+
+// Separate hook for top seller check - runs less frequently
+const useTopSellerStatus = (userId: string, isAlreadySpecial: boolean) => {
+  return useQuery({
+    queryKey: ['top-seller-badge', userId],
+    queryFn: async () => {
+      // Only fetch top 10 sellers once per session
       const { data: orders } = await supabase
         .from('orders')
         .select('seller_id')
-        .eq('status', 'delivered');
+        .eq('status', 'delivered')
+        .limit(1000); // Limit for performance
 
       if (orders && orders.length > 0) {
         const salesCount: Record<string, number> = {};
@@ -52,19 +74,16 @@ const useIsSpecialUser = (userId: string) => {
 
         if (sortedSellers.includes(userId)) {
           const rank = sortedSellers.indexOf(userId) + 1;
-          return { isSpecial: true, type: `Top ${rank} Vânzător ⭐` };
+          return { isTopSeller: true, rank };
         }
       }
 
-      // Check if user is verified seller
-      if (status?.is_verified) {
-        return { isSpecial: true, type: 'Vânzător Verificat' };
-      }
-
-      return { isSpecial: false, type: null };
+      return { isTopSeller: false, rank: null };
     },
-    enabled: !!userId,
-    staleTime: 5 * 60 * 1000,
+    enabled: !!userId && !isAlreadySpecial, // Only run if not already special
+    staleTime: 30 * 60 * 1000, // 30 minutes - top sellers don't change often
+    gcTime: 60 * 60 * 1000, // 1 hour
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -100,9 +119,20 @@ export const VerifiedBadge = forwardRef<HTMLButtonElement, VerifiedBadgeProps>((
   size = 'md',
   showTooltip = true 
 }, ref) => {
-  const { data } = useIsSpecialUser(userId);
+  const { data: specialData } = useIsSpecialUser(userId);
+  const { data: topSellerData } = useTopSellerStatus(userId, !!specialData?.isSpecial);
 
-  if (!data?.isSpecial) return null;
+  // Determine final status
+  let isSpecial = specialData?.isSpecial || false;
+  let badgeType = specialData?.type;
+
+  // Check top seller status if not already special
+  if (!isSpecial && topSellerData?.isTopSeller) {
+    isSpecial = true;
+    badgeType = `Top ${topSellerData.rank} Vânzător ⭐`;
+  }
+
+  if (!isSpecial) return null;
 
   if (!showTooltip) {
     return <BadgeIcon ref={ref} size={size} />;
@@ -114,7 +144,7 @@ export const VerifiedBadge = forwardRef<HTMLButtonElement, VerifiedBadgeProps>((
         <BadgeIcon ref={ref} size={size} />
       </TooltipTrigger>
       <TooltipContent>
-        <p className="font-medium">{data.type}</p>
+        <p className="font-medium">{badgeType}</p>
       </TooltipContent>
     </Tooltip>
   );
