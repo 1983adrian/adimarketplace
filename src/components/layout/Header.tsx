@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Heart, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight } from 'lucide-react';
 import logo from '@/assets/cmarket-hero.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -180,9 +180,9 @@ export const Header: React.FC = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/favorites">
-                        <Heart className="mr-2 h-4 w-4" />
-                        {t('header.favorites')}
+                      <Link to="/settings?tab=payouts">
+                        <Bell className="mr-2 h-4 w-4" />
+                        Notificări Cont
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer">
@@ -305,9 +305,9 @@ export const Header: React.FC = () => {
                             </Link>
                           </Button>
                           <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/favorites">
-                              <Heart className="mr-3 h-4 w-4" />
-                              {t('header.favorites')}
+                            <Link to="/settings?tab=payouts">
+                              <Bell className="mr-3 h-4 w-4" />
+                              Notificări Cont
                             </Link>
                           </Button>
                           <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
