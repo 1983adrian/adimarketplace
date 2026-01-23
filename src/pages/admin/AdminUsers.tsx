@@ -250,16 +250,14 @@ export default function AdminUsers() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Gestionare Utilizatori</h1>
-            <p className="text-muted-foreground">Administrează utilizatori, roluri și permisiuni</p>
-          </div>
+      <div className="space-y-4 w-full max-w-full overflow-hidden">
+        <div>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Gestionare Utilizatori</h1>
+          <p className="text-sm text-muted-foreground">Administrează utilizatori, roluri și permisiuni</p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsList className="w-full overflow-x-auto flex-wrap h-auto p-1">
             <TabsTrigger value="users">Utilizatori</TabsTrigger>
             <TabsTrigger value="feedback" className="relative">
               Feedback
@@ -274,138 +272,138 @@ export default function AdminUsers() {
 
           {/* Users Tab */}
           <TabsContent value="users">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-col gap-4">
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div>
-                      <CardTitle>Toți Utilizatorii</CardTitle>
-                      <CardDescription>{filteredUsers?.length || 0} din {users?.length || 0} utilizatori</CardDescription>
-                    </div>
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 sm:p-4 md:p-6">
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <CardTitle className="text-base sm:text-lg">Toți Utilizatorii</CardTitle>
+                    <CardDescription className="text-xs">{filteredUsers?.length || 0} din {users?.length || 0} utilizatori</CardDescription>
                   </div>
                   
                   {/* Advanced Search & Filters */}
-                  <div className="flex flex-wrap gap-3">
-                    <div className="relative flex-1 min-w-[200px]">
+                  <div className="flex flex-col sm:flex-row flex-wrap gap-2">
+                    <div className="relative flex-1 min-w-0">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input 
-                        placeholder="Caută după nume, username, ID, telefon, magazin..."
+                        placeholder="Caută după nume, username, ID, telefon..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="pl-9"
+                        className="pl-9 text-sm"
                       />
                     </div>
                     
-                    {/* Type Filter */}
-                    <Select value={typeFilter} onValueChange={setTypeFilter}>
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Tip" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Toți</SelectItem>
-                        <SelectItem value="buyers">Cumpărători</SelectItem>
-                        <SelectItem value="sellers">Vânzători</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    {/* Role Filter */}
-                    <Select value={roleFilter} onValueChange={setRoleFilter}>
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Rol" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Toate Rolurile</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                        <SelectItem value="moderator">Moderator</SelectItem>
-                        <SelectItem value="user">User</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    {/* Status Filter */}
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">Toate</SelectItem>
-                        <SelectItem value="active">Activi</SelectItem>
-                        <SelectItem value="verified">Verificați</SelectItem>
-                        <SelectItem value="suspended">Suspendați</SelectItem>
-                        <SelectItem value="blocked">Blocați</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2 flex-wrap">
+                      {/* Type Filter */}
+                      <Select value={typeFilter} onValueChange={setTypeFilter}>
+                        <SelectTrigger className="w-[100px] sm:w-[120px] text-xs">
+                          <SelectValue placeholder="Tip" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toți</SelectItem>
+                          <SelectItem value="buyers">Cumpărători</SelectItem>
+                          <SelectItem value="sellers">Vânzători</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      {/* Role Filter */}
+                      <Select value={roleFilter} onValueChange={setRoleFilter}>
+                        <SelectTrigger className="w-[100px] sm:w-[120px] text-xs">
+                          <SelectValue placeholder="Rol" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toate</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="moderator">Moderator</SelectItem>
+                          <SelectItem value="user">User</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      {/* Status Filter */}
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-[100px] sm:w-[120px] text-xs">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toate</SelectItem>
+                          <SelectItem value="active">Activi</SelectItem>
+                          <SelectItem value="verified">Verificați</SelectItem>
+                          <SelectItem value="suspended">Suspendați</SelectItem>
+                          <SelectItem value="blocked">Blocați</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0 sm:p-2 md:p-6">
                 {isLoading ? (
-                  <div className="space-y-4">
+                  <div className="space-y-4 p-4">
                     {[...Array(5)].map((_, i) => (
                       <Skeleton key={i} className="h-16 w-full" />
                     ))}
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <Table>
+                  <div className="overflow-x-auto -mx-0">
+                    <Table className="min-w-[600px]">
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Utilizator</TableHead>
-                          <TableHead>ID</TableHead>
-                          <TableHead>Tip</TableHead>
-                          <TableHead>Rol</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead>Locație</TableHead>
-                          <TableHead>Înregistrat</TableHead>
-                          <TableHead className="text-right">Acțiuni</TableHead>
+                          <TableHead className="text-xs">Utilizator</TableHead>
+                          <TableHead className="text-xs">ID</TableHead>
+                          <TableHead className="text-xs">Tip</TableHead>
+                          <TableHead className="text-xs hidden sm:table-cell">Rol</TableHead>
+                          <TableHead className="text-xs hidden sm:table-cell">Status</TableHead>
+                          <TableHead className="text-xs hidden md:table-cell">Locație</TableHead>
+                          <TableHead className="text-xs hidden md:table-cell">Înregistrat</TableHead>
+                          <TableHead className="text-xs text-right">Acțiuni</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredUsers?.map((user) => (
                           <TableRow key={user.id}>
-                            <TableCell>
-                              <div className="flex items-center gap-3">
-                                <Avatar>
+                            <TableCell className="py-2 px-2 sm:px-4">
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-8 w-8">
                                   <AvatarImage src={user.avatar_url || undefined} />
-                                  <AvatarFallback>
+                                  <AvatarFallback className="text-xs">
                                     {user.display_name?.[0] || 'U'}
                                   </AvatarFallback>
                                 </Avatar>
-                                <div>
-                                  <p className="font-medium">{user.display_name || 'Fără nume'}</p>
-                                  <p className="text-sm text-muted-foreground">
+                                <div className="min-w-0">
+                                  <p className="font-medium text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{user.display_name || 'Fără nume'}</p>
+                                  <p className="text-xs text-muted-foreground truncate max-w-[100px] sm:max-w-none">
                                     @{user.username || 'utilizator'}
                                   </p>
                                   {user.store_name && (
-                                    <p className="text-xs text-primary">🏪 {user.store_name}</p>
+                                    <p className="text-xs text-primary truncate max-w-[100px] sm:max-w-none">{user.store_name}</p>
                                   )}
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell>
-                              <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
+                            <TableCell className="py-2 px-2">
+                              <code className="text-[10px] bg-muted px-1 py-0.5 rounded font-mono">
                                 #{user.user_id?.slice(0, 8)}
                               </code>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-2 px-2">
                               {user.is_seller ? (
-                                <Badge className="bg-purple-100 text-purple-700">Vânzător</Badge>
+                                <Badge className="bg-purple-100 text-purple-700 text-[10px] px-1">Vânz</Badge>
                               ) : (
-                                <Badge variant="outline">Cumpărător</Badge>
+                                <Badge variant="outline" className="text-[10px] px-1">Cump</Badge>
                               )}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-2 px-2 hidden sm:table-cell">
                               {getRoleBadge(user.user_roles)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-2 px-2 hidden sm:table-cell">
                               {getStatusBadge(user)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-2 px-2 hidden md:table-cell text-xs">
                               {user.location || '-'}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="py-2 px-2 hidden md:table-cell text-xs">
                               {new Date(user.created_at).toLocaleDateString('ro-RO')}
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="py-2 px-2 text-right">
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="icon">
