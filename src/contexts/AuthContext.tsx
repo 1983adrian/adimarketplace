@@ -3,9 +3,6 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types/database';
 
-// Admin email - recognized by system
-const ADMIN_EMAIL = 'adrianchirita01@gmail.com';
-
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -40,21 +37,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const checkAdminStatus = async (userId: string, email: string | undefined) => {
-    // Check by email first (primary method)
-    if (email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-      setIsAdmin(true);
+    if (!email) {
+      setIsAdmin(false);
       return;
     }
 
-    // Fallback: check user_roles table
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
+    try {
+      // Check admin_emails table via secure RPC function
+      const { data: isAdminEmail } = await supabase
+        .rpc('is_admin_email', { check_email: email });
+      
+      if (isAdminEmail) {
+        setIsAdmin(true);
+        return;
+      }
 
-    setIsAdmin(!!data);
+      // Fallback: check user_roles table
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'admin')
+        .maybeSingle();
+
+      setIsAdmin(!!roleData);
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+      setIsAdmin(false);
+    }
   };
 
   useEffect(() => {
