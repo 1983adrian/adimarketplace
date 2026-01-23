@@ -196,32 +196,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             {(isAdminChat || otherUser?.isAdmin) && (
               <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full flex-shrink-0">Admin</span>
             )}
-            {/* User ID Badge */}
-            {!isAdminChat && !otherUser?.isAdmin && otherUser?.user_id && (
-              <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-mono flex-shrink-0">
-                #{otherUser.user_id.slice(0, 6).toUpperCase()}
-              </span>
-            )}
           </div>
-          {conversation.listings && (
-            <Link 
-              to={`/listing/${conversation.listing_id}`}
-              className="text-xs text-white/70 hover:text-white truncate block max-w-full"
-            >
-              📦 {conversation.listings.title}
-            </Link>
-          )}
         </div>
-
-        {conversation.listings?.listing_images?.[0]?.image_url && (
-          <Link to={`/listing/${conversation.listing_id}`} className="flex-shrink-0">
-            <img 
-              src={conversation.listings.listing_images[0].image_url} 
-              alt={conversation.listings.title}
-              className="h-10 w-10 rounded-lg object-cover border-2 border-white/20"
-            />
-          </Link>
-        )}
 
         {/* Delete/Close conversation menu */}
         <DropdownMenu>
