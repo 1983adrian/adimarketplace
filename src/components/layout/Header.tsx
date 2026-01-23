@@ -82,36 +82,28 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-4">
         {/* Main Header Row */}
         <div className="flex items-center justify-between h-14 md:h-16 gap-2 md:gap-4">
-          {/* Navigation Buttons + Logo */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Back/Forward Navigation - Always Visible */}
+          {/* Navigation Buttons */}
+          <div className="flex items-center gap-2 shrink-0">
+            {/* Back/Forward Navigation - Larger & More Visible */}
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-9 w-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 hover:from-primary/20 hover:to-primary/10 shadow-md border border-gray-200/50 transition-all duration-200"
+              className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 shadow-lg border-2 border-primary/30 transition-all duration-200 hover:scale-105"
               onClick={handleGoBack}
               disabled={!canGoBack}
             >
-              <ArrowLeft className="h-4 w-4 text-gray-700" />
+              <ArrowLeft className="h-6 w-6 text-primary" strokeWidth={2.5} />
             </Button>
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-9 w-9 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 hover:from-primary/20 hover:to-primary/10 shadow-md border border-gray-200/50 transition-all duration-200"
+              className="h-11 w-11 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 hover:from-primary/30 hover:to-primary/20 shadow-lg border-2 border-primary/30 transition-all duration-200 hover:scale-105"
               onClick={handleGoForward}
             >
-              <ArrowRight className="h-4 w-4 text-gray-700" />
+              <ArrowRight className="h-6 w-6 text-primary" strokeWidth={2.5} />
             </Button>
             
-            <Link to="/" className="flex items-center ml-1">
-              <img 
-                src={logo} 
-                alt="CMarket" 
-                className="h-9 md:h-10 w-auto object-contain"
-                style={{ mixBlendMode: 'multiply' }}
-              />
-            </Link>
-            <div className="hidden sm:block">
+            <div className="hidden sm:block ml-2">
               <AppDownloadButton />
             </div>
           </div>
