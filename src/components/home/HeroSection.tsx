@@ -283,12 +283,14 @@ export const HeroSection: React.FC = () => {
                           alt={listing.title}
                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                         />
-                        <Badge 
-                          variant="secondary" 
-                          className="absolute top-1.5 left-1.5 text-[9px] md:text-[10px] px-1.5 py-0.5"
-                        >
-                          {conditionLabels[listing.condition]}
-                        </Badge>
+                        <div className="absolute top-1.5 left-1.5">
+                          <Badge 
+                            variant="secondary" 
+                            className="text-[9px] md:text-[10px] px-1.5 py-0.5"
+                          >
+                            {conditionLabels[listing.condition]}
+                          </Badge>
+                        </div>
                         <div className="absolute top-1.5 right-1.5">
                           <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={true} />
                         </div>

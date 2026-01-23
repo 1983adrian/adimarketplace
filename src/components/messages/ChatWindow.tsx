@@ -65,9 +65,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
     }
   }, [conversation?.id, currentUserId, messages]);
 
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+    if (scrollAreaRef.current && messages && messages.length > 0) {
+      requestAnimationFrame(() => {
+        if (scrollAreaRef.current) {
+          scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+        }
+      });
     }
   }, [messages]);
 
@@ -132,21 +137,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
-      {/* Header - WhatsApp style */}
-      <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#075E54] to-[#128C7E] text-white shadow-md">
+    <div className="flex flex-col h-full w-full overflow-hidden">
+      {/* Header - WhatsApp style - FIXED height */}
+      <div className="flex-shrink-0 flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-[#075E54] to-[#128C7E] text-white shadow-md min-h-[64px]">
         {isMobile && onBack && (
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={onBack} 
-            className="md:hidden text-white hover:bg-white/10"
+            className="md:hidden text-white hover:bg-white/10 flex-shrink-0"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
         )}
         
-        <Avatar className="h-10 w-10 border-2 border-white/20">
+        <Avatar className="h-10 w-10 border-2 border-white/20 flex-shrink-0">
           <AvatarImage src={otherUser?.avatar_url || ''} />
           <AvatarFallback className="bg-white/20 text-white">
             {isAdminChat || otherUser?.isAdmin ? (
@@ -157,17 +162,17 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           </AvatarFallback>
         </Avatar>
         
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+        <div className="flex-1 min-w-0 overflow-hidden">
+          <div className="flex items-center gap-2 flex-wrap">
             <p className="font-semibold truncate">
               {otherUser?.display_name || otherUser?.username || 'Utilizator'}
             </p>
             {(isAdminChat || otherUser?.isAdmin) && (
-              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">Admin</span>
+              <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full flex-shrink-0">Admin</span>
             )}
             {/* User ID Badge */}
             {!isAdminChat && !otherUser?.isAdmin && otherUser?.user_id && (
-              <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-mono">
+              <span className="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-mono flex-shrink-0">
                 #{otherUser.user_id.slice(0, 6).toUpperCase()}
               </span>
             )}
@@ -175,7 +180,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
           {conversation.listings && (
             <Link 
               to={`/listing/${conversation.listing_id}`}
-              className="text-xs text-white/70 hover:text-white truncate block"
+              className="text-xs text-white/70 hover:text-white truncate block max-w-full"
             >
               📦 {conversation.listings.title}
             </Link>
@@ -183,7 +188,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         </div>
 
         {conversation.listings?.listing_images?.[0]?.image_url && (
-          <Link to={`/listing/${conversation.listing_id}`}>
+          <Link to={`/listing/${conversation.listing_id}`} className="flex-shrink-0">
             <img 
               src={conversation.listings.listing_images[0].image_url} 
               alt={conversation.listings.title}
@@ -193,27 +198,28 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         )}
       </div>
 
-      {/* Messages area with WhatsApp background - Fixed container with proper scrolling */}
+      {/* Messages area with WhatsApp background - SCROLLABLE container */}
       <div 
         ref={scrollAreaRef}
         className="flex-1 overflow-y-auto overflow-x-hidden"
         style={{ 
           background: CHAT_BACKGROUND,
           backgroundImage: CHAT_PATTERN,
+          minHeight: 0, // Critical for flex scroll
         }}
       >
-        <div className="p-4 flex flex-col justify-end" style={{ minHeight: '100%' }}>
+        <div className="p-4 min-h-full flex flex-col">
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="space-y-4 flex-1">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className={`flex gap-2 ${i % 2 === 0 ? '' : 'justify-end'}`}>
-                  {i % 2 === 0 && <Skeleton className="h-8 w-8 rounded-full" />}
+                  {i % 2 === 0 && <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />}
                   <Skeleton className="h-16 w-48 rounded-2xl" />
                 </div>
               ))}
             </div>
           ) : messages && messages.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-3 mt-auto">
               {messages.map((message) => (
                 <MessageBubble
                   key={message.id}
@@ -224,7 +230,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full min-h-[200px]">
+            <div className="flex items-center justify-center flex-1 min-h-[200px]">
               <div className="text-center bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-md border border-gray-100">
                 <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Send className="h-5 w-5 text-white" />
@@ -237,8 +243,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
         </div>
       </div>
 
-      {/* Input area - WhatsApp style - Fixed at bottom */}
-      <form onSubmit={handleSend} className="flex-shrink-0 p-2 bg-[#F0F0F0] border-t">
+      {/* Input area - WhatsApp style - FIXED at bottom */}
+      <form onSubmit={handleSend} className="flex-shrink-0 p-2 bg-[#F0F0F0] border-t min-h-[60px]">
         <div className="flex items-center gap-1">
           <EmojiPicker onEmojiSelect={handleEmojiSelect} />
           <ImageUploadButton 
@@ -251,7 +257,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Scrie un mesaj..."
-            className="flex-1 rounded-full border-0 bg-white shadow-sm focus-visible:ring-1 focus-visible:ring-primary/30"
+            className="flex-1 rounded-full border-0 bg-white shadow-sm focus-visible:ring-1 focus-visible:ring-primary/30 min-h-[40px]"
             disabled={sendMessage.isPending || conversation?.id === 'admin-new'}
           />
           
@@ -259,7 +265,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             type="submit" 
             size="icon"
             disabled={!newMessage.trim() || sendMessage.isPending || conversation?.id === 'admin-new'}
-            className="rounded-full bg-[#00A884] hover:bg-[#008C72] text-white shadow-md h-10 w-10"
+            className="rounded-full bg-[#00A884] hover:bg-[#008C72] text-white shadow-md h-10 w-10 flex-shrink-0"
           >
             <Send className="h-4 w-4" />
           </Button>
