@@ -51,8 +51,7 @@ const Dashboard = () => {
     );
   }
 
-  const soldListings = myListings?.filter(l => l.is_sold) || [];
-  const totalEarnings = soldListings.reduce((acc, l) => acc + (l.price * 0.90), 0);
+  // Removed earnings display - now only in Wallet
 
   const handleSignOut = async () => {
     await signOut();
@@ -74,7 +73,7 @@ const Dashboard = () => {
             </Avatar>
             <div>
               <h1 className="text-lg font-bold">{profile?.display_name || 'Bun venit'}</h1>
-              <p className="text-lg font-semibold text-green-600">£{totalEarnings.toFixed(2)}</p>
+              <p className="text-sm text-muted-foreground">Meniu & Cont</p>
             </div>
           </div>
 

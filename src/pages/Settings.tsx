@@ -19,7 +19,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
-import { PayoutSection } from '@/components/settings/PayoutSection';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 
@@ -429,8 +428,23 @@ const Settings = () => {
                 </CardContent>
               </Card>
 
-              {/* Payout / Bank Details - Integrated */}
-              <PayoutSection />
+              {/* Info că setările bancare sunt în Mod Vânzător */}
+              {isSeller && (
+                <Card className="border-amber-500/20 bg-amber-500/5">
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <Wallet className="h-5 w-5 text-amber-600 mt-0.5" />
+                      <div>
+                        <p className="font-medium">Setări Încasări</p>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Pentru setările bancare și KYC, accesează <a href="/seller-mode" className="text-primary underline font-medium">Mod Vânzător</a>.
+                          Pentru sold, accesează <a href="/wallet" className="text-primary underline font-medium">Portofel</a>.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             {/* Tab Securitate */}
