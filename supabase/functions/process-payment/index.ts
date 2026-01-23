@@ -180,13 +180,13 @@ serve(async (req) => {
         p_amount: payoutAmount,
       });
 
-      // Create notification for seller
+      // Create notification for seller - remind to add tracking number
       await supabase.from("notifications").insert({
         user_id: listing.seller_id,
         type: "new_order",
-        title: "Comandă Nouă!",
-        message: `Ai o comandă nouă pentru "${listing.title}". Vei primi £${payoutAmount.toFixed(2)} după livrare.`,
-        data: { order_id: order.id, listing_id: listing.id },
+        title: "📦 Comandă Nouă - Adaugă Tracking!",
+        message: `Ai o comandă nouă pentru "${listing.title}"! Te rugăm să expediezi produsul și să adaugi numărul de urmărire (AWB) în secțiunea "Vânzările Mele". Vei primi ${payoutAmount.toFixed(2)} RON după confirmarea livrării.`,
+        data: { order_id: order.id, listing_id: listing.id, needs_tracking: true },
       });
     }
 

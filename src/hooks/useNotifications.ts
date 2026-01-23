@@ -92,21 +92,32 @@ export const sendOrderNotificationToSeller = async (
     return [{ type: 'email', skipped: true, reason: 'Order confirmations disabled' }];
   }
 
-  const smsMessage = `🎉 Comandă nouă pe C.Market! "${orderDetails.itemTitle}" a fost cumpărat de ${orderDetails.buyerName} pentru £${orderDetails.amount}. Verifică dashboard-ul pentru detalii.`;
+  const smsMessage = `📦 Comandă nouă pe Marketplace România! "${orderDetails.itemTitle}" - ${orderDetails.amount} RON. IMPORTANT: Expediază și adaugă numărul de tracking în dashboard!`;
   
   const emailMessage = `
     <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h1 style="color: #6366f1;">🎉 Ai o comandă nouă!</h1>
-      <p>Felicitări! Cineva tocmai a cumpărat produsul tău pe C.Market.</p>
+      <h1 style="color: #6366f1;">📦 Comandă Nouă - Adaugă Numărul de Tracking!</h1>
+      <p>Felicitări! Cineva tocmai a cumpărat produsul tău pe Marketplace România.</p>
       <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; margin: 16px 0;">
         <p style="margin: 4px 0;"><strong>Produs:</strong> ${orderDetails.itemTitle}</p>
         <p style="margin: 4px 0;"><strong>Cumpărător:</strong> ${orderDetails.buyerName}</p>
-        <p style="margin: 4px 0;"><strong>Suma:</strong> £${orderDetails.amount}</p>
+        <p style="margin: 4px 0;"><strong>Suma:</strong> ${orderDetails.amount} RON</p>
       </div>
-      <p>Accesează dashboard-ul pentru a procesa comanda și a marca expedierea.</p>
-      <a href="${typeof window !== 'undefined' ? window.location.origin : 'https://adimarketplace.lovable.app'}/dashboard" 
-         style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px;">
-        Vezi Comanda
+      
+      <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 0 8px 8px 0; margin: 16px 0;">
+        <h3 style="margin: 0 0 8px 0; color: #b45309;">⚠️ Pașii următori obligatorii:</h3>
+        <ol style="margin: 0; padding-left: 20px; color: #92400e;">
+          <li>Împachetează produsul cu grijă</li>
+          <li>Expediază coletul prin curier</li>
+          <li><strong>Adaugă numărul AWB/tracking în "Vânzările Mele"</strong></li>
+        </ol>
+      </div>
+      
+      <p style="color: #666;">Plata ta va fi procesată după ce cumpărătorul confirmă primirea coletului.</p>
+      
+      <a href="${typeof window !== 'undefined' ? window.location.origin : 'https://adimarketplace.lovable.app'}/orders?section=selling" 
+         style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px; font-weight: bold;">
+        📦 Adaugă Tracking Acum
       </a>
     </div>
   `;
