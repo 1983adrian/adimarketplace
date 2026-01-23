@@ -70,9 +70,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { id: 'buying', title: 'Cumpărăturile Mele', icon: ShoppingBag, description: 'Produsele cumpărate de tine', color: 'bg-gradient-to-br from-cyan-400 to-blue-500' },
-  { id: 'selling', title: 'Vânzările Mele', icon: Store, description: 'Produsele tale vândute', color: 'bg-gradient-to-br from-emerald-400 to-green-600' },
   { id: 'my-returns', title: 'Returnările Mele', icon: Undo2, description: 'Retururi solicitate de tine', color: 'bg-gradient-to-br from-orange-400 to-red-500' },
-  { id: 'received-returns', title: 'Returnări Primite', icon: Inbox, description: 'Cereri de retur de la cumpărători', color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
 ];
 
 // Grid navigation component - 2x2 style like reference image
