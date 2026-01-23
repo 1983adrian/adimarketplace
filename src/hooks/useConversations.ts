@@ -231,3 +231,31 @@ export const useMarkMessagesRead = () => {
     },
   });
 };
+
+export const useDeleteConversation = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ conversationId }: { conversationId: string }) => {
+      // First delete all messages in the conversation
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId);
+      
+      if (messagesError) throw messagesError;
+
+      // Then delete the conversation
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
+    },
+  });
+};
