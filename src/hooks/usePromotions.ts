@@ -31,9 +31,36 @@ export const usePromotedListings = () => {
   return useQuery({
     queryKey: ['promoted-listings'],
     queryFn: async (): Promise<PromotedListing[]> => {
-      // Return empty array since listing_promotions table doesn't exist yet
-      // This prevents 404 errors until the table is created
-      return [];
+      // Get active promotions
+      const { data: promotions, error: promoError } = await supabase
+        .from('listing_promotions')
+        .select('listing_id')
+        .eq('is_active', true)
+        .gt('ends_at', new Date().toISOString());
+
+      if (promoError || !promotions?.length) return [];
+
+      const listingIds = promotions.map(p => p.listing_id);
+
+      // Get promoted listings with details
+      const { data: listings, error: listingsError } = await supabase
+        .from('listings')
+        .select(`
+          id,
+          title,
+          price,
+          condition,
+          location,
+          seller_id,
+          listing_images (image_url, is_primary),
+          profiles (display_name, avatar_url)
+        `)
+        .in('id', listingIds)
+        .eq('is_active', true)
+        .eq('is_sold', false);
+
+      if (listingsError) throw listingsError;
+      return (listings as unknown as PromotedListing[]) || [];
     },
     staleTime: 60000,
   });
