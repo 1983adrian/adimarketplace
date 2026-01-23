@@ -276,6 +276,18 @@ export const Header: React.FC = () => {
                     </form>
                   </div>
 
+                  {/* Sell an Item - Top Button */}
+                  {user && (
+                    <div className="px-4 pb-2">
+                      <Button asChild className="w-full justify-center gap-2 h-12 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg" onClick={() => setMobileMenuOpen(false)}>
+                        <Link to="/sell">
+                          <Plus className="h-5 w-5" />
+                          Sell an Item
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+
                   <div className="flex-1 overflow-auto p-4 space-y-2">
                     {user ? (
                       <>
