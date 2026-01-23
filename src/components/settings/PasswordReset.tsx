@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 import { Lock, Mail, Loader2, Check, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,24 @@ import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthInd
 interface PasswordResetProps {
   userEmail: string;
 }
+
+// Forward ref wrapper for dialog trigger content
+const PasswordChangeCard = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  (props, ref) => (
+    <div
+      ref={ref}
+      className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+      {...props}
+    >
+      <div>
+        <p className="font-medium">Schimbă Parola</p>
+        <p className="text-sm text-muted-foreground">Actualizează parola contului</p>
+      </div>
+      <Button variant="outline" size="sm" tabIndex={-1}>Schimbă</Button>
+    </div>
+  )
+);
+PasswordChangeCard.displayName = 'PasswordChangeCard';
 
 export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
   const [newPassword, setNewPassword] = useState('');
@@ -124,13 +142,7 @@ export const PasswordReset: React.FC<PasswordResetProps> = ({ userEmail }) => {
       {/* Schimbare parolă - utilizator autentificat */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
-          <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors">
-            <div>
-              <p className="font-medium">Schimbă Parola</p>
-              <p className="text-sm text-muted-foreground">Actualizează parola contului</p>
-            </div>
-            <Button variant="outline" size="sm">Schimbă</Button>
-          </div>
+          <PasswordChangeCard />
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>

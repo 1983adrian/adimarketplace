@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Banknote, Truck, Calculator, Info, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -25,6 +25,16 @@ interface CODSettingsProps {
   productPrice: number;
   sellerCountry?: string;
 }
+
+// Wrapper for Info icon to support forwardRef
+const InfoIcon = forwardRef<HTMLSpanElement, { className?: string }>(
+  ({ className }, ref) => (
+    <span ref={ref} className="inline-flex cursor-help">
+      <Info className={className} />
+    </span>
+  )
+);
+InfoIcon.displayName = 'InfoIcon';
 
 export const CODSettings: React.FC<CODSettingsProps> = ({
   enabled,
@@ -93,8 +103,8 @@ export const CODSettings: React.FC<CODSettingsProps> = ({
                 <Label htmlFor="codFeePercent">Comision Ramburs (%)</Label>
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="h-3.5 w-3.5 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>Procentul perceput de curier din valoarea rambursului (tipic 1-3%)</p>
@@ -124,8 +134,8 @@ export const CODSettings: React.FC<CODSettingsProps> = ({
                 <Label htmlFor="codFixedFee">Taxă Fixă Ramburs</Label>
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="h-3.5 w-3.5 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>Taxa fixă per colet pentru serviciul de ramburs</p>
@@ -154,8 +164,8 @@ export const CODSettings: React.FC<CODSettingsProps> = ({
                 <Label htmlFor="codTransport">Cost Transport COD</Label>
                 <TooltipProvider>
                   <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                    <TooltipTrigger asChild>
+                      <InfoIcon className="h-3.5 w-3.5 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
                       <p>Costul transportului pentru livrare cu ramburs</p>
