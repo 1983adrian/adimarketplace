@@ -172,19 +172,7 @@ export const Header: React.FC = () => {
                     <DropdownMenuItem asChild className="cursor-pointer">
                       <Link to="/dashboard">
                         <User className="mr-2 h-4 w-4" />
-                        {t('header.dashboard')}
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/settings?tab=payouts">
-                        <Bell className="mr-2 h-4 w-4" />
-                        Notificări Cont
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/settings">
-                        <Settings className="mr-2 h-4 w-4" />
-                        {t('header.settings')}
+                        Meniu & Cont
                       </Link>
                     </DropdownMenuItem>
                     {isAdmin && (
@@ -270,18 +258,6 @@ export const Header: React.FC = () => {
                     </form>
                   </div>
 
-                  {/* Sell an Item - Top Button */}
-                  {user && (
-                    <div className="px-4 pb-2">
-                      <Button asChild className="w-full justify-center gap-2 h-12 bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white rounded-xl font-semibold shadow-lg" onClick={() => setMobileMenuOpen(false)}>
-                        <Link to="/sell">
-                          <Plus className="h-5 w-5" />
-                          Sell an Item
-                        </Link>
-                      </Button>
-                    </div>
-                  )}
-
                   <div className="flex-1 overflow-auto p-4 space-y-2">
                     {user ? (
                       <>
@@ -298,26 +274,12 @@ export const Header: React.FC = () => {
                           </div>
                         </div>
                         
-                        {/* All Menu Items - Clean List */}
+                        {/* Simplified - just go to Meniu/Dashboard */}
                         <div className="space-y-1">
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-12" asChild onClick={() => setMobileMenuOpen(false)}>
+                          <Button variant="ghost" className="w-full justify-start gap-3 h-12 bg-primary/5" asChild onClick={() => setMobileMenuOpen(false)}>
                             <Link to="/dashboard">
-                              <User className="h-5 w-5" />
-                              My Dashboard
-                            </Link>
-                          </Button>
-                          
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-12" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/settings?tab=payouts">
-                              <Bell className="h-5 w-5" />
-                              Notificări Cont
-                            </Link>
-                          </Button>
-                          
-                          <Button variant="ghost" className="w-full justify-start gap-3 h-12" asChild onClick={() => setMobileMenuOpen(false)}>
-                            <Link to="/settings">
-                              <Settings className="h-5 w-5" />
-                              Settings
+                              <User className="h-5 w-5 text-primary" />
+                              <span className="font-medium">Meniu & Cont</span>
                             </Link>
                           </Button>
                         </div>
