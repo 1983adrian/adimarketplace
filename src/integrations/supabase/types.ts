@@ -501,6 +501,56 @@ export type Database = {
           },
         ]
       }
+      listing_promotions: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          ends_at: string
+          id: string
+          is_active: boolean
+          listing_id: string
+          platform: string | null
+          promotion_type: string
+          seller_id: string
+          share_url: string | null
+          starts_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          created_at?: string
+          ends_at: string
+          id?: string
+          is_active?: boolean
+          listing_id: string
+          platform?: string | null
+          promotion_type?: string
+          seller_id: string
+          share_url?: string | null
+          starts_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          ends_at?: string
+          id?: string
+          is_active?: boolean
+          listing_id?: string
+          platform?: string | null
+          promotion_type?: string
+          seller_id?: string
+          share_url?: string | null
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_promotions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           auction_end_date: string | null

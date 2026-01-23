@@ -27,6 +27,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { CODSettings } from '@/components/listings/CODSettings';
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 import { ShippingCostSelector } from '@/components/listings/ShippingCostSelector';
+import { InlinePromotionOption } from '@/components/listings/InlinePromotionOption';
 
 
 const CreateListing = () => {
@@ -84,6 +85,11 @@ const CreateListing = () => {
   const [reservePrice, setReservePrice] = useState('');
   const [bidIncrement, setBidIncrement] = useState('1');
   const [auctionDuration, setAuctionDuration] = useState('7');
+
+  // Promotion settings
+  const [promoteProduct, setPromoteProduct] = useState(false);
+  const PROMOTION_PRICE = 5; // RON
+  const PROMOTION_DURATION = 7; // days
 
   // Predefined sizes and colors
   const SHOE_SIZES = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
@@ -242,10 +248,43 @@ const CreateListing = () => {
         }
       }
 
-      toast({ 
-        title: 'Produs creat cu succes!', 
-        description: isActive ? 'Produsul tău este acum live.' : 'Produsul a fost salvat ca draft.'
-      });
+      // 4. Create promotion if enabled
+      if (promoteProduct && isActive) {
+        const promotionEndsAt = addDays(new Date(), PROMOTION_DURATION).toISOString();
+        
+        const { error: promotionError } = await supabase
+          .from('listing_promotions' as any)
+          .insert({
+            listing_id: newListing.id,
+            seller_id: user.id,
+            promotion_type: 'paid',
+            starts_at: new Date().toISOString(),
+            ends_at: promotionEndsAt,
+            is_active: true,
+            amount_paid: PROMOTION_PRICE,
+          });
+
+        if (promotionError) {
+          console.error('Error creating promotion:', promotionError);
+          // Don't fail the whole operation, just notify
+          toast({ 
+            title: 'Produs creat!', 
+            description: 'Produsul a fost creat, dar promoția nu a putut fi activată. Încearcă din nou din pagina produsului.',
+            variant: 'destructive'
+          });
+        } else {
+          toast({ 
+            title: '🎉 Produs creat și promovat!', 
+            description: `Produsul tău va apărea pe homepage timp de ${PROMOTION_DURATION} zile.`
+          });
+        }
+      } else {
+        toast({ 
+          title: 'Produs creat cu succes!', 
+          description: isActive ? 'Produsul tău este acum live.' : 'Produsul a fost salvat ca draft.'
+        });
+      }
+      
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Error creating listing:', error);
@@ -791,6 +830,14 @@ const CreateListing = () => {
             sellerCountry={sellerCountry || sellerCountryInput}
           />
 
+          {/* Promotion Option */}
+          <InlinePromotionOption
+            enabled={promoteProduct}
+            onEnabledChange={setPromoteProduct}
+            price={PROMOTION_PRICE}
+            duration={PROMOTION_DURATION}
+          />
+
           {/* Publish Settings */}
           <Card>
             <CardHeader>
@@ -812,6 +859,16 @@ const CreateListing = () => {
             </CardContent>
           </Card>
 
+          {/* Total Summary when promotion is enabled */}
+          {promoteProduct && (
+            <div className="p-4 rounded-lg bg-primary/10 border border-primary/30">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Taxă promovare ({PROMOTION_DURATION} zile):</span>
+                <span className="font-bold text-primary">{PROMOTION_PRICE} RON</span>
+              </div>
+            </div>
+          )}
+
           <Button type="submit" size="lg" className="w-full" disabled={loading || uploading}>
             {loading || uploading ? (
               <>
@@ -819,7 +876,13 @@ const CreateListing = () => {
                 {uploading ? 'Se încarcă imaginile...' : 'Se creează...'}
               </>
             ) : (
-              isActive ? 'Publică Produsul' : 'Salvează ca Draft'
+              <>
+                {promoteProduct && <Crown className="h-4 w-4 mr-2" />}
+                {isActive 
+                  ? (promoteProduct ? `Publică + Promovează (${PROMOTION_PRICE} RON)` : 'Publică Produsul')
+                  : 'Salvează ca Draft'
+                }
+              </>
             )}
           </Button>
         </form>
