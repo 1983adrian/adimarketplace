@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNotificationSound } from '@/hooks/useNotificationSound';
 
 import { StarRating } from '@/components/reviews/StarRating';
 import { SimilarListings } from '@/components/listings/SimilarListings';
@@ -39,6 +40,7 @@ const ListingDetail = () => {
   const { formatPrice } = useCurrency();
   const { addItem, items } = useCart();
   const { toast } = useToast();
+  const { playFavoriteSound } = useNotificationSound();
   const [selectedImage, setSelectedImage] = useState(0);
   const { data: favorites } = useFavorites(user?.id);
   const toggleFavorite = useToggleFavorite();
@@ -84,7 +86,20 @@ const ListingDetail = () => {
       return;
     }
     if (id) {
-      toggleFavorite.mutate({ listingId: id, userId: user.id, isFavorite });
+      toggleFavorite.mutate({ listingId: id, userId: user.id, isFavorite }, {
+        onSuccess: () => {
+          // Play favorite sound when adding to favorites
+          if (!isFavorite) {
+            playFavoriteSound();
+          }
+          toast({
+            title: isFavorite ? "Eliminat din favorite" : "❤️ Adăugat la favorite",
+            description: isFavorite 
+              ? "Produsul a fost eliminat din lista ta de favorite."
+              : "Produsul a fost salvat în favorite.",
+          });
+        }
+      });
     }
   };
 

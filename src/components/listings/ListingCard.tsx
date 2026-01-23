@@ -11,6 +11,7 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
+import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { CODBadge } from '@/components/listings/CODBadge';
@@ -43,6 +44,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const { t } = useLanguage();
   const { addItem } = useCart();
   const { toast } = useToast();
+  const { playFavoriteSound } = useNotificationSound();
   const navigate = useNavigate();
 
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
@@ -68,8 +70,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
       isFavorite: !!isFavorite,
     }, {
       onSuccess: () => {
+        // Play favorite sound when adding to favorites
+        if (!isFavorite) {
+          playFavoriteSound();
+        }
         toast({
-          title: isFavorite ? "Eliminat din favorite" : "Adăugat la favorite",
+          title: isFavorite ? "Eliminat din favorite" : "❤️ Adăugat la favorite",
           description: isFavorite 
             ? "Produsul a fost eliminat din lista ta de favorite."
             : "Produsul a fost salvat în favorite. Îl poți găsi în pagina Favorite.",
