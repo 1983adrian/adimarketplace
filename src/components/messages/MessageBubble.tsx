@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Check, CheckCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { Message } from '@/types/database';
@@ -14,14 +14,14 @@ const isImageUrl = (content: string): boolean => {
          content.includes('supabase.co/storage');
 };
 
-export const MessageBubble: React.FC<MessageBubbleProps> = ({
+export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(({
   message,
   isOwn,
-}) => {
+}, ref) => {
   const isImage = isImageUrl(message.content);
 
   return (
-    <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
+    <div ref={ref} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
       <div className={`flex flex-col max-w-[80%] ${isOwn ? 'items-end' : 'items-start'}`}>
         <div
           className={`relative px-3 py-2 shadow-sm ${
@@ -57,6 +57,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       </div>
     </div>
   );
-};
+});
+
+MessageBubble.displayName = 'MessageBubble';
 
 export default MessageBubble;
