@@ -109,7 +109,7 @@ export const HeroSection: React.FC = () => {
               </Link>
               <Link to="/sell">
                 <Button size="sm" variant="outline" className="h-9 px-4 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold text-xs md:text-sm">
-                  Vinde Gratuit
+                  Vinde
                 </Button>
               </Link>
               
