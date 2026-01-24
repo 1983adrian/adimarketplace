@@ -9,7 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
-import cmarketLogo from '@/assets/cmarket-hero.png';
+import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -137,16 +137,9 @@ const ResetPassword = () => {
 
       <Card className="w-full max-w-md relative z-10 border-0 shadow-2xl bg-card/95 backdrop-blur-sm">
         <CardHeader className="text-center pb-2">
-          <Link to="/" className="inline-flex flex-col items-center justify-center gap-3 mb-4 group">
-            <img 
-              src={cmarketLogo} 
-              alt="Marketplace România" 
-              className="h-16 w-auto drop-shadow-lg"
-            />
-            <div className="flex items-center gap-1">
-              <span className="text-xl font-bold text-foreground">Marketplace România</span>
-            </div>
-          </Link>
+          <div className="mb-2">
+            <MarketplaceBrand size="md" />
+          </div>
           <CardTitle className="text-2xl">Resetează Parola</CardTitle>
           <CardDescription>Introdu noua ta parolă securizată</CardDescription>
         </CardHeader>

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Loader2, Shield, CheckCircle, Mail, Lock, Eye, EyeOff, User, AlertCircle, ArrowRight, MapPin
+  Loader2, Shield, CheckCircle, Mail, Lock, Eye, EyeOff, User, AlertCircle, ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import cmarketLogo from '@/assets/cmarket-hero-clean.png';
+import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 
 const calculatePasswordStrength = (password: string): { strength: 'weak' | 'medium' | 'strong' | 'very-strong'; label: string; color: string; width: string } => {
   let score = 0;
@@ -154,17 +154,9 @@ const Signup = () => {
       <Card className="w-full max-w-md relative z-10 border border-border shadow-xl bg-card">
         <CardHeader className="text-center pb-4">
           {/* Logo - Marketplace România */}
-          <Link to="/" className="inline-flex flex-col items-center justify-center gap-3 mb-4 group">
-            <img 
-              src={cmarketLogo} 
-              alt="Marketplace România" 
-              className="h-16 w-auto object-contain"
-            />
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-primary" />
-              <span className="text-xl font-bold text-foreground">Marketplace România</span>
-            </div>
-          </Link>
+          <div className="mb-4">
+            <MarketplaceBrand size="md" />
+          </div>
           
           <div className="space-y-1">
             <CardTitle className="text-2xl font-bold text-foreground">

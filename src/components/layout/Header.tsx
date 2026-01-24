@@ -55,15 +55,11 @@ export const Header: React.FC = () => {
     }
   };
 
-  const handleSignOut = async (e: React.MouseEvent) => {
+  const handleSignOut = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    try {
-      await signOut();
-      navigate('/');
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
+    // Navigate to dedicated sign-out page with visual feedback
+    navigate('/sign-out');
   };
 
   // Use the larger of: calculated safe area OR minimum 64px for notch devices

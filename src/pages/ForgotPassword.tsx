@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, ArrowLeft, Check, Loader2, MapPin, Shield } from 'lucide-react';
+import { Mail, ArrowLeft, Check, Loader2, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import cmarketLogo from '@/assets/cmarket-hero-clean.png';
+import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -95,17 +95,9 @@ const ForgotPassword = () => {
       <Card className="w-full max-w-md border border-border shadow-xl bg-card relative z-10">
         <CardHeader className="text-center pb-4">
           {/* Logo - Marketplace România */}
-          <Link to="/" className="inline-flex flex-col items-center justify-center gap-3 mb-4">
-            <img 
-              src={cmarketLogo} 
-              alt="Marketplace România" 
-              className="h-16 w-auto object-contain"
-            />
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-primary" />
-              <span className="text-xl font-bold text-foreground">Marketplace România</span>
-            </div>
-          </Link>
+          <div className="mb-2">
+            <MarketplaceBrand size="md" />
+          </div>
           <CardTitle className="text-2xl font-bold text-foreground">Ai uitat parola?</CardTitle>
           <CardDescription className="text-muted-foreground">
             Introdu email-ul pentru a primi link-ul de resetare
