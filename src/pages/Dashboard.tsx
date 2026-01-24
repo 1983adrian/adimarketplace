@@ -40,7 +40,7 @@ const menuItems: MenuItem[] = [
   { id: 'products', title: 'Produsele Mele', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
   { id: 'analytics', title: 'Statistici', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
   { id: 'favorites', title: 'Favorite', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
-  { id: 'tutorial', title: 'Tutorial', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-purple-500 to-purple-700' },
+  { id: 'tutorial', title: 'Tutorial', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
 ];
 
 const Dashboard = () => {
