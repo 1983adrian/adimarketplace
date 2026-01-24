@@ -60,12 +60,12 @@ export const HeroSection: React.FC = () => {
   };
 
   const benefits = [
-    { icon: Shield, title: 'Plăți Sigure', color: 'text-emerald-600 bg-emerald-50' },
-    { icon: Truck, title: 'Livrare Rapidă', color: 'text-blue-600 bg-blue-50' },
-    { icon: CreditCard, title: 'Comisioane Mici', color: 'text-violet-600 bg-violet-50' },
-    { icon: Gavel, title: 'Licitații', color: 'text-orange-600 bg-orange-50' },
-    { icon: Users, title: 'Comunitate', color: 'text-pink-600 bg-pink-50' },
-    { icon: Star, title: 'Recenzii', color: 'text-yellow-600 bg-yellow-50' },
+    { icon: Shield, title: 'Plăți Sigure', color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10' },
+    { icon: Truck, title: 'Livrare Rapidă', color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10' },
+    { icon: CreditCard, title: 'Comisioane Mici', color: 'text-violet-600 dark:text-violet-400 bg-violet-500/10' },
+    { icon: Gavel, title: 'Licitații', color: 'text-orange-600 dark:text-orange-400 bg-orange-500/10' },
+    { icon: Users, title: 'Comunitate', color: 'text-pink-600 dark:text-pink-400 bg-pink-500/10' },
+    { icon: Star, title: 'Recenzii', color: 'text-yellow-600 dark:text-yellow-400 bg-yellow-500/10' },
   ];
 
   return (
@@ -126,7 +126,7 @@ export const HeroSection: React.FC = () => {
                     <PopoverTrigger asChild>
                       <Button 
                         size="sm"
-                        className="h-9 w-9 p-0 bg-black hover:bg-gray-800 text-white rounded-lg shadow-md"
+                        className="h-9 w-9 p-0 bg-foreground hover:bg-foreground/90 text-background rounded-lg shadow-md"
                       >
                         <Apple className="h-4 w-4" />
                       </Button>

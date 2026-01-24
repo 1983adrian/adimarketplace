@@ -80,7 +80,7 @@ export const Footer: React.FC = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Marketplace România" className="h-12 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
+              <img src={logo} alt="Marketplace România" className="h-12 w-auto object-contain dark:brightness-0 dark:invert" />
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Marketplace-ul tău de încredere pentru cumpărare și vânzare de produse de calitate. Alătură-te miilor de clienți mulțumiți.
@@ -92,7 +92,7 @@ export const Footer: React.FC = () => {
                   href={socialLinks.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-[#1877F2] hover:bg-[#166FE5] text-white transition-all hover:scale-110 shadow-md"
+                  className="p-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary dark:bg-primary/20 dark:hover:bg-primary/30 transition-all hover:scale-110 shadow-sm"
                   aria-label="Facebook"
                 >
                   <Facebook className="h-5 w-5" />
@@ -104,7 +104,7 @@ export const Footer: React.FC = () => {
                   href={socialLinks.twitter}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-black hover:bg-gray-800 text-white transition-all hover:scale-110 shadow-md"
+                  className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-all hover:scale-110 shadow-sm"
                   aria-label="Twitter"
                 >
                   <Twitter className="h-5 w-5" />
@@ -116,7 +116,7 @@ export const Footer: React.FC = () => {
                   href={socialLinks.instagram}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:from-[#E1306C] hover:via-[#C13584] hover:to-[#833AB4] text-white transition-all hover:scale-110 shadow-md"
+                  className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 via-pink-500/20 to-purple-500/20 hover:from-amber-500/30 hover:via-pink-500/30 hover:to-purple-500/30 text-pink-600 dark:text-pink-400 transition-all hover:scale-110 shadow-sm"
                   aria-label="Instagram"
                 >
                   <Instagram className="h-5 w-5" />
@@ -128,7 +128,7 @@ export const Footer: React.FC = () => {
                   href={socialLinks.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-[#FF0000] hover:bg-[#CC0000] text-white transition-all hover:scale-110 shadow-md"
+                  className="p-2.5 rounded-xl bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all hover:scale-110 shadow-sm"
                   aria-label="YouTube"
                 >
                   <Youtube className="h-5 w-5" />
@@ -140,7 +140,7 @@ export const Footer: React.FC = () => {
                   href={socialLinks.tiktok}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-black hover:bg-gray-900 text-white transition-all hover:scale-110 shadow-md"
+                  className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-all hover:scale-110 shadow-sm"
                   aria-label="TikTok"
                 >
                   <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -222,17 +222,17 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Platform Rules */}
-      <div className="border-t border-border bg-red-50/50">
+      <div className="border-t border-border bg-destructive/5 dark:bg-destructive/10">
         <div className="container mx-auto px-4 py-3">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
-            <span className="text-red-600 font-medium">Interzis pe platformă:</span>
-            <span className="flex items-center gap-1.5 text-red-600">
+            <span className="text-destructive font-medium">Interzis pe platformă:</span>
+            <span className="flex items-center gap-1.5 text-destructive">
               <Ban className="h-4 w-4" /> Armament
             </span>
-            <span className="flex items-center gap-1.5 text-red-600">
+            <span className="flex items-center gap-1.5 text-destructive">
               <Leaf className="h-4 w-4" /> Substanțe Interzise
             </span>
-            <span className="flex items-center gap-1.5 text-red-600">
+            <span className="flex items-center gap-1.5 text-destructive">
               <Bomb className="h-4 w-4" /> Contrabandă
             </span>
           </div>
