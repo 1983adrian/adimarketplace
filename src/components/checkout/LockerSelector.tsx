@@ -34,8 +34,12 @@ const ROMANIAN_COUNTIES = [
   'Vâlcea', 'Vaslui', 'Vrancea'
 ];
 
-// Mock locker data - in production, this comes from courier APIs
-const MOCK_LOCKERS: LockerLocation[] = [
+/**
+ * FALLBACK LOCKER DATA - Used only when courier API is not configured or unavailable.
+ * In production, lockers are fetched from the real courier APIs via the 'courier-lockers' edge function.
+ * Admin can configure API keys in /admin/couriers to enable real data.
+ */
+const FALLBACK_LOCKERS: LockerLocation[] = [
   {
     id: 'sameday-buc-1',
     name: 'Easybox Mega Mall',
@@ -182,11 +186,11 @@ export const LockerSelector: React.FC<LockerSelectorProps> = ({
           return;
         }
       } catch (e) {
-        console.log('Using mock locker data');
+        console.log('Courier API unavailable - using fallback locker data');
       }
 
-      // Fallback to mock data
-      let filtered = MOCK_LOCKERS.filter(l => {
+      // Fallback to static data when API is not configured
+      let filtered = FALLBACK_LOCKERS.filter(l => {
         // Filter by courier
         if (selectedCourier === 'sameday' && l.courier !== 'sameday') return false;
         if (selectedCourier === 'cargus' && l.courier !== 'cargus') return false;

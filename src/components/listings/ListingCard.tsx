@@ -15,6 +15,7 @@ import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { CODBadge } from '@/components/listings/CODBadge';
+import { useSellerRating } from '@/hooks/useReviews';
 
 interface ListingCardProps {
   listing: ListingWithImages;
@@ -51,6 +52,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const imageUrl = primaryImage?.image_url || '/placeholder.svg';
   const isAuction = (listing as any).listing_type === 'auction' || (listing as any).listing_type === 'both';
   const isVerified = (listing as any).profiles?.is_verified;
+  
+  // Get real seller rating from database
+  const { data: sellerRating } = useSellerRating(listing.seller_id);
 
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -176,21 +180,23 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {listing.title}
           </h3>
           
-          {/* Rating (mock for now) */}
-          <div className="flex items-center gap-1">
-            <div className="flex items-center">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star 
-                  key={star} 
-                  className={cn(
-                    'h-3.5 w-3.5',
-                    star <= 4 ? 'text-accent fill-accent' : 'text-muted-foreground'
-                  )} 
-                />
-              ))}
+          {/* Real Seller Rating from Database */}
+          {sellerRating && sellerRating.count > 0 && (
+            <div className="flex items-center gap-1">
+              <div className="flex items-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star 
+                    key={star} 
+                    className={cn(
+                      'h-3.5 w-3.5',
+                      star <= Math.round(sellerRating.average) ? 'text-accent fill-accent' : 'text-muted-foreground'
+                    )} 
+                  />
+                ))}
+              </div>
+              <span className="text-xs text-muted-foreground">({sellerRating.count})</span>
             </div>
-            <span className="text-xs text-muted-foreground">(42)</span>
-          </div>
+          )}
           
           {/* Location */}
           {listing.location && (
@@ -202,17 +208,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           
           {/* Price & Buy Button */}
           <div className="mt-auto pt-3 space-y-2">
-            <div className="flex items-baseline gap-2">
-              <p className="text-xl md:text-2xl font-bold text-foreground">
-                {formatPrice(listing.price)}
-              </p>
-              {/* Optional crossed-out original price */}
-              {listing.price > 50 && (
-                <span className="text-sm text-muted-foreground line-through">
-                  {formatPrice(listing.price * 1.2)}
-                </span>
-              )}
-            </div>
+            <p className="text-xl md:text-2xl font-bold text-foreground">
+              {formatPrice(listing.price)}
+            </p>
             
             <Button 
               size="sm" 
