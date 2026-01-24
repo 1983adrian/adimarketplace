@@ -39,33 +39,20 @@ export const useSellerSubscription = () => {
   return useQuery({
     queryKey: ['seller-subscription', user?.id],
     queryFn: async (): Promise<SubscriptionStatus> => {
+      // Subscription is currently disabled by admin
+      // All sellers can create listings without subscription
+      // 8% commission applies to each sale instead
+      
       if (!user) {
         return {
-          subscribed: false,
-          status: 'inactive',
+          subscribed: true, // Allow listing creation
+          status: 'free',
           subscription_end: null,
-          canCreateListings: false,
+          canCreateListings: true, // Always allow
         };
       }
 
-      // Check subscription status from database
-      const { data: subscription, error } = await supabase
-        .from('seller_subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error checking subscription:', error);
-        return {
-          subscribed: false,
-          status: 'inactive',
-          subscription_end: null,
-          canCreateListings: false,
-        };
-      }
-
-      // Get user's country for currency conversion
+      // Get user's country for currency info (for future use)
       const { data: profile } = await supabase
         .from('profiles')
         .select('kyc_country, country_of_residence')
@@ -78,101 +65,21 @@ export const useSellerSubscription = () => {
         CZ: 'CZK', HU: 'HUF', US: 'USD', BG: 'BGN',
       };
       const userCurrency = countryCurrency[userCountry] || 'GBP';
-      const localAmount = Math.ceil(BASE_SUBSCRIPTION_GBP * (EXCHANGE_RATES[userCurrency] || 1) * 100) / 100;
 
-      // No subscription found - check if they should get trial
-      if (!subscription) {
-        // Create trial subscription for new sellers
-        const trialEndDate = new Date();
-        trialEndDate.setMonth(trialEndDate.getMonth() + 3);
-
-        const { data: newSub, error: createError } = await supabase
-          .from('seller_subscriptions')
-          .insert({
-            user_id: user.id,
-            status: 'trial',
-            trial_start_date: new Date().toISOString(),
-            trial_end_date: trialEndDate.toISOString(),
-            subscription_amount: localAmount,
-          })
-          .select()
-          .single();
-
-        if (createError) {
-          console.error('Error creating trial subscription:', createError);
-          return {
-            subscribed: false,
-            status: 'inactive',
-            subscription_end: null,
-            canCreateListings: false,
-          };
-        }
-
-        const daysRemaining = Math.ceil((trialEndDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-
-        return {
-          subscribed: true,
-          status: 'trial',
-          subscription_end: trialEndDate.toISOString(),
-          canCreateListings: true,
-          isTrialPeriod: true,
-          trialDaysRemaining: daysRemaining,
-          trialExpired: false,
-          localAmount,
-          localCurrency: userCurrency,
-        };
-      }
-
-      // Check trial period
-      const now = new Date();
-      const trialEnd = subscription.trial_end_date ? new Date(subscription.trial_end_date) : null;
-      const isInTrial = trialEnd && now < trialEnd;
-      const trialExpired = trialEnd && now >= trialEnd && subscription.status === 'trial';
-      
-      if (isInTrial) {
-        const daysRemaining = Math.ceil((trialEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-        return {
-          subscribed: true,
-          status: 'trial',
-          subscription_end: subscription.trial_end_date,
-          canCreateListings: true,
-          isTrialPeriod: true,
-          trialDaysRemaining: daysRemaining,
-          trialExpired: false,
-          localAmount,
-          localCurrency: userCurrency,
-        };
-      }
-
-      // Trial expired - check if they have active subscription
-      if (subscription.status === 'active') {
-        return {
-          subscribed: true,
-          status: 'active',
-          subscription_end: subscription.current_period_end,
-          canCreateListings: true,
-          isTrialPeriod: false,
-          trialExpired: false,
-          localAmount,
-          localCurrency: userCurrency,
-        };
-      }
-
-      // Trial expired and no active subscription
+      // Subscription disabled - all sellers can list for free
+      // 8% commission is applied per sale
       return {
-        subscribed: false,
-        status: 'expired',
+        subscribed: true,
+        status: 'free', // No subscription needed
         subscription_end: null,
-        canCreateListings: false,
+        canCreateListings: true, // Always allow listing creation
         isTrialPeriod: false,
-        trialExpired: true,
-        localAmount,
+        trialExpired: false,
         localCurrency: userCurrency,
       };
     },
     enabled: !!user,
-    refetchInterval: 60000,
-    staleTime: 30000,
+    staleTime: 60000,
   });
 };
 
