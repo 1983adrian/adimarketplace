@@ -185,3 +185,30 @@ export const useCanReview = (orderId: string | undefined, sellerId: string | und
     enabled: !!orderId && !!user,
   });
 };
+
+// Hook to get seller rating for listing cards (lightweight version)
+export const useSellerRating = (sellerId: string | undefined) => {
+  return useQuery({
+    queryKey: ['seller-rating', sellerId],
+    queryFn: async (): Promise<{ average: number; count: number }> => {
+      if (!sellerId) return { average: 0, count: 0 };
+
+      const { data: reviews } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('reviewed_user_id', sellerId);
+
+      if (!reviews || reviews.length === 0) {
+        return { average: 0, count: 0 };
+      }
+
+      const sum = reviews.reduce((acc, r) => acc + r.rating, 0);
+      return {
+        average: Math.round((sum / reviews.length) * 10) / 10,
+        count: reviews.length,
+      };
+    },
+    enabled: !!sellerId,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+};
