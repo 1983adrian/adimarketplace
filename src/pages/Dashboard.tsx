@@ -186,13 +186,23 @@ const Dashboard = () => {
                 <Link 
                   key={item.id}
                   to={item.url}
-                  className="relative flex flex-col items-center p-2 rounded-lg bg-muted/50 hover:bg-muted hover:shadow-md transition-all duration-200 min-h-[88px] active:scale-95"
+                  className={cn(
+                    "relative flex flex-col items-center p-2 rounded-lg bg-muted/50 hover:bg-muted hover:shadow-md transition-all duration-200 min-h-[88px] active:scale-95",
+                    item.id === 'sell' && "col-span-3 flex-row justify-center gap-3 min-h-[56px] bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg"
+                  )}
                 >
-                  <div className={cn("w-9 h-9 rounded-lg flex items-center justify-center mb-1 shadow-sm", item.color)}>
-                    <Icon className="h-4 w-4 text-white" strokeWidth={2.5} />
+                  <div className={cn(
+                    "w-9 h-9 rounded-lg flex items-center justify-center mb-1 shadow-sm",
+                    item.color,
+                    item.id === 'sell' && "w-10 h-10 mb-0 bg-white/20"
+                  )}>
+                    <Icon className={cn("h-4 w-4 text-white", item.id === 'sell' && "h-5 w-5")} strokeWidth={2.5} />
                   </div>
                   
-                  <span className="text-[10px] font-medium text-foreground text-center leading-tight line-clamp-2">
+                  <span className={cn(
+                    "text-[10px] font-medium text-foreground text-center leading-tight line-clamp-2",
+                    item.id === 'sell' && "text-sm font-bold text-white"
+                  )}>
                     {item.title}
                   </span>
                   
