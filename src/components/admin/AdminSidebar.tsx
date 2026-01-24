@@ -11,6 +11,7 @@ import {
   Megaphone,
   Palette,
   ClipboardCheck,
+  Sliders,
   LucideIcon
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -36,6 +37,7 @@ interface MenuItem {
 
 // Simplified to 4 main categories with essential pages only
 const mainItems: MenuItem[] = [
+  { title: 'Control Center', url: '/admin/control-center', icon: Sliders, premium: true },
   { title: 'Owner Dashboard', url: '/admin/owner', icon: Crown, premium: true },
   { title: 'Broadcast', url: '/admin/broadcast', icon: Megaphone, premium: true },
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },

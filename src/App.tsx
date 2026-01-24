@@ -79,6 +79,7 @@ import AdminCouriers from "./pages/admin/AdminCouriers";
 import AdminMobileApp from "./pages/admin/AdminMobileApp";
 import AdminInterfaceEditor from "./pages/admin/AdminInterfaceEditor";
 import AdminButtonAudit from "./pages/admin/AdminButtonAudit";
+import AdminControlCenter from "./pages/admin/AdminControlCenter";
 
 const queryClient = new QueryClient();
 
@@ -163,6 +164,7 @@ const App = () => (
                 <Route path="/admin/broadcast" element={<AdminBroadcast />} />
                 <Route path="/admin/interface-editor" element={<AdminInterfaceEditor />} />
                 <Route path="/admin/button-audit" element={<AdminButtonAudit />} />
+                <Route path="/admin/control-center" element={<AdminControlCenter />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
