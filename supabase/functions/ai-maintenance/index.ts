@@ -55,25 +55,41 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // Auth check
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader?.replace("Bearer ", "");
-    if (!token) throw new Error("No authorization token");
+    // Parse request body first to check if it's a scheduled call
+    const requestBody = await req.json();
+    const { action, issueId, autoRepairEnabled = true, scheduled = false } = requestBody;
 
-    const { data: userData } = await supabase.auth.getUser(token);
-    if (!userData.user) throw new Error("User not authenticated");
+    // Auth check - skip for scheduled cron jobs
+    let isAuthorized = false;
+    
+    if (scheduled) {
+      // For scheduled jobs, we trust the cron caller
+      isAuthorized = true;
+      console.log("[CRON] Scheduled auto-repair triggered at:", new Date().toISOString());
+    } else {
+      // For manual calls, require admin authentication
+      const authHeader = req.headers.get("Authorization");
+      const token = authHeader?.replace("Bearer ", "");
+      
+      if (token) {
+        const { data: userData } = await supabase.auth.getUser(token);
+        if (userData.user) {
+          // Check admin role
+          const { data: roleData } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", userData.user.id)
+            .eq("role", "admin")
+            .single();
+          
+          isAuthorized = !!roleData;
+        }
+      }
+    }
 
-    // Check admin role
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userData.user.id)
-      .eq("role", "admin")
-      .single();
-
-    if (!roleData) throw new Error("Unauthorized - Admin access required");
-
-    const { action, issueId, autoRepairEnabled = true } = await req.json();
+    if (!isAuthorized) {
+      throw new Error("Unauthorized - Admin access required");
+    }
 
     const issues: MaintenanceIssue[] = [];
     let issuesFixed = 0;
