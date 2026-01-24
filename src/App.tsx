@@ -77,6 +77,8 @@ import AdminPaymentProcessors from "./pages/admin/AdminPaymentProcessors";
 import AdminSellerPayouts from "./pages/admin/AdminSellerPayouts";
 import AdminCouriers from "./pages/admin/AdminCouriers";
 import AdminMobileApp from "./pages/admin/AdminMobileApp";
+import AdminInterfaceEditor from "./pages/admin/AdminInterfaceEditor";
+import AdminButtonAudit from "./pages/admin/AdminButtonAudit";
 
 const queryClient = new QueryClient();
 
@@ -159,6 +161,8 @@ const App = () => (
                 <Route path="/admin/couriers" element={<AdminCouriers />} />
                 <Route path="/admin/mobile-app" element={<AdminMobileApp />} />
                 <Route path="/admin/broadcast" element={<AdminBroadcast />} />
+                <Route path="/admin/interface-editor" element={<AdminInterfaceEditor />} />
+                <Route path="/admin/button-audit" element={<AdminButtonAudit />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

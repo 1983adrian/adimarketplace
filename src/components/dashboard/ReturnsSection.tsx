@@ -58,7 +58,7 @@ interface ReturnCardProps {
   type: 'buyer' | 'seller';
 }
 
-const ReturnCard: React.FC<ReturnCardProps> = ({ returnItem, type }) => {
+const ReturnCard = React.forwardRef<HTMLDivElement, ReturnCardProps>(({ returnItem, type }, ref) => {
   const [trackingOpen, setTrackingOpen] = useState(false);
   const [trackingNumber, setTrackingNumber] = useState('');
   const [carrier, setCarrier] = useState('');
@@ -564,7 +564,9 @@ const ReturnCard: React.FC<ReturnCardProps> = ({ returnItem, type }) => {
       </CardContent>
     </Card>
   );
-};
+});
+
+ReturnCard.displayName = 'ReturnCard';
 
 interface ReturnsSectionProps {
   type: 'buyer' | 'seller';
