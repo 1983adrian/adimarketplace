@@ -27,19 +27,19 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'profile', title: 'Setări Profil', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-400 to-indigo-500' },
-  { id: 'seller-mode', title: 'Mod Vânzător', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-orange-500' },
-  { id: 'sell', title: 'Adaugă Produs', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-cyan-400 to-blue-500' },
-  { id: 'wallet', title: 'Portofel', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-green-500 to-emerald-600' },
-  { id: 'messages', title: 'Mesaje', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-teal-400 to-cyan-600', showBadge: 'messages' },
-  { id: 'purchases', title: 'Cumpărăturile Mele', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-sky-400 to-blue-500', showBadge: 'purchases' },
-  { id: 'sales', title: 'Vânzările Mele', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-green-400 to-emerald-500', showBadge: 'sales' },
-  { id: 'my-returns', title: 'Returnările Mele', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-400 to-red-500', showBadge: 'my-returns' },
-  { id: 'received-returns', title: 'Returnări Primite', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-purple-400 to-violet-500', showBadge: 'received-returns' },
-  { id: 'products', title: 'Produsele Mele', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-violet-500 to-purple-600' },
-  { id: 'analytics', title: 'Statistici', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-400 to-blue-600' },
-  { id: 'favorites', title: 'Favorite', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-400 to-pink-500' },
-  { id: 'tutorial', title: 'Tutorial', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-pink-500 to-rose-600' },
+  { id: 'profile', title: 'Setări Profil', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-sky-400 to-blue-500' },
+  { id: 'seller-mode', title: 'Mod Vânzător', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-500 to-orange-600' },
+  { id: 'sell', title: 'Vinde Un Produs', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-blue-500 to-indigo-600' },
+  { id: 'wallet', title: 'Portofel', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-emerald-500 to-green-600' },
+  { id: 'messages', title: 'Mesaje', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-500 to-teal-600', showBadge: 'messages' },
+  { id: 'purchases', title: 'Cumpărăturile Mele', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-violet-500 to-purple-600', showBadge: 'purchases' },
+  { id: 'sales', title: 'Vânzările Mele', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-lime-500 to-green-500', showBadge: 'sales' },
+  { id: 'my-returns', title: 'Returnările Mele', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-amber-600', showBadge: 'my-returns' },
+  { id: 'received-returns', title: 'Returnări Primite', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-pink-600', showBadge: 'received-returns' },
+  { id: 'products', title: 'Produsele Mele', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-cyan-600' },
+  { id: 'analytics', title: 'Statistici', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-violet-600' },
+  { id: 'favorites', title: 'Favorite', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-rose-500 to-red-600' },
+  { id: 'tutorial', title: 'Tutorial', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-pink-500 to-fuchsia-600' },
 ];
 
 const Dashboard = () => {

@@ -12,20 +12,24 @@ import { MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Messages() {
   const { user } = useAuth();
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
   const conversationIdParam = searchParams.get('conversation');
+  const listingIdParam = searchParams.get('listing');
   
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [showChat, setShowChat] = useState(false);
+  const [isCreatingFromListing, setIsCreatingFromListing] = useState(false);
   
   const { data: conversations, isLoading, refetch } = useConversations(user?.id);
   const createConversation = useCreateConversation();
   const deleteConversation = useDeleteConversation();
 
+  // Handle conversation ID param
   useEffect(() => {
     if (conversationIdParam && conversations) {
       const conv = conversations.find((c: any) => c.id === conversationIdParam);
@@ -35,6 +39,78 @@ export default function Messages() {
       }
     }
   }, [conversationIdParam, conversations]);
+
+  // Handle listing ID param - auto-create conversation with seller
+  useEffect(() => {
+    const createConversationFromListing = async () => {
+      if (!listingIdParam || !user?.id || isCreatingFromListing || isLoading) return;
+      
+      // Check if we already have a conversation for this listing
+      const existingConv = conversations?.find((c: any) => c.listing_id === listingIdParam);
+      if (existingConv) {
+        setSelectedConversation(existingConv);
+        setShowChat(true);
+        return;
+      }
+
+      setIsCreatingFromListing(true);
+      
+      try {
+        // Fetch the listing to get seller info
+        const { data: listing, error: listingError } = await supabase
+          .from('listings')
+          .select('id, seller_id, title')
+          .eq('id', listingIdParam)
+          .single();
+        
+        if (listingError || !listing) {
+          toast.error('Nu s-a găsit produsul');
+          setIsCreatingFromListing(false);
+          return;
+        }
+
+        // Don't allow messaging yourself
+        if (listing.seller_id === user.id) {
+          toast.error('Nu îți poți trimite mesaj ție însuți');
+          setIsCreatingFromListing(false);
+          return;
+        }
+
+        // Create conversation
+        const result = await createConversation.mutateAsync({
+          listingId: listing.id,
+          buyerId: user.id,
+          sellerId: listing.seller_id
+        });
+
+        await refetch();
+
+        // Find and select the new conversation
+        setTimeout(() => {
+          const conv = conversations?.find((c: any) => c.id === result.id);
+          if (conv) {
+            setSelectedConversation(conv);
+          } else {
+            setSelectedConversation({
+              id: result.id,
+              listing_id: listing.id,
+              buyer_id: user.id,
+              seller_id: listing.seller_id
+            });
+          }
+          setShowChat(true);
+          setIsCreatingFromListing(false);
+        }, 200);
+
+      } catch (error) {
+        console.error('Error creating conversation from listing:', error);
+        toast.error('Nu s-a putut crea conversația');
+        setIsCreatingFromListing(false);
+      }
+    };
+
+    createConversationFromListing();
+  }, [listingIdParam, user?.id, conversations, isLoading]);
 
   const handleSelectConversation = (conversation: any) => {
     setSelectedConversation(conversation);
