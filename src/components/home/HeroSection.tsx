@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { QRCodeSVG } from 'qrcode.react';
+import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 
 
 export const HeroSection: React.FC = () => {
@@ -82,20 +83,9 @@ export const HeroSection: React.FC = () => {
         
         <div className="container mx-auto px-4 py-4 md:py-6 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
-            {/* Compact Brand Title */}
+            {/* Compact Brand Title - Unified Component */}
             <div className="mb-4">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight mb-2 drop-shadow-lg">
-                <span className="bg-gradient-to-r from-primary via-blue-600 to-primary bg-clip-text text-transparent">
-                  Market
-                </span>
-                <span className="bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 bg-clip-text text-transparent">
-                  place
-                </span>
-                <span className="text-foreground ml-2">România</span>
-              </h1>
-              <p className="text-sm md:text-base text-muted-foreground">
-                <span className="text-primary font-medium">Cumpără</span> • <span className="text-amber-500 font-medium">Vinde</span> • <span className="text-emerald-500 font-medium">Licitează</span> — Produse noi și second-hand
-              </p>
+              <MarketplaceBrand size="xl" showTagline linkTo={null} />
             </div>
             
             {/* All Actions in One Compact Row */}
