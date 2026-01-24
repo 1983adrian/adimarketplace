@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -16,7 +16,7 @@ interface MarketplaceBrandProps {
  * 
  * Variants:
  * - default: Standard branding
- * - welcome: Shows "Bine ai venit!" message
+ * - welcome: Shows "Bine ai venit!" message with slide animation (3s)
  * - goodbye: Shows "La revedere!" message for sign out
  */
 export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
@@ -26,6 +26,16 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
   className,
   linkTo = '/',
 }) => {
+  const [showMessage, setShowMessage] = useState(false);
+
+  useEffect(() => {
+    if (variant === 'welcome' || variant === 'goodbye') {
+      // Start animation after a small delay
+      const startTimer = setTimeout(() => setShowMessage(true), 100);
+      return () => clearTimeout(startTimer);
+    }
+  }, [variant]);
+
   const sizeClasses = {
     sm: 'text-xl sm:text-2xl',
     md: 'text-2xl sm:text-3xl',
@@ -38,6 +48,13 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
     md: 'text-sm',
     lg: 'text-base',
     xl: 'text-base md:text-lg',
+  };
+
+  const messageSizes = {
+    sm: 'text-lg',
+    md: 'text-xl sm:text-2xl',
+    lg: 'text-2xl sm:text-3xl',
+    xl: 'text-3xl sm:text-4xl',
   };
 
   const variantMessages = {
@@ -89,16 +106,31 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
         </p>
       )}
 
-      {/* Variant message */}
+      {/* Animated Variant message - slides from right to center */}
       {variantMessages[variant] && (
-        <p className={cn(
-          'font-semibold mt-2',
-          taglineSizes[size],
-          variant === 'welcome' && 'text-[#34A853]',
-          variant === 'goodbye' && 'text-[#EA4335]'
-        )}>
-          {variantMessages[variant]}
-        </p>
+        <div className="relative w-full flex justify-center overflow-hidden mt-4">
+          <p 
+            className={cn(
+              'font-bold tracking-wide',
+              messageSizes[size],
+              variant === 'welcome' && 'bg-gradient-to-r from-[#34A853] via-[#4CAF50] to-[#8BC34A] bg-clip-text text-transparent',
+              variant === 'goodbye' && 'bg-gradient-to-r from-[#EA4335] via-[#FF5722] to-[#FF9800] bg-clip-text text-transparent',
+              // Animation: slide from right (translate-x-full) to center (translate-x-0)
+              'transition-all ease-out',
+              showMessage 
+                ? 'translate-x-0 opacity-100' 
+                : 'translate-x-full opacity-0'
+            )}
+            style={{
+              transitionDuration: '3000ms', // Exactly 3 seconds
+              fontFamily: "'Playfair Display', Georgia, serif",
+              letterSpacing: '0.05em',
+              textShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            }}
+          >
+            {variantMessages[variant]}
+          </p>
+        </div>
       )}
     </div>
   );
