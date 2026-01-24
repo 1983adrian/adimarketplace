@@ -10,7 +10,7 @@ export interface Return {
   seller_id: string;
   reason: string;
   description: string | null;
-  status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled';
+  status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled' | 'refunded_no_return';
   refund_amount: number | null;
   admin_notes: string | null;
   tracking_number: string | null;
@@ -201,7 +201,7 @@ export const useUpdateReturnStatus = () => {
       
       if (adminNotes) updateData.admin_notes = adminNotes;
       if (refundAmount) updateData.refund_amount = refundAmount;
-      if (status === 'completed' || status === 'rejected') {
+      if (status === 'completed' || status === 'rejected' || status === 'refunded_no_return') {
         updateData.resolved_at = new Date().toISOString();
       }
 
