@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, CreditCard, Shield, Truck, HeadphonesIcon, Ban, Leaf, Bomb } from 'lucide-react';
-import logo from '@/assets/cmarket-hero.png';
+import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 import { usePlatformSettings } from '@/hooks/useAdminSettings';
 
 export const Footer: React.FC = () => {
@@ -79,9 +79,7 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-4">
-            <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Marketplace România" className="h-12 w-auto object-contain dark:brightness-0 dark:invert" />
-            </Link>
+            <MarketplaceBrand size="sm" showTagline linkTo="/" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               Marketplace-ul tău de încredere pentru cumpărare și vânzare de produse de calitate. Alătură-te miilor de clienți mulțumiți.
             </p>

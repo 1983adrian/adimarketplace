@@ -1,7 +1,7 @@
 import React, { useState, forwardRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight, GraduationCap, Wallet, Store } from 'lucide-react';
-import logo from '@/assets/cmarket-hero.png';
+import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -258,7 +258,7 @@ export const Header: React.FC = () => {
               <SheetContent side="right" className="w-80 p-0">
                 <div className="flex flex-col h-full">
                   <div className="p-4 border-b border-border flex items-center justify-between">
-                    <img src={logo} alt="Marketplace România" className="h-9 object-contain" style={{ mixBlendMode: 'multiply' }} />
+                    <MarketplaceBrand size="sm" showTagline={false} linkTo="/" />
                     <AppDownloadButton />
                   </div>
                   
