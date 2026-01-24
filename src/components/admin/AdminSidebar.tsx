@@ -9,6 +9,8 @@ import {
   Shield,
   Crown,
   Megaphone,
+  Palette,
+  ClipboardCheck,
   LucideIcon
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
@@ -49,6 +51,8 @@ const financeItems: MenuItem[] = [
 
 const settingsItems: MenuItem[] = [
   { title: 'Setări Platformă', url: '/admin/settings', icon: Settings },
+  { title: 'Editor Interfață', url: '/admin/interface-editor', icon: Palette, premium: true },
+  { title: 'Audit Butoane', url: '/admin/button-audit', icon: ClipboardCheck, premium: true },
   { title: 'Securitate', url: '/admin/security', icon: Shield },
 ];
 
