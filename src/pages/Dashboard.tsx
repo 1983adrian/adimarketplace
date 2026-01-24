@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Plus, Package, ShoppingBag, GraduationCap, MessageCircle, 
   Wallet, BarChart3, Heart, Settings, Bell, LogOut, Store, User,
-  Undo2, MailOpen, Receipt
+  Undo2, MailOpen, Receipt, Moon, Sun
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,6 +14,7 @@ import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
 import { useDashboardBadges } from '@/hooks/useDashboardBadges';
 import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch';
 
 type BadgeType = 'messages' | 'purchases' | 'sales' | 'my-returns' | 'received-returns' | null;
 
@@ -46,11 +47,41 @@ const Dashboard = () => {
   const { user, profile, loading, signOut } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
   
   const { data: myListings } = useMyListings(user?.id);
   const { data: unreadMessages = 0 } = useUnreadMessages();
   const { data: unreadNotifications = 0 } = useUnreadNotifications();
   const { pendingPurchases, pendingSales, myPendingReturns, receivedPendingReturns } = useDashboardBadges();
+
+  // Handle dark mode toggle
+  const toggleDarkMode = (checked: boolean) => {
+    setIsDarkMode(checked);
+    if (checked) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
+  // Initialize theme from localStorage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      setIsDarkMode(true);
+    } else if (savedTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+      setIsDarkMode(false);
+    }
+  }, []);
 
   React.useEffect(() => {
     if (!loading && !user) {
@@ -117,7 +148,21 @@ const Dashboard = () => {
 
         {/* Menu Grid */}
         <div className="bg-card border-2 border-border rounded-3xl p-4 shadow-lg max-w-md mx-auto">
-          <h2 className="text-lg font-bold text-center mb-3">Meniu</h2>
+          {/* Header with Meniu title and Dark Mode toggle */}
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-bold">Meniu</h2>
+            
+            {/* Dark Mode Toggle */}
+            <div className="flex items-center gap-2">
+              <Sun className="h-4 w-4 text-amber-500" />
+              <Switch
+                checked={isDarkMode}
+                onCheckedChange={toggleDarkMode}
+                className="data-[state=checked]:bg-slate-700 data-[state=unchecked]:bg-amber-400"
+              />
+              <Moon className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+            </div>
+          </div>
           <div className="grid grid-cols-3 gap-2">
             {menuItems.map((item) => {
               const Icon = item.icon;
