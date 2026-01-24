@@ -10,7 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { StarRating } from '@/components/reviews/StarRating';
 import { ReviewCard } from '@/components/reviews/ReviewCard';
 import { ListingGrid } from '@/components/listings/ListingGrid';
-import { MapPin, Calendar, ShoppingBag, Star, MessageCircle, Shield } from 'lucide-react';
+import { MapPin, Calendar, ShoppingBag, Star, MessageCircle, Shield, Share2 } from 'lucide-react';
+import { ShareStoreDialog } from '@/components/seller/ShareStoreDialog';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSellerReviews, useSellerStats } from '@/hooks/useReviews';
@@ -146,6 +147,16 @@ const SellerProfile = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2">
+                <ShareStoreDialog 
+                  sellerId={id!} 
+                  storeName={displayName}
+                  productCount={listings?.length || 0}
+                >
+                  <Button variant="outline" className="gap-2">
+                    <Share2 className="h-4 w-4" />
+                    Promovează
+                  </Button>
+                </ShareStoreDialog>
                 <AddFriendButton targetUserId={id!} />
                 <Button onClick={handleContactSeller} disabled={createConversation.isPending} className="gap-2">
                   <MessageCircle className="h-4 w-4" />

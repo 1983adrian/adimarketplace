@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Plus, Package, ShoppingBag, GraduationCap, MessageCircle, 
   Wallet, BarChart3, Heart, Settings, Bell, LogOut, Store, User,
-  Undo2, MailOpen, Receipt, Moon, Sun
+  Undo2, MailOpen, Receipt, Moon, Sun, Share2
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -40,6 +40,7 @@ const menuItems: MenuItem[] = [
   { id: 'received-returns', title: 'Returnări Primite', description: 'Returnări de la clienți', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-700', showBadge: 'received-returns' },
   { id: 'products', title: 'Produsele Mele', description: 'Anunțurile tale active', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
   { id: 'analytics', title: 'Statistici', description: 'Vizualizări și performanță', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
+  { id: 'share', title: 'Promovează Magazin', description: 'Share pe rețele sociale', url: '/my-products?share=true', icon: Share2, color: 'bg-gradient-to-br from-pink-500 to-rose-600' },
   { id: 'favorites', title: 'Favorite', description: 'Produse salvate', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
   { id: 'tutorial', title: 'Tutorial', description: 'Ghid pas cu pas', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
 ];
