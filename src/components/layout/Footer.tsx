@@ -46,10 +46,10 @@ export const Footer: React.FC = () => {
   };
 
   const trustBadges = [
-    { icon: Shield, label: 'Buyer Protection' },
-    { icon: Truck, label: 'Tracked Delivery' },
-    { icon: CreditCard, label: 'Secure Payments' },
-    { icon: HeadphonesIcon, label: '24/7 Support' },
+    { icon: Shield, label: 'Buyer Protection', href: '/safety' },
+    { icon: Truck, label: 'Tracked Delivery', href: '/help' },
+    { icon: CreditCard, label: 'Secure Payments', href: '/help' },
+    { icon: HeadphonesIcon, label: '24/7 Support', href: '/contact' },
   ];
 
   return (
@@ -58,13 +58,17 @@ export const Footer: React.FC = () => {
       <div className="border-b border-border">
         <div className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {trustBadges.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center justify-center gap-3 p-3 rounded-xl bg-muted/50">
+            {trustBadges.map(({ icon: Icon, label, href }) => (
+              <Link 
+                key={label} 
+                to={href}
+                className="flex items-center justify-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
+              >
                 <div className="p-2 rounded-lg bg-primary/10">
                   <Icon className="h-5 w-5 text-primary" />
                 </div>
                 <span className="font-medium text-sm">{label}</span>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
