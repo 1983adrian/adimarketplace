@@ -2,9 +2,19 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Facebook, Twitter, Instagram, Youtube, CreditCard, Shield, Truck, HeadphonesIcon, Ban, Leaf, Bomb } from 'lucide-react';
 import logo from '@/assets/cmarket-hero.png';
+import { usePlatformSettings } from '@/hooks/useAdminSettings';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  const { data: dbSettings } = usePlatformSettings();
+  
+  const socialLinks = {
+    facebook: dbSettings?.['social']?.facebook || 'https://facebook.com/marketplace.romania',
+    instagram: dbSettings?.['social']?.instagram || 'https://instagram.com/marketplace.romania',
+    twitter: dbSettings?.['social']?.twitter || 'https://twitter.com/marketplace_ro',
+    youtube: dbSettings?.['social']?.youtube || 'https://youtube.com/@marketplace-romania',
+    tiktok: dbSettings?.['social']?.tiktok || 'https://tiktok.com/@marketplace.romania',
+  };
 
   const footerLinks = {
     shop: [
@@ -73,45 +83,67 @@ export const Footer: React.FC = () => {
             </p>
             <div className="flex gap-3">
               {/* Facebook */}
-              <a 
-                href="https://facebook.com/marketplace.romania"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-[#1877F2] hover:bg-[#166FE5] text-white transition-all hover:scale-110 shadow-md"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-5 w-5" />
-              </a>
+              {socialLinks.facebook && (
+                <a 
+                  href={socialLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-[#1877F2] hover:bg-[#166FE5] text-white transition-all hover:scale-110 shadow-md"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="h-5 w-5" />
+                </a>
+              )}
               {/* Twitter/X */}
-              <a 
-                href="https://twitter.com/marketplace_ro"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-black hover:bg-gray-800 text-white transition-all hover:scale-110 shadow-md"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-5 w-5" />
-              </a>
+              {socialLinks.twitter && (
+                <a 
+                  href={socialLinks.twitter}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-black hover:bg-gray-800 text-white transition-all hover:scale-110 shadow-md"
+                  aria-label="Twitter"
+                >
+                  <Twitter className="h-5 w-5" />
+                </a>
+              )}
               {/* Instagram */}
-              <a 
-                href="https://instagram.com/marketplace.romania"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:from-[#E1306C] hover:via-[#C13584] hover:to-[#833AB4] text-white transition-all hover:scale-110 shadow-md"
-                aria-label="Instagram"
-              >
-                <Instagram className="h-5 w-5" />
-              </a>
+              {socialLinks.instagram && (
+                <a 
+                  href={socialLinks.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:from-[#E1306C] hover:via-[#C13584] hover:to-[#833AB4] text-white transition-all hover:scale-110 shadow-md"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+              )}
               {/* YouTube */}
-              <a 
-                href="https://youtube.com/@marketplace-romania"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-xl bg-[#FF0000] hover:bg-[#CC0000] text-white transition-all hover:scale-110 shadow-md"
-                aria-label="YouTube"
-              >
-                <Youtube className="h-5 w-5" />
-              </a>
+              {socialLinks.youtube && (
+                <a 
+                  href={socialLinks.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-[#FF0000] hover:bg-[#CC0000] text-white transition-all hover:scale-110 shadow-md"
+                  aria-label="YouTube"
+                >
+                  <Youtube className="h-5 w-5" />
+                </a>
+              )}
+              {/* TikTok */}
+              {socialLinks.tiktok && (
+                <a 
+                  href={socialLinks.tiktok}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2.5 rounded-xl bg-black hover:bg-gray-900 text-white transition-all hover:scale-110 shadow-md"
+                  aria-label="TikTok"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                  </svg>
+                </a>
+              )}
             </div>
           </div>
 

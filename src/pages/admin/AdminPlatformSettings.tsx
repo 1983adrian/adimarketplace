@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Globe, Bell, Shield, Store, Loader2, Settings, CheckCircle2, Volume2 } from 'lucide-react';
+import { Save, Globe, Bell, Shield, Store, Loader2, Settings, CheckCircle2, Volume2, Share2, Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,13 @@ interface PlatformSettings {
     maxImagesPerListing: number;
     maxListingPrice: number;
   };
+  social: {
+    facebook: string;
+    instagram: string;
+    twitter: string;
+    youtube: string;
+    tiktok: string;
+  };
 }
 
 const defaultSettings: PlatformSettings = {
@@ -71,6 +78,13 @@ const defaultSettings: PlatformSettings = {
     maxImagesPerListing: 10,
     maxListingPrice: 100000,
   },
+  social: {
+    facebook: 'https://facebook.com/marketplace.romania',
+    instagram: 'https://instagram.com/marketplace.romania',
+    twitter: 'https://twitter.com/marketplace_ro',
+    youtube: 'https://youtube.com/@marketplace-romania',
+    tiktok: 'https://tiktok.com/@marketplace.romania',
+  },
 };
 
 const AdminPlatformSettings = () => {
@@ -98,6 +112,7 @@ const AdminPlatformSettings = () => {
         notifications: { ...defaultSettings.notifications, ...dbSettings['notifications'] },
         security: { ...defaultSettings.security, ...dbSettings['security'] },
         marketplace: { ...defaultSettings.marketplace, ...dbSettings['marketplace'] },
+        social: { ...defaultSettings.social, ...dbSettings['social'] },
       };
       setSettings(loadedSettings);
     }
@@ -112,6 +127,7 @@ const AdminPlatformSettings = () => {
         updateSetting.mutateAsync({ key: 'notifications', value: settings.notifications, category: 'platform' }),
         updateSetting.mutateAsync({ key: 'security', value: settings.security, category: 'platform' }),
         updateSetting.mutateAsync({ key: 'marketplace', value: settings.marketplace, category: 'platform' }),
+        updateSetting.mutateAsync({ key: 'social', value: settings.social, category: 'platform' }),
       ]);
       setLastSaved(new Date());
       toast({ 
@@ -127,6 +143,10 @@ const AdminPlatformSettings = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const updateSocial = (key: keyof PlatformSettings['social'], value: string) => {
+    setSettings(prev => ({ ...prev, social: { ...prev.social, [key]: value } }));
   };
 
   const updateGeneral = (key: keyof PlatformSettings['general'], value: string) => {
@@ -200,7 +220,7 @@ const AdminPlatformSettings = () => {
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 gap-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto p-1 gap-1">
             <TabsTrigger value="general" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Globe className="h-4 w-4" />
               <span className="hidden sm:inline">General</span>
@@ -216,6 +236,10 @@ const AdminPlatformSettings = () => {
             <TabsTrigger value="marketplace" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Store className="h-4 w-4" />
               <span className="hidden sm:inline">Marketplace</span>
+            </TabsTrigger>
+            <TabsTrigger value="social" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+              <Share2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Social</span>
             </TabsTrigger>
           </TabsList>
 
@@ -499,6 +523,113 @@ const AdminPlatformSettings = () => {
                       Prețul maxim permis pentru o singură listare
                     </p>
                   </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Social Media Tab */}
+          <TabsContent value="social" className="space-y-6">
+            <Card className="border-0 shadow-sm">
+              <CardHeader className="pb-4">
+                <div className="flex items-center gap-2">
+                  <Share2 className="h-5 w-5 text-primary" />
+                  <CardTitle>Link-uri Social Media</CardTitle>
+                </div>
+                <CardDescription>Configurează link-urile către conturile tale de social media care apar în footer</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                {/* Facebook */}
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 rounded-xl bg-[#1877F2] text-white shrink-0">
+                    <Facebook className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <Label htmlFor="facebook">Facebook</Label>
+                    <Input
+                      id="facebook"
+                      value={settings.social.facebook}
+                      onChange={(e) => updateSocial('facebook', e.target.value)}
+                      placeholder="https://facebook.com/pagina-ta"
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+
+                {/* Instagram */}
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white shrink-0">
+                    <Instagram className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <Label htmlFor="instagram">Instagram</Label>
+                    <Input
+                      id="instagram"
+                      value={settings.social.instagram}
+                      onChange={(e) => updateSocial('instagram', e.target.value)}
+                      placeholder="https://instagram.com/contul-tau"
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+
+                {/* TikTok */}
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 rounded-xl bg-black text-white shrink-0">
+                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <Label htmlFor="tiktok">TikTok</Label>
+                    <Input
+                      id="tiktok"
+                      value={settings.social.tiktok}
+                      onChange={(e) => updateSocial('tiktok', e.target.value)}
+                      placeholder="https://tiktok.com/@contul-tau"
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+
+                {/* Twitter/X */}
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 rounded-xl bg-black text-white shrink-0">
+                    <Twitter className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <Label htmlFor="twitter">Twitter / X</Label>
+                    <Input
+                      id="twitter"
+                      value={settings.social.twitter}
+                      onChange={(e) => updateSocial('twitter', e.target.value)}
+                      placeholder="https://twitter.com/contul-tau"
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+
+                {/* YouTube */}
+                <div className="flex items-center gap-4">
+                  <div className="p-2.5 rounded-xl bg-[#FF0000] text-white shrink-0">
+                    <Youtube className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <Label htmlFor="youtube">YouTube</Label>
+                    <Input
+                      id="youtube"
+                      value={settings.social.youtube}
+                      onChange={(e) => updateSocial('youtube', e.target.value)}
+                      placeholder="https://youtube.com/@canalul-tau"
+                      className="h-11"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-4 p-4 rounded-lg bg-muted/50 border">
+                  <p className="text-sm text-muted-foreground">
+                    💡 <strong>Sfat:</strong> Lasă câmpul gol pentru a ascunde iconița respectivă din footer. Link-urile se actualizează automat după salvare.
+                  </p>
                 </div>
               </CardContent>
             </Card>
