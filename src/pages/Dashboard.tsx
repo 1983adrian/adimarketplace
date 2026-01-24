@@ -21,6 +21,7 @@ type BadgeType = 'messages' | 'purchases' | 'sales' | 'my-returns' | 'received-r
 interface MenuItem {
   id: string;
   title: string;
+  description: string;
   url: string;
   icon: React.ElementType;
   color: string;
@@ -28,19 +29,19 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'profile', title: 'Setări Profil', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
-  { id: 'seller-mode', title: 'Mod Vânzător', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
-  { id: 'sell', title: 'Vinde Un Produs', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
-  { id: 'wallet', title: 'Portofel', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-violet-500 to-violet-700' },
-  { id: 'messages', title: 'Mesaje', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-400 to-cyan-600', showBadge: 'messages' },
-  { id: 'purchases', title: 'Cumpărăturile Mele', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-rose-500 to-rose-700', showBadge: 'purchases' },
-  { id: 'sales', title: 'Vânzările Mele', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-lime-500 to-lime-700', showBadge: 'sales' },
-  { id: 'my-returns', title: 'Returnările Mele', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-orange-700', showBadge: 'my-returns' },
-  { id: 'received-returns', title: 'Returnări Primite', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-700', showBadge: 'received-returns' },
-  { id: 'products', title: 'Produsele Mele', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
-  { id: 'analytics', title: 'Statistici', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
-  { id: 'favorites', title: 'Favorite', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
-  { id: 'tutorial', title: 'Tutorial', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
+  { id: 'profile', title: 'Setări Profil', description: 'Editează datele contului', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
+  { id: 'seller-mode', title: 'Mod Vânzător', description: 'Activează cont cu card și acte', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
+  { id: 'sell', title: 'Vinde Un Produs', description: 'Publică anunțuri de vânzare', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
+  { id: 'wallet', title: 'Portofel', description: 'Vezi sold și retrage bani', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-violet-500 to-violet-700' },
+  { id: 'messages', title: 'Mesaje', description: 'Conversații cu clienții', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-400 to-cyan-600', showBadge: 'messages' },
+  { id: 'purchases', title: 'Cumpărăturile Mele', description: 'Produse comandate de tine', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-rose-500 to-rose-700', showBadge: 'purchases' },
+  { id: 'sales', title: 'Vânzările Mele', description: 'Comenzi primite de la clienți', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-lime-500 to-lime-700', showBadge: 'sales' },
+  { id: 'my-returns', title: 'Returnările Mele', description: 'Produse returnate de tine', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-orange-700', showBadge: 'my-returns' },
+  { id: 'received-returns', title: 'Returnări Primite', description: 'Returnări de la clienți', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-700', showBadge: 'received-returns' },
+  { id: 'products', title: 'Produsele Mele', description: 'Anunțurile tale active', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
+  { id: 'analytics', title: 'Statistici', description: 'Vizualizări și performanță', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
+  { id: 'favorites', title: 'Favorite', description: 'Produse salvate', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
+  { id: 'tutorial', title: 'Tutorial', description: 'Ghid pas cu pas', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
 ];
 
 const Dashboard = () => {
@@ -200,10 +201,17 @@ const Dashboard = () => {
                   </div>
                   
                   <span className={cn(
-                    "text-[10px] font-medium text-foreground text-center leading-tight line-clamp-2",
+                    "text-[10px] font-medium text-foreground text-center leading-tight",
                     item.id === 'sell' && "text-sm font-bold text-white"
                   )}>
                     {item.title}
+                  </span>
+                  
+                  <span className={cn(
+                    "text-[8px] text-muted-foreground text-center leading-tight opacity-70",
+                    item.id === 'sell' && "text-[9px] text-white/80"
+                  )}>
+                    {item.description}
                   </span>
                   
                   {notificationText && (
