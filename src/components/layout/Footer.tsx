@@ -72,15 +72,46 @@ export const Footer: React.FC = () => {
               Marketplace-ul tău de încredere pentru cumpărare și vânzare de produse de calitate. Alătură-te miilor de clienți mulțumiți.
             </p>
             <div className="flex gap-3">
-              {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                <a 
-                  key={i}
-                  href="#" 
-                  className="p-2 rounded-lg bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-                >
-                  <Icon className="h-4 w-4" />
-                </a>
-              ))}
+              {/* Facebook */}
+              <a 
+                href="https://facebook.com/marketplace.romania"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-xl bg-[#1877F2] hover:bg-[#166FE5] text-white transition-all hover:scale-110 shadow-md"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-5 w-5" />
+              </a>
+              {/* Twitter/X */}
+              <a 
+                href="https://twitter.com/marketplace_ro"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-xl bg-black hover:bg-gray-800 text-white transition-all hover:scale-110 shadow-md"
+                aria-label="Twitter"
+              >
+                <Twitter className="h-5 w-5" />
+              </a>
+              {/* Instagram */}
+              <a 
+                href="https://instagram.com/marketplace.romania"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] hover:from-[#E1306C] hover:via-[#C13584] hover:to-[#833AB4] text-white transition-all hover:scale-110 shadow-md"
+                aria-label="Instagram"
+              >
+                <Instagram className="h-5 w-5" />
+              </a>
+              {/* YouTube */}
+              <a 
+                href="https://youtube.com/@marketplace-romania"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-xl bg-[#FF0000] hover:bg-[#CC0000] text-white transition-all hover:scale-110 shadow-md"
+                aria-label="YouTube"
+              >
+                <Youtube className="h-5 w-5" />
+              </a>
             </div>
           </div>
 
