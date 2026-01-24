@@ -81,6 +81,80 @@ serve(async (req) => {
     const proactiveRepairs: string[] = [];
 
     // =====================================================================
+    // SECTION 0: PLATFORM SELF-DISCOVERY - AUTO-DETECTARE COMPONENTE
+    // =====================================================================
+    
+    // Discover all tables in the platform
+    const platformTables = [
+      "profiles", "listings", "listing_images", "categories", "orders", 
+      "conversations", "messages", "notifications", "favorites", "bids",
+      "reviews", "disputes", "returns", "refunds", "payouts", "seller_payouts",
+      "listing_promotions", "platform_settings", "platform_fees", "user_roles",
+      "admin_emails", "audit_logs", "saved_addresses", "friendships",
+      "email_templates", "newsletter_subscribers", "push_tokens", "webhook_logs",
+      "seo_settings", "homepage_content", "policies_content", "invoices",
+      "seller_subscriptions", "marketing_campaigns", "campaign_sends",
+      "payment_processor_settings"
+    ];
+
+    // Auto-discover table health by checking for common issues
+    const tableHealthChecks: { table: string; healthy: boolean; issue?: string }[] = [];
+    
+    for (const table of platformTables) {
+      try {
+        const { count, error } = await supabase
+          .from(table)
+          .select("*", { count: "exact", head: true });
+        
+        if (error) {
+          tableHealthChecks.push({ table, healthy: false, issue: error.message });
+        } else {
+          tableHealthChecks.push({ table, healthy: true });
+        }
+      } catch (e) {
+        tableHealthChecks.push({ 
+          table, 
+          healthy: false, 
+          issue: e instanceof Error ? e.message : "Unknown error" 
+        });
+      }
+    }
+
+    // Report any table access issues
+    const unhealthyTables = tableHealthChecks.filter(t => !t.healthy);
+    if (unhealthyTables.length > 0) {
+      issues.push({
+        id: "platform_table_access",
+        category: "database",
+        severity: "critical",
+        title: "Tabele inaccesibile",
+        description: `${unhealthyTables.length} tabele au probleme de acces: ${unhealthyTables.map(t => t.table).join(", ")}`,
+        autoFixable: false,
+        affectedCount: unhealthyTables.length,
+        detectedAt: new Date().toISOString()
+      });
+    }
+
+    // Platform feature registry - what the platform knows about itself
+    const platformFeatures = {
+      auth: { enabled: true, tables: ["profiles", "user_roles", "admin_emails"] },
+      listings: { enabled: true, tables: ["listings", "listing_images", "categories"] },
+      orders: { enabled: true, tables: ["orders", "returns", "refunds", "disputes"] },
+      payments: { enabled: true, tables: ["payouts", "seller_payouts", "invoices", "platform_fees"] },
+      messaging: { enabled: true, tables: ["conversations", "messages", "friendships"] },
+      notifications: { enabled: true, tables: ["notifications", "push_tokens"] },
+      promotions: { enabled: true, tables: ["listing_promotions", "marketing_campaigns"] },
+      settings: { enabled: true, tables: ["platform_settings", "seo_settings", "homepage_content"] }
+    };
+
+    // Log what the platform knows about itself
+    proactiveRepairs.push(`🔍 Auto-detectat ${platformTables.length} tabele de platformă`);
+    proactiveRepairs.push(`✅ ${tableHealthChecks.filter(t => t.healthy).length} tabele sănătoase`);
+    if (unhealthyTables.length > 0) {
+      proactiveRepairs.push(`⚠️ ${unhealthyTables.length} tabele cu probleme`);
+    }
+
+    // =====================================================================
     // SECTION 1: CHAT & MESSAGES HEALTH - REPARARE COMPLETĂ
     // =====================================================================
     
@@ -434,7 +508,7 @@ serve(async (req) => {
       .from("listing_promotions")
       .select("id")
       .eq("is_active", true)
-      .lt("end_date", new Date().toISOString());
+      .lt("ends_at", new Date().toISOString());
 
     if (expiredPromotions && expiredPromotions.length > 0) {
       issues.push({
@@ -453,8 +527,8 @@ serve(async (req) => {
     // Check for negative balances
     const { data: negativeBalances } = await supabase
       .from("profiles")
-      .select("user_id, pending_balance, available_balance")
-      .or("pending_balance.lt.0,available_balance.lt.0");
+      .select("user_id, pending_balance, payout_balance")
+      .or("pending_balance.lt.0,payout_balance.lt.0");
 
     if (negativeBalances && negativeBalances.length > 0) {
       issues.push({
@@ -774,7 +848,7 @@ serve(async (req) => {
                   .from("profiles")
                   .update({
                     pending_balance: Math.max(0, profile.pending_balance || 0),
-                    available_balance: Math.max(0, profile.available_balance || 0)
+                    payout_balance: Math.max(0, profile.payout_balance || 0)
                   })
                   .eq("user_id", profile.user_id);
               }

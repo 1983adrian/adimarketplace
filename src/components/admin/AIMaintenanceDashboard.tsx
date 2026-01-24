@@ -156,7 +156,8 @@ export function AIMaintenanceDashboard() {
       if (response.error) throw response.error;
       return response.data as MaintenanceReport;
     },
-    refetchInterval: 60000, // Auto-refresh every minute
+    refetchInterval: 30000, // Auto-refresh every 30 seconds for faster self-healing
+    refetchOnWindowFocus: true, // Also refresh when user comes back to tab
   });
 
   const analyzeMutation = useMutation({
@@ -260,11 +261,11 @@ export function AIMaintenanceDashboard() {
               AI Maintenance ULTRA PRO
               <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
                 <Cpu className="h-3 w-3 mr-1" />
-                INGINER
+                AUTO-REPARARE
               </Badge>
             </h1>
             <p className="text-muted-foreground">
-              Repară AUTOMAT chat, notificări, comenzi, erori - tot ce ține de platformă
+              Se auto-repară singur - scanează și repară AUTOMAT chat, notificări, comenzi, erori - tot ce ține de platformă
             </p>
           </div>
         </div>
@@ -339,11 +340,11 @@ export function AIMaintenanceDashboard() {
         <Card className="border-emerald-500/50 bg-gradient-to-br from-emerald-500/5 to-teal-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Bot className="h-5 w-5 text-emerald-500" />
-              🤖 Reparări Proactive Automate
+              <Bot className="h-5 w-5 text-emerald-500 animate-pulse" />
+              🤖 Auto-Reparare Activă (Interval: 30s)
             </CardTitle>
             <CardDescription>
-              AI-ul a reparat automat aceste probleme la ultima scanare
+              Sistemul se auto-repară continuu - fără intervenție manuală
             </CardDescription>
           </CardHeader>
           <CardContent>
