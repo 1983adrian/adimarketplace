@@ -26,7 +26,7 @@ const EBAY_COMPARISON = {
   listings: 'eBay: Item Listing, Photos, Variations ✓',
   auctions: 'eBay: Bidding, Buy It Now, Watchlist ✓',
   orders: 'eBay: Order Management, Tracking ✓',
-  payments: 'eBay: PayPal, Managed Payments ✓',
+  payments: 'eBay: MangoPay, Managed Payments ✓',
   escrow: 'eBay: Buyer Protection, Escrow ✓',
   messaging: 'eBay: Buyer-Seller Messaging ✓',
   reviews: 'eBay: Feedback System, Stars ✓',
@@ -534,7 +534,7 @@ export const AdminChecklist: React.FC = () => {
             </div>
             <div className="space-y-1">
               <span className="text-muted-foreground text-xs">Plăți</span>
-              <p className="font-bold">PayPal REAL (£ GBP)</p>
+              <p className="font-bold">MangoPay LIVE (€ EUR)</p>
             </div>
             <div className="space-y-1">
               <span className="text-muted-foreground text-xs">Notificări</span>
@@ -553,7 +553,7 @@ export const AdminChecklist: React.FC = () => {
           <div className="mt-6 grid grid-cols-2 md:grid-cols-6 gap-3">
             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border text-center">
               <div className="text-2xl font-bold text-green-600">✓</div>
-              <p className="text-xs text-muted-foreground">PayPal SDK</p>
+              <p className="text-xs text-muted-foreground">MangoPay</p>
             </div>
             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border text-center">
               <div className="text-2xl font-bold text-green-600">✓</div>

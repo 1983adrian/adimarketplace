@@ -73,7 +73,7 @@ const defaultFAQs = [
       },
       {
         q: 'Ce metode de plată sunt acceptate?',
-        a: 'Platforma acceptă plăți prin card (Stripe) și PayPal. Plata în numerar la livrare poate fi agreată direct cu vânzătorul.',
+        a: 'Platforma acceptă plăți prin card (procesate securizat prin MangoPay) și plată la livrare (ramburs) acolo unde vânzătorul o permite.',
       },
     ],
   },
