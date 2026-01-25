@@ -41,31 +41,63 @@ const Login = () => {
 
     setLoading(true);
     
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    
-    if (rememberMe) {
-      localStorage.setItem('cmarket_remembered_email', email.trim());
-    } else {
-      localStorage.removeItem('cmarket_remembered_email');
-    }
-    
-    if (error) {
-      let message = error.message;
-      if (error.message.includes('Invalid login credentials')) {
-        message = 'Email sau parolă incorectă.';
-      } else if (error.message.includes('Email not confirmed')) {
-        message = 'Te rugăm să îți verifici email-ul înainte de a te autentifica.';
+    try {
+      // Clear any existing session first to avoid conflicts
+      await supabase.auth.signOut();
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      
+      if (rememberMe) {
+        localStorage.setItem('cmarket_remembered_email', email.trim().toLowerCase());
+      } else {
+        localStorage.removeItem('cmarket_remembered_email');
       }
-      toast({ title: 'Eroare', description: message, variant: 'destructive' });
+      
+      if (error) {
+        console.error('Login error:', error.message, error.status);
+        let message = error.message;
+        let description = '';
+        
+        if (error.message.includes('Invalid login credentials')) {
+          message = 'Email sau parolă incorectă';
+          description = 'Verifică datele introduse sau folosește "Ai uitat parola?" pentru a reseta.';
+        } else if (error.message.includes('Email not confirmed')) {
+          message = 'Email neconfirmat';
+          description = 'Te rugăm să îți verifici căsuța de email pentru link-ul de confirmare.';
+        } else if (error.message.includes('Too many requests')) {
+          message = 'Prea multe încercări';
+          description = 'Așteaptă câteva minute înainte de a încerca din nou.';
+        } else if (error.message.includes('Network')) {
+          message = 'Eroare de conexiune';
+          description = 'Verifică conexiunea la internet și încearcă din nou.';
+        }
+        
+        toast({ 
+          title: message, 
+          description: description || error.message, 
+          variant: 'destructive' 
+        });
+        setLoading(false);
+        return;
+      }
+
+      if (data?.user) {
+        toast({ title: 'Bine ai venit!', description: `Autentificat ca ${data.user.email}` });
+        navigate('/');
+      }
+    } catch (err: any) {
+      console.error('Unexpected login error:', err);
+      toast({ 
+        title: 'Eroare neașteptată', 
+        description: 'A apărut o problemă. Încearcă din nou.', 
+        variant: 'destructive' 
+      });
+    } finally {
       setLoading(false);
-      return;
     }
-    
-    toast({ title: 'Succes!', description: 'Te-ai autentificat cu succes.' });
-    navigate('/');
   };
 
   return (
@@ -175,6 +207,16 @@ const Login = () => {
                 'Autentifică-te'
               )}
             </Button>
+            
+            {/* Reset password suggestion */}
+            <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+              <p className="text-sm text-amber-600 dark:text-amber-400">
+                Nu te poți autentifica?{' '}
+                <Link to="/forgot-password" className="font-semibold underline hover:text-amber-700">
+                  Resetează parola aici
+                </Link>
+              </p>
+            </div>
           </form>
 
           {/* Security badge */}
