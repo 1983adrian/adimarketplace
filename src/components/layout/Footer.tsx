@@ -245,7 +245,7 @@ export const Footer: React.FC = () => {
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
-                Plăți securizate prin Adyen & MangoPay
+                Plăți securizate prin MangoPay
               </span>
             </div>
           </div>

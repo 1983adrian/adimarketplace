@@ -226,7 +226,7 @@ export const PayoutSection: React.FC = () => {
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Verificare în curs</AlertTitle>
               <AlertDescription>
-                Documentele tale sunt în curs de verificare de către procesatorul de plăți (Adyen/Mangopay). 
+                Documentele tale sunt în curs de verificare de către procesatorul de plăți (MangoPay). 
                 Acest proces poate dura 1-3 zile lucrătoare.
               </AlertDescription>
             </Alert>

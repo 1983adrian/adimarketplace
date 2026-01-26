@@ -91,7 +91,6 @@ export const PlatformAudit: React.FC = () => {
       const buyerFee = feesResult.data?.find(f => f.fee_type === 'buyer_fee');
       const sellerCommission = feesResult.data?.find(f => f.fee_type === 'seller_commission');
       const mangopay = processorSettingsResult.data?.find(p => p.processor_name === 'mangopay');
-      const adyen = processorSettingsResult.data?.find(p => p.processor_name === 'adyen');
 
       // Build audit sections
       const sections: AuditSection[] = [
@@ -105,7 +104,7 @@ export const PlatformAudit: React.FC = () => {
             { id: 'buyer-listings', name: 'Vizualizare Produse', status: 'pass', details: 'Galerie, descriere, preț, variante', metric: `${activeListingsResult.count || 0} active` },
             { id: 'buyer-favorites', name: 'Favorite / Wishlist', status: 'pass', details: 'Salvare produse, notificări', metric: `${favoritesResult.count || 0} salvate` },
             { id: 'buyer-bidding', name: 'Licitații & Biduri', status: 'pass', details: 'Plasare bid, outbid alerts', metric: `${bidsResult.count || 0} biduri` },
-            { id: 'buyer-checkout', name: 'Checkout & Plată', status: 'pass', details: 'Adrese salvate, COD, card', metric: 'MangoPay + Adyen' },
+            { id: 'buyer-checkout', name: 'Checkout & Plată', status: 'pass', details: 'Adrese salvate, COD, card', metric: 'MangoPay' },
             { id: 'buyer-orders', name: 'Comenzile Mele', status: 'pass', details: 'Tracking, status, istoric', metric: `${ordersResult.count || 0} comenzi` },
             { id: 'buyer-messaging', name: 'Chat cu Vânzătorul', status: 'pass', details: 'Mesaje text + poze', metric: `${conversationsResult.count || 0} conversații` },
             { id: 'buyer-reviews', name: 'Recenzii & Feedback', status: 'pass', details: 'Stele + comentarii', metric: `${reviewsResult.count || 0} recenzii` },
@@ -149,19 +148,17 @@ export const PlatformAudit: React.FC = () => {
             { id: 'admin-audit', name: 'Audit Log', status: 'pass', details: 'Logare acțiuni', metric: 'Istoric complet' },
           ],
         },
-        // PAYMENTS - MangoPay & Adyen
+        // PAYMENTS - MangoPay Only
         {
-          title: '💳 Plăți - MangoPay & Adyen',
+          title: '💳 Plăți - MangoPay',
           icon: <CreditCard className="h-5 w-5" />,
-          score: mangopay?.is_active || adyen?.is_active ? 100 : 80,
+          score: mangopay?.is_active ? 100 : 80,
           items: [
             { id: 'pay-mangopay', name: 'MangoPay Integration', status: mangopay ? 'pass' : 'warn', details: 'Wallet, PayIn, PayOut, Escrow', metric: mangopay?.is_active ? '✅ Activ' : '⚠️ Configurare necesară' },
             { id: 'pay-mangopay-webhook', name: 'MangoPay Webhooks', status: 'pass', details: 'Edge function mangopay-webhook', metric: 'Implementat' },
-            { id: 'pay-adyen', name: 'Adyen Integration', status: adyen ? 'pass' : 'warn', details: 'Cards, 3DS2, Refunds', metric: adyen?.is_active ? '✅ Activ' : '⚠️ Configurare necesară' },
-            { id: 'pay-adyen-webhook', name: 'Adyen Webhooks', status: 'pass', details: 'Edge function adyen-webhook', metric: 'Implementat' },
             { id: 'pay-escrow', name: 'Sistem Escrow', status: 'pass', details: 'Fonduri blocate până la livrare', metric: 'Activ' },
             { id: 'pay-refunds', name: 'Rambursări', status: 'pass', details: 'process-refund edge function', metric: 'Automatizat' },
-            { id: 'pay-payouts', name: 'Payouts Vânzători', status: 'pass', details: 'process-payout edge function', metric: 'IBAN + Card' },
+            { id: 'pay-payouts', name: 'Payouts Vânzători', status: 'pass', details: 'process-payout edge function', metric: 'IBAN + Card UK' },
             { id: 'pay-kyc', name: 'KYC Onboarding', status: 'pass', details: 'kyc-onboarding edge function', metric: 'PF/PJ support' },
             { id: 'pay-invoices', name: 'Facturare', status: 'pass', details: 'Generare automată facturi', metric: `${invoicesResult.count || 0} facturi` },
             { id: 'pay-currency', name: 'Valută', status: 'pass', details: 'GBP (Lire Sterline)', metric: '£ GBP' },

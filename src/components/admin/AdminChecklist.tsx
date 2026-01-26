@@ -161,15 +161,6 @@ export const AdminChecklist: React.FC = () => {
           ebayFeature: EBAY_COMPARISON.payments,
         },
         {
-          id: 'adyen_payments',
-          name: 'Adyen Plăți',
-          description: 'Card payments, 3DS2, Refunds, Chargebacks',
-          status: 'passed',
-          link: '/admin/payments',
-          details: 'adyen-webhook ✓ | SCA/PSD2 compliant',
-          category: 'payments',
-        },
-        {
           id: 'escrow',
           name: 'Sistem Escrow',
           description: 'Fonduri blocate, eliberare la confirmare livrare',

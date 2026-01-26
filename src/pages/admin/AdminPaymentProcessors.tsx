@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   CreditCard, 
   DollarSign, 
@@ -24,7 +24,6 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
@@ -47,22 +46,23 @@ export default function AdminPaymentProcessors() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [showApiKey, setShowApiKey] = useState<Record<string, boolean>>({});
-  const [showApiSecret, setShowApiSecret] = useState<Record<string, boolean>>({});
-  const [editedSettings, setEditedSettings] = useState<Record<string, Partial<ProcessorSettings>>>({});
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [showApiSecret, setShowApiSecret] = useState(false);
+  const [editedSettings, setEditedSettings] = useState<Partial<ProcessorSettings>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch processor settings
-  const { data: processors, isLoading } = useQuery({
-    queryKey: ['payment-processors'],
+  // Fetch MangoPay settings only
+  const { data: mangopay, isLoading } = useQuery({
+    queryKey: ['mangopay-settings'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('payment_processor_settings')
         .select('*')
-        .order('processor_name');
+        .eq('processor_name', 'mangopay')
+        .single();
       
-      if (error) throw error;
-      return data as ProcessorSettings[];
+      if (error && error.code !== 'PGRST116') throw error;
+      return data as ProcessorSettings | null;
     },
   });
 
@@ -91,38 +91,26 @@ export default function AdminPaymentProcessors() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['payment-processors'] });
-      toast({ title: 'Setări salvate', description: 'Configurația procesorului a fost actualizată.' });
+      queryClient.invalidateQueries({ queryKey: ['mangopay-settings'] });
+      toast({ title: 'Setări salvate', description: 'Configurația MangoPay a fost actualizată.' });
+      setEditedSettings({});
     },
     onError: (error: any) => {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     },
   });
 
-  const handleSave = async (processorId: string) => {
-    const settings = editedSettings[processorId];
-    if (!settings) return;
-    
-    await updateProcessor.mutateAsync({ id: processorId, ...settings });
-    setEditedSettings(prev => {
-      const updated = { ...prev };
-      delete updated[processorId];
-      return updated;
-    });
+  const handleSave = async () => {
+    if (!mangopay?.id || Object.keys(editedSettings).length === 0) return;
+    await updateProcessor.mutateAsync({ id: mangopay.id, ...editedSettings });
   };
 
-  const updateField = (processorId: string, field: keyof ProcessorSettings, value: any) => {
-    setEditedSettings(prev => ({
-      ...prev,
-      [processorId]: {
-        ...prev[processorId],
-        [field]: value,
-      },
-    }));
+  const updateField = (field: keyof ProcessorSettings, value: any) => {
+    setEditedSettings(prev => ({ ...prev, [field]: value }));
   };
 
-  const getProcessorValue = (processor: ProcessorSettings, field: keyof ProcessorSettings) => {
-    return editedSettings[processor.id]?.[field] ?? processor[field];
+  const getValue = (field: keyof ProcessorSettings) => {
+    return editedSettings[field] ?? mangopay?.[field];
   };
 
   const sellerCommission = fees?.find(f => f.fee_type === 'seller_commission');
@@ -147,19 +135,19 @@ export default function AdminPaymentProcessors() {
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <CreditCard className="h-8 w-8 text-primary" />
-              Procesatori de Plăți
+              Procesator de Plăți
             </h1>
-            <p className="text-muted-foreground">Configurează Adyen și Mangopay pentru procesarea plăților</p>
+            <p className="text-muted-foreground">Configurează MangoPay pentru procesarea plăților</p>
           </div>
         </div>
 
-        {/* Alert - No Stripe */}
-        <Alert className="border-blue-500/50 bg-blue-500/5">
-          <Shield className="h-4 w-4 text-blue-600" />
-          <AlertTitle>Fără Stripe</AlertTitle>
+        {/* Alert - MangoPay Only */}
+        <Alert className="border-green-500/50 bg-green-500/5">
+          <Wallet className="h-4 w-4 text-green-600" />
+          <AlertTitle>Exclusiv MangoPay</AlertTitle>
           <AlertDescription>
-            Platforma folosește exclusiv Adyen și Mangopay pentru procesarea plăților. 
-            Acești procesatori oferă verificare automată KYC a vânzătorilor și transfer direct către conturile lor bancare sau carduri.
+            Platforma folosește exclusiv MangoPay pentru procesarea plăților. 
+            MangoPay oferă verificare automată KYC a vânzătorilor, wallet-uri electronice și transfer direct către conturile bancare (IBAN) sau carduri (UK Sort Code + Account Number).
           </AlertDescription>
         </Alert>
 
@@ -193,209 +181,179 @@ export default function AdminPaymentProcessors() {
           </CardContent>
         </Card>
 
-        <Tabs defaultValue="adyen" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="adyen" className="gap-2">
-              <CreditCard className="h-4 w-4" />
-              Adyen
-            </TabsTrigger>
-            <TabsTrigger value="mangopay" className="gap-2">
-              <Wallet className="h-4 w-4" />
-              Mangopay
-            </TabsTrigger>
-          </TabsList>
-
-          {processors?.map((processor) => (
-            <TabsContent key={processor.id} value={processor.processor_name} className="space-y-6">
-              {/* Status Card */}
-              <Card className={`border-2 ${getProcessorValue(processor, 'is_active') ? 'border-green-500/30 bg-green-50/50 dark:bg-green-900/10' : 'border-muted'}`}>
-                <CardContent className="py-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className={`p-4 rounded-full ${getProcessorValue(processor, 'is_active') ? 'bg-green-500/20' : 'bg-muted'}`}>
-                        {getProcessorValue(processor, 'is_active') ? (
-                          <CheckCircle className="h-8 w-8 text-green-600" />
-                        ) : (
-                          <AlertTriangle className="h-8 w-8 text-muted-foreground" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold capitalize">{processor.processor_name}</h3>
-                        <p className="text-muted-foreground">
-                          {getProcessorValue(processor, 'is_active') 
-                            ? `Activ - ${getProcessorValue(processor, 'environment') === 'live' ? 'Producție' : 'Sandbox'}` 
-                            : 'Dezactivat'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <Badge variant={getProcessorValue(processor, 'environment') === 'live' ? 'default' : 'secondary'}>
-                        {getProcessorValue(processor, 'environment') === 'live' ? '🔴 LIVE' : '🟡 SANDBOX'}
-                      </Badge>
-                      <Switch
-                        checked={getProcessorValue(processor, 'is_active') as boolean}
-                        onCheckedChange={(checked) => updateField(processor.id, 'is_active', checked)}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* API Keys */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Key className="h-5 w-5" />
-                    Chei API
-                  </CardTitle>
-                  <CardDescription>
-                    Configurează cheile API pentru {processor.processor_name}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-2">
-                      <Label>Mediu</Label>
-                      <Select
-                        value={getProcessorValue(processor, 'environment') as string}
-                        onValueChange={(v) => updateField(processor.id, 'environment', v)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="sandbox">🟡 Sandbox (Test)</SelectItem>
-                          <SelectItem value="live">🔴 Live (Producție)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Merchant ID</Label>
-                      <Input
-                        value={(getProcessorValue(processor, 'merchant_id') as string) || ''}
-                        onChange={(e) => updateField(processor.id, 'merchant_id', e.target.value)}
-                        placeholder={`${processor.processor_name} Merchant ID`}
-                      />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>API Key</Label>
-                      <div className="relative">
-                        <Input
-                          type={showApiKey[processor.id] ? 'text' : 'password'}
-                          value={(getProcessorValue(processor, 'api_key_encrypted') as string) || ''}
-                          onChange={(e) => updateField(processor.id, 'api_key_encrypted', e.target.value)}
-                          placeholder="Introdu API Key"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-2 top-1/2 -translate-y-1/2"
-                          onClick={() => setShowApiKey(prev => ({ ...prev, [processor.id]: !prev[processor.id] }))}
-                        >
-                          {showApiKey[processor.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>API Secret</Label>
-                      <div className="relative">
-                        <Input
-                          type={showApiSecret[processor.id] ? 'text' : 'password'}
-                          value={(getProcessorValue(processor, 'api_secret_encrypted') as string) || ''}
-                          onChange={(e) => updateField(processor.id, 'api_secret_encrypted', e.target.value)}
-                          placeholder="Introdu API Secret"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-2 top-1/2 -translate-y-1/2"
-                          onClick={() => setShowApiSecret(prev => ({ ...prev, [processor.id]: !prev[processor.id] }))}
-                        >
-                          {showApiSecret[processor.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <Label>Webhook URL</Label>
-                    <Input
-                      value={(getProcessorValue(processor, 'webhook_url') as string) || ''}
-                      onChange={(e) => updateField(processor.id, 'webhook_url', e.target.value)}
-                      placeholder="https://your-domain.com/webhooks/processor"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      URL-ul unde procesatorul va trimite notificări despre plăți
-                    </p>
-                  </div>
-
-                  <Button 
-                    onClick={() => handleSave(processor.id)} 
-                    disabled={!editedSettings[processor.id] || updateProcessor.isPending}
-                    className="w-full gap-2"
-                  >
-                    {updateProcessor.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Save className="h-4 w-4" />
-                    )}
-                    Salvează Setările {processor.processor_name}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Info Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Building2 className="h-5 w-5" />
-                    Despre {processor.processor_name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {processor.processor_name === 'adyen' ? (
-                    <div className="space-y-3 text-sm">
-                      <p><strong>Adyen</strong> este un procesor global de plăți folosit de companii precum Uber, Spotify, și eBay.</p>
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>Suportă plăți cu carduri, Apple Pay, Google Pay</li>
-                        <li>Verificare automată KYC a vânzătorilor</li>
-                        <li>Transfer direct către conturi bancare</li>
-                        <li>Protecție împotriva fraudei</li>
-                      </ul>
-                      <a href="https://www.adyen.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        Accesează Adyen Dashboard →
-                      </a>
-                    </div>
+        {/* MangoPay Settings */}
+        <Card className={`border-2 ${getValue('is_active') ? 'border-green-500/30 bg-green-50/50 dark:bg-green-900/10' : 'border-muted'}`}>
+          <CardContent className="py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className={`p-4 rounded-full ${getValue('is_active') ? 'bg-green-500/20' : 'bg-muted'}`}>
+                  {getValue('is_active') ? (
+                    <CheckCircle className="h-8 w-8 text-green-600" />
                   ) : (
-                    <div className="space-y-3 text-sm">
-                      <p><strong>Mangopay</strong> este specializat în marketplace-uri și platforme P2P.</p>
-                      <ul className="list-disc pl-5 space-y-1">
-                        <li>Soluție nativă pentru marketplace-uri</li>
-                        <li>Wallet-uri electronice pentru utilizatori</li>
-                        <li>KYC și AML integrate</li>
-                        <li>Escrow (fonduri în custodie) inclus</li>
-                      </ul>
-                      <a href="https://www.mangopay.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        Accesează Mangopay Dashboard →
-                      </a>
-                    </div>
+                    <AlertTriangle className="h-8 w-8 text-muted-foreground" />
                   )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          ))}
-        </Tabs>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">MangoPay</h3>
+                  <p className="text-muted-foreground">
+                    {getValue('is_active') 
+                      ? `Activ - ${getValue('environment') === 'live' ? 'Producție' : 'Sandbox'}` 
+                      : 'Dezactivat'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Badge variant={getValue('environment') === 'live' ? 'default' : 'secondary'}>
+                  {getValue('environment') === 'live' ? '🔴 LIVE' : '🟡 SANDBOX'}
+                </Badge>
+                <Switch
+                  checked={getValue('is_active') as boolean || false}
+                  onCheckedChange={(checked) => updateField('is_active', checked)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* API Keys */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5" />
+              Chei API MangoPay
+            </CardTitle>
+            <CardDescription>
+              Configurează cheile API pentru MangoPay. Obține-le din dashboard-ul MangoPay.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Mediu</Label>
+                <Select
+                  value={getValue('environment') as string || 'sandbox'}
+                  onValueChange={(v) => updateField('environment', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sandbox">🟡 Sandbox (Test)</SelectItem>
+                    <SelectItem value="live">🔴 Live (Producție)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Client ID (Merchant ID)</Label>
+                <Input
+                  value={(getValue('merchant_id') as string) || ''}
+                  onChange={(e) => updateField('merchant_id', e.target.value)}
+                  placeholder="MangoPay Client ID"
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label>API Key</Label>
+                <div className="relative">
+                  <Input
+                    type={showApiKey ? 'text' : 'password'}
+                    value={(getValue('api_key_encrypted') as string) || ''}
+                    onChange={(e) => updateField('api_key_encrypted', e.target.value)}
+                    placeholder="Introdu API Key"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                  >
+                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>API Secret (Passphrase)</Label>
+                <div className="relative">
+                  <Input
+                    type={showApiSecret ? 'text' : 'password'}
+                    value={(getValue('api_secret_encrypted') as string) || ''}
+                    onChange={(e) => updateField('api_secret_encrypted', e.target.value)}
+                    placeholder="Introdu API Secret"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowApiSecret(!showApiSecret)}
+                  >
+                    {showApiSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="space-y-2">
+              <Label>Webhook URL</Label>
+              <Input
+                value={(getValue('webhook_url') as string) || ''}
+                onChange={(e) => updateField('webhook_url', e.target.value)}
+                placeholder="https://your-project.supabase.co/functions/v1/mangopay-webhook"
+              />
+              <p className="text-xs text-muted-foreground">
+                URL-ul unde MangoPay va trimite notificări despre plăți. Configurează-l în dashboard-ul MangoPay.
+              </p>
+            </div>
+
+            <Button 
+              onClick={handleSave} 
+              disabled={Object.keys(editedSettings).length === 0 || updateProcessor.isPending}
+              className="w-full gap-2"
+            >
+              {updateProcessor.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              Salvează Setările MangoPay
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Info Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              Despre MangoPay
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 text-sm">
+              <p><strong>MangoPay</strong> este specializat în marketplace-uri și platforme P2P.</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Soluție nativă pentru marketplace-uri</li>
+                <li>Wallet-uri electronice pentru utilizatori</li>
+                <li>KYC și AML integrate</li>
+                <li>Escrow (fonduri în custodie) inclus</li>
+                <li>Suport pentru IBAN (UE) și Sort Code + Account Number (UK)</li>
+                <li>Conformitate PSD2 și SCA</li>
+              </ul>
+              <a href="https://www.mangopay.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                Accesează MangoPay Dashboard →
+              </a>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );

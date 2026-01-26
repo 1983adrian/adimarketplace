@@ -1492,7 +1492,7 @@ STACK TEHNOLOGIC:
 - Backend: Supabase (PostgreSQL + Auth + Storage + Edge Functions)
 - AI: Lovable AI Gateway (Gemini 3 Flash Preview)
 - Mobile: Capacitor pentru iOS/Android
-- Plăți: MangoPay (principal), Adyen (backup), COD
+- Plăți: MangoPay (exclusiv) + COD (Ramburs)
 
 ═══════════════════════════════════════════════════════════════════════════════
 📊 SCHEMA COMPLETĂ A BAZEI DE DATE (34 TABELE)

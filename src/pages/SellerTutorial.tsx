@@ -70,7 +70,7 @@ const SellerTutorial: React.FC = () => {
       bgColor: "bg-sky-50",
       borderColor: "border-sky-200",
       details: [
-        "Verificarea este procesată de Adyen/Mangopay",
+        "Verificarea este procesată de MangoPay",
         "Încarcă un act de identitate valid (CI/Pașaport)",
         "Adaugă o poză selfie pentru confirmare",
         "Procesul durează 1-3 zile lucrătoare",

@@ -16,7 +16,6 @@ const CheckoutSuccess = () => {
   const [error, setError] = useState<string | null>(null);
 
   const orderIds = searchParams.get('order_ids');
-  const sessionId = searchParams.get('session_id'); // Legacy support
 
   useEffect(() => {
     const processPayment = async () => {
@@ -27,34 +26,15 @@ const CheckoutSuccess = () => {
         return;
       }
 
-      // Legacy: handle Stripe session_id
-      if (sessionId) {
-        try {
-          const { data, error: fnError } = await supabase.functions.invoke('stripe-payment-success', {
-            body: { sessionId },
-          });
-
-          if (fnError) {
-            throw new Error(fnError.message);
-          }
-
-          if (data?.success) {
-            setOrderId(data.orderId);
-          } else {
-            throw new Error(data?.error || 'Payment processing failed');
-          }
-        } catch (err) {
-          console.error('Payment processing error:', err);
-          setError(err instanceof Error ? err.message : 'An error occurred');
-        }
-      } else {
+      // No session ID - missing order info
+      if (!orderIds) {
         setError('Missing order information');
       }
       setProcessing(false);
     };
 
     processPayment();
-  }, [sessionId, orderIds]);
+  }, [orderIds]);
 
   if (processing) {
     return (

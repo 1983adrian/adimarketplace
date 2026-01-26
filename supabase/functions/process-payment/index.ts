@@ -73,28 +73,19 @@ serve(async (req) => {
       throw new Error("No items provided");
     }
 
-    // Determine active payment processor
-    const { data: processors } = await supabase
+    // MangoPay is the ONLY payment processor
+    const { data: mangopaySettings } = await supabase
       .from("payment_processor_settings")
       .select("*")
-      .eq("is_active", true)
-      .order("processor_name");
+      .eq("processor_name", "mangopay")
+      .single();
 
-    // Priority: Adyen > MangoPay (if both active, use Adyen)
-    let activeProcessor = processors?.find(p => p.processor_name === "adyen") || 
-                          processors?.find(p => p.processor_name === "mangopay");
+    const processorName = "mangopay";
+    const processorEnv = mangopaySettings?.environment || "sandbox";
+    const merchantId = mangopaySettings?.merchant_id;
+    const isActive = mangopaySettings?.is_active || false;
 
-    // Override with requested processor if specified and active
-    if (requestedProcessor) {
-      const requested = processors?.find(p => p.processor_name === requestedProcessor);
-      if (requested) activeProcessor = requested;
-    }
-
-    const processorName = activeProcessor?.processor_name || "mangopay";
-    const processorEnv = activeProcessor?.environment || "sandbox";
-    const merchantId = activeProcessor?.merchant_id;
-
-    console.log(`Processing payment with ${processorName} (${processorEnv})`);
+    console.log(`Processing payment with MangoPay (${processorEnv})`);
 
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + item.price, 0);
@@ -269,18 +260,13 @@ serve(async (req) => {
     let paymentUrl = successUrl;
     let paymentInstructions = "";
 
-    if (processorName === "adyen" && activeProcessor?.api_key_encrypted && merchantId) {
-      // Adyen payment - would redirect to Adyen hosted page
-      paymentInstructions = "Redirecționare către Adyen pentru plată securizată cu card.";
-      // In production: Generate Adyen payment link using their API
-      paymentUrl = successUrl; // Placeholder - real implementation uses Adyen SDK
-    } else if (processorName === "mangopay" && activeProcessor?.api_key_encrypted) {
-      // MangoPay payment
+    if (mangopaySettings?.api_key_encrypted && isActive) {
+      // MangoPay payment - production mode
       paymentInstructions = "Redirecționare către MangoPay pentru plată securizată.";
-      paymentUrl = successUrl; // Placeholder - real implementation uses MangoPay SDK
+      paymentUrl = successUrl; // In production: Generate MangoPay payment link using their API
     } else {
       // Demo mode - direct to success
-      paymentInstructions = `Demo mode (${processorName}): Configurează cheile API pentru plăți reale.`;
+      paymentInstructions = "Demo mode (MangoPay): Configurează cheile API pentru plăți reale.";
     }
 
     return new Response(
@@ -293,7 +279,7 @@ serve(async (req) => {
         invoiceNumber,
         redirectUrl: paymentUrl,
         message: paymentInstructions,
-        isLive: processorEnv === "live" && !!activeProcessor?.api_key_encrypted,
+        isLive: processorEnv === "live" && !!mangopaySettings?.api_key_encrypted,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
