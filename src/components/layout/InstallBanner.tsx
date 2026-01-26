@@ -20,6 +20,11 @@ export const InstallBanner = () => {
   } = usePWAInstall();
 
   useEffect(() => {
+    // Don't show banner on install page (already has instructions there)
+    if (window.location.pathname === '/install' || window.location.pathname === '/install-app') {
+      return;
+    }
+    
     // Don't show if already installed or dismissed recently
     const dismissedAt = localStorage.getItem('pwa-banner-dismissed');
     if (dismissedAt) {
