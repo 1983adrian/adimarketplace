@@ -266,7 +266,7 @@ const SellerMode = () => {
                       <Clock className="h-4 w-4 text-orange-600" />
                       <AlertTitle className="text-orange-700 dark:text-orange-300">Verificare în curs</AlertTitle>
                       <AlertDescription className="text-orange-600 dark:text-orange-400">
-                        Documentele tale sunt în curs de verificare de către procesatorul de plăți (Adyen/Mangopay). 
+                        Documentele tale sunt în curs de verificare de către procesatorul de plăți (MangoPay). 
                         Acest proces poate dura 1-3 zile lucrătoare.
                       </AlertDescription>
                     </Alert>

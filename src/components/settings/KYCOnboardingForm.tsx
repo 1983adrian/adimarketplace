@@ -201,7 +201,7 @@ export const KYCOnboardingForm: React.FC<KYCOnboardingFormProps> = ({ onComplete
           Verificare Identitate (KYC)
         </CardTitle>
         <CardDescription>
-          Completează datele pentru a putea primi plăți din vânzări conform reglementărilor Adyen/Mangopay
+          Completează datele pentru a putea primi plăți din vânzări conform reglementărilor MangoPay
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -233,7 +233,7 @@ export const KYCOnboardingForm: React.FC<KYCOnboardingFormProps> = ({ onComplete
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>De ce avem nevoie de aceste date?</AlertTitle>
               <AlertDescription>
-                Procesatorii de plăți (Adyen, Mangopay) necesită verificarea identității conform reglementărilor europene anti-spălare de bani (AML/KYC).
+                Procesatorul de plăți (MangoPay) necesită verificarea identității conform reglementărilor europene anti-spălare de bani (AML/KYC).
               </AlertDescription>
             </Alert>
 

@@ -121,7 +121,7 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     description: 'Event handlers pentru toate tranzacțiile',
     status: 'compliant',
     category: 'payments',
-    details: 'mangopay-webhook + adyen-webhook active',
+    details: 'mangopay-webhook active',
   },
 
   // AML - Anti Money Laundering
