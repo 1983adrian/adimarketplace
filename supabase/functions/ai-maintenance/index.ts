@@ -174,6 +174,27 @@ serve(async (req) => {
     // SECTION 1: CHAT & MESSAGES HEALTH - REPARARE COMPLETĂ
     // =====================================================================
     
+    // 🔴 NEW: Auto-delete messages older than 3 days
+    const threeDaysAgoMessages = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: oldMessages, count: oldMessagesCount } = await supabase
+      .from("messages")
+      .select("id", { count: "exact" })
+      .lt("created_at", threeDaysAgoMessages);
+
+    if (oldMessages && oldMessages.length > 0) {
+      issues.push({
+        id: "chat_old_messages_cleanup",
+        category: "chat",
+        severity: "info",
+        title: "Mesaje vechi > 3 zile",
+        description: `${oldMessages.length} mesaje mai vechi de 3 zile - vor fi șterse automat`,
+        autoFixable: true,
+        fixAction: "delete_old_messages",
+        affectedCount: oldMessages.length,
+        detectedAt: new Date().toISOString()
+      });
+    }
+    
     // Check for conversations with deleted listings
     const { data: conversationsWithDeletedListings } = await supabase
       .from("conversations")
@@ -266,6 +287,30 @@ serve(async (req) => {
           detectedAt: new Date().toISOString()
         });
       }
+    }
+
+    // =====================================================================
+    // SECTION 1.5: INACTIVE ACCOUNTS - ȘTERGERE CONTURI DUPĂ 1.5 ANI
+    // =====================================================================
+    
+    const eighteenMonthsAgo = new Date(Date.now() - 18 * 30 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: inactiveAccounts, count: inactiveCount } = await supabase
+      .from("profiles")
+      .select("user_id, display_name, username, last_activity_at", { count: "exact" })
+      .lt("last_activity_at", eighteenMonthsAgo);
+
+    if (inactiveAccounts && inactiveAccounts.length > 0) {
+      issues.push({
+        id: "auth_inactive_accounts",
+        category: "auth",
+        severity: "warning",
+        title: "Conturi inactive > 1.5 ani",
+        description: `${inactiveAccounts.length} conturi nu au fost folosite de peste 18 luni - vor fi marcate pentru ștergere`,
+        autoFixable: true,
+        fixAction: "mark_inactive_accounts",
+        affectedCount: inactiveAccounts.length,
+        detectedAt: new Date().toISOString()
+      });
     }
 
     // =====================================================================
@@ -620,6 +665,18 @@ serve(async (req) => {
       try {
         switch (issue.fixAction) {
           // === CHAT FIXES ===
+          case "delete_old_messages":
+            if (oldMessages) {
+              const ids = oldMessages.map(m => m.id);
+              const { error } = await supabase
+                .from("messages")
+                .delete()
+                .in("id", ids);
+              if (!error) return `✅ Șters ${ids.length} mesaje mai vechi de 3 zile`;
+              return `❌ Eroare: ${error.message}`;
+            }
+            return "⚠️ Nu s-au găsit mesaje de șters";
+
           case "archive_orphaned_conversations":
             if (conversationsWithDeletedListings) {
               const ids = conversationsWithDeletedListings.map(c => c.id);
@@ -632,6 +689,27 @@ serve(async (req) => {
               return `❌ Eroare: ${error.message}`;
             }
             return "⚠️ Nu s-au găsit conversații de arhivat";
+          
+          case "mark_inactive_accounts":
+            if (inactiveAccounts) {
+              // For now, we just log them - actual deletion requires admin approval
+              // In production, you'd send notifications or mark for deletion
+              const userIds = inactiveAccounts.map(a => a.user_id);
+              
+              // Create notifications for admins about inactive accounts
+              if (adminRoles) {
+                const notifs = adminRoles.map(a => ({
+                  user_id: a.user_id,
+                  type: "admin_alert",
+                  title: "Conturi inactive pentru revizuire",
+                  message: `${userIds.length} conturi nu au fost folosite de peste 18 luni și sunt marcate pentru ștergere.`,
+                }));
+                await supabase.from("notifications").insert(notifs);
+              }
+              
+              return `✅ Notificat adminii despre ${userIds.length} conturi inactive (>18 luni)`;
+            }
+            return "⚠️ Nu s-au găsit conturi inactive";
 
           case "mark_old_messages_read":
             if (oldUnreadMessages) {
