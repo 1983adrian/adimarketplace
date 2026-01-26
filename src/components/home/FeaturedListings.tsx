@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, MapPin, Heart, ShoppingCart, Package, Plus, Sparkles, TrendingUp, Store } from 'lucide-react';
+import { ArrowRight, Heart, ShoppingCart, Package, Plus, Sparkles, TrendingUp, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -236,12 +236,7 @@ export const FeaturedListings: React.FC = () => {
                     <p className="text-lg md:text-xl font-bold text-primary mt-1">
                       {formatPrice(listing.price)}
                     </p>
-                    {listing.location && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                        <MapPin className="h-3 w-3" />
-                        {listing.location}
-                      </p>
-                    )}
+                    {/* Location removed from homepage cards */}
                     <Button 
                       size="sm" 
                       className="w-full gap-2 mt-auto pt-2"

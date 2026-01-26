@@ -471,6 +471,55 @@ serve(async (req) => {
     }
 
     // =====================================================================
+    // SECTION 3.5: AUCTION WINNER NOTIFICATIONS - NOTIFICARE CÂȘTIGĂTORI
+    // =====================================================================
+    
+    // Check for ended auctions that need winner notification
+    const { data: endedAuctions } = await supabase
+      .from("listings")
+      .select("id, title, seller_id, starting_bid, auction_end_date")
+      .in("listing_type", ["auction", "both"])
+      .eq("is_active", true)
+      .eq("is_sold", false)
+      .lt("auction_end_date", new Date().toISOString());
+
+    let endedAuctionsWithWinners: { 
+      listing: typeof endedAuctions extends (infer T)[] | null ? T : never; 
+      highestBid: { amount: number; bidder_id: string } | null;
+    }[] = [];
+
+    if (endedAuctions && endedAuctions.length > 0) {
+      // For each ended auction, find the highest bid
+      for (const auction of endedAuctions) {
+        const { data: highestBid } = await supabase
+          .from("bids")
+          .select("amount, bidder_id")
+          .eq("listing_id", auction.id)
+          .order("amount", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        if (highestBid) {
+          endedAuctionsWithWinners.push({ listing: auction, highestBid });
+        }
+      }
+
+      if (endedAuctionsWithWinners.length > 0) {
+        issues.push({
+          id: "auction_ended_with_winners",
+          category: "orders",
+          severity: "warning",
+          title: "Licitații încheiate cu câștigători",
+          description: `${endedAuctionsWithWinners.length} licitații s-au încheiat și au câștigători - vor fi notificați să plătească`,
+          autoFixable: true,
+          fixAction: "notify_auction_winners",
+          affectedCount: endedAuctionsWithWinners.length,
+          detectedAt: new Date().toISOString()
+        });
+      }
+    }
+
+    // =====================================================================
     // SECTION 4: AUTH & PROFILES - REPARARE COMPLETĂ
     // =====================================================================
     
@@ -862,6 +911,53 @@ serve(async (req) => {
               return `❌ Eroare: ${error.message}`;
             }
             return "⚠️ Nu s-au găsit retururi de escaladat";
+
+          // === AUCTION WINNER NOTIFICATIONS ===
+          case "notify_auction_winners":
+            if (endedAuctionsWithWinners.length > 0) {
+              let notified = 0;
+              for (const { listing, highestBid } of endedAuctionsWithWinners) {
+                if (!highestBid) continue;
+                
+                // Notify winner
+                await supabase.from("notifications").insert({
+                  user_id: highestBid.bidder_id,
+                  type: "auction_won",
+                  title: "🎉 Ai câștigat licitația!",
+                  message: `Felicitări! Ai câștigat licitația pentru "${listing.title}" cu £${highestBid.amount.toFixed(2)}. Te rugăm să finalizezi plata.`,
+                  data: { 
+                    listing_id: listing.id, 
+                    amount: highestBid.amount,
+                    action: "complete_payment"
+                  }
+                });
+
+                // Notify seller
+                await supabase.from("notifications").insert({
+                  user_id: listing.seller_id,
+                  type: "auction_ended",
+                  title: "🔔 Licitație încheiată",
+                  message: `Licitația pentru "${listing.title}" s-a încheiat cu £${highestBid.amount.toFixed(2)}. Câștigătorul a fost notificat să plătească.`,
+                  data: { 
+                    listing_id: listing.id, 
+                    amount: highestBid.amount,
+                    winner_id: highestBid.bidder_id
+                  }
+                });
+
+                // Mark bid as winning
+                await supabase
+                  .from("bids")
+                  .update({ is_winning: true })
+                  .eq("listing_id", listing.id)
+                  .eq("bidder_id", highestBid.bidder_id)
+                  .eq("amount", highestBid.amount);
+
+                notified++;
+              }
+              return `✅ Notificat ${notified} câștigători de licitații și vânzători`;
+            }
+            return "⚠️ Nu s-au găsit licitații încheiate cu câștigători";
 
           // === AUTH FIXES ===
           case "assign_default_roles":
