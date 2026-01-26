@@ -63,12 +63,12 @@ const ListingDetail = () => {
         .single();
       if (error) throw error;
       
-      // Fetch seller profile separately
+      // Fetch seller profile using secure public view (only safe columns exposed)
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('public_seller_profiles')
         .select('*')
         .eq('user_id', data.seller_id)
-        .single();
+        .maybeSingle();
         
       return { ...data, seller_profile: profile };
     },

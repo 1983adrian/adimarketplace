@@ -29,11 +29,11 @@ export const useListingBids = (listingId: string) => {
 
       if (error) throw error;
 
-      // Fetch bidder profiles
+      // Fetch bidder profiles using secure public view
       if (bids && bids.length > 0) {
         const bidderIds = [...new Set(bids.map(b => b.bidder_id))];
         const { data: profiles } = await supabase
-          .from('profiles')
+          .from('public_seller_profiles')
           .select('user_id, display_name, username, avatar_url')
           .in('user_id', bidderIds);
 
@@ -248,14 +248,14 @@ export const useMyAuctionListings = () => {
             .select('*', { count: 'exact', head: true })
             .eq('listing_id', listing.id);
 
-          // Get bidder profile if there's a highest bid
+          // Get bidder profile using secure public view
           let bidderProfile = null;
           if (highestBid) {
             const { data: profile } = await supabase
-              .from('profiles')
+              .from('public_seller_profiles')
               .select('display_name, username, avatar_url')
               .eq('user_id', highestBid.bidder_id)
-              .single();
+              .maybeSingle();
             bidderProfile = profile;
           }
 

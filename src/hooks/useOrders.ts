@@ -60,11 +60,11 @@ export const useMyOrders = (type: 'buying' | 'selling') => {
 
       if (error) throw error;
       
-      // Fetch seller profiles for buyer orders
+      // Fetch seller profiles for buyer orders using secure public view
       if (type === 'buying' && data && data.length > 0) {
         const sellerIds = [...new Set(data.map(o => o.seller_id))];
         const { data: profiles } = await supabase
-          .from('profiles')
+          .from('public_seller_profiles')
           .select('user_id, display_name, username')
           .in('user_id', sellerIds);
         
