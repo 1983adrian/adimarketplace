@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Share2, MapPin, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote } from 'lucide-react';
+import { ArrowLeft, Heart, MapPin, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote, TrendingUp } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,6 +18,7 @@ import { StarRating } from '@/components/reviews/StarRating';
 import { SimilarListings } from '@/components/listings/SimilarListings';
 import { AuctionBidding } from '@/components/listings/AuctionBidding';
 import { CODBadge } from '@/components/listings/CODBadge';
+import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSellerStats } from '@/hooks/useReviews';
@@ -162,14 +163,6 @@ const ListingDetail = () => {
     });
   };
 
-  const handleShare = async () => {
-    try {
-      await navigator.share({ title: listing.title, url: window.location.href });
-    } catch {
-      navigator.clipboard.writeText(window.location.href);
-      toast({ title: 'Link copied!' });
-    }
-  };
 
   const images = listing.listing_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
   const primaryImage = images.find((img: any) => img.is_primary)?.image_url || images[0]?.image_url;
@@ -313,9 +306,16 @@ const ListingDetail = () => {
               >
                 <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current text-destructive' : ''}`} />
               </Button>
-              <Button variant="outline" size="lg" onClick={handleShare}>
-                <Share2 className="h-5 w-5" />
-              </Button>
+              <ShareListingDialog
+                listingId={listing.id}
+                listingTitle={listing.title}
+                listingPrice={listing.buy_now_price || listing.price}
+                listingImage={primaryImage}
+              >
+                <Button variant="outline" size="lg" className="gap-2 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/20">
+                  <TrendingUp className="h-5 w-5 text-emerald-600" />
+                </Button>
+              </ShareListingDialog>
             </div>
 
             <Separator />
