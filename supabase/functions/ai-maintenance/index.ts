@@ -8,7 +8,7 @@ const corsHeaders = {
 
 interface MaintenanceIssue {
   id: string;
-  category: "database" | "storage" | "auth" | "chat" | "notifications" | "orders" | "data_integrity" | "performance" | "security";
+  category: "database" | "storage" | "auth" | "chat" | "notifications" | "orders" | "data_integrity" | "performance" | "security" | "fraud";
   severity: "info" | "warning" | "error" | "critical";
   title: string;
   description: string;
@@ -18,6 +18,18 @@ interface MaintenanceIssue {
   detectedAt: string;
   fixedAt?: string;
   fixResult?: string;
+}
+
+interface FraudAlert {
+  user_id: string;
+  alert_type: string;
+  severity: string;
+  title: string;
+  description: string;
+  evidence: any[];
+  listing_id?: string;
+  related_user_ids?: string[];
+  auto_action_taken?: string;
 }
 
 interface MaintenanceReport {
@@ -36,12 +48,14 @@ interface MaintenanceReport {
     dataIntegrity: number;
     performance: number;
     security: number;
+    fraud: number;
     overall: number;
   };
   aiAnalysis?: string;
   recommendations: string[];
   autoFixLog: string[];
   proactiveRepairs: string[];
+  fraudAlerts?: FraudAlert[];
 }
 
 serve(async (req) => {
@@ -707,6 +721,266 @@ serve(async (req) => {
     }
 
     // =====================================================================
+    // SECTION 6.5: FRAUD DETECTION - DETECTARE ACTIVITĂȚI FRAUDULOASE
+    // =====================================================================
+    
+    const fraudAlertsToCreate: FraudAlert[] = [];
+    
+    // 🔴 SHILL BIDDING DETECTION - Detectare licitații pe propriile produse
+    // Check for bids where bidder might be connected to seller
+    const { data: allBids } = await supabase
+      .from("bids")
+      .select(`
+        id, 
+        amount, 
+        bidder_id, 
+        listing_id, 
+        created_at,
+        listings!inner(id, seller_id, title)
+      `)
+      .order("created_at", { ascending: false })
+      .limit(500);
+
+    if (allBids) {
+      // Group bids by listing to analyze patterns
+      const bidsByListing = new Map<string, typeof allBids>();
+      for (const bid of allBids) {
+        const listingId = bid.listing_id;
+        if (!bidsByListing.has(listingId)) {
+          bidsByListing.set(listingId, []);
+        }
+        bidsByListing.get(listingId)!.push(bid);
+      }
+
+      // Check for self-bidding (bidder = seller)
+      for (const bid of allBids) {
+        const listing = bid.listings as any;
+        if (listing && bid.bidder_id === listing.seller_id) {
+          fraudAlertsToCreate.push({
+            user_id: bid.bidder_id,
+            alert_type: "shill_bidding",
+            severity: "critical",
+            title: "LICITAȚIE PE PROPRIUL PRODUS",
+            description: `Utilizatorul a licitat ${bid.amount} pe propriul produs "${listing.title}"`,
+            evidence: [{
+              type: "bid",
+              bid_id: bid.id,
+              listing_id: bid.listing_id,
+              amount: bid.amount,
+              timestamp: bid.created_at
+            }],
+            listing_id: bid.listing_id,
+            auto_action_taken: "account_flagged"
+          });
+        }
+      }
+
+      // Check for suspicious bidding patterns (same user always outbidding on same seller's items)
+      const bidderSellerPatterns = new Map<string, { count: number; total: number; listings: Set<string> }>();
+      for (const bid of allBids) {
+        const listing = bid.listings as any;
+        if (listing) {
+          const key = `${bid.bidder_id}_${listing.seller_id}`;
+          if (!bidderSellerPatterns.has(key)) {
+            bidderSellerPatterns.set(key, { count: 0, total: 0, listings: new Set() });
+          }
+          const pattern = bidderSellerPatterns.get(key)!;
+          pattern.count++;
+          pattern.total += bid.amount;
+          pattern.listings.add(bid.listing_id);
+        }
+      }
+
+      // Flag if same bidder bids on 5+ different items from same seller
+      for (const [key, pattern] of bidderSellerPatterns.entries()) {
+        if (pattern.listings.size >= 5) {
+          const [bidderId, sellerId] = key.split("_");
+          if (bidderId !== sellerId) { // Not self-bidding, but suspicious pattern
+            fraudAlertsToCreate.push({
+              user_id: bidderId,
+              alert_type: "suspicious_bidding_pattern",
+              severity: "warning",
+              title: "PATTERN SUSPICIOS DE LICITARE",
+              description: `Utilizatorul a licitat pe ${pattern.listings.size} produse diferite ale aceluiași vânzător (total: ${pattern.total})`,
+              evidence: [{
+                type: "pattern",
+                seller_id: sellerId,
+                listings_count: pattern.listings.size,
+                total_amount: pattern.total,
+                bid_count: pattern.count
+              }],
+              related_user_ids: [sellerId]
+            });
+          }
+        }
+      }
+
+      // Check for rapid successive bids (price manipulation)
+      for (const [listingId, listingBids] of bidsByListing.entries()) {
+        if (listingBids.length >= 3) {
+          const sortedBids = listingBids.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+          
+          for (let i = 0; i < sortedBids.length - 2; i++) {
+            const timeDiff1 = new Date(sortedBids[i + 1].created_at).getTime() - new Date(sortedBids[i].created_at).getTime();
+            const timeDiff2 = new Date(sortedBids[i + 2].created_at).getTime() - new Date(sortedBids[i + 1].created_at).getTime();
+            
+            // If 3 bids within 2 minutes involving same bidders
+            if (timeDiff1 < 60000 && timeDiff2 < 60000) { // < 1 min each
+              const bidders = new Set([sortedBids[i].bidder_id, sortedBids[i + 1].bidder_id, sortedBids[i + 2].bidder_id]);
+              if (bidders.size <= 2) { // Only 1-2 people bidding rapidly
+                fraudAlertsToCreate.push({
+                  user_id: sortedBids[i].bidder_id,
+                  alert_type: "price_manipulation",
+                  severity: "warning",
+                  title: "MANIPULARE RAPIDĂ A PREȚULUI",
+                  description: `3 licitații în mai puțin de 2 minute pe același produs, implicând doar ${bidders.size} licitatori`,
+                  evidence: sortedBids.slice(i, i + 3).map(b => ({
+                    bid_id: b.id,
+                    bidder_id: b.bidder_id,
+                    amount: b.amount,
+                    timestamp: b.created_at
+                  })),
+                  listing_id: listingId,
+                  related_user_ids: Array.from(bidders)
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // 🔴 SUSPICIOUS WITHDRAWAL PATTERNS
+    const { data: recentPayouts } = await supabase
+      .from("seller_payouts")
+      .select("seller_id, gross_amount, created_at, status")
+      .gte("created_at", sevenDaysAgo)
+      .order("created_at", { ascending: false });
+
+    if (recentPayouts) {
+      // Group by seller
+      const payoutsBySeller = new Map<string, typeof recentPayouts>();
+      for (const payout of recentPayouts) {
+        if (!payoutsBySeller.has(payout.seller_id)) {
+          payoutsBySeller.set(payout.seller_id, []);
+        }
+        payoutsBySeller.get(payout.seller_id)!.push(payout);
+      }
+
+      // Flag multiple large withdrawals in short time
+      for (const [sellerId, sellerPayouts] of payoutsBySeller.entries()) {
+        const totalAmount = sellerPayouts.reduce((sum, p) => sum + p.gross_amount, 0);
+        if (sellerPayouts.length >= 3 && totalAmount > 1000) {
+          fraudAlertsToCreate.push({
+            user_id: sellerId,
+            alert_type: "suspicious_withdrawal",
+            severity: "warning",
+            title: "EXTRAGERI MULTIPLE RAPIDE",
+            description: `${sellerPayouts.length} cereri de extragere în 7 zile (total: £${totalAmount.toFixed(2)})`,
+            evidence: sellerPayouts.map(p => ({
+              amount: p.gross_amount,
+              status: p.status,
+              timestamp: p.created_at
+            }))
+          });
+        }
+      }
+    }
+
+    // 🔴 MULTIPLE ACCOUNTS DETECTION (same patterns, IPs, etc.)
+    // Check for profiles with same phone or similar display names created recently
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { data: recentProfiles } = await supabase
+      .from("profiles")
+      .select("user_id, display_name, phone, created_at")
+      .gte("created_at", oneDayAgo);
+
+    if (recentProfiles && recentProfiles.length > 5) {
+      // Check for duplicate phones
+      const phoneMap = new Map<string, string[]>();
+      for (const profile of recentProfiles) {
+        if (profile.phone) {
+          if (!phoneMap.has(profile.phone)) {
+            phoneMap.set(profile.phone, []);
+          }
+          phoneMap.get(profile.phone)!.push(profile.user_id);
+        }
+      }
+
+      for (const [phone, userIds] of phoneMap.entries()) {
+        if (userIds.length > 1) {
+          fraudAlertsToCreate.push({
+            user_id: userIds[0],
+            alert_type: "multiple_accounts",
+            severity: "critical",
+            title: "CONTURI MULTIPLE CU ACELAȘI TELEFON",
+            description: `${userIds.length} conturi noi create cu numărul ${phone.slice(0, 4)}****`,
+            evidence: userIds.map(id => ({ user_id: id })),
+            related_user_ids: userIds.slice(1)
+          });
+        }
+      }
+    }
+
+    // Save fraud alerts to database and notify admins
+    if (fraudAlertsToCreate.length > 0) {
+      const { error: alertError } = await supabase
+        .from("fraud_alerts")
+        .insert(fraudAlertsToCreate);
+
+      if (!alertError) {
+        proactiveRepairs.push(`🚨 Creat ${fraudAlertsToCreate.length} alerte de fraudă pentru revizuire`);
+
+        // Notify admins about fraud alerts
+        if (adminRoles) {
+          const criticalAlerts = fraudAlertsToCreate.filter(a => a.severity === "critical");
+          if (criticalAlerts.length > 0) {
+            const adminNotifs = adminRoles.map(a => ({
+              user_id: a.user_id,
+              type: "fraud_alert",
+              title: "🚨 ALERTĂ FRAUDĂ CRITICĂ",
+              message: `AI a detectat ${criticalAlerts.length} activități frauduloase critice (shill bidding, conturi multiple). Verifică imediat!`,
+              data: { fraud_count: criticalAlerts.length, types: criticalAlerts.map(a => a.alert_type) }
+            }));
+            await supabase.from("notifications").insert(adminNotifs);
+          }
+        }
+
+        // Auto-actions for critical fraud
+        for (const alert of fraudAlertsToCreate) {
+          if (alert.severity === "critical" && alert.alert_type === "shill_bidding") {
+            // Block withdrawal for shill bidders
+            await supabase
+              .from("profiles")
+              .update({
+                withdrawal_blocked: true,
+                withdrawal_blocked_reason: "Activitate frauduloasă detectată (shill bidding) - în investigație",
+                withdrawal_blocked_at: new Date().toISOString(),
+                fraud_score: 100
+              })
+              .eq("user_id", alert.user_id);
+            
+            proactiveRepairs.push(`🔒 Blocat extragerea pentru utilizatorul cu shill bidding: ${alert.user_id.slice(0, 8)}...`);
+          }
+        }
+      }
+
+      issues.push({
+        id: "fraud_alerts_detected",
+        category: "fraud",
+        severity: fraudAlertsToCreate.some(a => a.severity === "critical") ? "critical" : "warning",
+        title: "Activități frauduloase detectate",
+        description: `${fraudAlertsToCreate.length} alerte de fraudă (${fraudAlertsToCreate.filter(a => a.severity === "critical").length} critice)`,
+        autoFixable: true,
+        fixAction: "fraud_alerts_created",
+        affectedCount: fraudAlertsToCreate.length,
+        detectedAt: new Date().toISOString(),
+        fixedAt: new Date().toISOString(),
+        fixResult: `Alertele au fost create și adminii au fost notificați`
+      });
+    }
+
+    // =====================================================================
     // SECTION 7: AUTO-FIX ENGINE - REPARARE COMPLETĂ
     // =====================================================================
     
@@ -1185,13 +1459,15 @@ serve(async (req) => {
       dataIntegrity: calculateCategoryHealth("data_integrity"),
       performance: calculateCategoryHealth("performance"),
       security: calculateCategoryHealth("security"),
+      fraud: calculateCategoryHealth("fraud"),
       overall: 0
     };
 
     systemHealth.overall = Math.round(
       (systemHealth.storage + systemHealth.auth + systemHealth.chat +
         systemHealth.notifications + systemHealth.orders +
-        systemHealth.dataIntegrity + systemHealth.performance + systemHealth.security) / 8
+        systemHealth.dataIntegrity + systemHealth.performance + 
+        systemHealth.security + systemHealth.fraud) / 9
     );
 
     // =====================================================================
