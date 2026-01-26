@@ -1021,42 +1021,322 @@ serve(async (req) => {
     );
 
     // =====================================================================
-    // SECTION 10: AI ANALYSIS
+    // SECTION 10: AI ANALYSIS - CUNOȘTINȚE COMPLETE PLATFORMĂ (80%)
     // =====================================================================
     
     let aiAnalysis = null;
     if (action === "analyze" || action === "full_auto_repair") {
       const remainingIssues = issues.filter(i => !i.fixedAt);
-      const analysisPrompt = `Ești AI Maintenance ULTRA PRO - Inginer de Platformă cu PUTERE MAXIMĂ de reparare.
+      
+      // MEGA-PROMPT cu 80% din cunoștințele despre platformă
+      const platformKnowledgeBase = `
+═══════════════════════════════════════════════════════════════════════════════
+🔧 AI MAINTENANCE ULTRA PRO - BAZA DE CUNOȘTINȚE COMPLETĂ (80% KNOWLEDGE)
+═══════════════════════════════════════════════════════════════════════════════
 
-🔧 AM REPARAT AUTOMAT:
-${proactiveRepairs.length > 0 ? proactiveRepairs.join("\n") : "Nicio reparare necesară în această sesiune"}
-${autoFixLog.length > 0 ? "\n📋 Reparări suplimentare:\n" + autoFixLog.join("\n") : ""}
+📦 ARHITECTURA PLATFORMEI C MARKET ROMÂNIA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-📊 STARE CURENTĂ DUPĂ REPARĂRI:
-- Chat: ${systemHealth.chat}%
-- Notificări: ${systemHealth.notifications}%  
-- Comenzi: ${systemHealth.orders}%
-- Autentificare: ${systemHealth.auth}%
-- Integritate Date: ${systemHealth.dataIntegrity}%
-- Securitate: ${systemHealth.security}%
-- OVERALL: ${systemHealth.overall}%
+STACK TEHNOLOGIC:
+- Frontend: React 18 + TypeScript + Vite + TailwindCSS
+- Backend: Supabase (PostgreSQL + Auth + Storage + Edge Functions)
+- AI: Lovable AI Gateway (Gemini 3 Flash Preview)
+- Mobile: Capacitor pentru iOS/Android
+- Plăți: MangoPay (principal), Adyen (backup), COD
 
-📋 PROBLEME RĂMASE (necesită intervenție manuală):
-${remainingIssues.length > 0 ? remainingIssues.map(i => `- [${i.severity.toUpperCase()}] ${i.title}`).join("\n") : "✨ NICIUNA - Totul este reparat!"}
+═══════════════════════════════════════════════════════════════════════════════
+📊 SCHEMA COMPLETĂ A BAZEI DE DATE (34 TABELE)
+═══════════════════════════════════════════════════════════════════════════════
 
-📈 STATISTICI:
-- Total probleme detectate: ${issues.length}
-- Probleme reparate automat: ${issuesFixed}
-- Probleme rămase: ${remainingIssues.length}
+1. UTILIZATORI & AUTENTIFICARE:
+   - profiles: user_id, display_name, username, avatar_url, bio, store_name, 
+               is_seller, is_verified, iban, phone, pending_balance, payout_balance,
+               kyc_status (pending/verified/rejected), mangopay_user_id, mangopay_wallet_id
+   - user_roles: user_id → role (admin/moderator/user) - NICIODATĂ pe profiles!
+   - admin_emails: email, is_active - verificare dinamică admin
+   - push_tokens: token, platform (ios/android/web)
+   
+   RELAȚII CRITICE:
+   - profiles.user_id → auth.users.id (NU foreign key direct!)
+   - Fiecare utilizator TREBUIE să aibă un rol în user_roles
 
-Oferă un RAPORT EXECUTIV în română cu:
-1. ✅ Ce s-a reparat automat
-2. ⚠️ Ce necesită atenție manuală (dacă există)
-3. 💡 Recomandări pentru prevenție
-4. 🏆 Score final de sănătate
+2. ANUNȚURI & PRODUSE:
+   - listings: id, seller_id, title, price, description, condition (new/like_new/good/fair/poor),
+               category_id, is_active, is_sold, location, shipping_cost, cod_enabled,
+               listing_type (buy_now/auction), auction_end_date, starting_bid, reserve_price
+   - listing_images: listing_id, image_url, is_primary, sort_order
+   - categories: id, name, slug, icon, parent_id (subcategorii)
+   - listing_promotions: listing_id, seller_id, promotion_type, starts_at, ends_at, is_active
 
-Fii CONCIS și CLAR. Subliniază că AI-ul a reparat TOATE problemele reparabile.`;
+   RELAȚII CRITICE:
+   - listings.seller_id → profiles.user_id
+   - listings.category_id → categories.id (poate fi NULL)
+   - listing_images.listing_id → listings.id
+
+3. COMENZI & TRANZACȚII:
+   - orders: id, listing_id, buyer_id, seller_id, amount, status (pending/paid/shipped/delivered/cancelled),
+             shipping_address, tracking_number, carrier, payment_processor, processor_status,
+             buyer_fee, seller_commission, payout_amount, payout_status, refund_status
+   - invoices: order_id, buyer_id, seller_id, invoice_number, subtotal, total, status
+   - payouts: order_id, seller_id, gross_amount, net_amount, seller_commission, status
+   - seller_payouts: seller_id, order_id, gross_amount, net_amount, platform_commission, status
+   - refunds: order_id, buyer_id, seller_id, amount, reason, status, processor_refund_id
+
+   STATUS ORDERS FLOW:
+   pending → paid → shipped (+ tracking) → delivered → [completed/dispute]
+   Orice: → cancelled (cu refund automat dacă paid)
+
+4. DISPUTE & RETURURI:
+   - disputes: order_id, reporter_id, reported_user_id, reason, status (pending/investigating/resolved),
+               resolution, admin_notes
+   - returns: order_id, buyer_id, seller_id, reason, status, tracking_number, refund_amount
+
+   REGULI DISPUTE:
+   - Dispute > 14 zile nerezolvat = CRITIC
+   - Retur > 7 zile în pending = escaladare automată
+
+5. MESAGERIE & CHAT:
+   - conversations: id, buyer_id, seller_id, listing_id, created_at, updated_at
+   - messages: id, conversation_id, sender_id, content, is_read, created_at
+   - friendships: requester_id, addressee_id, status (pending/accepted/blocked)
+
+   PROBLEME COMUNE CHAT:
+   - Conversații duplicate (same buyer+seller+listing)
+   - Conversații orfane (listing șters)
+   - Mesaje necitite > 7 zile
+   - Conversații goale (fără mesaje)
+
+6. NOTIFICĂRI:
+   - notifications: user_id, type, title, message, data (JSON), is_read, created_at
+   
+   TIPURI NOTIFICĂRI:
+   new_order, order_shipped, order_delivered, message_received, review_received,
+   bid_placed, bid_won, dispute_opened, refund_processed, promotion_expired
+
+7. LICITAȚII:
+   - bids: listing_id, bidder_id, amount, is_winning, created_at
+   
+   REGULI LICITAȚII:
+   - bid_increment minim respectat
+   - reserve_price = preț minim pentru vânzare
+   - buy_now_price = cumpărare instant
+
+8. RECENZII:
+   - reviews: order_id, reviewer_id, reviewed_user_id, rating (1-5), comment
+
+9. FAVORITE:
+   - favorites: user_id, listing_id
+
+10. SETĂRI PLATFORMĂ:
+    - platform_settings: key, value (JSON), category
+    - platform_fees: fee_type (buyer_fee/seller_commission), amount, is_percentage
+    - payment_processor_settings: processor_name, api_key_encrypted, is_active, environment
+    - seo_settings, homepage_content, policies_content, email_templates
+
+═══════════════════════════════════════════════════════════════════════════════
+🔒 POLITICI RLS (Row Level Security) - SECURITATE
+═══════════════════════════════════════════════════════════════════════════════
+
+PATTERN-URI SECURITATE:
+1. Utilizatorul vede DOAR datele proprii: auth.uid() = user_id
+2. Vânzătorul vede comenzile sale: auth.uid() = seller_id OR auth.uid() = buyer_id
+3. Adminii văd tot: has_role(auth.uid(), 'admin')
+4. Date publice (listings active): is_active = true
+5. Date sensibile (IBAN, telefon): DOAR proprietar sau admin
+
+FUNCȚII SECURITATE:
+- has_role(user_id, role) - verifică rol fără recursivitate
+- is_admin_email(email) - verifică dacă email e admin
+- get_public_seller_profile(user_id) - date publice vânzător (FĂRĂ PII)
+- increment_pending_balance(user_id, amount) - DOAR service_role!
+
+VULNERABILITĂȚI DE MONITORIZAT:
+- Expunere IBAN/telefon în profiles
+- Acces neautorizat la increment_pending_balance
+- RLS lipsă pe tabele noi
+- Politici prea permisive pe reviews/bids
+
+═══════════════════════════════════════════════════════════════════════════════
+⚡ EDGE FUNCTIONS - BACKEND LOGIC
+═══════════════════════════════════════════════════════════════════════════════
+
+FUNCȚII CRITICE:
+1. process-payment: Crează ordere, actualizează listing ca sold, trimite notificări
+2. process-payout: Transferă bani către vânzători (MangoPay/Adyen)
+3. process-refund: Procesează refund către cumpărător
+4. send-notification: Trimite notificări push/email
+5. ai-maintenance: EU - reparare automată platformă
+6. ai-sales-manager: Analizează vânzări și recomandă strategii
+7. kyc-onboarding: Verificare identitate vânzător (MangoPay KYC)
+8. courier-lockers: API pentru lockere Sameday/FanCourier
+
+SECRETELE NECESARE:
+- SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto)
+- LOVABLE_API_KEY (auto - pentru AI)
+- RESEND_API_KEY (email-uri)
+- TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN (SMS)
+- MANGOPAY_CLIENT_ID, MANGOPAY_API_KEY (plăți)
+
+═══════════════════════════════════════════════════════════════════════════════
+🐛 PROBLEME COMUNE & SOLUȚII AUTOMATE
+═══════════════════════════════════════════════════════════════════════════════
+
+CHAT & MESAJE:
+| Problemă | Cauză | Soluție AI |
+|----------|-------|------------|
+| Conversații orfane | Listing șters | Ștergere conversație + mesaje |
+| Mesaje necitite > 7 zile | Utilizator inactiv | Marcare ca citite |
+| Conversații duplicate | Bug UI | Merge mesaje + șterge duplicat |
+| Conversații goale | Abandon chat | Ștergere automată |
+
+COMENZI:
+| Problemă | Cauză | Soluție AI |
+|----------|-------|------------|
+| Pending > 7 zile | Plată nefinalizată | Anulare automată |
+| Shipped fără AWB | Vânzător neglijent | Notificare + escaladare |
+| Dispute > 14 zile | Admin inactiv | Marcare URGENT |
+| Retur > 7 zile | Proces blocat | Escaladare automată |
+
+AUTENTIFICARE:
+| Problemă | Cauză | Soluție AI |
+|----------|-------|------------|
+| User fără profil | Trigger nefuncțional | Creare profil + rol user |
+| User fără rol | Trigger nefuncțional | Atribuire rol "user" |
+| Admin email inexistent | Config veche | Adăugare în admin_emails |
+
+DATE & INTEGRITATE:
+| Problemă | Cauză | Soluție AI |
+|----------|-------|------------|
+| Listing fără imagini | Upload eșuat | Dezactivare listing |
+| Categorie invalidă | Categorie ștearsă | Reset category_id = NULL |
+| Sold negativ | Bug calcul | Reset la 0 |
+| Promoție expirată | Cron nefuncțional | Dezactivare is_active |
+
+SECURITATE:
+| Problemă | Cauză | Soluție AI |
+|----------|-------|------------|
+| 2FA dezactivat | Setare default | Activare automată |
+| Rate limit off | Config lipsă | Activare 100 req/min |
+| Password policy slab | Setare veche | Min 12 chars + symbols |
+
+═══════════════════════════════════════════════════════════════════════════════
+📈 METRICI & KPI PLATFORMĂ
+═══════════════════════════════════════════════════════════════════════════════
+
+SĂNĂTATE IDEALĂ (100%):
+- 0 conversații orfane
+- 0 mesaje necitite > 7 zile
+- 0 comenzi pending > 7 zile
+- 0 dispute nerezolvate > 14 zile
+- 0 utilizatori fără rol
+- 0 solduri negative
+- Toate setările securitate active
+
+CALCUL HEALTH SCORE:
+- Critical issue: -40 puncte
+- Error: -25 puncte
+- Warning: -10 puncte
+- Info: -5 puncte
+
+COMISIOANE PLATFORMĂ:
+- Seller commission: 8% din vânzare
+- Buyer fee: 2-5 RON fix (opțional)
+- Promoții: 5-50 RON/săptămână
+
+═══════════════════════════════════════════════════════════════════════════════
+🔄 FLUXURI CRITICE
+═══════════════════════════════════════════════════════════════════════════════
+
+FLUX COMANDĂ:
+1. Buyer selectează produs → Checkout
+2. process-payment: Crează order (pending), marchează listing sold
+3. Buyer plătește (MangoPay/COD)
+4. Seller primește notificare → Expediază cu AWB
+5. Buyer confirmă primire → Order delivered
+6. 7 zile protecție → Payout către seller
+7. Notificare review request
+
+FLUX RETUR:
+1. Buyer solicită retur (motiv)
+2. Seller acceptă/refuză
+3. Buyer expediază înapoi (AWB)
+4. Seller confirmă primire
+5. process-refund → Bani înapoi la buyer
+6. Listing se reactivează (opțional)
+
+FLUX LICITAȚIE:
+1. Seller creează listing type=auction
+2. Bidders plasează oferte (bid_increment)
+3. La auction_end_date: cel mai mare bid câștigă
+4. Dacă reserve_price neatingut → Licitație anulată
+5. Câștigător → Checkout automat
+
+═══════════════════════════════════════════════════════════════════════════════
+🛡️ RESTRICȚII AI - NU AM VOIE SĂ:
+═══════════════════════════════════════════════════════════════════════════════
+
+ACȚIUNI INTERZISE (conform AI_POLICY):
+- delete_user, block_user, suspend_user, ban_user
+- delete_listing, delete_order, delete_conversation
+- modify_user_role (excepție: atribuire rol default la user NOU)
+- delete_data, purge_records
+
+ACȚIUNI PERMISE:
+- report_issue, suggest_action, analyze_data
+- send_notification, create_alert
+- update_status (ordere/promoții, NU utilizatori)
+- assign_default_role (DOAR utilizatori noi fără rol)
+- create_profile (DOAR utilizatori fără profil)
+
+═══════════════════════════════════════════════════════════════════════════════
+`;
+
+      const analysisPrompt = `${platformKnowledgeBase}
+
+═══════════════════════════════════════════════════════════════════════════════
+📊 RAPORT SESIUNE CURENTĂ
+═══════════════════════════════════════════════════════════════════════════════
+
+🔧 REPARĂRI AUTOMATE EFECTUATE:
+${proactiveRepairs.length > 0 ? proactiveRepairs.map(r => `  • ${r}`).join("\n") : "  • Nicio reparare necesară"}
+
+${autoFixLog.length > 0 ? `📋 REPARĂRI SUPLIMENTARE:\n${autoFixLog.map(r => `  • ${r}`).join("\n")}` : ""}
+
+📈 STARE ACTUALĂ DUPĂ REPARĂRI:
+  • Chat: ${systemHealth.chat}%
+  • Notificări: ${systemHealth.notifications}%
+  • Comenzi: ${systemHealth.orders}%
+  • Autentificare: ${systemHealth.auth}%
+  • Integritate Date: ${systemHealth.dataIntegrity}%
+  • Securitate: ${systemHealth.security}%
+  • Storage: ${systemHealth.storage}%
+  • Performance: ${systemHealth.performance}%
+  ━━━━━━━━━━━━━━━━━━━━━━━
+  • OVERALL: ${systemHealth.overall}%
+
+⚠️ PROBLEME RĂMASE (necesită intervenție manuală):
+${remainingIssues.length > 0 ? remainingIssues.map(i => `  • [${i.severity.toUpperCase()}] ${i.title}: ${i.description}`).join("\n") : "  ✨ NICIUNA - Totul este reparat!"}
+
+📊 STATISTICI:
+  • Total detectate: ${issues.length}
+  • Reparate automat: ${issuesFixed}
+  • Rămase: ${remainingIssues.length}
+
+═══════════════════════════════════════════════════════════════════════════════
+SARCINĂ: Generează un RAPORT EXECUTIV în română care include:
+
+1. 🏆 VERDICT FINAL (1 linie: "Platformă sănătoasă" / "Necesită atenție" / "Situație critică")
+
+2. ✅ REPARĂRI AUTOMATE (bullet points cu ce s-a reparat)
+
+3. ⚠️ ATENȚIE MANUALĂ (dacă există probleme nereparabile)
+
+4. 💡 RECOMANDĂRI PREVENTIVE (3-5 sfaturi bazate pe pattern-urile detectate)
+
+5. 📈 TREND (Compară cu sesiunile anterioare dacă există pattern-uri)
+
+Fii CONCIS, PROFESIONAL și evidențiază că AI-ul a reparat AUTOMAT problemele.
+═══════════════════════════════════════════════════════════════════════════════`;
 
       try {
         const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -1070,17 +1350,28 @@ Fii CONCIS și CLAR. Subliniază că AI-ul a reparat TOATE problemele reparabile
             messages: [
               {
                 role: "system",
-                content: "Ești AI Maintenance ULTRA PRO - un inginer de platformă care repară AUTOMAT toate problemele. Când raportezi, subliniază că AI-ul a reparat deja problemele. Răspunde în română, structurat și profesionist."
+                content: `Ești AI Maintenance ULTRA PRO pentru C Market România - un marketplace românesc.
+                
+PERSONALITATE: Inginer de platformă expert, eficient, orientat spre soluții.
+LIMBAJ: Română profesională, tehnică dar accesibilă.
+FORMAT: Structurat cu emoji-uri pentru claritate vizuală.
+TON: Încrezător dar nu arogant - subliniază reparările automate.
+
+CUNOȘTINȚE: Ai acces la 80% din arhitectura platformei - tabele, relații, fluxuri, vulnerabilități.
+Folosește aceste cunoștințe pentru a oferi sfaturi CONCRETE și ACȚIONABILE.`
               },
               { role: "user", content: analysisPrompt }
             ],
-            max_tokens: 2000
+            max_tokens: 3000,
+            temperature: 0.7
           })
         });
 
         if (aiResponse.ok) {
           const aiData = await aiResponse.json();
           aiAnalysis = aiData.choices?.[0]?.message?.content || null;
+        } else {
+          console.error("AI response not ok:", aiResponse.status);
         }
       } catch (aiError) {
         console.error("AI analysis error:", aiError);
