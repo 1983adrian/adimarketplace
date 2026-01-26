@@ -85,7 +85,12 @@ const Login = () => {
       }
 
       if (data?.user) {
-        toast({ title: 'Bine ai venit!', description: `Autentificat ca ${data.user.email}` });
+        toast({ 
+          title: 'Bine ai venit!', 
+          description: `Autentificat ca ${data.user.email}`,
+          className: 'bg-green-500 text-white border-green-600',
+          duration: 2000,
+        });
         navigate('/');
       }
     } catch (err: any) {
@@ -109,7 +114,7 @@ const Login = () => {
         <CardHeader className="text-center pb-4">
           {/* Logo - Marketplace România */}
           <div className="mb-4">
-            <MarketplaceBrand size="md" variant="welcome" />
+            <MarketplaceBrand size="md" variant="default" />
           </div>
           
           <div className="space-y-1">

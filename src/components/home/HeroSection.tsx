@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Smartphone, Apple, Share, QrCode, Shield, Truck, CreditCard, Gavel, Users, Star, ChevronRight, ArrowRight, ShoppingCart, Heart } from 'lucide-react';
+import { TrendingUp, Smartphone, Apple, Share, QrCode, Shield, Truck, CreditCard, Gavel, Users, Star, ChevronRight, ArrowRight, ShoppingCart, Heart, Laptop } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
@@ -166,6 +166,31 @@ export const HeroSection: React.FC = () => {
                         </div>
                       </PopoverContent>
                     )}
+                  </Popover>
+
+                  {/* macOS */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button 
+                        size="sm"
+                        className="h-9 w-9 p-0 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-800 hover:to-gray-700 text-white rounded-lg shadow-md"
+                      >
+                        <Laptop className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3" align="center">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 font-semibold text-sm">
+                          <Laptop className="h-4 w-4" />
+                          Instalare pe macOS
+                        </div>
+                        <div className="space-y-1.5 text-xs text-muted-foreground">
+                          <p>1. Deschide Chrome sau Safari</p>
+                          <p>2. Click pe iconița de instalare sau File → Add to Dock</p>
+                          <p>3. Confirmă instalarea</p>
+                        </div>
+                      </div>
+                    </PopoverContent>
                   </Popover>
 
                   {/* QR Code */}
