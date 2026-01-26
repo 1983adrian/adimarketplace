@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MapPin, ShoppingCart, Star, Truck, CheckCircle, Gavel, Clock, BadgeCheck, Banknote, Share2 } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Truck, CheckCircle, Gavel, Banknote, Share2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -218,14 +218,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               <span className="text-xs text-muted-foreground">({sellerRating.count})</span>
             </div>
           )}
-          
-          {/* Location */}
-          {listing.location && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <MapPin className="h-3 w-3 shrink-0" />
-              <span className="truncate">{listing.location}</span>
-            </p>
-          )}
+          {/* Location removed from homepage cards per user request */}
           
           {/* Price & Buy Button */}
           <div className="mt-auto pt-3 space-y-2">
