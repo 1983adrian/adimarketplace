@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Heart, ShoppingCart, Package, Plus, Sparkles, TrendingUp, Store } from 'lucide-react';
+import { ArrowRight, Heart, ShoppingCart, Package, Plus, Sparkles, TrendingUp, Store, Gavel } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,9 +10,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
+import { useCart } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
-
 // Sub-component for favorite button with its own hooks
 const FavoriteButton: React.FC<{ listingId: string; userId?: string }> = ({ listingId, userId }) => {
   const { data: isFavorite } = useIsFavorite(listingId, userId);
@@ -50,7 +50,7 @@ export const FeaturedListings: React.FC = () => {
   const { user } = useAuth();
   const { formatPrice } = useCurrency();
   const { t } = useLanguage();
-
+  const { addItem } = useCart();
   // Fetch real listings from database
   const { data: listings, isLoading } = useQuery({
     queryKey: ['featured-listings'],
@@ -210,6 +210,25 @@ export const FeaturedListings: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {listings.map((listing) => {
             const primaryImage = listing.listing_images?.find((img: any) => img.is_primary) || listing.listing_images?.[0];
+            const isAuction = listing.listing_type === 'auction' || listing.listing_type === 'both';
+            
+            const handleAddToCart = (e: React.MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              addItem({
+                id: listing.id,
+                title: listing.title,
+                price: listing.price,
+                image_url: primaryImage?.image_url || '/placeholder.svg',
+                seller_id: listing.seller_id,
+              });
+            };
+
+            const handleBuyNow = (e: React.MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              window.location.href = `/checkout?listing=${listing.id}`;
+            };
             
             return (
               <Link key={listing.id} to={`/listing/${listing.id}`}>
@@ -221,33 +240,68 @@ export const FeaturedListings: React.FC = () => {
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     <FavoriteButton listingId={listing.id} userId={user?.id} />
-                    <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground">
-                      {conditionLabels[listing.condition]}
-                    </Badge>
-                    {/* Verified Badge for special sellers - bottom right */}
+                    
+                    {/* Badges Row - Top Left */}
+                    <div className="absolute top-2 left-2 flex flex-col gap-1">
+                      <Badge className="bg-secondary text-secondary-foreground text-xs">
+                        {conditionLabels[listing.condition]}
+                      </Badge>
+                      {isAuction && (
+                        <Badge className="bg-orange-500 text-white text-xs flex items-center gap-1">
+                          <Gavel className="h-3 w-3" />
+                          Licitație
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {/* Verified Badge - Bottom Right */}
                     <div className="absolute bottom-2 right-2">
                       <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={true} />
                     </div>
                   </div>
-                  <CardContent className="p-3 flex-1 flex flex-col">
-                    <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors">
+                  <CardContent className="p-2 sm:p-3 flex-1 flex flex-col gap-1">
+                    <h3 className="font-semibold text-xs sm:text-sm line-clamp-1 group-hover:text-primary transition-colors">
                       {listing.title}
                     </h3>
-                    <p className="text-lg md:text-xl font-bold text-primary mt-1">
+                    <p className="text-base sm:text-lg font-bold text-primary">
                       {formatPrice(listing.price)}
                     </p>
-                    {/* Location removed from homepage cards */}
-                    <Button 
-                      size="sm" 
-                      className="w-full gap-2 mt-auto pt-2"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.location.href = `/checkout?listing=${listing.id}`;
-                      }}
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      {t('listing.buyNow')}
-                    </Button>
+                    
+                    {/* Action Buttons - Always Visible */}
+                    <div className="flex gap-1 mt-auto pt-1">
+                      {isAuction ? (
+                        <Button 
+                          size="sm" 
+                          className="flex-1 gap-1 text-xs h-8 bg-orange-500 hover:bg-orange-600"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            window.location.href = `/listing/${listing.id}`;
+                          }}
+                        >
+                          <Gavel className="h-3 w-3" />
+                          Licitează
+                        </Button>
+                      ) : (
+                        <>
+                          <Button 
+                            size="sm" 
+                            className="flex-1 gap-1 text-xs h-8"
+                            onClick={handleBuyNow}
+                          >
+                            Cumpără
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="h-8 px-2"
+                            onClick={handleAddToCart}
+                          >
+                            <ShoppingCart className="h-3 w-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
               </Link>
