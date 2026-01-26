@@ -135,6 +135,16 @@ const controlSections: ControlSection[] = [
     actions: ['view', 'edit'],
     category: 'content'
   },
+  { 
+    id: 'seo-dashboard', 
+    title: 'SEO Dashboard & Indexare Google', 
+    description: 'Monitorizează indexarea Google, cuvintele cheie și activitatea platformei',
+    icon: Search, 
+    href: '/admin/seo-dashboard',
+    color: 'text-green-600 bg-green-500/10',
+    actions: ['view', 'edit'],
+    category: 'content'
+  },
   
   // Users & Sellers
   { 

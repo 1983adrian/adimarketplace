@@ -83,6 +83,7 @@ import AdminInterfaceEditor from "./pages/admin/AdminInterfaceEditor";
 import AdminButtonAudit from "./pages/admin/AdminButtonAudit";
 import AdminControlCenter from "./pages/admin/AdminControlCenter";
 import AdminFraudAlerts from "./pages/admin/AdminFraudAlerts";
+import AdminSEODashboard from "./pages/admin/AdminSEODashboard";
 
 const queryClient = new QueryClient();
 
@@ -171,6 +172,7 @@ const App = () => (
                 <Route path="/admin/button-audit" element={<AdminButtonAudit />} />
                 <Route path="/admin/control-center" element={<AdminControlCenter />} />
                 <Route path="/admin/fraud-alerts" element={<AdminFraudAlerts />} />
+                <Route path="/admin/seo-dashboard" element={<AdminSEODashboard />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
