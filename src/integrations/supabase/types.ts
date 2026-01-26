@@ -338,6 +338,71 @@ export type Database = {
           },
         ]
       }
+      fraud_alerts: {
+        Row: {
+          admin_notes: string | null
+          alert_type: string
+          auto_action_taken: string | null
+          created_at: string
+          description: string | null
+          evidence: Json | null
+          id: string
+          listing_id: string | null
+          related_user_ids: string[] | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          alert_type: string
+          auto_action_taken?: string | null
+          created_at?: string
+          description?: string | null
+          evidence?: Json | null
+          id?: string
+          listing_id?: string | null
+          related_user_ids?: string[] | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          alert_type?: string
+          auto_action_taken?: string | null
+          created_at?: string
+          description?: string | null
+          evidence?: Json | null
+          id?: string
+          listing_id?: string | null
+          related_user_ids?: string[] | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fraud_alerts_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friendships: {
         Row: {
           addressee_id: string
@@ -1148,9 +1213,12 @@ export type Database = {
           created_at: string
           display_name: string | null
           first_name: string | null
+          fraud_flags: Json | null
+          fraud_score: number | null
           iban: string | null
           id: string
           is_seller: boolean | null
+          is_suspended: boolean | null
           is_verified: boolean | null
           kyc_country: string | null
           kyc_documents_submitted: boolean | null
@@ -1174,12 +1242,18 @@ export type Database = {
           seller_terms_accepted_at: string | null
           sort_code: string | null
           store_name: string | null
+          suspended_at: string | null
+          suspended_by: string | null
+          suspension_reason: string | null
           total_sales_count: number | null
           updated_at: string
           user_id: string
           username: string | null
           verification_documents: Json | null
           verified_at: string | null
+          withdrawal_blocked: boolean | null
+          withdrawal_blocked_at: string | null
+          withdrawal_blocked_reason: string | null
         }
         Insert: {
           account_number?: string | null
@@ -1204,9 +1278,12 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           first_name?: string | null
+          fraud_flags?: Json | null
+          fraud_score?: number | null
           iban?: string | null
           id?: string
           is_seller?: boolean | null
+          is_suspended?: boolean | null
           is_verified?: boolean | null
           kyc_country?: string | null
           kyc_documents_submitted?: boolean | null
@@ -1230,12 +1307,18 @@ export type Database = {
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
           store_name?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
           total_sales_count?: number | null
           updated_at?: string
           user_id: string
           username?: string | null
           verification_documents?: Json | null
           verified_at?: string | null
+          withdrawal_blocked?: boolean | null
+          withdrawal_blocked_at?: string | null
+          withdrawal_blocked_reason?: string | null
         }
         Update: {
           account_number?: string | null
@@ -1260,9 +1343,12 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           first_name?: string | null
+          fraud_flags?: Json | null
+          fraud_score?: number | null
           iban?: string | null
           id?: string
           is_seller?: boolean | null
+          is_suspended?: boolean | null
           is_verified?: boolean | null
           kyc_country?: string | null
           kyc_documents_submitted?: boolean | null
@@ -1286,12 +1372,18 @@ export type Database = {
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
           store_name?: string | null
+          suspended_at?: string | null
+          suspended_by?: string | null
+          suspension_reason?: string | null
           total_sales_count?: number | null
           updated_at?: string
           user_id?: string
           username?: string | null
           verification_documents?: Json | null
           verified_at?: string | null
+          withdrawal_blocked?: boolean | null
+          withdrawal_blocked_at?: string | null
+          withdrawal_blocked_reason?: string | null
         }
         Relationships: []
       }
