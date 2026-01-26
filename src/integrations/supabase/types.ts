@@ -268,6 +268,13 @@ export type Database = {
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       email_templates: {
@@ -527,6 +534,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -1091,6 +1105,13 @@ export type Database = {
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       platform_fees: {
@@ -1468,6 +1489,13 @@ export type Database = {
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       returns: {
@@ -1524,6 +1552,13 @@ export type Database = {
             referencedRelation: "orders"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "returns_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       reviews: {
@@ -1560,6 +1595,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -1682,6 +1724,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -1820,6 +1869,186 @@ export type Database = {
       }
     }
     Views: {
+      disputes_safe: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          order_id: string | null
+          reason: string | null
+          reported_user_id: string | null
+          reporter_id: string | null
+          resolution: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_notes?: never
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          order_id?: string | null
+          reason?: string | null
+          reported_user_id?: string | null
+          reporter_id?: string | null
+          resolution?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_notes?: never
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          order_id?: string | null
+          reason?: string | null
+          reported_user_id?: string | null
+          reporter_id?: string | null
+          resolution?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders_safe: {
+        Row: {
+          amount: number | null
+          buyer_fee: number | null
+          buyer_id: string | null
+          cancelled_at: string | null
+          carrier: string | null
+          created_at: string | null
+          delivery_confirmed_at: string | null
+          dispute_opened_at: string | null
+          dispute_reason: string | null
+          dispute_resolved_at: string | null
+          id: string | null
+          listing_id: string | null
+          payment_processor: string | null
+          payout_amount: number | null
+          payout_at: string | null
+          payout_status: string | null
+          processor_error: string | null
+          processor_status: string | null
+          processor_transaction_id: string | null
+          refund_amount: number | null
+          refund_reason: string | null
+          refund_requested_at: string | null
+          refund_status: string | null
+          refund_transaction_id: string | null
+          refunded_at: string | null
+          refunded_by: string | null
+          saved_address_id: string | null
+          seller_commission: number | null
+          seller_id: string | null
+          shipping_address: string | null
+          status: Database["public"]["Enums"]["order_status"] | null
+          tracking_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          buyer_fee?: number | null
+          buyer_id?: string | null
+          cancelled_at?: string | null
+          carrier?: string | null
+          created_at?: string | null
+          delivery_confirmed_at?: string | null
+          dispute_opened_at?: string | null
+          dispute_reason?: string | null
+          dispute_resolved_at?: string | null
+          id?: string | null
+          listing_id?: string | null
+          payment_processor?: never
+          payout_amount?: number | null
+          payout_at?: string | null
+          payout_status?: string | null
+          processor_error?: never
+          processor_status?: never
+          processor_transaction_id?: never
+          refund_amount?: number | null
+          refund_reason?: string | null
+          refund_requested_at?: string | null
+          refund_status?: string | null
+          refund_transaction_id?: never
+          refunded_at?: string | null
+          refunded_by?: never
+          saved_address_id?: string | null
+          seller_commission?: number | null
+          seller_id?: string | null
+          shipping_address?: string | null
+          status?: Database["public"]["Enums"]["order_status"] | null
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          buyer_fee?: number | null
+          buyer_id?: string | null
+          cancelled_at?: string | null
+          carrier?: string | null
+          created_at?: string | null
+          delivery_confirmed_at?: string | null
+          dispute_opened_at?: string | null
+          dispute_reason?: string | null
+          dispute_resolved_at?: string | null
+          id?: string | null
+          listing_id?: string | null
+          payment_processor?: never
+          payout_amount?: number | null
+          payout_at?: string | null
+          payout_status?: string | null
+          processor_error?: never
+          processor_status?: never
+          processor_transaction_id?: never
+          refund_amount?: number | null
+          refund_reason?: string | null
+          refund_requested_at?: string | null
+          refund_status?: string | null
+          refund_transaction_id?: never
+          refunded_at?: string | null
+          refunded_by?: never
+          saved_address_id?: string | null
+          seller_commission?: number | null
+          seller_id?: string | null
+          shipping_address?: string | null
+          status?: Database["public"]["Enums"]["order_status"] | null
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_saved_address_id_fkey"
+            columns: ["saved_address_id"]
+            isOneToOne: false
+            referencedRelation: "saved_addresses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       public_seller_profiles: {
         Row: {
           avatar_url: string | null
@@ -1861,6 +2090,144 @@ export type Database = {
           username?: string | null
         }
         Relationships: []
+      }
+      refunds_safe: {
+        Row: {
+          amount: number | null
+          buyer_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          id: string | null
+          order_id: string | null
+          processor: string | null
+          processor_refund_id: string | null
+          reason: string | null
+          requested_by: string | null
+          seller_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          buyer_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string | null
+          order_id?: string | null
+          processor?: never
+          processor_refund_id?: never
+          reason?: string | null
+          requested_by?: string | null
+          seller_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          buyer_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string | null
+          order_id?: string | null
+          processor?: never
+          processor_refund_id?: never
+          reason?: string | null
+          requested_by?: string | null
+          seller_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_payouts_safe: {
+        Row: {
+          cancelled_reason: string | null
+          completed_at: string | null
+          created_at: string | null
+          gross_amount: number | null
+          id: string | null
+          net_amount: number | null
+          notes: string | null
+          order_id: string | null
+          payout_method: string | null
+          payout_reference: string | null
+          platform_commission: number | null
+          processed_at: string | null
+          processor: string | null
+          processor_payout_id: string | null
+          processor_transaction_id: string | null
+          seller_id: string | null
+          status: string | null
+        }
+        Insert: {
+          cancelled_reason?: never
+          completed_at?: string | null
+          created_at?: string | null
+          gross_amount?: number | null
+          id?: string | null
+          net_amount?: number | null
+          notes?: never
+          order_id?: string | null
+          payout_method?: string | null
+          payout_reference?: never
+          platform_commission?: number | null
+          processed_at?: string | null
+          processor?: never
+          processor_payout_id?: never
+          processor_transaction_id?: never
+          seller_id?: string | null
+          status?: string | null
+        }
+        Update: {
+          cancelled_reason?: never
+          completed_at?: string | null
+          created_at?: string | null
+          gross_amount?: number | null
+          id?: string | null
+          net_amount?: number | null
+          notes?: never
+          order_id?: string | null
+          payout_method?: string | null
+          payout_reference?: never
+          platform_commission?: number | null
+          processed_at?: string | null
+          processor?: never
+          processor_payout_id?: never
+          processor_transaction_id?: never
+          seller_id?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
