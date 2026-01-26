@@ -185,6 +185,33 @@ export type Database = {
           },
         ]
       }
+      content_freshness: {
+        Row: {
+          content_type: string
+          id: string
+          items_count: number | null
+          last_updated_at: string
+          metadata: Json | null
+          update_frequency: string | null
+        }
+        Insert: {
+          content_type: string
+          id?: string
+          items_count?: number | null
+          last_updated_at?: string
+          metadata?: Json | null
+          update_frequency?: string | null
+        }
+        Update: {
+          content_type?: string
+          id?: string
+          items_count?: number | null
+          last_updated_at?: string
+          metadata?: Json | null
+          update_frequency?: string | null
+        }
+        Relationships: []
+      }
       conversations: {
         Row: {
           buyer_id: string
@@ -1114,6 +1141,39 @@ export type Database = {
           },
         ]
       }
+      platform_activity: {
+        Row: {
+          activity_type: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          is_public: boolean | null
+          metadata: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          is_public?: boolean | null
+          metadata?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       platform_fees: {
         Row: {
           amount: number
@@ -1171,6 +1231,33 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      platform_statistics: {
+        Row: {
+          calculated_at: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          stat_key: string
+          stat_value: Json
+        }
+        Insert: {
+          calculated_at?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          stat_key: string
+          stat_value?: Json
+        }
+        Update: {
+          calculated_at?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          stat_key?: string
+          stat_value?: Json
         }
         Relationships: []
       }
@@ -1774,6 +1861,95 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_indexing_queue: {
+        Row: {
+          action: string
+          created_at: string
+          error_message: string | null
+          id: string
+          indexed_at: string | null
+          listing_id: string | null
+          priority: number | null
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          indexed_at?: string | null
+          listing_id?: string | null
+          priority?: number | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          indexed_at?: string | null
+          listing_id?: string | null
+          priority?: number | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_indexing_queue_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seo_keywords: {
+        Row: {
+          category: string | null
+          created_at: string
+          current_rank: number | null
+          id: string
+          is_primary: boolean | null
+          keyword: string
+          last_checked_at: string | null
+          search_volume: number | null
+          target_rank: number | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          current_rank?: number | null
+          id?: string
+          is_primary?: boolean | null
+          keyword: string
+          last_checked_at?: string | null
+          search_volume?: number | null
+          target_rank?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          current_rank?: number | null
+          id?: string
+          is_primary?: boolean | null
+          keyword?: string
+          last_checked_at?: string | null
+          search_volume?: number | null
+          target_rank?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       seo_settings: {
         Row: {
           created_at: string
@@ -1810,6 +1986,42 @@ export type Database = {
           og_title?: string | null
           page_key?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      sitemap_entries: {
+        Row: {
+          changefreq: string | null
+          created_at: string
+          entity_id: string | null
+          entry_type: string
+          id: string
+          is_active: boolean | null
+          lastmod: string | null
+          priority: number | null
+          url: string
+        }
+        Insert: {
+          changefreq?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entry_type: string
+          id?: string
+          is_active?: boolean | null
+          lastmod?: string | null
+          priority?: number | null
+          url: string
+        }
+        Update: {
+          changefreq?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entry_type?: string
+          id?: string
+          is_active?: boolean | null
+          lastmod?: string | null
+          priority?: number | null
+          url?: string
         }
         Relationships: []
       }
@@ -2286,6 +2498,7 @@ export type Database = {
       }
       is_admin_email: { Args: { check_email: string }; Returns: boolean }
       is_top_seller: { Args: { check_user_id: string }; Returns: boolean }
+      refresh_platform_statistics: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
