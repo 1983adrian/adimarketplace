@@ -29,11 +29,22 @@ const ForgotPassword = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+      // First try via our custom edge function for better email delivery
+      const { error: edgeFnError } = await supabase.functions.invoke('send-password-reset', {
+        body: { 
+          email, 
+          resetUrl: `${window.location.origin}/reset-password` 
+        }
       });
-
-      if (error) throw error;
+      
+      // Fallback to Supabase native if edge function fails
+      if (edgeFnError) {
+        console.log('Edge function failed, using Supabase native:', edgeFnError);
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+      }
 
       setEmailSent(true);
       toast({
