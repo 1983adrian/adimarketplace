@@ -1,6 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, MapPin, Smartphone, Apple, Share, Plus, Menu, QrCode, Shield, Truck, CreditCard, Gavel, Users, Star, ChevronRight, ArrowRight } from 'lucide-react';
+import { TrendingUp, Smartphone, Apple, Share, QrCode, Shield, Truck, CreditCard, Gavel, Users, Star, ChevronRight, ArrowRight, ShoppingCart, Heart } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
+import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { QRCodeSVG } from 'qrcode.react';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
+import { PopularProductsGrid } from './PopularProductsGrid';
 
 
 export const HeroSection: React.FC = () => {
@@ -249,52 +253,7 @@ export const HeroSection: React.FC = () => {
               ))}
             </div>
           ) : listings && listings.length > 0 ? (
-            <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
-              {listings.slice(0, 15).map((listing) => {
-                const primaryImage = listing.listing_images?.find((img: any) => img.is_primary) || listing.listing_images?.[0];
-                
-                return (
-                  <Link key={listing.id} to={`/listing/${listing.id}`}>
-                    <Card className="group overflow-hidden cursor-pointer border-border bg-card hover:shadow-lg h-full flex flex-col transition-all duration-200 hover:-translate-y-1">
-                      <div className="relative aspect-square overflow-hidden bg-muted">
-                        <img
-                          src={primaryImage?.image_url || '/placeholder.svg'}
-                          alt={listing.title}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        />
-                        <div className="absolute top-1.5 left-1.5">
-                          <Badge 
-                            variant="secondary" 
-                            className="text-[9px] md:text-[10px] px-1.5 py-0.5"
-                          >
-                            {conditionLabels[listing.condition]}
-                          </Badge>
-                        </div>
-                        <div className="absolute top-1.5 right-1.5">
-                          <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={true} />
-                        </div>
-                      </div>
-                      <CardContent className="p-2 md:p-3 flex-1 flex flex-col">
-                        <h3 className="text-xs md:text-sm font-medium text-foreground line-clamp-2 mb-1 group-hover:text-primary transition-colors">
-                          {listing.title}
-                        </h3>
-                        <div className="mt-auto">
-                          <span className="text-sm md:text-base font-bold text-primary">
-                            {formatPrice(listing.price)}
-                          </span>
-                        </div>
-                        {listing.location && (
-                          <div className="flex items-center gap-1 mt-1 text-muted-foreground">
-                            <MapPin className="h-2.5 w-2.5" />
-                            <span className="text-[10px] truncate">{listing.location}</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
+            <PopularProductsGrid listings={listings} conditionLabels={conditionLabels} formatPrice={formatPrice} />
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <p>Nu există produse disponibile momentan.</p>
