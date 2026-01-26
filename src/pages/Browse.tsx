@@ -73,10 +73,10 @@ const Browse = () => {
     queryFn: async () => {
       if (!searchQuery || searchQuery.length < 2) return [];
       
+      // Use secure public view that only exposes safe columns
       const { data, error } = await supabase
-        .from('profiles')
+        .from('public_seller_profiles')
         .select('user_id, display_name, username, store_name, avatar_url, bio, location, is_verified, is_seller')
-        .eq('is_seller', true)
         .or(`display_name.ilike.%${searchQuery}%,username.ilike.%${searchQuery}%,store_name.ilike.%${searchQuery}%`)
         .limit(20);
       

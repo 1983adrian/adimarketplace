@@ -26,8 +26,9 @@ export const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
   const { data: sellers, isLoading } = useQuery({
     queryKey: ['active-sellers', searchQuery],
     queryFn: async () => {
+      // Use secure public view that only exposes safe columns
       let query = supabase
-        .from('profiles')
+        .from('public_seller_profiles')
         .select(`
           user_id,
           display_name,
@@ -36,7 +37,6 @@ export const NewConversationDialog: React.FC<NewConversationDialogProps> = ({
           store_name,
           is_verified
         `)
-        .eq('is_seller', true)
         .neq('user_id', currentUserId)
         .limit(20);
 

@@ -41,10 +41,10 @@ export const useSellerReviews = (sellerId: string | undefined) => {
       if (reviewsError) throw reviewsError;
       if (!reviews || reviews.length === 0) return [];
 
-      // Get reviewer profiles
+      // Get reviewer profiles using secure public view
       const reviewerIds = [...new Set(reviews.map(r => r.reviewer_id))];
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('public_seller_profiles')
         .select('user_id, display_name, username, avatar_url')
         .in('user_id', reviewerIds);
 

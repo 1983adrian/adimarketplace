@@ -38,9 +38,9 @@ export const useConversations = (userId?: string) => {
         userIds.add(conv.seller_id);
       });
       
-      // Fetch all profiles at once
+      // Fetch all profiles using secure public view (only safe columns)
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('public_seller_profiles')
         .select('*')
         .in('user_id', Array.from(userIds));
       
@@ -79,9 +79,9 @@ export const useConversation = (conversationId?: string) => {
       if (error) throw error;
       if (!conversation) return null;
       
-      // Fetch buyer and seller profiles
+      // Fetch buyer and seller profiles using secure public view
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('public_seller_profiles')
         .select('*')
         .in('user_id', [conversation.buyer_id, conversation.seller_id]);
       

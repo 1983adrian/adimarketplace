@@ -32,11 +32,12 @@ const SellerProfile = () => {
     queryKey: ['seller-profile', id],
     queryFn: async () => {
       if (!id) return null;
+      // Use secure public view that only exposes safe columns
       const { data, error } = await supabase
-        .from('profiles')
+        .from('public_seller_profiles')
         .select('*')
         .eq('user_id', id)
-        .single();
+        .maybeSingle();
       if (error) throw error;
       return data;
     },

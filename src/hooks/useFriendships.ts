@@ -52,9 +52,9 @@ export const useFriends = (userId?: string) => {
         userIds.add(f.addressee_id);
       });
 
-      // Fetch profiles for all users
+      // Fetch profiles using secure public view (only safe columns)
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('public_seller_profiles')
         .select('user_id, display_name, username, avatar_url, store_name, is_verified')
         .in('user_id', Array.from(userIds));
 
