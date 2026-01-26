@@ -8,7 +8,7 @@ export const useListingLimit = () => {
   return useQuery({
     queryKey: ['listing-limit', user?.id],
     queryFn: async () => {
-      if (!user) return { currentCount: 0, maxListings: 10, canCreateMore: false };
+      if (!user) return { currentCount: 0, maxListings: null, canCreateMore: true };
 
       // Obține numărul curent de listări active ale utilizatorului
       const { count: currentCount, error: countError } = await supabase
@@ -19,7 +19,7 @@ export const useListingLimit = () => {
 
       if (countError) throw countError;
 
-      // Obține limita maximă din profil
+      // Obține limita maximă din profil (NULL = nelimitat)
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('max_listings')
@@ -28,14 +28,19 @@ export const useListingLimit = () => {
 
       if (profileError) throw profileError;
 
-      const maxListings = profile?.max_listings || 10;
+      // NULL înseamnă nelimitat
+      const maxListings = profile?.max_listings;
       const activeCount = currentCount || 0;
+
+      // Dacă maxListings este null, poate crea oricâte produse
+      const canCreateMore = maxListings === null ? true : activeCount < maxListings;
 
       return {
         currentCount: activeCount,
-        maxListings,
-        canCreateMore: activeCount < maxListings,
-        remaining: maxListings - activeCount,
+        maxListings, // null = nelimitat
+        canCreateMore,
+        remaining: maxListings === null ? Infinity : maxListings - activeCount,
+        isUnlimited: maxListings === null,
       };
     },
     enabled: !!user,

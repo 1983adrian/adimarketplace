@@ -122,7 +122,23 @@ const CreateListing = () => {
     const files = e.target.files;
     if (!files) return;
     
-    Array.from(files).forEach((file) => {
+    // Maximum 3 images allowed
+    const MAX_IMAGES = 3;
+    const remainingSlots = MAX_IMAGES - imageFiles.length;
+    
+    if (remainingSlots <= 0) {
+      toast({ 
+        title: 'Limită atinsă', 
+        description: 'Poți adăuga maxim 3 fotografii per produs.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
+    
+    // Only take files up to the remaining slots
+    const filesToAdd = Array.from(files).slice(0, remainingSlots);
+    
+    filesToAdd.forEach((file) => {
       // Add file to files array
       setImageFiles((prev) => [...prev, file]);
       
@@ -135,6 +151,14 @@ const CreateListing = () => {
       };
       reader.readAsDataURL(file);
     });
+    
+    if (files.length > filesToAdd.length) {
+      toast({ 
+        title: 'Imagini limitate', 
+        description: `Doar ${filesToAdd.length} din ${files.length} imagini au fost adăugate (maxim 3).`,
+        variant: 'default'
+      });
+    }
   };
 
   const removeImage = (index: number) => {
@@ -416,11 +440,11 @@ const CreateListing = () => {
         </Alert>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Photos */}
+          {/* Photos - Maximum 3 */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg">Fotografii</CardTitle>
-              <CardDescription>Adaugă până la 8 fotografii ale produsului tău</CardDescription>
+              <CardDescription>Adaugă până la 3 fotografii ale produsului tău</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-4">
@@ -441,10 +465,11 @@ const CreateListing = () => {
                     )}
                   </div>
                 ))}
-                {imagePreviews.length < 8 && (
+                {imagePreviews.length < 3 && (
                   <label className="aspect-square rounded-lg border-2 border-dashed border-border hover:border-primary transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary">
                     <ImagePlus className="h-8 w-8" />
                     <span className="text-xs">Adaugă Poză</span>
+                    <span className="text-xs text-muted-foreground">({imagePreviews.length}/3)</span>
                     <input type="file" accept="image/*" multiple className="hidden" onChange={handleImageUpload} />
                   </label>
                 )}

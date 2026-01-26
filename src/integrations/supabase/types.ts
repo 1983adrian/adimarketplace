@@ -1133,6 +1133,7 @@ export type Database = {
           adyen_account_id: string | null
           adyen_balance_account_id: string | null
           avatar_url: string | null
+          average_rating: number | null
           bic: string | null
           bio: string | null
           birthday: string | null
@@ -1156,6 +1157,7 @@ export type Database = {
           kyc_status: string | null
           kyc_submitted_at: string | null
           kyc_verified_at: string | null
+          last_activity_at: string | null
           last_name: string | null
           location: string | null
           mangopay_user_id: string | null
@@ -1172,6 +1174,7 @@ export type Database = {
           seller_terms_accepted_at: string | null
           sort_code: string | null
           store_name: string | null
+          total_sales_count: number | null
           updated_at: string
           user_id: string
           username: string | null
@@ -1186,6 +1189,7 @@ export type Database = {
           adyen_account_id?: string | null
           adyen_balance_account_id?: string | null
           avatar_url?: string | null
+          average_rating?: number | null
           bic?: string | null
           bio?: string | null
           birthday?: string | null
@@ -1209,6 +1213,7 @@ export type Database = {
           kyc_status?: string | null
           kyc_submitted_at?: string | null
           kyc_verified_at?: string | null
+          last_activity_at?: string | null
           last_name?: string | null
           location?: string | null
           mangopay_user_id?: string | null
@@ -1225,6 +1230,7 @@ export type Database = {
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
           store_name?: string | null
+          total_sales_count?: number | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -1239,6 +1245,7 @@ export type Database = {
           adyen_account_id?: string | null
           adyen_balance_account_id?: string | null
           avatar_url?: string | null
+          average_rating?: number | null
           bic?: string | null
           bio?: string | null
           birthday?: string | null
@@ -1262,6 +1269,7 @@ export type Database = {
           kyc_status?: string | null
           kyc_submitted_at?: string | null
           kyc_verified_at?: string | null
+          last_activity_at?: string | null
           last_name?: string | null
           location?: string | null
           mangopay_user_id?: string | null
@@ -1278,6 +1286,7 @@ export type Database = {
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
           store_name?: string | null
+          total_sales_count?: number | null
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -1778,6 +1787,19 @@ export type Database = {
           username: string
         }[]
       }
+      get_top_sellers: {
+        Args: { limit_count?: number }
+        Returns: {
+          avatar_url: string
+          avg_rating: number
+          display_name: string
+          is_verified: boolean
+          store_name: string
+          total_sales: number
+          user_id: string
+          username: string
+        }[]
+      }
       get_user_special_status: {
         Args: { check_user_id: string }
         Returns: Json
@@ -1794,6 +1816,7 @@ export type Database = {
         Returns: undefined
       }
       is_admin_email: { Args: { check_email: string }; Returns: boolean }
+      is_top_seller: { Args: { check_user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
