@@ -33,9 +33,10 @@ export const useConversations = (userId?: string) => {
       
       // Get all unique user IDs from conversations
       const userIds = new Set<string>();
-      conversations.forEach(conv => {
+      const conversationIds = conversations.map(conv => {
         userIds.add(conv.buyer_id);
         userIds.add(conv.seller_id);
+        return conv.id;
       });
       
       // Fetch all profiles using secure public view (only safe columns)
@@ -44,14 +45,30 @@ export const useConversations = (userId?: string) => {
         .select('*')
         .in('user_id', Array.from(userIds));
       
+      // Fetch last message for each conversation
+      const { data: lastMessages } = await supabase
+        .from('messages')
+        .select('*')
+        .in('conversation_id', conversationIds)
+        .order('created_at', { ascending: false });
+      
       // Create profile lookup map
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
       
-      // Attach buyer and seller profiles to each conversation
+      // Create last message lookup map (first message per conversation since sorted desc)
+      const lastMessageMap = new Map<string, string>();
+      lastMessages?.forEach(msg => {
+        if (!lastMessageMap.has(msg.conversation_id)) {
+          lastMessageMap.set(msg.conversation_id, msg.content);
+        }
+      });
+      
+      // Attach buyer and seller profiles and last message to each conversation
       const enrichedConversations = conversations.map(conv => ({
         ...conv,
         buyer: profileMap.get(conv.buyer_id) || null,
         seller: profileMap.get(conv.seller_id) || null,
+        last_message: lastMessageMap.get(conv.id) || null,
       }));
       
       return enrichedConversations;
