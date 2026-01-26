@@ -14,6 +14,8 @@ interface PWAInstallState {
   isInstalled: boolean;
   isIOS: boolean;
   isAndroid: boolean;
+  isMacOS: boolean;
+  isWindows: boolean;
   isStandalone: boolean;
 }
 
@@ -24,6 +26,8 @@ export const usePWAInstall = () => {
     isInstalled: false,
     isIOS: false,
     isAndroid: false,
+    isMacOS: false,
+    isWindows: false,
     isStandalone: false
   });
 
@@ -32,6 +36,8 @@ export const usePWAInstall = () => {
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIOS = /iphone|ipad|ipod/.test(userAgent);
     const isAndroid = /android/.test(userAgent);
+    const isMacOS = /macintosh|mac os x/.test(userAgent) && !isIOS;
+    const isWindows = /windows/.test(userAgent);
     
     // Check if running as standalone (installed)
     const isStandalone = 
@@ -43,6 +49,8 @@ export const usePWAInstall = () => {
       ...prev,
       isIOS,
       isAndroid,
+      isMacOS,
+      isWindows,
       isStandalone,
       isInstalled: isStandalone
     }));
@@ -120,6 +128,30 @@ export const usePWAInstall = () => {
       };
     }
 
+    if (state.isMacOS) {
+      return {
+        platform: 'macOS',
+        steps: [
+          'Deschide Chrome sau Safari',
+          'Click pe iconița de instalare din bara de adrese sau File → Add to Dock',
+          'Confirmă instalarea'
+        ],
+        icon: 'laptop'
+      };
+    }
+
+    if (state.isWindows) {
+      return {
+        platform: 'Windows',
+        steps: [
+          'Deschide Chrome sau Edge',
+          'Click pe iconița de instalare din bara de adrese',
+          'Confirmă instalarea'
+        ],
+        icon: 'monitor'
+      };
+    }
+
     return {
       platform: 'Desktop',
       steps: [
@@ -129,7 +161,7 @@ export const usePWAInstall = () => {
       ],
       icon: 'download'
     };
-  }, [state.isIOS, state.isAndroid]);
+  }, [state.isIOS, state.isAndroid, state.isMacOS, state.isWindows]);
 
   return {
     ...state,
