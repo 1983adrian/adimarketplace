@@ -169,6 +169,59 @@ const translations: Record<Language, Record<string, string>> = {
     'listing.viewProfile': 'View Profile',
     'listing.report': 'Report Listing',
     'listing.share': 'Share',
+    'listing.placeBid': 'Place Bid',
+    'listing.currentBid': 'Current Bid',
+    'listing.startingBid': 'Starting Bid',
+    'listing.auctionEnds': 'Auction Ends',
+    'listing.inStock': 'In Stock',
+    'listing.outOfStock': 'Out of Stock',
+    'listing.freeShipping': 'Free Shipping',
+    'listing.shipping': 'Shipping',
+    'listing.location': 'Location',
+    'listing.condition': 'Condition',
+    'listing.sold': 'Sold',
+    'listing.promoted': 'Promoted',
+    
+    // Orders
+    'orders.myPurchases': 'My Purchases',
+    'orders.myReturns': 'My Returns',
+    'orders.pending': 'Pending',
+    'orders.paid': 'Paid',
+    'orders.shipped': 'Shipped',
+    'orders.delivered': 'Delivered',
+    'orders.cancelled': 'Cancelled',
+    'orders.refunded': 'Refunded',
+    'orders.awb': 'Tracking Number',
+    'orders.addTracking': 'Add Tracking',
+    'orders.confirmDelivery': 'Confirm Delivery',
+    'orders.cancelOrder': 'Cancel Order',
+    'orders.trackPackage': 'Track Package',
+    'orders.from': 'From',
+    'orders.to': 'To',
+    
+    // Messages
+    'messages.title': 'Messages',
+    'messages.newMessage': 'New Message',
+    'messages.typeMessage': 'Type a message...',
+    'messages.send': 'Send',
+    'messages.noMessages': 'No messages yet',
+    
+    // Cart
+    'cart.title': 'Shopping Cart',
+    'cart.empty': 'Your cart is empty',
+    'cart.checkout': 'Checkout',
+    'cart.total': 'Total',
+    'cart.remove': 'Remove',
+    'cart.continueShopping': 'Continue Shopping',
+    
+    // Checkout
+    'checkout.title': 'Checkout',
+    'checkout.shipping': 'Shipping Address',
+    'checkout.payment': 'Payment Method',
+    'checkout.card': 'Card Payment',
+    'checkout.cod': 'Cash on Delivery',
+    'checkout.placeOrder': 'Place Order',
+    'checkout.processing': 'Processing...',
     
     // Common
     'common.loading': 'Loading...',
@@ -183,6 +236,10 @@ const translations: Record<Language, Record<string, string>> = {
     'common.submit': 'Submit',
     'common.search': 'Search',
     'common.viewAll': 'View All',
+    'common.currency': 'RON',
+    'common.price': 'Price',
+    'common.noResults': 'No results found',
+    'common.tryAgain': 'Try again',
     
     // Footer
     'footer.about': 'About Us',
@@ -358,6 +415,59 @@ const translations: Record<Language, Record<string, string>> = {
     'listing.viewProfile': 'Vezi Profilul',
     'listing.report': 'Raportează Anunțul',
     'listing.share': 'Distribuie',
+    'listing.placeBid': 'Plasează Licitație',
+    'listing.currentBid': 'Licitație Curentă',
+    'listing.startingBid': 'Preț de Pornire',
+    'listing.auctionEnds': 'Licitația Se Termină',
+    'listing.inStock': 'În Stoc',
+    'listing.outOfStock': 'Stoc Epuizat',
+    'listing.freeShipping': 'Livrare Gratuită',
+    'listing.shipping': 'Livrare',
+    'listing.location': 'Locație',
+    'listing.condition': 'Stare',
+    'listing.sold': 'Vândut',
+    'listing.promoted': 'Promovat',
+    
+    // Orders
+    'orders.myPurchases': 'Cumpărăturile Mele',
+    'orders.myReturns': 'Returnările Mele',
+    'orders.pending': 'În Așteptare',
+    'orders.paid': 'Plătit',
+    'orders.shipped': 'Expediat',
+    'orders.delivered': 'Livrat',
+    'orders.cancelled': 'Anulat',
+    'orders.refunded': 'Rambursat',
+    'orders.awb': 'Număr Urmărire',
+    'orders.addTracking': 'Adaugă AWB',
+    'orders.confirmDelivery': 'Confirmă Primirea',
+    'orders.cancelOrder': 'Anulează Comanda',
+    'orders.trackPackage': 'Urmărește Coletul',
+    'orders.from': 'De la',
+    'orders.to': 'Către',
+    
+    // Messages
+    'messages.title': 'Mesaje',
+    'messages.newMessage': 'Mesaj Nou',
+    'messages.typeMessage': 'Scrie un mesaj...',
+    'messages.send': 'Trimite',
+    'messages.noMessages': 'Niciun mesaj încă',
+    
+    // Cart
+    'cart.title': 'Coșul de Cumpărături',
+    'cart.empty': 'Coșul tău este gol',
+    'cart.checkout': 'Finalizează Comanda',
+    'cart.total': 'Total',
+    'cart.remove': 'Șterge',
+    'cart.continueShopping': 'Continuă Cumpărăturile',
+    
+    // Checkout
+    'checkout.title': 'Finalizare Comandă',
+    'checkout.shipping': 'Adresă de Livrare',
+    'checkout.payment': 'Metodă de Plată',
+    'checkout.card': 'Plată cu Cardul',
+    'checkout.cod': 'Plată la Livrare',
+    'checkout.placeOrder': 'Plasează Comanda',
+    'checkout.processing': 'Se procesează...',
     
     // Common
     'common.loading': 'Se încarcă...',
@@ -372,6 +482,10 @@ const translations: Record<Language, Record<string, string>> = {
     'common.submit': 'Trimite',
     'common.search': 'Caută',
     'common.viewAll': 'Vezi Tot',
+    'common.currency': 'RON',
+    'common.price': 'Preț',
+    'common.noResults': 'Niciun rezultat găsit',
+    'common.tryAgain': 'Încearcă din nou',
     
     // Footer
     'footer.about': 'Despre Noi',
