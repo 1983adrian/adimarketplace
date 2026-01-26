@@ -36,7 +36,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'platform-settings', 
     title: 'Setări Platformă', 
-    description: 'Nume site, descriere, limbă, monedă, social media',
+    description: 'Modifică numele, descrierea, limba și moneda platformei',
     icon: Settings, 
     href: '/admin/platform-settings',
     color: 'text-blue-600 bg-blue-500/10',
@@ -46,7 +46,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'security', 
     title: 'Securitate', 
-    description: 'Autentificare, sesiuni, încercări login, verificare email',
+    description: 'Controlează autentificarea, sesiunile și protecția conturilor',
     icon: Shield, 
     href: '/admin/security-settings',
     color: 'text-red-600 bg-red-500/10',
@@ -56,7 +56,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'fees', 
     title: 'Comisioane & Taxe', 
-    description: 'Taxa cumpărător, comision vânzător, promoții',
+    description: 'Setează procentul luat de platformă din fiecare vânzare',
     icon: DollarSign, 
     href: '/admin/fees',
     color: 'text-emerald-600 bg-emerald-500/10',
@@ -66,7 +66,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'api-settings', 
     title: 'Setări API', 
-    description: 'Chei API pentru Adyen, MangoPay, Resend, Twilio',
+    description: 'Configurează cheile pentru plăți, email și SMS',
     icon: Database, 
     href: '/admin/api-settings',
     color: 'text-purple-600 bg-purple-500/10',
@@ -76,7 +76,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'payment-processors', 
     title: 'Procesatori Plăți', 
-    description: 'Configurare și activare procesatori de plată',
+    description: 'Activează MangoPay, Adyen sau alți procesatori de carduri',
     icon: CreditCard, 
     href: '/admin/payment-processors',
     color: 'text-indigo-600 bg-indigo-500/10',
@@ -88,7 +88,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'homepage', 
     title: 'Editor Pagină Principală', 
-    description: 'Hero, bannere, secțiuni homepage',
+    description: 'Modifică textele și bannerele de pe prima pagină',
     icon: Home, 
     href: '/admin/homepage-editor',
     color: 'text-pink-600 bg-pink-500/10',
@@ -98,7 +98,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'interface', 
     title: 'Editor Interfață', 
-    description: 'Butoane, texte, elemente UI pe tot site-ul',
+    description: 'Schimbă textele butoanelor și mesajele din aplicație',
     icon: Layout, 
     href: '/admin/interface-editor',
     color: 'text-cyan-600 bg-cyan-500/10',
@@ -108,7 +108,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'categories', 
     title: 'Categorii', 
-    description: 'Adaugă, editează, șterge categorii produse',
+    description: 'Adaugă sau șterge categorii de produse (Haine, Electronice, etc.)',
     icon: Tag, 
     href: '/admin/categories',
     color: 'text-orange-600 bg-orange-500/10',
@@ -118,7 +118,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'policies', 
     title: 'Politici & Legal', 
-    description: 'Termeni, confidențialitate, cookie-uri',
+    description: 'Editează Termenii, Politica de Confidențialitate și Cookie-uri',
     icon: FileCheck, 
     href: '/admin/policies',
     color: 'text-slate-600 bg-slate-500/10',
@@ -128,7 +128,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'seo', 
     title: 'SEO & Meta', 
-    description: 'Meta titluri, descrieri, Open Graph',
+    description: 'Optimizează titlurile și descrierile pentru Google',
     icon: Globe, 
     href: '/admin/seo',
     color: 'text-teal-600 bg-teal-500/10',
@@ -140,7 +140,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'users', 
     title: 'Utilizatori', 
-    description: 'Gestionează toți utilizatorii platformei',
+    description: 'Vezi toți utilizatorii, suspendă sau șterge conturi',
     icon: Users, 
     href: '/admin/users',
     color: 'text-blue-600 bg-blue-500/10',
@@ -150,7 +150,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'seller-verifications', 
     title: 'Verificări Vânzători', 
-    description: 'Aprobă sau respinge cererile de verificare KYC',
+    description: 'Aprobă sau respinge documentele KYC ale vânzătorilor',
     icon: CheckCircle2, 
     href: '/admin/seller-verifications',
     color: 'text-green-600 bg-green-500/10',
@@ -160,10 +160,20 @@ const controlSections: ControlSection[] = [
   { 
     id: 'seller-payouts', 
     title: 'Plăți Vânzători', 
-    description: 'Procesează și monitorizează plățile către vânzători',
+    description: 'Procesează și trimite banii către vânzători',
     icon: CreditCard, 
     href: '/admin/seller-payouts',
     color: 'text-amber-600 bg-amber-500/10',
+    actions: ['view', 'edit'],
+    category: 'users'
+  },
+  { 
+    id: 'fraud-alerts', 
+    title: 'Alerte Fraudă', 
+    description: 'Vezi conturile suspecte detectate de AI și blochează extragerea banilor',
+    icon: AlertTriangle, 
+    href: '/admin/fraud-alerts',
+    color: 'text-red-600 bg-red-500/10',
     actions: ['view', 'edit'],
     category: 'users'
   },
@@ -172,7 +182,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'listings', 
     title: 'Anunțuri', 
-    description: 'Toate listările - aprobare, editare, ștergere',
+    description: 'Vezi, aprobă sau șterge produsele listate de vânzători',
     icon: Package, 
     href: '/admin/listings',
     color: 'text-violet-600 bg-violet-500/10',
@@ -182,7 +192,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'orders', 
     title: 'Comenzi', 
-    description: 'Monitorizează și gestionează toate comenzile',
+    description: 'Monitorizează toate comenzile și statusul lor',
     icon: ShoppingCart, 
     href: '/admin/orders',
     color: 'text-blue-600 bg-blue-500/10',
@@ -192,7 +202,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'auctions', 
     title: 'Licitații', 
-    description: 'Licitații active și încheiate',
+    description: 'Vezi licitațiile active și câștigătorii',
     icon: Gavel, 
     href: '/admin/auctions',
     color: 'text-orange-600 bg-orange-500/10',
@@ -202,7 +212,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'returns', 
     title: 'Retururi', 
-    description: 'Cereri de retur și rambursări',
+    description: 'Gestionează cererile de retur și rambursează banii',
     icon: RefreshCcw, 
     href: '/admin/returns',
     color: 'text-red-600 bg-red-500/10',
@@ -212,7 +222,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'disputes', 
     title: 'Dispute', 
-    description: 'Rezolvă conflictele dintre cumpărători și vânzători',
+    description: 'Rezolvă conflictele între cumpărători și vânzători',
     icon: AlertTriangle, 
     href: '/admin/disputes',
     color: 'text-yellow-600 bg-yellow-500/10',
@@ -222,7 +232,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'couriers', 
     title: 'Curieri', 
-    description: 'Configurează curierii și opțiunile de livrare',
+    description: 'Adaugă curieri (FAN, Sameday, DPD) și setează prețuri livrare',
     icon: Truck, 
     href: '/admin/couriers',
     color: 'text-cyan-600 bg-cyan-500/10',
@@ -234,7 +244,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'messages', 
     title: 'Mesaje', 
-    description: 'Vizualizează conversațiile dintre utilizatori',
+    description: 'Citește conversațiile dintre utilizatori (monitorizare)',
     icon: MessageSquare, 
     href: '/admin/messages',
     color: 'text-indigo-600 bg-indigo-500/10',
@@ -244,7 +254,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'email-templates', 
     title: 'Template-uri Email', 
-    description: 'Editează emailurile automate trimise de platformă',
+    description: 'Editează emailurile automate (confirmare comandă, resetare parolă)',
     icon: Mail, 
     href: '/admin/email-templates',
     color: 'text-pink-600 bg-pink-500/10',
@@ -254,7 +264,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'broadcast', 
     title: 'Broadcast & Campanii', 
-    description: 'Trimite notificări și emailuri în masă',
+    description: 'Trimite mesaje sau emailuri în masă către toți utilizatorii',
     icon: Megaphone, 
     href: '/admin/broadcast',
     color: 'text-purple-600 bg-purple-500/10',
@@ -264,7 +274,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'mobile-app', 
     title: 'Aplicație Mobilă', 
-    description: 'Configurații pentru aplicația iOS/Android',
+    description: 'Setări pentru aplicația iOS și Android (push notifications)',
     icon: Smartphone, 
     href: '/admin/mobile-app',
     color: 'text-emerald-600 bg-emerald-500/10',

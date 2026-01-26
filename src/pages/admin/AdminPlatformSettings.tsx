@@ -532,104 +532,125 @@ const AdminPlatformSettings = () => {
           <TabsContent value="social" className="space-y-6">
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-4">
-                <div className="flex items-center gap-2">
-                  <Share2 className="h-5 w-5 text-primary" />
-                  <CardTitle>Link-uri Social Media</CardTitle>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Share2 className="h-5 w-5 text-primary" />
+                    <CardTitle>Link-uri Social Media</CardTitle>
+                  </div>
+                  <Button 
+                    onClick={handleSave} 
+                    disabled={isSaving}
+                    className="gap-2"
+                  >
+                    {isSaving ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4" />
+                    )}
+                    Salvează Link-urile
+                  </Button>
                 </div>
-                <CardDescription>Configurează link-urile către conturile tale de social media care apar în footer</CardDescription>
+                <CardDescription>Apasă pe iconița platformei pentru a adăuga sau modifica link-ul. Link-urile apar în footer.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-5">
-                {/* Facebook */}
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-xl bg-[#1877F2] text-white shrink-0">
-                    <Facebook className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <Label htmlFor="facebook">Facebook</Label>
-                    <Input
-                      id="facebook"
-                      value={settings.social.facebook}
-                      onChange={(e) => updateSocial('facebook', e.target.value)}
-                      placeholder="https://facebook.com/pagina-ta"
-                      className="h-11"
-                    />
-                  </div>
-                </div>
-
-                {/* Instagram */}
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-xl bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white shrink-0">
-                    <Instagram className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <Label htmlFor="instagram">Instagram</Label>
-                    <Input
-                      id="instagram"
-                      value={settings.social.instagram}
-                      onChange={(e) => updateSocial('instagram', e.target.value)}
-                      placeholder="https://instagram.com/contul-tau"
-                      className="h-11"
-                    />
-                  </div>
-                </div>
-
-                {/* TikTok */}
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-xl bg-black text-white shrink-0">
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                    </svg>
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <Label htmlFor="tiktok">TikTok</Label>
-                    <Input
-                      id="tiktok"
-                      value={settings.social.tiktok}
-                      onChange={(e) => updateSocial('tiktok', e.target.value)}
-                      placeholder="https://tiktok.com/@contul-tau"
-                      className="h-11"
-                    />
-                  </div>
-                </div>
-
-                {/* Twitter/X */}
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-xl bg-black text-white shrink-0">
-                    <Twitter className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <Label htmlFor="twitter">Twitter / X</Label>
-                    <Input
-                      id="twitter"
-                      value={settings.social.twitter}
-                      onChange={(e) => updateSocial('twitter', e.target.value)}
-                      placeholder="https://twitter.com/contul-tau"
-                      className="h-11"
-                    />
-                  </div>
-                </div>
-
-                {/* YouTube */}
-                <div className="flex items-center gap-4">
-                  <div className="p-2.5 rounded-xl bg-[#FF0000] text-white shrink-0">
-                    <Youtube className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 space-y-1.5">
-                    <Label htmlFor="youtube">YouTube</Label>
-                    <Input
-                      id="youtube"
-                      value={settings.social.youtube}
-                      onChange={(e) => updateSocial('youtube', e.target.value)}
-                      placeholder="https://youtube.com/@canalul-tau"
-                      className="h-11"
-                    />
-                  </div>
+              <CardContent className="space-y-6">
+                {/* Social Media Icons Grid */}
+                <div className="grid grid-cols-5 gap-4">
+                  {/* Facebook */}
+                  <SocialIconInput
+                    platform="facebook"
+                    icon={<Facebook className="h-6 w-6" />}
+                    color="bg-[#1877F2]"
+                    value={settings.social.facebook}
+                    onChange={(value) => updateSocial('facebook', value)}
+                    placeholder="https://facebook.com/pagina-ta"
+                  />
+                  
+                  {/* Instagram */}
+                  <SocialIconInput
+                    platform="instagram"
+                    icon={<Instagram className="h-6 w-6" />}
+                    color="bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF]"
+                    value={settings.social.instagram}
+                    onChange={(value) => updateSocial('instagram', value)}
+                    placeholder="https://instagram.com/contul-tau"
+                  />
+                  
+                  {/* TikTok */}
+                  <SocialIconInput
+                    platform="tiktok"
+                    icon={
+                      <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                      </svg>
+                    }
+                    color="bg-black"
+                    value={settings.social.tiktok}
+                    onChange={(value) => updateSocial('tiktok', value)}
+                    placeholder="https://tiktok.com/@contul-tau"
+                  />
+                  
+                  {/* Twitter/X */}
+                  <SocialIconInput
+                    platform="twitter"
+                    icon={<Twitter className="h-6 w-6" />}
+                    color="bg-black"
+                    value={settings.social.twitter}
+                    onChange={(value) => updateSocial('twitter', value)}
+                    placeholder="https://twitter.com/contul-tau"
+                  />
+                  
+                  {/* YouTube */}
+                  <SocialIconInput
+                    platform="youtube"
+                    icon={<Youtube className="h-6 w-6" />}
+                    color="bg-[#FF0000]"
+                    value={settings.social.youtube}
+                    onChange={(value) => updateSocial('youtube', value)}
+                    placeholder="https://youtube.com/@canalul-tau"
+                  />
                 </div>
 
                 <div className="pt-4 p-4 rounded-lg bg-muted/50 border">
                   <p className="text-sm text-muted-foreground">
-                    💡 <strong>Sfat:</strong> Lasă câmpul gol pentru a ascunde iconița respectivă din footer. Link-urile se actualizează automat după salvare.
+                    💡 <strong>Sfat:</strong> Apasă pe orice iconiță pentru a introduce link-ul. Iconițele cu ✓ verde au link configurat. Lasă câmpul gol pentru a ascunde iconița din footer.
                   </p>
+                </div>
+
+                {/* Preview Section */}
+                <div className="pt-4">
+                  <Label className="text-sm font-medium mb-3 block">Previzualizare Footer</Label>
+                  <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+                    {settings.social.facebook && (
+                      <a href={settings.social.facebook} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#1877F2] text-white hover:opacity-80 transition-opacity">
+                        <Facebook className="h-4 w-4" />
+                      </a>
+                    )}
+                    {settings.social.instagram && (
+                      <a href={settings.social.instagram} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-gradient-to-br from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white hover:opacity-80 transition-opacity">
+                        <Instagram className="h-4 w-4" />
+                      </a>
+                    )}
+                    {settings.social.tiktok && (
+                      <a href={settings.social.tiktok} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-black text-white hover:opacity-80 transition-opacity">
+                        <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {settings.social.twitter && (
+                      <a href={settings.social.twitter} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-black text-white hover:opacity-80 transition-opacity">
+                        <Twitter className="h-4 w-4" />
+                      </a>
+                    )}
+                    {settings.social.youtube && (
+                      <a href={settings.social.youtube} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#FF0000] text-white hover:opacity-80 transition-opacity">
+                        <Youtube className="h-4 w-4" />
+                      </a>
+                    )}
+                    {!settings.social.facebook && !settings.social.instagram && !settings.social.tiktok && !settings.social.twitter && !settings.social.youtube && (
+                      <span className="text-sm text-muted-foreground">Niciun link configurat - adaugă link-uri pentru a vedea previzualizarea</span>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -670,5 +691,68 @@ const SettingSwitch = ({ label, description, checked, onCheckedChange, disabled,
     />
   </div>
 );
+
+// Social Media Icon Input Component
+interface SocialIconInputProps {
+  platform: string;
+  icon: React.ReactNode;
+  color: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}
+
+const SocialIconInput = ({ platform, icon, color, value, onChange, placeholder }: SocialIconInputProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const hasValue = value && value.trim() !== '';
+  
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`relative p-4 rounded-xl ${color} text-white transition-all hover:scale-105 hover:shadow-lg ${hasValue ? 'ring-2 ring-green-500 ring-offset-2' : 'opacity-70 hover:opacity-100'}`}
+        title={hasValue ? `${platform}: ${value}` : `Adaugă link ${platform}`}
+      >
+        {icon}
+        {hasValue && (
+          <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+            <CheckCircle2 className="h-3 w-3 text-white" />
+          </div>
+        )}
+      </button>
+      
+      {isOpen && (
+        <div className="absolute z-50 top-full mt-2 left-1/2 -translate-x-1/2 w-72 p-3 bg-popover border rounded-lg shadow-xl">
+          <Label className="text-xs font-medium capitalize mb-1.5 block">{platform}</Label>
+          <Input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder={placeholder}
+            className="h-9 text-sm"
+            autoFocus
+          />
+          <div className="flex justify-between mt-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onChange('')}
+              className="text-xs h-7"
+            >
+              Șterge
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setIsOpen(false)}
+              className="text-xs h-7"
+            >
+              OK
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default AdminPlatformSettings;
