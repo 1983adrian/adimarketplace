@@ -13,6 +13,44 @@ interface MangopayWebhookEvent {
   Timestamp?: number;
 }
 
+// MangoPay production IP ranges for webhook validation
+const MANGOPAY_ALLOWED_IPS = [
+  // MangoPay Production IPs
+  "185.33.88.",
+  "185.33.89.",
+  // MangoPay Sandbox IPs
+  "185.33.90.",
+  "185.33.91.",
+  // Add more as needed based on MangoPay documentation
+];
+
+// Rate limiting map (in-memory, resets on function restart)
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_MAX = 100; // Max requests per minute
+const RATE_LIMIT_WINDOW = 60000; // 1 minute in ms
+
+function isIPAllowed(ip: string): boolean {
+  // Check if IP starts with any of the allowed prefixes
+  return MANGOPAY_ALLOWED_IPS.some(prefix => ip.startsWith(prefix));
+}
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const record = rateLimitMap.get(ip);
+  
+  if (!record || now > record.resetTime) {
+    rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (record.count >= RATE_LIMIT_MAX) {
+    return false;
+  }
+  
+  record.count++;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -23,8 +61,74 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // ========== SECURITY: IP Validation ==========
+    const sourceIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+                     req.headers.get("cf-connecting-ip") ||
+                     req.headers.get("x-real-ip") ||
+                     "unknown";
+    
+    const mangopaySecurityEnabled = Deno.env.get("MANGOPAY_WEBHOOK_SECURITY") === "true";
+    
+    if (mangopaySecurityEnabled) {
+      // Validate source IP
+      if (sourceIP === "unknown" || !isIPAllowed(sourceIP)) {
+        console.error(`SECURITY: Unauthorized MangoPay webhook from IP: ${sourceIP}`);
+        await supabase.from("webhook_logs").insert({
+          processor: "mangopay",
+          event_type: "SECURITY_VIOLATION",
+          resource_id: "unauthorized_ip",
+          payload: { error: "Unauthorized IP", ip: sourceIP },
+          processed: false,
+          error_message: `Unauthorized webhook from IP: ${sourceIP}`,
+        });
+        return new Response("Unauthorized - Invalid source IP", { 
+          status: 401, 
+          headers: corsHeaders 
+        });
+      }
+      
+      console.log(`SECURITY: MangoPay webhook from allowed IP: ${sourceIP}`);
+    } else {
+      console.warn("WARNING: MANGOPAY_WEBHOOK_SECURITY not enabled - IP validation disabled");
+    }
+
+    // ========== SECURITY: Rate Limiting ==========
+    if (!checkRateLimit(sourceIP)) {
+      console.error(`SECURITY: Rate limit exceeded for IP: ${sourceIP}`);
+      await supabase.from("webhook_logs").insert({
+        processor: "mangopay",
+        event_type: "RATE_LIMIT_EXCEEDED",
+        resource_id: "rate_limit",
+        payload: { error: "Rate limit exceeded", ip: sourceIP },
+        processed: false,
+        error_message: `Rate limit exceeded for IP: ${sourceIP}`,
+      });
+      return new Response("Too Many Requests", { 
+        status: 429, 
+        headers: corsHeaders 
+      });
+    }
+
     const event: MangopayWebhookEvent = await req.json();
     console.log("MangoPay Webhook received:", event.EventType, event.RessourceId);
+
+    // ========== IDEMPOTENCY CHECK ==========
+    const { data: existingLog } = await supabase
+      .from("webhook_logs")
+      .select("id, processed")
+      .eq("processor", "mangopay")
+      .eq("resource_id", event.RessourceId)
+      .eq("event_type", event.EventType)
+      .eq("processed", true)
+      .maybeSingle();
+
+    if (existingLog) {
+      console.log("Webhook already processed (idempotency check):", event.EventType, event.RessourceId);
+      return new Response(
+        JSON.stringify({ success: true, message: "Already processed" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Log webhook event
     await supabase.from("webhook_logs").insert({

@@ -2052,6 +2052,7 @@ export type Database = {
       public_seller_profiles: {
         Row: {
           avatar_url: string | null
+          average_rating: number | null
           bio: string | null
           country: string | null
           created_at: string | null
@@ -2060,11 +2061,13 @@ export type Database = {
           is_verified: boolean | null
           location: string | null
           store_name: string | null
+          total_sales_count: number | null
           user_id: string | null
           username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          average_rating?: number | null
           bio?: string | null
           country?: string | null
           created_at?: string | null
@@ -2073,11 +2076,13 @@ export type Database = {
           is_verified?: boolean | null
           location?: never
           store_name?: string | null
+          total_sales_count?: number | null
           user_id?: string | null
           username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          average_rating?: number | null
           bio?: string | null
           country?: string | null
           created_at?: string | null
@@ -2086,6 +2091,7 @@ export type Database = {
           is_verified?: boolean | null
           location?: never
           store_name?: string | null
+          total_sales_count?: number | null
           user_id?: string | null
           username?: string | null
         }
@@ -2236,12 +2242,16 @@ export type Database = {
         Args: { seller_user_id: string }
         Returns: {
           avatar_url: string
+          average_rating: number
           bio: string
+          country: string
           created_at: string
           display_name: string
           is_seller: boolean
           is_verified: boolean
+          location: string
           store_name: string
+          total_sales_count: number
           user_id: string
           username: string
         }[]
