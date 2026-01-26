@@ -23,7 +23,7 @@ const Browse = () => {
   const { formatPrice } = useCurrency();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [selectedCondition, setSelectedCondition] = useState<string>('');
   const [sortBy, setSortBy] = useState('newest');
   const [locationFilter, setLocationFilter] = useState('');
@@ -117,7 +117,7 @@ const Browse = () => {
 
   const clearFilters = () => {
     setSearchQuery('');
-    setPriceRange([0, 10000]);
+    setPriceRange([0, 1000000]);
     setSelectedCondition('');
     setLocationFilter('');
     setSortBy('newest');
@@ -148,7 +148,7 @@ const Browse = () => {
       
       <div>
         <Label className="mb-2 block">{t('browse.priceRange')}: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}</Label>
-        <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={10000} step={10} className="mt-4" />
+        <Slider value={priceRange} onValueChange={setPriceRange} min={0} max={1000000} step={100} className="mt-4" />
       </div>
       
       <div>
