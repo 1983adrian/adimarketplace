@@ -64,45 +64,41 @@ serve(async (req) => {
   }
 
   try {
+    // CRITICAL SECURITY: Verifică service_role key ÎNAINTE de orice altceva
+    const authHeader = req.headers.get("Authorization");
+    const apiKey = req.headers.get("apikey");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    
+    // Verificăm dacă este apel cu service_role key (singura metodă permisă)
+    const isServiceRole = apiKey === serviceRoleKey || 
+      authHeader === `Bearer ${serviceRoleKey}`;
+    
+    if (!isServiceRole) {
+      console.error("[SECURITY] Unauthorized access attempt - service_role key required");
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: "Unauthorized - This endpoint requires service_role authentication",
+          code: "SERVICE_ROLE_REQUIRED"
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 403 }
+      );
+    }
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      serviceRoleKey
     );
 
-    // Parse request body first to check if it's a scheduled call
+    // Parse request body - DOAR după verificarea autentificării
     const requestBody = await req.json();
     const { action, issueId, autoRepairEnabled = true, scheduled = false } = requestBody;
 
-    // Auth check - skip for scheduled cron jobs
-    let isAuthorized = false;
-    
-    if (scheduled) {
-      // For scheduled jobs, we trust the cron caller
-      isAuthorized = true;
-      console.log("[CRON] Scheduled auto-repair triggered at:", new Date().toISOString());
-    } else {
-      // For manual calls, require admin authentication
-      const authHeader = req.headers.get("Authorization");
-      const token = authHeader?.replace("Bearer ", "");
-      
-      if (token) {
-        const { data: userData } = await supabase.auth.getUser(token);
-        if (userData.user) {
-          // Check admin role
-          const { data: roleData } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", userData.user.id)
-            .eq("role", "admin")
-            .single();
-          
-          isAuthorized = !!roleData;
-        }
-      }
-    }
+    console.log(`[AI-MAINTENANCE] Authenticated via service_role. Scheduled: ${scheduled}, Action: ${action || 'scan'}`);
 
-    if (!isAuthorized) {
-      throw new Error("Unauthorized - Admin access required");
+    // Validare suplimentară pentru scheduled - doar pentru logging
+    if (scheduled) {
+      console.log("[CRON] Scheduled auto-repair triggered at:", new Date().toISOString());
     }
 
     const issues: MaintenanceIssue[] = [];

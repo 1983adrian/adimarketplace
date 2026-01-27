@@ -1525,6 +1525,8 @@ export type Database = {
       refunds: {
         Row: {
           amount: number
+          approved_at: string | null
+          approved_by: string | null
           buyer_id: string
           completed_at: string | null
           created_at: string
@@ -1534,12 +1536,15 @@ export type Database = {
           processor_refund_id: string | null
           reason: string
           requested_by: string
+          requires_admin_approval: boolean | null
           seller_id: string
           status: string | null
           updated_at: string
         }
         Insert: {
           amount: number
+          approved_at?: string | null
+          approved_by?: string | null
           buyer_id: string
           completed_at?: string | null
           created_at?: string
@@ -1549,12 +1554,15 @@ export type Database = {
           processor_refund_id?: string | null
           reason: string
           requested_by: string
+          requires_admin_approval?: boolean | null
           seller_id: string
           status?: string | null
           updated_at?: string
         }
         Update: {
           amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
           buyer_id?: string
           completed_at?: string | null
           created_at?: string
@@ -1564,6 +1572,7 @@ export type Database = {
           processor_refund_id?: string | null
           reason?: string
           requested_by?: string
+          requires_admin_approval?: boolean | null
           seller_id?: string
           status?: string | null
           updated_at?: string
@@ -2261,6 +2270,54 @@ export type Database = {
           },
         ]
       }
+      public_profiles_view: {
+        Row: {
+          avatar_url: string | null
+          average_rating: number | null
+          bio: string | null
+          country: string | null
+          created_at: string | null
+          display_name: string | null
+          is_seller: boolean | null
+          is_verified: boolean | null
+          location: string | null
+          store_name: string | null
+          total_sales_count: number | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          average_rating?: number | null
+          bio?: string | null
+          country?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          is_seller?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          store_name?: string | null
+          total_sales_count?: number | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          average_rating?: number | null
+          bio?: string | null
+          country?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          is_seller?: boolean | null
+          is_verified?: boolean | null
+          location?: string | null
+          store_name?: string | null
+          total_sales_count?: number | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       public_seller_profiles: {
         Row: {
           avatar_url: string | null
@@ -2449,6 +2506,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_increment_pending_balance: {
+        Args: { p_amount: number; p_user_id: string }
+        Returns: undefined
+      }
       get_generalized_location: { Args: { loc: string }; Returns: string }
       get_public_seller_profile: {
         Args: { seller_user_id: string }
