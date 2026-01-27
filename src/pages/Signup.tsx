@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { 
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
   Loader2, Shield, CheckCircle, Mail, Lock, Eye, EyeOff, User, AlertCircle, ArrowRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,19 @@ const Signup = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate('/');
+      }
+    };
+    checkSession();
+  }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -84,33 +96,69 @@ const Signup = () => {
 
     setLoading(true);
     
-    const { data, error } = await supabase.auth.signUp({
-      email: formData.email.trim(),
-      password: formData.password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/login`,
-        data: {
-          display_name: formData.displayName.trim(),
+    // Normalize email
+    const normalizedEmail = formData.email.trim().toLowerCase();
+    
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password: formData.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            display_name: formData.displayName.trim(),
+          },
         },
-      },
-    });
-    
-    if (error) {
-      let message = error.message;
-      if (error.message.includes('already registered')) {
-        message = 'Această adresă de email este deja înregistrată.';
+      });
+      
+      if (error) {
+        let message = error.message;
+        let description = '';
+        
+        if (error.message.includes('already registered') || error.message.includes('User already registered')) {
+          message = 'Email deja înregistrat';
+          description = 'Această adresă de email este deja înregistrată. Încearcă să te autentifici.';
+        } else if (error.message.includes('invalid') || error.message.includes('Invalid email')) {
+          message = 'Email invalid';
+          description = 'Te rugăm să introduci o adresă de email validă.';
+        } else if (error.message.includes('weak_password') || error.message.includes('Password')) {
+          message = 'Parolă prea slabă';
+          description = 'Parola trebuie să aibă cel puțin 6 caractere.';
+        } else if (error.message.includes('rate limit') || error.message.includes('Too many')) {
+          message = 'Prea multe încercări';
+          description = 'Așteaptă câteva minute înainte de a încerca din nou.';
+        }
+        
+        toast({ title: message, description: description || error.message, variant: 'destructive' });
+        setLoading(false);
+        return;
       }
-      toast({ title: 'Eroare', description: message, variant: 'destructive' });
+      
+      if (rememberMe) {
+        localStorage.setItem('cmarket_remembered_email', normalizedEmail);
+      }
+      
+      // Check if auto-confirm is enabled (user has session immediately)
+      if (data?.session) {
+        toast({ 
+          title: 'Cont creat cu succes!', 
+          description: 'Bine ai venit pe platformă!',
+          className: 'bg-green-500 text-white border-green-600',
+        });
+        navigate('/');
+      } else {
+        setSuccess(true);
+      }
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      toast({ 
+        title: 'Eroare neașteptată', 
+        description: 'A apărut o problemă. Încearcă din nou.', 
+        variant: 'destructive' 
+      });
+    } finally {
       setLoading(false);
-      return;
     }
-    
-    if (rememberMe) {
-      localStorage.setItem('cmarket_remembered_email', formData.email.trim());
-    }
-    
-    setSuccess(true);
-    setLoading(false);
   };
 
   if (success) {

@@ -57,7 +57,7 @@ const Login = () => {
       }
       
       if (error) {
-        console.error('Login error:', error.message, error.status);
+        console.error('Login error:', error.message, (error as any).status);
         let message = error.message;
         let description = '';
         
@@ -67,12 +67,21 @@ const Login = () => {
         } else if (error.message.includes('Email not confirmed')) {
           message = 'Email neconfirmat';
           description = 'Te rugăm să îți verifici căsuța de email pentru link-ul de confirmare.';
-        } else if (error.message.includes('Too many requests')) {
+        } else if (error.message.includes('Too many requests') || error.message.includes('rate limit')) {
           message = 'Prea multe încercări';
           description = 'Așteaptă câteva minute înainte de a încerca din nou.';
-        } else if (error.message.includes('Network')) {
+        } else if (error.message.includes('Network') || error.message.includes('fetch')) {
           message = 'Eroare de conexiune';
           description = 'Verifică conexiunea la internet și încearcă din nou.';
+        } else if (error.message.includes('User not found') || error.message.includes('No user')) {
+          message = 'Contul nu există';
+          description = 'Verifică adresa de email sau creează un cont nou.';
+        } else if ((error as any).status === 500 || error.message.includes('server')) {
+          message = 'Eroare server';
+          description = 'Serviciul este temporar indisponibil. Încearcă din nou în câteva minute.';
+        } else if (error.message.includes('Invalid email')) {
+          message = 'Email invalid';
+          description = 'Te rugăm să introduci o adresă de email validă.';
         }
         
         toast({ 
