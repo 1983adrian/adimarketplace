@@ -73,6 +73,42 @@ serve(async (req) => {
       throw new Error("No items provided");
     }
 
+    // CRITICAL SECURITY: Preluăm prețurile din baza de date, NU din frontend
+    // Aceasta previne frauda prin manipularea prețurilor
+    const validatedItems: { listingId: string; price: number; title: string; sellerId: string }[] = [];
+    
+    for (const item of items) {
+      const { data: listing, error: listingError } = await supabase
+        .from("listings")
+        .select("id, seller_id, title, price, is_active, is_sold")
+        .eq("id", item.listingId)
+        .single();
+
+      if (listingError || !listing) {
+        throw new Error(`Listing ${item.listingId} not found`);
+      }
+
+      if (!listing.is_active) {
+        throw new Error(`Listing "${listing.title}" is no longer active`);
+      }
+
+      if (listing.is_sold) {
+        throw new Error(`Listing "${listing.title}" has already been sold`);
+      }
+
+      // FOLOSIM PREȚUL DIN BAZA DE DATE, nu cel trimis de client
+      if (Math.abs(listing.price - item.price) > 0.01) {
+        console.warn(`[SECURITY] Price mismatch detected for listing ${item.listingId}. Client sent: ${item.price}, DB has: ${listing.price}`);
+      }
+
+      validatedItems.push({
+        listingId: listing.id,
+        price: listing.price, // Prețul REAL din DB
+        title: listing.title,
+        sellerId: listing.seller_id
+      });
+    }
+
     // MangoPay is the ONLY payment processor
     const { data: mangopaySettings } = await supabase
       .from("payment_processor_settings")
@@ -87,8 +123,8 @@ serve(async (req) => {
 
     console.log(`Processing payment with MangoPay (${processorEnv})`);
 
-    // Calculate totals
-    const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+    // Calculate totals using VALIDATED prices from database
+    const subtotal = validatedItems.reduce((sum, item) => sum + item.price, 0);
     const total = subtotal + shippingCost + buyerFee;
 
     // Get platform fees
@@ -100,41 +136,30 @@ serve(async (req) => {
     const sellerCommissionFee = fees?.find(f => f.fee_type === "seller_commission");
     const commissionPercent = sellerCommissionFee?.amount || 10;
 
-    // Process each item - create orders
+    // Process each item - create orders using VALIDATED items
     const orders = [];
-    for (const item of items) {
-      // Get listing details
-      const { data: listing } = await supabase
-        .from("listings")
-        .select("id, seller_id, title, price")
-        .eq("id", item.listingId)
-        .single();
-
-      if (!listing) {
-        throw new Error(`Listing ${item.listingId} not found`);
-      }
-
-      // Calculate seller payout
-      const sellerCommission = (listing.price * commissionPercent) / 100;
-      const payoutAmount = listing.price - sellerCommission;
+    for (const item of validatedItems) {
+      // Calculate seller payout using validated price
+      const sellerCommission = (item.price * commissionPercent) / 100;
+      const payoutAmount = item.price - sellerCommission;
 
       // Generate processor transaction ID (will be replaced by actual processor response)
       const transactionId = `${processorName.toUpperCase()}-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
 
-      // Create order
+      // Create order - folosim validated item data
       const { data: order, error: orderError } = await supabase
         .from("orders")
         .insert({
-          listing_id: listing.id,
+          listing_id: item.listingId,
           buyer_id: userId || "00000000-0000-0000-0000-000000000000",
-          seller_id: listing.seller_id,
-          amount: listing.price + shippingCost / items.length + buyerFee / items.length,
+          seller_id: item.sellerId,
+          amount: item.price + shippingCost / validatedItems.length + buyerFee / validatedItems.length,
           status: "pending",
           shipping_address: shippingAddress,
           payment_processor: processorName,
           processor_status: "pending",
           processor_transaction_id: transactionId,
-          buyer_fee: buyerFee / items.length,
+          buyer_fee: buyerFee / validatedItems.length,
           seller_commission: sellerCommission,
           payout_amount: payoutAmount,
           payout_status: "pending",
@@ -149,15 +174,15 @@ serve(async (req) => {
       await supabase
         .from("listings")
         .update({ is_sold: true, is_active: false })
-        .eq("id", listing.id);
+        .eq("id", item.listingId);
 
       // Create seller payout record
       await supabase
         .from("seller_payouts")
         .insert({
-          seller_id: listing.seller_id,
+          seller_id: item.sellerId,
           order_id: order.id,
-          gross_amount: listing.price,
+          gross_amount: item.price,
           platform_commission: sellerCommission,
           net_amount: payoutAmount,
           status: "pending",
@@ -165,21 +190,21 @@ serve(async (req) => {
           payout_method: "iban",
         });
 
-      // Update seller pending balance
-      await supabase.rpc("increment_pending_balance", {
-        p_user_id: listing.seller_id,
+      // Update seller pending balance - folosim funcția admin pentru service_role
+      await supabase.rpc("admin_increment_pending_balance", {
+        p_user_id: item.sellerId,
         p_amount: payoutAmount,
       });
 
       // Create notification for seller - include shipping address
       await supabase.from("notifications").insert({
-        user_id: listing.seller_id,
+        user_id: item.sellerId,
         type: "new_order",
         title: "📦 Comandă Nouă - Adaugă Tracking!",
-        message: `Ai o comandă nouă pentru "${listing.title}"! Expediază la adresa: ${shippingAddress}. Vei primi ${payoutAmount.toFixed(2)} RON după confirmarea livrării.`,
+        message: `Ai o comandă nouă pentru "${item.title}"! Expediază la adresa: ${shippingAddress}. Vei primi ${payoutAmount.toFixed(2)} RON după confirmarea livrării.`,
         data: { 
           order_id: order.id, 
-          listing_id: listing.id, 
+          listing_id: item.listingId, 
           needs_tracking: true,
           shipping_address: shippingAddress,
           payment_method: paymentMethod || 'card',
