@@ -11,37 +11,41 @@ import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
 
 // Sub-component for favorite button
-const FavoriteButton: React.FC<{ listingId: string; userId?: string }> = ({ listingId, userId }) => {
-  const { data: isFavorite } = useIsFavorite(listingId, userId);
-  const toggleFavorite = useToggleFavorite();
+const FavoriteButton = React.forwardRef<HTMLButtonElement, { listingId: string; userId?: string }>(
+  ({ listingId, userId }, ref) => {
+    const { data: isFavorite } = useIsFavorite(listingId, userId);
+    const toggleFavorite = useToggleFavorite();
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!userId) return;
-    toggleFavorite.mutate({
-      listingId,
-      userId,
-      isFavorite: !!isFavorite,
-    });
-  };
+    const handleToggleFavorite = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!userId) return;
+      toggleFavorite.mutate({
+        listingId,
+        userId,
+        isFavorite: !!isFavorite,
+      });
+    };
 
-  if (!userId) return null;
+    if (!userId) return null;
 
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className={cn(
-        "absolute top-1.5 right-1.5 h-7 w-7 bg-background/80 backdrop-blur-sm hover:bg-background",
-        isFavorite && "text-destructive"
-      )}
-      onClick={handleToggleFavorite}
-    >
-      <Heart className={cn("h-4 w-4", isFavorite && "fill-current")} />
-    </Button>
-  );
-};
+    return (
+      <Button
+        ref={ref}
+        variant="ghost"
+        size="icon"
+        className={cn(
+          "absolute top-1.5 right-1.5 h-7 w-7 bg-background/80 backdrop-blur-sm hover:bg-background",
+          isFavorite && "text-destructive"
+        )}
+        onClick={handleToggleFavorite}
+      >
+        <Heart className={cn("h-4 w-4", isFavorite && "fill-current")} />
+      </Button>
+    );
+  }
+);
+FavoriteButton.displayName = 'FavoriteButton';
 
 interface PopularProductsGridProps {
   listings: any[];
