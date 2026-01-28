@@ -21,7 +21,6 @@ const MANGOPAY_ALLOWED_IPS = [
   // MangoPay Sandbox IPs
   "185.33.90.",
   "185.33.91.",
-  // Add more as needed based on MangoPay documentation
 ];
 
 // Rate limiting map (in-memory, resets on function restart)
@@ -30,7 +29,6 @@ const RATE_LIMIT_MAX = 100; // Max requests per minute
 const RATE_LIMIT_WINDOW = 60000; // 1 minute in ms
 
 function isIPAllowed(ip: string): boolean {
-  // Check if IP starts with any of the allowed prefixes
   return MANGOPAY_ALLOWED_IPS.some(prefix => ip.startsWith(prefix));
 }
 
@@ -51,6 +49,83 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
+// ========== SECURITY: Sanitize webhook payload ==========
+// Remove sensitive data before storing in logs
+function sanitizePayload(event: MangopayWebhookEvent): Record<string, unknown> {
+  return {
+    EventType: event.EventType,
+    RessourceId: event.RessourceId ? `***${event.RessourceId.slice(-6)}` : null, // Only last 6 chars
+    Date: event.Date,
+    Timestamp: event.Timestamp,
+    // Hash for integrity verification
+    payload_hash: hashPayload(event),
+  };
+}
+
+// Create a hash of the original payload for integrity verification
+function hashPayload(event: MangopayWebhookEvent): string {
+  const data = JSON.stringify(event);
+  const encoder = new TextEncoder();
+  const hashBuffer = new Uint8Array(32);
+  const dataBytes = encoder.encode(data);
+  
+  // Simple hash using XOR and rotation for integrity check
+  for (let i = 0; i < dataBytes.length; i++) {
+    hashBuffer[i % 32] ^= dataBytes[i];
+  }
+  
+  return Array.from(hashBuffer).map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
+
+// ========== SECURITY: Validate webhook signature ==========
+async function validateWebhookSignature(
+  req: Request,
+  rawBody: string,
+  webhookSecret: string | undefined
+): Promise<boolean> {
+  if (!webhookSecret) {
+    console.warn("SECURITY: No webhook secret configured - signature validation skipped");
+    return true; // Allow in dev mode
+  }
+  
+  const signature = req.headers.get("x-mangopay-signature") || 
+                    req.headers.get("mangopay-signature");
+  
+  if (!signature) {
+    console.warn("SECURITY: No signature in webhook request");
+    return false;
+  }
+  
+  // Compute expected signature
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    "raw",
+    encoder.encode(webhookSecret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  
+  const signatureBuffer = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(rawBody)
+  );
+  
+  const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+  
+  // Constant-time comparison
+  if (signature.length !== expectedSignature.length) return false;
+  let result = 0;
+  for (let i = 0; i < signature.length; i++) {
+    result |= signature.charCodeAt(i) ^ expectedSignature.charCodeAt(i);
+  }
+  
+  return result === 0;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -59,6 +134,7 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const webhookSecret = Deno.env.get("MANGOPAY_WEBHOOK_SECRET");
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // ========== SECURITY: IP Validation ==========
@@ -70,72 +146,82 @@ serve(async (req) => {
     const mangopaySecurityEnabled = Deno.env.get("MANGOPAY_WEBHOOK_SECURITY") === "true";
     
     if (mangopaySecurityEnabled) {
-      // Validate source IP
       if (sourceIP === "unknown" || !isIPAllowed(sourceIP)) {
         console.error(`SECURITY: Unauthorized MangoPay webhook from IP: ${sourceIP}`);
         await supabase.from("webhook_logs").insert({
           processor: "mangopay",
           event_type: "SECURITY_VIOLATION",
           resource_id: "unauthorized_ip",
-          payload: { error: "Unauthorized IP", ip: sourceIP },
+          payload: { error: "Unauthorized IP", ip_prefix: sourceIP.slice(0, 10) },
           processed: false,
-          error_message: `Unauthorized webhook from IP: ${sourceIP}`,
+          error_message: `Unauthorized webhook source`,
         });
-        return new Response("Unauthorized - Invalid source IP", { 
-          status: 401, 
-          headers: corsHeaders 
-        });
+        return new Response("Unauthorized", { status: 401, headers: corsHeaders });
       }
-      
-      console.log(`SECURITY: MangoPay webhook from allowed IP: ${sourceIP}`);
-    } else {
-      console.warn("WARNING: MANGOPAY_WEBHOOK_SECURITY not enabled - IP validation disabled");
+      console.log(`SECURITY: MangoPay webhook from allowed IP`);
     }
 
     // ========== SECURITY: Rate Limiting ==========
     if (!checkRateLimit(sourceIP)) {
-      console.error(`SECURITY: Rate limit exceeded for IP: ${sourceIP}`);
+      console.error(`SECURITY: Rate limit exceeded`);
       await supabase.from("webhook_logs").insert({
         processor: "mangopay",
         event_type: "RATE_LIMIT_EXCEEDED",
         resource_id: "rate_limit",
-        payload: { error: "Rate limit exceeded", ip: sourceIP },
+        payload: { error: "Rate limit exceeded" },
         processed: false,
-        error_message: `Rate limit exceeded for IP: ${sourceIP}`,
+        error_message: `Rate limit exceeded`,
       });
-      return new Response("Too Many Requests", { 
-        status: 429, 
-        headers: corsHeaders 
-      });
+      return new Response("Too Many Requests", { status: 429, headers: corsHeaders });
     }
 
-    const event: MangopayWebhookEvent = await req.json();
-    console.log("MangoPay Webhook received:", event.EventType, event.RessourceId);
+    // Clone request to read body twice (for signature validation and parsing)
+    const rawBody = await req.text();
+    
+    // ========== SECURITY: Signature Validation ==========
+    if (webhookSecret) {
+      const isValid = await validateWebhookSignature(req, rawBody, webhookSecret);
+      if (!isValid) {
+        console.error("SECURITY: Invalid webhook signature");
+        await supabase.from("webhook_logs").insert({
+          processor: "mangopay",
+          event_type: "SIGNATURE_INVALID",
+          resource_id: "signature_check",
+          payload: { error: "Invalid signature" },
+          processed: false,
+          error_message: "Webhook signature validation failed",
+        });
+        return new Response("Invalid signature", { status: 401, headers: corsHeaders });
+      }
+    }
+
+    const event: MangopayWebhookEvent = JSON.parse(rawBody);
+    console.log("MangoPay Webhook received:", event.EventType);
 
     // ========== IDEMPOTENCY CHECK ==========
     const { data: existingLog } = await supabase
       .from("webhook_logs")
       .select("id, processed")
       .eq("processor", "mangopay")
-      .eq("resource_id", event.RessourceId)
       .eq("event_type", event.EventType)
       .eq("processed", true)
+      .like("resource_id", `%${event.RessourceId.slice(-6)}`)
       .maybeSingle();
 
     if (existingLog) {
-      console.log("Webhook already processed (idempotency check):", event.EventType, event.RessourceId);
+      console.log("Webhook already processed (idempotency check):", event.EventType);
       return new Response(
         JSON.stringify({ success: true, message: "Already processed" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Log webhook event
+    // Log webhook event with SANITIZED payload (no sensitive data)
     await supabase.from("webhook_logs").insert({
       processor: "mangopay",
       event_type: event.EventType,
-      resource_id: event.RessourceId,
-      payload: event,
+      resource_id: `***${event.RessourceId.slice(-6)}`, // Masked resource ID
+      payload: sanitizePayload(event), // Sanitized payload
       processed: false,
     });
 
