@@ -1,4 +1,4 @@
-import { 
+import {
   LayoutDashboard, 
   Users, 
   Package, 
@@ -52,10 +52,10 @@ const financeItems: MenuItem[] = [
 ];
 
 const settingsItems: MenuItem[] = [
-  { title: 'Setări Platformă', url: '/admin/platform-settings', icon: Settings },
+  { title: 'Setări Platformă', url: '/admin/settings', icon: Settings },
   { title: 'Editor Interfață', url: '/admin/interface-editor', icon: Palette, premium: true },
   { title: 'Audit Butoane', url: '/admin/button-audit', icon: ClipboardCheck, premium: true },
-  { title: 'Securitate', url: '/admin/security-settings', icon: Shield },
+  { title: 'Securitate', url: '/admin/security', icon: Shield },
 ];
 
 const SimpleMenuItem = ({ item, collapsed }: { item: MenuItem; collapsed: boolean }) => {

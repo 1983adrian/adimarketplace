@@ -128,25 +128,22 @@ const SidebarProvider = React.forwardRef<
 });
 SidebarProvider.displayName = "SidebarProvider";
 
-const Sidebar = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> & {
-    side?: "left" | "right";
-    variant?: "sidebar" | "floating" | "inset";
-    collapsible?: "offcanvas" | "icon" | "none";
-  }
->(({ side = "left", variant = "sidebar", collapsible = "offcanvas", className, children, ...props }, ref) => {
+// Note: This component conditionally returns different element types (Sheet for mobile, div for desktop)
+// We need to handle refs carefully since Sheet/Dialog doesn't forward refs to its root
+interface SidebarProps extends React.ComponentProps<"div"> {
+  side?: "left" | "right";
+  variant?: "sidebar" | "floating" | "inset";
+  collapsible?: "offcanvas" | "icon" | "none";
+}
+
+const Sidebar = ({ side = "left", variant = "sidebar", collapsible = "offcanvas", className, children, ...props }: SidebarProps) => {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
-  
-  // Extract HTML div props, exclude sidebar-specific props for Sheet
-  const { ...divProps } = props;
 
   if (collapsible === "none") {
     return (
       <div
         className={cn("flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground", className)}
-        ref={ref}
-        {...divProps}
+        {...props}
       >
         {children}
       </div>
@@ -154,6 +151,7 @@ const Sidebar = React.forwardRef<
   }
 
   if (isMobile) {
+    // Sheet is a controlled Dialog, it cannot accept a ref directly
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
         <SheetContent
@@ -175,7 +173,6 @@ const Sidebar = React.forwardRef<
 
   return (
     <div
-      ref={ref}
       className="group peer hidden text-sidebar-foreground md:block"
       data-state={state}
       data-collapsible={state === "collapsed" ? collapsible : ""}
@@ -199,7 +196,6 @@ const Sidebar = React.forwardRef<
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
-          // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
             : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
@@ -216,7 +212,7 @@ const Sidebar = React.forwardRef<
       </div>
     </div>
   );
-});
+};
 Sidebar.displayName = "Sidebar";
 
 const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.ComponentProps<typeof Button>>(
