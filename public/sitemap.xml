@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <!-- Homepage -->
+  <!-- Homepage - Highest Priority -->
   <url>
     <loc>https://marketplaceromania.lovable.app/</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
-  <!-- Browse Products -->
+  <!-- Browse Products - Core Functionality -->
   <url>
     <loc>https://marketplaceromania.lovable.app/browse</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -20,71 +20,73 @@
   <!-- Authentication Pages -->
   <url>
     <loc>https://marketplaceromania.lovable.app/login</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://marketplaceromania.lovable.app/signup</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
-  <!-- Seller Tutorial -->
+  <!-- Seller Tutorial - Important for SEO -->
   <url>
     <loc>https://marketplaceromania.lovable.app/seller-tutorial</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
-  <!-- Static Pages -->
+  <!-- Static Information Pages -->
   <url>
     <loc>https://marketplaceromania.lovable.app/about-us</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://marketplaceromania.lovable.app/help</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://marketplaceromania.lovable.app/faq</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://marketplaceromania.lovable.app/contact</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://marketplaceromania.lovable.app/safety-tips</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  
+  <!-- Legal Pages -->
   <url>
     <loc>https://marketplaceromania.lovable.app/privacy-policy</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://marketplaceromania.lovable.app/terms-of-service</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://marketplaceromania.lovable.app/cookie-policy</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -92,7 +94,7 @@
   <!-- Install App -->
   <url>
     <loc>https://marketplaceromania.lovable.app/install-app</loc>
-    <lastmod>2026-01-26</lastmod>
+    <lastmod>2026-01-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

@@ -13,38 +13,42 @@ import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
 import { useCart } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
-// Sub-component for favorite button with its own hooks
-const FavoriteButton: React.FC<{ listingId: string; userId?: string }> = ({ listingId, userId }) => {
-  const { data: isFavorite } = useIsFavorite(listingId, userId);
-  const toggleFavorite = useToggleFavorite();
+// Sub-component for favorite button with its own hooks - using forwardRef for Tooltip compatibility
+const FavoriteButton = React.forwardRef<HTMLButtonElement, { listingId: string; userId?: string }>(
+  ({ listingId, userId }, ref) => {
+    const { data: isFavorite } = useIsFavorite(listingId, userId);
+    const toggleFavorite = useToggleFavorite();
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!userId) return;
-    toggleFavorite.mutate({
-      listingId,
-      userId,
-      isFavorite: !!isFavorite,
-    });
-  };
+    const handleToggleFavorite = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!userId) return;
+      toggleFavorite.mutate({
+        listingId,
+        userId,
+        isFavorite: !!isFavorite,
+      });
+    };
 
-  if (!userId) return null;
+    if (!userId) return null;
 
-  return (
-    <Button
-      variant="ghost"
-      size="icon"
-      className={cn(
-        "absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background",
-        isFavorite && "text-destructive"
-      )}
-      onClick={handleToggleFavorite}
-    >
-      <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
-    </Button>
-  );
-};
+    return (
+      <Button
+        ref={ref}
+        variant="ghost"
+        size="icon"
+        className={cn(
+          "absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background",
+          isFavorite && "text-destructive"
+        )}
+        onClick={handleToggleFavorite}
+      >
+        <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
+      </Button>
+    );
+  }
+);
+FavoriteButton.displayName = 'FavoriteButton';
 
 export const FeaturedListings: React.FC = () => {
   const { user } = useAuth();
