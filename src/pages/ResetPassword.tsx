@@ -26,17 +26,46 @@ const ResetPassword = () => {
   const { validate, validateSync } = usePasswordValidation();
 
   useEffect(() => {
-    // Verifică dacă utilizatorul a venit de pe un link de resetare
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const accessToken = hashParams.get('access_token');
+    // Handle the recovery token from the URL
+    const handleRecoveryToken = async () => {
+      // Check for hash params (Supabase format)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const type = hashParams.get('type');
+      
+      // Also check query params (alternative format)
+      const queryParams = new URLSearchParams(window.location.search);
+      const tokenFromQuery = queryParams.get('token');
+      
+      if (accessToken && type === 'recovery') {
+        // Set the session from the recovery token
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: hashParams.get('refresh_token') || '',
+        });
+        
+        if (error) {
+          console.error('Recovery token error:', error);
+          toast({
+            title: 'Link expirat sau invalid',
+            description: 'Te rugăm să soliciți un nou link de resetare a parolei.',
+            variant: 'destructive',
+          });
+        }
+      } else if (!accessToken && !tokenFromQuery) {
+        // Check if there's already a valid session
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) {
+          toast({
+            title: 'Link invalid',
+            description: 'Te rugăm să folosești link-ul din email sau să soliciți unul nou.',
+            variant: 'destructive',
+          });
+        }
+      }
+    };
     
-    if (!accessToken) {
-      toast({
-        title: 'Link invalid',
-        description: 'Te rugăm să folosești link-ul din email',
-        variant: 'destructive',
-      });
-    }
+    handleRecoveryToken();
   }, [toast]);
 
   // Validate password on change (sync validation for immediate feedback)
