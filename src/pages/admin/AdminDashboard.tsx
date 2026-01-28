@@ -77,7 +77,7 @@ export default function AdminDashboard() {
               size="sm"
               className="gap-1 h-8 text-xs bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
             >
-              <Link to="/admin/security">
+              <Link to="/admin/security-settings">
                 <Shield className="h-3 w-3" />
                 Securitate
                 {isSecurityMaximum ? (
@@ -92,7 +92,7 @@ export default function AdminDashboard() {
               size="sm"
               className="gap-1 h-8 text-xs bg-gradient-to-r from-primary to-primary/80"
             >
-              <Link to="/admin/settings">
+              <Link to="/admin/platform-settings">
                 <Settings className="h-3 w-3" />
                 Setări
               </Link>
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
                   <p className="text-xs font-medium text-amber-700 dark:text-amber-400">Securitate incompletă</p>
                 </div>
                 <Button asChild size="sm" variant="outline" className="h-7 text-xs border-amber-500/50 hover:bg-amber-500/10">
-                  <Link to="/admin/security">
+                  <Link to="/admin/security-settings">
                     Activează
                   </Link>
                 </Button>

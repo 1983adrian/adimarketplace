@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, Store, Shield, MapPin, Save, 
-  Wallet, Package, EyeOff, Globe
+  Wallet, Package, EyeOff
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -16,19 +16,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
-import { useLanguage, Language } from '@/contexts/LanguageContext';
-import { useCurrency, Currency } from '@/contexts/CurrencyContext';
-
-// Language + Currency options
-const LANGUAGE_OPTIONS = [
-  { code: 'ro' as Language, name: 'Română', flag: '🇷🇴', currency: 'RON' as Currency, currencyName: 'Lei' },
-  { code: 'en' as Language, name: 'English', flag: '🇬🇧', currency: 'GBP' as Currency, currencyName: 'Pounds' },
-];
 
 const Settings = () => {
   const { user, profile, updateProfile, loading } = useAuth();
-  const { language, setLanguage } = useLanguage();
-  const { setCurrency } = useCurrency();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -216,38 +206,7 @@ const Settings = () => {
                     />
                   </div>
 
-                  {/* Language + Currency Selector */}
-                  <div className="space-y-3 pt-4 border-t">
-                    <Label className="flex items-center gap-2">
-                      <Globe className="h-4 w-4" />
-                      Limbă și Monedă
-                    </Label>
-                    <div className="flex gap-2">
-                      {LANGUAGE_OPTIONS.map((option) => (
-                        <Button
-                          key={option.code}
-                          type="button"
-                          variant={language === option.code ? "default" : "outline"}
-                          className={`flex-1 gap-2 py-6 ${language === option.code ? 'ring-2 ring-primary' : ''}`}
-                          onClick={() => {
-                            setLanguage(option.code);
-                            setCurrency(option.currency);
-                            localStorage.setItem('preferredLanguage', option.code);
-                            localStorage.setItem('currency', option.currency);
-                            toast({ title: language === 'ro' ? 'Limba schimbată' : 'Language changed' });
-                          }}
-                        >
-                          <span className="text-xl">{option.flag}</span>
-                          <div className="text-left">
-                            <p className="font-medium">{option.name}</p>
-                            <p className="text-xs text-muted-foreground">{option.currencyName}</p>
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <Button 
+                  <Button
                     onClick={handleSaveProfile} 
                     disabled={saving} 
                     size="lg"
