@@ -212,7 +212,7 @@ serve(async (req) => {
     }
 
     // Generate payment URL
-    const origin = req.headers.get("origin") || "https://marketplaceromania.lovable.app";
+    const origin = req.headers.get("origin") || "https://www.marketplaceromania.com";
     const successUrl = `${origin}/checkout/success?order_ids=${orders.map(o => o.id).join(",")}&total=${totalAmount}`;
 
     return new Response(

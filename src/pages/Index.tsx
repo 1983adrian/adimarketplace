@@ -16,7 +16,7 @@ const Index = () => {
       <SEOHead 
         title="Marketplace România - Cumpără și Vinde Online | Alternativă OLX & eBay"
         description="Marketplace românesc pentru cumpărături și vânzări online. Licitații, produse noi și second-hand. Livrare rapidă în toată România. Comision doar 8%. Cel mai mic comision din România!"
-        url="https://marketplaceromania.lovable.app"
+        url="https://www.marketplaceromania.com"
         type="website"
       />
       <LocalBusinessSchema />

@@ -202,7 +202,7 @@ export const HeroSection: React.FC = () => {
                       <div className="flex flex-col items-center gap-3 py-3">
                         <div className="p-3 bg-white rounded-xl border shadow">
                           <QRCodeSVG 
-                            value="https://marketplaceromania.lovable.app/install" 
+                            value="https://www.marketplaceromania.com/install-app" 
                             size={150}
                             level="H"
                             includeMargin={true}
