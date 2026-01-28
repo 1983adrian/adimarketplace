@@ -353,48 +353,7 @@ const SellerMode = () => {
                 </CardContent>
               </Card>
 
-              {/* KYC Status */}
-              <Card>
-                <CardHeader className="pb-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">Verificare Identitate (KYC)</CardTitle>
-                      <CardDescription>Status verificare pentru plăți MangoPay</CardDescription>
-                    </div>
-                    {getKycStatusBadge()}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {kycStatus === 'pending' && (
-                    <Alert className="bg-orange-50 border-orange-200 dark:bg-orange-950/30 dark:border-orange-800">
-                      <Clock className="h-4 w-4 text-orange-600" />
-                      <AlertTitle className="text-orange-700 dark:text-orange-300">Verificare în curs</AlertTitle>
-                      <AlertDescription className="text-orange-600 dark:text-orange-400">
-                        Documentele tale sunt în curs de verificare de către MangoPay. 
-                        Acest proces poate dura 1-3 zile lucrătoare.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  {(kycStatus === 'verified' || kycStatus === 'approved') && (
-                    <Alert className="border-green-500/50 bg-green-500/10">
-                      <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      <AlertTitle className="text-green-700">Verificat cu succes</AlertTitle>
-                      <AlertDescription>
-                        Identitatea ta a fost verificată de MangoPay. Poți primi plăți din vânzări.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                  {(!kycStatus || kycStatus === 'not_started') && (
-                    <Alert>
-                      <Shield className="h-4 w-4" />
-                      <AlertTitle>Verificare Necesară</AlertTitle>
-                      <AlertDescription>
-                        Pentru a primi plăți din vânzări, completează datele de mai jos și apasă "Inițiază Verificarea KYC".
-                      </AlertDescription>
-                    </Alert>
-                  )}
-                </CardContent>
-              </Card>
+              {/* KYC - Single unified card */}
 
               {/* Tip Vânzător */}
               <Card>
@@ -623,49 +582,91 @@ const SellerMode = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Verificare Identitate (KYC) - SINGLE UNIFIED CARD */}
+              <Card className="border-2 border-primary/30">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-primary" />
+                        Verificare Identitate (KYC)
+                      </CardTitle>
+                      <CardDescription>Status verificare pentru plăți MangoPay</CardDescription>
+                    </div>
+                    {getKycStatusBadge()}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {kycStatus === 'pending' && (
+                    <Alert className="bg-orange-50 border-orange-200 dark:bg-orange-950/30 dark:border-orange-800">
+                      <Clock className="h-4 w-4 text-orange-600" />
+                      <AlertTitle className="text-orange-700 dark:text-orange-300">Verificare în curs</AlertTitle>
+                      <AlertDescription className="text-orange-600 dark:text-orange-400">
+                        Documentele tale sunt în curs de verificare de către MangoPay. 
+                        Acest proces poate dura 1-3 zile lucrătoare.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {(kycStatus === 'verified' || kycStatus === 'approved') && (
+                    <Alert className="border-green-500/50 bg-green-500/10">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <AlertTitle className="text-green-700">Verificat cu succes ✅</AlertTitle>
+                      <AlertDescription>
+                        Identitatea ta a fost verificată de MangoPay. Poți primi plăți din vânzări.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {(!kycStatus || kycStatus === 'not_started') && (
+                    <Alert>
+                      <Shield className="h-4 w-4" />
+                      <AlertTitle>Verificare Necesară</AlertTitle>
+                      <AlertDescription>
+                        Pentru a primi plăți din vânzări, completează datele de mai sus și apasă butonul de mai jos.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  {/* KYC Initiation Button inside the card */}
+                  {kycStatus !== 'verified' && kycStatus !== 'approved' && (
+                    <div className="pt-2 space-y-2">
+                      <Button 
+                        onClick={handleInitiateKYC} 
+                        disabled={kycLoading || !storeName || !kycCountry || (payoutMethod === 'iban' && !iban) || (payoutMethod === 'card' && (!sortCode || !accountNumber))} 
+                        size="lg"
+                        className="w-full h-14 text-lg gap-2 shadow-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                      >
+                        {kycLoading ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Shield className="h-5 w-5" />
+                        )}
+                        {kycLoading ? 'Se procesează...' : 'Inițiază Verificarea KYC'}
+                      </Button>
+                      <p className="text-xs text-center text-muted-foreground">
+                        Completează: nume magazin, țară și date bancare pentru a iniția verificarea.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </>
           )}
 
-          {/* Save Button */}
-          <div className="space-y-3">
-            <Button 
-              onClick={handleSave} 
-              disabled={saving} 
-              size="lg"
-              className="w-full h-14 text-lg gap-2 shadow-lg"
-            >
-              {saving ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <Save className="h-5 w-5" />
-              )}
-              {saving ? 'Se salvează...' : 'Salvează Setările'}
-            </Button>
-
-            {/* KYC Initiation Button - Only show if not verified */}
-            {kycStatus !== 'verified' && kycStatus !== 'approved' && isSeller && (
-              <Button 
-                onClick={handleInitiateKYC} 
-                disabled={kycLoading || !storeName || !kycCountry || (payoutMethod === 'iban' && !iban) || (payoutMethod === 'card' && (!sortCode || !accountNumber))} 
-                size="lg"
-                variant="default"
-                className="w-full h-14 text-lg gap-2 shadow-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-              >
-                {kycLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  <Shield className="h-5 w-5" />
-                )}
-                {kycLoading ? 'Se procesează...' : 'Inițiază Verificarea KYC (MangoPay)'}
-              </Button>
+          {/* Save Button - Always visible */}
+          <Button 
+            onClick={handleSave} 
+            disabled={saving} 
+            size="lg"
+            className="w-full h-14 text-lg gap-2 shadow-lg"
+          >
+            {saving ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Save className="h-5 w-5" />
             )}
-            
-            {kycStatus !== 'verified' && kycStatus !== 'approved' && isSeller && (
-              <p className="text-xs text-center text-muted-foreground">
-                Completează toate câmpurile obligatorii (nume magazin, țară, date bancare) pentru a iniția verificarea.
-              </p>
-            )}
-          </div>
+            {saving ? 'Se salvează...' : 'Salvează Setările'}
+          </Button>
         </div>
       </div>
     </Layout>
