@@ -1891,6 +1891,36 @@ export type Database = {
         }
         Relationships: []
       }
+      sensitive_data_access_log: {
+        Row: {
+          access_type: string
+          accessed_user_id: string
+          created_at: string | null
+          field_accessed: string
+          id: string
+          ip_address: string | null
+          user_id: string
+        }
+        Insert: {
+          access_type: string
+          accessed_user_id: string
+          created_at?: string | null
+          field_accessed: string
+          id?: string
+          ip_address?: string | null
+          user_id: string
+        }
+        Update: {
+          access_type?: string
+          accessed_user_id?: string
+          created_at?: string | null
+          field_accessed?: string
+          id?: string
+          ip_address?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       seo_indexing_queue: {
         Row: {
           action: string
@@ -2589,6 +2619,26 @@ export type Database = {
       }
       is_admin_email: { Args: { check_email: string }; Returns: boolean }
       is_top_seller: { Args: { check_user_id: string }; Returns: boolean }
+      log_sensitive_access:
+        | {
+            Args: {
+              p_access_type: string
+              p_accessed_user_id: string
+              p_field: string
+              p_ip?: string
+            }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_access_type: string
+              p_accessed_user_id: string
+              p_field: string
+              p_ip?: string
+              p_user_id: string
+            }
+            Returns: undefined
+          }
       process_order_transaction: {
         Args: {
           p_amount: number
