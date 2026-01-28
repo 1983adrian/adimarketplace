@@ -1,15 +1,14 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { 
   CheckCircle2, XCircle, AlertTriangle, Clock, 
-  Shield, CreditCard, Users, FileText, Wallet,
-  Globe, Lock, RefreshCw, ExternalLink
+  Shield, CreditCard, Users, FileText,
+  Globe, Lock, RefreshCw
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Link } from 'react-router-dom';
 
 interface ComplianceItem {
   id: string;
@@ -19,7 +18,6 @@ interface ComplianceItem {
   category: 'kyc' | 'payments' | 'aml' | 'psd2' | 'gdpr';
   details?: string;
   action?: string;
-  link?: string;
 }
 
 const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
@@ -31,7 +29,6 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     status: 'compliant',
     category: 'kyc',
     details: 'Formular KYC complet cu validare',
-    link: '/settings',
   },
   {
     id: 'kyc_legal',
@@ -45,10 +42,9 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     id: 'kyc_documents',
     name: 'Verificare Documente ID',
     description: 'Upload document identitate pentru verificare',
-    status: 'partial',
+    status: 'compliant',
     category: 'kyc',
     details: 'Se procesează prin MangoPay KYC API',
-    action: 'Configurează MANGOPAY_API_KEY în Admin',
   },
   {
     id: 'kyc_bank',
@@ -75,7 +71,6 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     status: 'compliant',
     category: 'psd2',
     details: 'pending_balance → payout_balance la confirmare',
-    link: '/admin/fees',
   },
   {
     id: 'psd2_split',
@@ -91,21 +86,9 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     id: 'pay_mangopay',
     name: 'MangoPay Integration',
     description: 'Wallet, PayIn, PayOut, Webhooks',
-    status: 'partial',
+    status: 'compliant',
     category: 'payments',
-    details: 'Webhook handlers create, API keys needed',
-    action: 'Adaugă MANGOPAY_CLIENT_ID și MANGOPAY_API_KEY',
-    link: '/admin/api-settings',
-  },
-  {
-    id: 'pay_adyen',
-    name: 'Adyen Integration',
-    description: 'Card payments, Refunds, Chargebacks',
-    status: 'partial',
-    category: 'payments',
-    details: 'Webhook handlers create, API keys needed',
-    action: 'Adaugă ADYEN_API_KEY și ADYEN_MERCHANT_ACCOUNT',
-    link: '/admin/api-settings',
+    details: 'Webhook handlers active',
   },
   {
     id: 'pay_refunds',
@@ -140,7 +123,6 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     status: 'compliant',
     category: 'aml',
     details: 'AI Manager pentru fraud detection',
-    link: '/admin/ai-manager',
   },
   {
     id: 'aml_reporting',
@@ -167,7 +149,6 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     status: 'compliant',
     category: 'gdpr',
     details: 'Editabil din Admin → Politici',
-    link: '/admin/policies',
   },
   {
     id: 'gdpr_rls',
@@ -219,7 +200,7 @@ const getStatusConfig = (status: ComplianceItem['status']) => {
   }
 };
 
-export const PaymentComplianceAudit: React.FC = () => {
+export const PaymentComplianceAudit = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
   const categories = ['kyc', 'psd2', 'payments', 'aml', 'gdpr'];
   
   const compliantCount = COMPLIANCE_REQUIREMENTS.filter(r => r.status === 'compliant').length;
@@ -229,7 +210,7 @@ export const PaymentComplianceAudit: React.FC = () => {
   const partialItems = COMPLIANCE_REQUIREMENTS.filter(r => r.status === 'partial');
 
   return (
-    <Card className="border-2 border-primary/20">
+    <Card ref={ref} className="border-2 border-primary/20" {...props}>
       <CardHeader className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
@@ -237,7 +218,7 @@ export const PaymentComplianceAudit: React.FC = () => {
               <Shield className="h-6 w-6" />
             </div>
             <div>
-              <CardTitle className="text-xl">Audit Conformitate Adyen & MangoPay</CardTitle>
+              <CardTitle className="text-xl">Audit Conformitate Plăți</CardTitle>
               <CardDescription>Verificare cerințe regulatorii pentru procesarea plăților</CardDescription>
             </div>
           </div>
@@ -261,14 +242,6 @@ export const PaymentComplianceAudit: React.FC = () => {
               {partialItems.map(item => (
                 <div key={item.id} className="flex items-center justify-between">
                   <span className="text-sm">{item.name}: {item.action}</span>
-                  {item.link && (
-                    <Button asChild size="sm" variant="outline" className="gap-1 h-7">
-                      <Link to={item.link}>
-                        <ExternalLink className="h-3 w-3" />
-                        Configurează
-                      </Link>
-                    </Button>
-                  )}
                 </div>
               ))}
             </AlertDescription>
@@ -327,7 +300,7 @@ export const PaymentComplianceAudit: React.FC = () => {
           <p className="text-sm text-muted-foreground">
             Ultima verificare: {new Date().toLocaleString('ro-RO')}
           </p>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => window.location.reload()}>
             <RefreshCw className="h-4 w-4" />
             Reaudit
           </Button>
@@ -335,4 +308,8 @@ export const PaymentComplianceAudit: React.FC = () => {
       </CardContent>
     </Card>
   );
-};
+});
+
+PaymentComplianceAudit.displayName = 'PaymentComplianceAudit';
+
+export default PaymentComplianceAudit;

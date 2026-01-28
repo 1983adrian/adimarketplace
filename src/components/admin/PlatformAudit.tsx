@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, forwardRef } from 'react';
 import { 
   Shield, CheckCircle, AlertCircle, XCircle, RefreshCw, 
   Users, Package, ShoppingCart, MessageSquare, CreditCard, 
@@ -30,7 +30,7 @@ interface AuditSection {
   score: number;
 }
 
-export const PlatformAudit: React.FC = () => {
+export const PlatformAudit = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
   const { toast } = useToast();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -252,7 +252,7 @@ export const PlatformAudit: React.FC = () => {
 
   if (isLoading) {
     return (
-      <Card className="p-8">
+      <Card ref={ref} className="p-8" {...props}>
         <div className="flex items-center justify-center gap-3">
           <RefreshCw className="h-5 w-5 animate-spin" />
           <span>Se încarcă auditul complet...</span>
@@ -262,7 +262,7 @@ export const PlatformAudit: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div ref={ref} className="space-y-6" {...props}>
       {/* Header with Overall Score */}
       <Card className="border-2 border-primary/20">
         <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
@@ -343,6 +343,8 @@ export const PlatformAudit: React.FC = () => {
       </div>
     </div>
   );
-};
+});
+
+PlatformAudit.displayName = 'PlatformAudit';
 
 export default PlatformAudit;

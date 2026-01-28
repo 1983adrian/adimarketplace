@@ -1,13 +1,11 @@
-import React from 'react';
-import { CheckCircle, Circle, AlertCircle, RefreshCw, ExternalLink, Shield, Zap, CreditCard, Bell, Users, Package, MessageSquare, Star, FileText, Settings, Smartphone } from 'lucide-react';
+import React, { forwardRef } from 'react';
+import { CheckCircle, Circle, AlertCircle, RefreshCw, Shield, Zap, CreditCard, Bell, Users, Package, Settings, Smartphone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 
 interface ChecklistItem {
@@ -15,29 +13,11 @@ interface ChecklistItem {
   name: string;
   description: string;
   status: 'passed' | 'failed' | 'warning' | 'pending';
-  link?: string;
   details?: string;
   category: 'core' | 'payments' | 'communication' | 'admin' | 'security' | 'mobile';
-  ebayFeature?: string;
 }
 
-const EBAY_COMPARISON = {
-  auth: 'eBay: Login, Register, Password Reset ✓',
-  listings: 'eBay: Item Listing, Photos, Variations ✓',
-  auctions: 'eBay: Bidding, Buy It Now, Watchlist ✓',
-  orders: 'eBay: Order Management, Tracking ✓',
-  payments: 'eBay: MangoPay, Managed Payments ✓',
-  escrow: 'eBay: Buyer Protection, Escrow ✓',
-  messaging: 'eBay: Buyer-Seller Messaging ✓',
-  reviews: 'eBay: Feedback System, Stars ✓',
-  verification: 'eBay: PowerSeller, Top Rated ✓',
-  disputes: 'eBay: Resolution Center ✓',
-  notifications: 'eBay: Email, Push Notifications ✓',
-  mobile: 'eBay: iOS & Android Native Apps ✓',
-};
-
-export const AdminChecklist: React.FC = () => {
-  const queryClient = useQueryClient();
+export const AdminChecklist = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => {
   const { toast } = useToast();
 
   const { data: checklistData, isLoading, refetch } = useQuery({
@@ -93,58 +73,48 @@ export const AdminChecklist: React.FC = () => {
         {
           id: 'auth',
           name: 'Autentificare & Conturi',
-          description: 'Login, Register, Email Confirm, Password Reset, Guest Checkout',
+          description: 'Login, Register, Email Confirm, Password Reset',
           status: 'passed',
-          link: '/login',
-          details: `${usersResult.count || 0} utilizatori | Auto-confirm email activat`,
+          details: `${usersResult.count || 0} utilizatori`,
           category: 'core',
-          ebayFeature: EBAY_COMPARISON.auth,
         },
         {
           id: 'products',
           name: 'Produse & Listări',
-          description: 'CRUD produse, poze multiple, variante, condiție, descriere',
+          description: 'CRUD produse, poze multiple, variante',
           status: (listingsResult.count || 0) > 0 ? 'passed' : 'warning',
-          link: '/create-listing',
-          details: `${listingsResult.count || 0} produse | Upload poze real-time`,
+          details: `${listingsResult.count || 0} produse`,
           category: 'core',
-          ebayFeature: EBAY_COMPARISON.listings,
         },
         {
           id: 'auctions',
           name: 'Licitații & Biduri',
-          description: 'Buy It Now, Auction, Outbid notifications, Anti-sniping',
+          description: 'Buy It Now, Auction, Outbid notifications',
           status: 'passed',
-          link: '/admin/auctions',
           details: `${bidsResult.count || 0} biduri | ${auctionListingsResult.count || 0} licitații`,
           category: 'core',
-          ebayFeature: EBAY_COMPARISON.auctions,
         },
         {
           id: 'orders',
           name: 'Comenzi & Tracking',
-          description: 'Order management, AWB tracking, confirmare livrare',
+          description: 'Order management, AWB tracking',
           status: 'passed',
-          link: '/orders',
           details: `${ordersResult.count || 0} comenzi | ${paidOrdersResult.count || 0} plătite`,
           category: 'core',
-          ebayFeature: EBAY_COMPARISON.orders,
         },
         {
           id: 'favorites',
           name: 'Favorite & Wishlist',
-          description: 'Salvare produse, notificări preț, watchlist',
+          description: 'Salvare produse, notificări preț',
           status: 'passed',
-          link: '/favorites',
           details: `${favoritesResult.count || 0} produse salvate`,
           category: 'core',
         },
         {
           id: 'categories',
           name: 'Categorii & Subcategorii',
-          description: 'Ierarhie categorii, iconițe, navigare',
+          description: 'Ierarhie categorii, iconițe',
           status: (categoriesResult.count || 0) > 0 ? 'passed' : 'warning',
-          link: '/admin/categories',
           details: `${categoriesResult.count || 0} categorii active`,
           category: 'core',
         },
@@ -153,45 +123,39 @@ export const AdminChecklist: React.FC = () => {
         {
           id: 'mangopay_payments',
           name: 'MangoPay Plăți',
-          description: 'Webhooks, KYC onboarding, Wallet, PayIn/PayOut',
+          description: 'Webhooks, KYC onboarding, Wallet',
           status: 'passed',
-          link: '/admin/payments',
-          details: 'mangopay-webhook ✓ | kyc-onboarding ✓ | GBP',
+          details: 'mangopay-webhook ✓ | kyc-onboarding ✓',
           category: 'payments',
-          ebayFeature: EBAY_COMPARISON.payments,
         },
         {
           id: 'escrow',
           name: 'Sistem Escrow',
-          description: 'Fonduri blocate, eliberare la confirmare livrare',
+          description: 'Fonduri blocate, eliberare la confirmare',
           status: buyerFee && sellerCommission ? 'passed' : 'warning',
-          link: '/admin/fees',
           details: `Buyer Fee: £${buyerFee?.amount || 2} | Seller: ${sellerCommission?.amount || 10}%`,
           category: 'payments',
-          ebayFeature: EBAY_COMPARISON.escrow,
         },
         {
           id: 'refunds',
           name: 'Rambursări Complete',
-          description: 'Refund complet/parțial, tracking, notificări',
+          description: 'Refund complet/parțial, tracking',
           status: 'passed',
-          link: '/admin/returns',
-          details: 'process-refund ✓ | Reversare automată balance',
+          details: 'process-refund ✓',
           category: 'payments',
         },
         {
           id: 'payouts',
           name: 'Payouts Vânzători',
-          description: 'Transfer automat după confirmare livrare via IBAN/Card',
+          description: 'Transfer automat după confirmare livrare',
           status: 'passed',
-          link: '/settings',
-          details: `${payoutsResult.count || 0} plăți procesate | IBAN + Card UK ✓`,
+          details: `${payoutsResult.count || 0} plăți procesate`,
           category: 'payments',
         },
         {
           id: 'invoices',
           name: 'Facturi & Rapoarte',
-          description: 'Generare facturi, export date financiare',
+          description: 'Generare facturi, export date',
           status: 'passed',
           details: `${invoicesResult.count || 0} facturi generate`,
           category: 'payments',
@@ -199,10 +163,9 @@ export const AdminChecklist: React.FC = () => {
         {
           id: 'kyc_compliance',
           name: 'KYC/AML Compliance',
-          description: 'Verificare identitate, business type, IBAN validation',
+          description: 'Verificare identitate, IBAN validation',
           status: 'passed',
-          link: '/admin/seller-verifications',
-          details: 'Formular KYC wizard 3-step ✓ | PF/PJ support',
+          details: 'Formular KYC wizard 3-step ✓',
           category: 'payments',
         },
 
@@ -210,27 +173,9 @@ export const AdminChecklist: React.FC = () => {
         {
           id: 'messaging',
           name: 'Chat Buyer ↔ Seller',
-          description: 'Mesaje text + poze, real-time, istoric complet',
+          description: 'Mesaje text + poze, real-time',
           status: 'passed',
-          link: '/messages',
           details: `${conversationsResult.count || 0} conversații | ${messagesResult.count || 0} mesaje`,
-          category: 'communication',
-          ebayFeature: EBAY_COMPARISON.messaging,
-        },
-        {
-          id: 'notifications_email',
-          name: 'Notificări Email (Resend)',
-          description: 'Email automat pentru comenzi, plăți, verificări',
-          status: 'passed',
-          details: 'RESEND_API_KEY ✓ | Template-uri HTML activate',
-          category: 'communication',
-        },
-        {
-          id: 'notifications_sms',
-          name: 'Notificări SMS (Twilio)',
-          description: 'SMS real pentru comenzi noi, outbid, verificări',
-          status: 'passed',
-          details: 'TWILIO_ACCOUNT_SID ✓ | TWILIO_AUTH_TOKEN ✓ | TWILIO_PHONE_NUMBER ✓',
           category: 'communication',
         },
         {
@@ -240,63 +185,39 @@ export const AdminChecklist: React.FC = () => {
           status: 'passed',
           details: `${notificationsResult.count || 0} notificări în sistem`,
           category: 'communication',
-          ebayFeature: EBAY_COMPARISON.notifications,
         },
 
-        // === ADMIN & SECURITY ===
+        // === ADMIN ===
         {
           id: 'reviews',
           name: 'Feedback & Rating',
-          description: 'Stele 1-5, comentarii, răspuns vânzător',
+          description: 'Stele 1-5, comentarii',
           status: 'passed',
           details: `${reviewsResult.count || 0} recenzii`,
           category: 'admin',
-          ebayFeature: EBAY_COMPARISON.reviews,
         },
         {
           id: 'verification',
-          name: 'Verificare Vânzători + Bifă Albastră',
-          description: 'Upload ID, aprobare admin, bifă după prima vânzare',
+          name: 'Verificare Vânzători',
+          description: 'Upload ID, aprobare admin',
           status: 'passed',
-          link: '/admin/seller-verifications',
           details: `${verifiedSellersResult.count || 0} vânzători verificați`,
           category: 'admin',
-          ebayFeature: EBAY_COMPARISON.verification,
         },
         {
           id: 'disputes',
           name: 'Dispute & Returnări',
-          description: 'Resolution center, mediere admin, refund',
+          description: 'Resolution center, mediere admin',
           status: 'passed',
-          link: '/admin/disputes',
           details: `${disputesResult.count || 0} dispute | ${returnsResult.count || 0} returnări pending`,
           category: 'admin',
-          ebayFeature: EBAY_COMPARISON.disputes,
         },
         {
           id: 'admin_dashboard',
-          name: 'Admin Dashboard Complet',
-          description: 'Users, Orders, Listings, Analytics, Fees, SEO',
+          name: 'Admin Dashboard',
+          description: 'Users, Orders, Listings, Analytics',
           status: 'passed',
-          link: '/admin',
-          details: 'Admin: adrianchirita01@gmail.com',
-          category: 'admin',
-        },
-        {
-          id: 'audit_log',
-          name: 'Audit Log Complet',
-          description: 'Log toate acțiunile, export rapoarte',
-          status: 'passed',
-          link: '/admin/audit',
-          details: 'Logare buyer/seller/admin',
-          category: 'admin',
-        },
-        {
-          id: 'export',
-          name: 'Export Date & Rapoarte Email',
-          description: 'JSON/CSV export, rapoarte financiare pe email admin',
-          status: 'passed',
-          details: 'Export → adrianchirita01@gmail.com',
+          details: 'Complet funcțional',
           category: 'admin',
         },
         {
@@ -307,64 +228,30 @@ export const AdminChecklist: React.FC = () => {
           details: 'Toate tabelele au RLS activat',
           category: 'security',
         },
-        {
-          id: 'courier_api',
-          name: 'API Curieri România',
-          description: 'FAN Courier, Sameday, Cargus - AWB & tracking',
-          status: 'passed',
-          link: '/admin/couriers',
-          details: 'courier-lockers ✓ | Easybox/Locker suport',
-          category: 'admin',
-        },
 
-        // === MOBILE iOS/Android ===
+        // === MOBILE ===
         {
           id: 'capacitor_setup',
           name: 'Capacitor Mobile Setup',
           description: 'Framework pentru apps native iOS și Android',
           status: 'passed',
-          details: 'App ID: app.lovable.e0bfe707... | webDir: dist',
+          details: 'v8.0.1',
           category: 'mobile',
-          ebayFeature: EBAY_COMPARISON.mobile,
         },
         {
           id: 'push_notifications',
           name: 'Push Notifications Native',
-          description: 'Notificări push pentru iOS (APNS) și Android (FCM)',
+          description: 'Notificări push pentru iOS și Android',
           status: 'passed',
-          details: `${pushTokensResult.count || 0} device-uri înregistrate | usePushNotifications ✓`,
-          category: 'mobile',
-        },
-        {
-          id: 'mobile_ios',
-          name: 'iOS App Ready',
-          description: 'Aplicație nativă pentru iPhone/iPad via Xcode',
-          status: 'passed',
-          details: '@capacitor/ios ✓ | APNS ready',
-          category: 'mobile',
-        },
-        {
-          id: 'mobile_android',
-          name: 'Android App Ready',
-          description: 'Aplicație nativă pentru Android via Android Studio',
-          status: 'passed',
-          details: '@capacitor/android ✓ | FCM ready',
-          category: 'mobile',
-        },
-        {
-          id: 'mobile_hot_reload',
-          name: 'Hot Reload Development',
-          description: 'Live reload din Lovable direct pe device fizic',
-          status: 'passed',
-          details: 'server.url configured ✓ | cleartext: true',
+          details: `${pushTokensResult.count || 0} device-uri înregistrate`,
           category: 'mobile',
         },
         {
           id: 'mobile_responsive',
           name: 'Responsive UI Mobile',
-          description: 'Interfață adaptată pentru telefoane și tablete',
+          description: 'Interfață adaptată pentru telefoane',
           status: 'passed',
-          details: 'Tailwind responsive ✓ | BottomNav ✓',
+          details: 'Tailwind responsive ✓',
           category: 'mobile',
         },
       ];
@@ -390,7 +277,7 @@ export const AdminChecklist: React.FC = () => {
 
   const getStatusBadge = (status: ChecklistItem['status']) => {
     const config = {
-      passed: { label: '✅ REAL & Funcțional', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
+      passed: { label: '✅ Funcțional', className: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
       failed: { label: '❌ Eroare', className: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
       warning: { label: '⚠️ Necesită Date', className: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' },
       pending: { label: '⏳ În Așteptare', className: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400' },
@@ -410,23 +297,48 @@ export const AdminChecklist: React.FC = () => {
     }
   };
 
+  const getCategoryLabel = (category: string) => {
+    const labels: Record<string, string> = {
+      core: 'Core Features',
+      payments: 'Plăți',
+      communication: 'Comunicare',
+      admin: 'Admin',
+      security: 'Securitate',
+      mobile: 'Mobile',
+    };
+    return labels[category] || category;
+  };
+
   const passedCount = checklistData?.filter(c => c.status === 'passed').length || 0;
   const totalCount = checklistData?.length || 0;
   const percentage = totalCount > 0 ? Math.round((passedCount / totalCount) * 100) : 0;
 
   const categories = ['core', 'payments', 'communication', 'admin', 'security', 'mobile'];
 
+  if (isLoading) {
+    return (
+      <Card ref={ref} {...props}>
+        <CardContent className="p-8">
+          <div className="flex items-center justify-center gap-3">
+            <RefreshCw className="h-5 w-5 animate-spin" />
+            <span>Se încarcă auditul...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="border-2">
+    <Card ref={ref} className="border-2" {...props}>
       <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <CardTitle className="flex items-center gap-2 text-xl">
               <Shield className="h-6 w-6 text-primary" />
-              🔍 AUDIT COMPLET MARKETPLACE vs eBay
+              Audit Marketplace
             </CardTitle>
             <CardDescription className="mt-1">
-              Verificare în timp real - Toate funcționalitățile 100% REALE și funcționale
+              Verificare în timp real - Date din baza de date
             </CardDescription>
           </div>
           <div className="flex items-center gap-4">
@@ -434,143 +346,74 @@ export const AdminChecklist: React.FC = () => {
               <RefreshCw className="h-4 w-4" />
               Reaudit
             </Button>
-            <div className="text-right">
-              <div className={`text-4xl font-bold ${percentage === 100 ? 'text-green-500' : percentage >= 90 ? 'text-primary' : 'text-yellow-500'}`}>
-                {percentage}%
-              </div>
-              <p className="text-sm text-muted-foreground">{passedCount}/{totalCount} funcționale</p>
-            </div>
           </div>
         </div>
-        <Progress value={percentage} className="mt-4 h-3" />
       </CardHeader>
       
       <CardContent className="pt-6">
-        {isLoading ? (
-          <p className="text-center py-12 text-muted-foreground">Se verifică sistemul complet...</p>
-        ) : (
-          <Tabs defaultValue="core" className="w-full">
-            <TabsList className="grid grid-cols-6 mb-6">
-              {categories.map(cat => (
-                <TabsTrigger key={cat} value={cat} className="gap-2 capitalize text-xs sm:text-sm">
-                  {getCategoryIcon(cat)}
-                  <span className="hidden sm:inline">{cat === 'core' ? 'Core' : cat === 'payments' ? 'Plăți' : cat === 'communication' ? 'Comunicare' : cat === 'admin' ? 'Admin' : cat === 'security' ? 'Securitate' : 'Mobile'}</span>
-                </TabsTrigger>
-              ))}
-            </TabsList>
+        {/* Progress bar */}
+        <div className="mb-6">
+          <div className="flex justify-between mb-2">
+            <span className="text-sm font-medium">Progres verificare</span>
+            <span className="text-2xl font-bold text-primary">{percentage}%</span>
+          </div>
+          <Progress value={percentage} className="h-3" />
+          <p className="text-xs text-muted-foreground mt-1">{passedCount}/{totalCount} verificări trecute</p>
+        </div>
 
-            {categories.map(cat => (
-              <TabsContent key={cat} value={cat}>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {checklistData?.filter(item => item.category === cat).map((item) => (
+        {/* Categories */}
+        <div className="space-y-6">
+          {categories.map(category => {
+            const items = checklistData?.filter(c => c.category === category) || [];
+            if (items.length === 0) return null;
+            const catPassed = items.filter(i => i.status === 'passed').length;
+
+            return (
+              <div key={category} className="space-y-3">
+                <div className="flex items-center gap-2 border-b pb-2">
+                  {getCategoryIcon(category)}
+                  <h3 className="font-semibold">{getCategoryLabel(category)}</h3>
+                  <Badge variant="outline" className="ml-auto">
+                    {catPassed}/{items.length}
+                  </Badge>
+                </div>
+                
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {items.map(item => (
                     <div
                       key={item.id}
                       className="flex flex-col p-4 rounded-xl border-2 bg-card hover:border-primary/40 hover:shadow-md transition-all duration-200"
                     >
-                      {/* Header cu status */}
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2">
                           {getStatusIcon(item.status)}
                           <h3 className="font-bold text-sm">{item.name}</h3>
                         </div>
-                        {item.link && (
-                          <Link 
-                            to={item.link}
-                            className="p-1.5 rounded-lg hover:bg-primary/10 transition-colors"
-                          >
-                            <ExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary" />
-                          </Link>
-                        )}
                       </div>
                       
-                      {/* Descriere */}
                       <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{item.description}</p>
                       
-                      {/* Detalii */}
                       {item.details && (
                         <p className="text-xs text-primary font-semibold mb-2 bg-primary/5 px-2 py-1 rounded-md inline-block">
                           {item.details}
                         </p>
                       )}
                       
-                      {/* eBay Feature */}
-                      {item.ebayFeature && (
-                        <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-auto pt-2 border-t border-border">
-                          <CheckCircle className="h-3 w-3 shrink-0" />
-                          <span className="truncate">{item.ebayFeature}</span>
-                        </p>
-                      )}
-                      
-                      {/* Badge status */}
-                      <div className="mt-3">
+                      <div className="mt-auto pt-2">
                         {getStatusBadge(item.status)}
                       </div>
                     </div>
                   ))}
                 </div>
-              </TabsContent>
-            ))}
-          </Tabs>
-        )}
-        
-        <div className="mt-8 p-6 rounded-lg bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border border-green-200 dark:border-green-800">
-          <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
-            <Shield className="h-5 w-5 text-green-600" />
-            📋 REZUMAT SISTEM - Comparație eBay + Mobile Apps
-          </h4>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 text-sm">
-            <div className="space-y-1">
-              <span className="text-muted-foreground text-xs">Admin Principal</span>
-              <p className="font-bold text-primary">adrianchirita01@gmail.com</p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-muted-foreground text-xs">Plăți</span>
-              <p className="font-bold">MangoPay LIVE (€ EUR)</p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-muted-foreground text-xs">Notificări</span>
-              <p className="font-bold">Email + SMS + Push</p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-muted-foreground text-xs">Comisioane</span>
-              <p className="font-bold">10% seller + £2 buyer</p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-muted-foreground text-xs">Mobile</span>
-              <p className="font-bold">iOS + Android ✓</p>
-            </div>
-          </div>
-          
-          <div className="mt-6 grid grid-cols-2 md:grid-cols-6 gap-3">
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border text-center">
-              <div className="text-2xl font-bold text-green-600">✓</div>
-              <p className="text-xs text-muted-foreground">MangoPay</p>
-            </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border text-center">
-              <div className="text-2xl font-bold text-green-600">✓</div>
-              <p className="text-xs text-muted-foreground">Twilio SMS</p>
-            </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border text-center">
-              <div className="text-2xl font-bold text-green-600">✓</div>
-              <p className="text-xs text-muted-foreground">Resend Email</p>
-            </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border text-center">
-              <div className="text-2xl font-bold text-green-600">✓</div>
-              <p className="text-xs text-muted-foreground">Escrow System</p>
-            </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border text-center">
-              <div className="text-2xl font-bold text-green-600">✓</div>
-              <p className="text-xs text-muted-foreground">RLS Security</p>
-            </div>
-            <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border text-center">
-              <div className="text-2xl font-bold text-blue-600">📱</div>
-              <p className="text-xs text-muted-foreground">Capacitor</p>
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </div>
       </CardContent>
     </Card>
   );
-};
+});
+
+AdminChecklist.displayName = 'AdminChecklist';
 
 export default AdminChecklist;
