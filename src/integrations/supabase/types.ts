@@ -2559,6 +2559,21 @@ export type Database = {
       }
       is_admin_email: { Args: { check_email: string }; Returns: boolean }
       is_top_seller: { Args: { check_user_id: string }; Returns: boolean }
+      process_order_transaction: {
+        Args: {
+          p_amount: number
+          p_buyer_fee: number
+          p_buyer_id: string
+          p_listing_id: string
+          p_payment_processor: string
+          p_payout_amount: number
+          p_seller_commission: number
+          p_seller_id: string
+          p_shipping_address: string
+          p_transaction_id: string
+        }
+        Returns: Json
+      }
       refresh_platform_statistics: { Args: never; Returns: undefined }
     }
     Enums: {
