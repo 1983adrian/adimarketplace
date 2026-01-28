@@ -627,8 +627,8 @@ const SellerMode = () => {
                     </Alert>
                   )}
 
-                  {/* KYC Initiation Button inside the card */}
-                  {kycStatus !== 'verified' && kycStatus !== 'approved' && (
+                  {/* KYC Initiation Button - only show if not started */}
+                  {(!kycStatus || kycStatus === 'not_started') && (
                     <div className="pt-2 space-y-2">
                       <Button 
                         onClick={handleInitiateKYC} 
