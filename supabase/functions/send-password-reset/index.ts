@@ -13,9 +13,9 @@ const MAX_ATTEMPTS_PER_HOUR = 3;
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-const logStep = (step: string) => {
-  // SECURITY: Don't log sensitive details like email or errors
-  console.log(`[SEND-PASSWORD-RESET] ${step}`);
+const logStep = (step: string, details?: string) => {
+  // Logging for debugging - exclude sensitive data in production
+  console.log(`[SEND-PASSWORD-RESET] ${step}${details ? ': ' + details : ''}`);
 };
 
 serve(async (req) => {
@@ -89,16 +89,23 @@ serve(async (req) => {
       .from('password_reset_attempts')
       .insert({ email: sanitizedEmail, ip_address: clientIP });
 
-    logStep("Processing request");
+    logStep("Processing request", `email_length=${sanitizedEmail.length}`);
 
     // Generate password reset link
+    const targetUrl = resetUrl || 'https://marketplaceromania.lovable.app/reset-password';
+    logStep("Generating link", `redirect=${targetUrl}`);
+    
     const { data: linkData, error: linkError } = await supabaseClient.auth.admin.generateLink({
       type: 'recovery',
       email: sanitizedEmail,
       options: {
-        redirectTo: resetUrl || 'https://marketplaceromania.lovable.app/reset-password'
+        redirectTo: targetUrl
       }
     });
+    
+    if (linkError) {
+      logStep("Link error", linkError.message);
+    }
 
     // SECURITY: If error (user doesn't exist), still send a generic email
     if (linkError || !linkData?.properties?.action_link) {
