@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const useGooglePing = () => {
   const pingNewListing = useCallback(async (listingId: string) => {
     try {
-      const url = `https://marketplaceromania.com/listing/${listingId}`;
+      const url = `https://www.marketplaceromania.com/listing/${listingId}`;
       
       await supabase.functions.invoke('ping-google', {
         body: { url, type: 'URL_UPDATED' }
@@ -20,7 +20,7 @@ export const useGooglePing = () => {
   const pingSitemap = useCallback(async () => {
     try {
       await supabase.functions.invoke('ping-google', {
-        body: { url: 'https://marketplaceromania.com/sitemap.xml', type: 'URL_UPDATED' }
+        body: { url: 'https://www.marketplaceromania.com/sitemap.xml', type: 'URL_UPDATED' }
       });
       
       console.log('Sitemap ping sent to Google');

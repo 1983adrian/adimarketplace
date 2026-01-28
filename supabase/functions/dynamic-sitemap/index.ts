@@ -18,7 +18,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const baseUrl = "https://marketplaceromania.lovable.app";
+    const baseUrl = "https://www.marketplaceromania.com";
     const today = new Date().toISOString().split('T')[0];
 
     // Fetch active listings

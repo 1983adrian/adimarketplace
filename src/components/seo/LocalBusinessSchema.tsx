@@ -8,9 +8,9 @@ export const LocalBusinessSchema: React.FC = () => {
     "name": "Marketplace România",
     "alternateName": ["C Market", "MarketplaceRomania", "Marketplace RO"],
     "description": "Prima platformă 100% românească de cumpărături și vânzări online cu licitații integrate. Comision doar 8%.",
-    "url": "https://marketplaceromania.lovable.app",
-    "logo": "https://marketplaceromania.lovable.app/icons/icon-512x512.png",
-    "image": "https://marketplaceromania.lovable.app/og-image.png",
+    "url": "https://www.marketplaceromania.com",
+    "logo": "https://www.marketplaceromania.com/icons/icon-512x512.png",
+    "image": "https://www.marketplaceromania.com/og-image.png",
     "telephone": "+40-XXX-XXX-XXX",
     "email": "contact@marketplaceromania.com",
     "foundingDate": "2024",
@@ -131,13 +131,13 @@ export const LocalBusinessSchema: React.FC = () => {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://marketplaceromania.lovable.app/browse?q={search_term_string}"
+          "urlTemplate": "https://www.marketplaceromania.com/browse?q={search_term_string}"
         },
         "query-input": "required name=search_term_string"
       },
       {
         "@type": "BuyAction",
-        "target": "https://marketplaceromania.lovable.app/browse"
+        "target": "https://www.marketplaceromania.com/browse"
       }
     ],
     "slogan": "Cumpără și vinde online în România - Comision doar 8%",

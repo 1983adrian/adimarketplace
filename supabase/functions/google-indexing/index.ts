@@ -105,7 +105,7 @@ Deno.serve(async (req) => {
     
     if (action === 'ping_google') {
       // Ping Google with sitemap update
-      const sitemapUrl = 'https://marketplaceromania.lovable.app/sitemap.xml';
+      const sitemapUrl = 'https://www.marketplaceromania.com/sitemap.xml';
       
       const pingUrls = [
         `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`,
@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
         .from('categories')
         .select('slug, created_at');
       
-      const baseUrl = 'https://marketplaceromania.lovable.app';
+      const baseUrl = 'https://www.marketplaceromania.com';
       const entries = [];
       
       // Static pages

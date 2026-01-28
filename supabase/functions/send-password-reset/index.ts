@@ -70,7 +70,7 @@ serve(async (req: Request): Promise<Response> => {
       type: 'recovery',
       email: normalizedEmail,
       options: {
-        redirectTo: 'https://marketplaceromania.lovable.app/reset-password',
+        redirectTo: 'https://www.marketplaceromania.com/reset-password',
       }
     });
 

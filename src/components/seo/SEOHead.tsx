@@ -21,8 +21,8 @@ interface SEOHeadProps {
 export const SEOHead: React.FC<SEOHeadProps> = ({
   title = 'Marketplace România - Cumpără și Vinde Online',
   description = 'Platformă de licitații și vânzări directe cu taxe mici (8%). Cumpără și vinde produse la cel mai bun preț în România.',
-  image = 'https://marketplaceromania.com/og-image.png',
-  url = 'https://marketplaceromania.com',
+  image = 'https://www.marketplaceromania.com/og-image.png',
+  url = 'https://www.marketplaceromania.com',
   type = 'website',
   price,
   currency = 'RON',
@@ -46,8 +46,8 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       "@type": "Organization",
       "name": "Marketplace România",
       "alternateName": "C Market România",
-      "url": "https://marketplaceromania.com",
-      "logo": "https://marketplaceromania.com/icons/icon-512x512.png",
+      "url": "https://www.marketplaceromania.com",
+      "logo": "https://www.marketplaceromania.com/icons/icon-512x512.png",
       "sameAs": [
         "https://www.facebook.com/marketplaceromania",
         "https://www.instagram.com/marketplaceromania",
@@ -65,10 +65,10 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Marketplace România",
-      "url": "https://marketplaceromania.com",
+      "url": "https://www.marketplaceromania.com",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://marketplaceromania.com/browse?q={search_term_string}",
+        "target": "https://www.marketplaceromania.com/browse?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     });
@@ -120,7 +120,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
           "organizer": {
             "@type": "Organization",
             "name": "Marketplace România",
-            "url": "https://marketplaceromania.com"
+            "url": "https://www.marketplaceromania.com"
           }
         });
       }
@@ -140,19 +140,19 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     }
 
     // Breadcrumb Schema
-    if (url !== 'https://marketplaceromania.com') {
-      const pathParts = url.replace('https://marketplaceromania.com', '').split('/').filter(Boolean);
+    if (url !== 'https://www.marketplaceromania.com') {
+      const pathParts = url.replace('https://www.marketplaceromania.com', '').split('/').filter(Boolean);
       if (pathParts.length > 0) {
         const breadcrumbItems = [
           {
             "@type": "ListItem",
             "position": 1,
             "name": "Acasă",
-            "item": "https://marketplaceromania.com"
+            "item": "https://www.marketplaceromania.com"
           }
         ];
         
-        let currentPath = 'https://marketplaceromania.lovable.app';
+        let currentPath = 'https://www.marketplaceromania.com';
         pathParts.forEach((part, index) => {
           currentPath += `/${part}`;
           breadcrumbItems.push({
