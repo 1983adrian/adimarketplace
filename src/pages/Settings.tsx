@@ -12,52 +12,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
+import { useCurrency, Currency } from '@/contexts/CurrencyContext';
 
-// All European languages
-const EUROPEAN_LANGUAGES = [
-  { code: 'ro', name: 'Română', flag: '🇷🇴' },
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'pt', name: 'Português', flag: '🇵🇹' },
-  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
-  { code: 'pl', name: 'Polski', flag: '🇵🇱' },
-  { code: 'cs', name: 'Čeština', flag: '🇨🇿' },
-  { code: 'hu', name: 'Magyar', flag: '🇭🇺' },
-  { code: 'bg', name: 'Български', flag: '🇧🇬' },
-  { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
-  { code: 'sv', name: 'Svenska', flag: '🇸🇪' },
-  { code: 'da', name: 'Dansk', flag: '🇩🇰' },
-  { code: 'fi', name: 'Suomi', flag: '🇫🇮' },
-  { code: 'no', name: 'Norsk', flag: '🇳🇴' },
-  { code: 'sk', name: 'Slovenčina', flag: '🇸🇰' },
-  { code: 'hr', name: 'Hrvatski', flag: '🇭🇷' },
-  { code: 'sl', name: 'Slovenščina', flag: '🇸🇮' },
-  { code: 'lt', name: 'Lietuvių', flag: '🇱🇹' },
-  { code: 'lv', name: 'Latviešu', flag: '🇱🇻' },
-  { code: 'et', name: 'Eesti', flag: '🇪🇪' },
-  { code: 'mt', name: 'Malti', flag: '🇲🇹' },
-  { code: 'ga', name: 'Gaeilge', flag: '🇮🇪' },
-  { code: 'uk', name: 'Українська', flag: '🇺🇦' },
-  { code: 'sr', name: 'Српски', flag: '🇷🇸' },
-  { code: 'mk', name: 'Македонски', flag: '🇲🇰' },
-  { code: 'sq', name: 'Shqip', flag: '🇦🇱' },
-  { code: 'bs', name: 'Bosanski', flag: '🇧🇦' },
-  { code: 'is', name: 'Íslenska', flag: '🇮🇸' },
-  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
+// Language + Currency options
+const LANGUAGE_OPTIONS = [
+  { code: 'ro' as Language, name: 'Română', flag: '🇷🇴', currency: 'RON' as Currency, currencyName: 'Lei' },
+  { code: 'en' as Language, name: 'English', flag: '🇬🇧', currency: 'GBP' as Currency, currencyName: 'Pounds' },
 ];
 
 const Settings = () => {
   const { user, profile, updateProfile, loading } = useAuth();
   const { language, setLanguage } = useLanguage();
+  const { setCurrency } = useCurrency();
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -93,7 +64,6 @@ const Settings = () => {
   };
 
   const [saving, setSaving] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -246,28 +216,35 @@ const Settings = () => {
                     />
                   </div>
 
-                  {/* Language Selector */}
-                  <div className="space-y-2 pt-4 border-t">
-                    <Label>Limbă platformă</Label>
-                    <Select 
-                      value={selectedLanguage} 
-                      onValueChange={(val) => {
-                        setSelectedLanguage(val);
-                        if (val === 'ro' || val === 'en') {
-                          setLanguage(val as Language);
-                          localStorage.setItem('preferredLanguage', val);
-                          toast({ title: 'Limbă schimbată' });
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="w-full max-w-xs">
-                        <SelectValue placeholder="Selectează limba" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ro">🇷🇴 Română</SelectItem>
-                        <SelectItem value="en">🇬🇧 English</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  {/* Language + Currency Selector */}
+                  <div className="space-y-3 pt-4 border-t">
+                    <Label className="flex items-center gap-2">
+                      <Globe className="h-4 w-4" />
+                      Limbă și Monedă
+                    </Label>
+                    <div className="flex gap-2">
+                      {LANGUAGE_OPTIONS.map((option) => (
+                        <Button
+                          key={option.code}
+                          type="button"
+                          variant={language === option.code ? "default" : "outline"}
+                          className={`flex-1 gap-2 py-6 ${language === option.code ? 'ring-2 ring-primary' : ''}`}
+                          onClick={() => {
+                            setLanguage(option.code);
+                            setCurrency(option.currency);
+                            localStorage.setItem('preferredLanguage', option.code);
+                            localStorage.setItem('currency', option.currency);
+                            toast({ title: language === 'ro' ? 'Limba schimbată' : 'Language changed' });
+                          }}
+                        >
+                          <span className="text-xl">{option.flag}</span>
+                          <div className="text-left">
+                            <p className="font-medium">{option.name}</p>
+                            <p className="text-xs text-muted-foreground">{option.currencyName}</p>
+                          </div>
+                        </Button>
+                      ))}
+                    </div>
                   </div>
 
                   <Button 
