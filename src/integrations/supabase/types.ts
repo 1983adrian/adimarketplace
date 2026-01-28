@@ -1039,6 +1039,27 @@ export type Database = {
           },
         ]
       }
+      password_reset_attempts: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          ip_address: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          ip_address?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          ip_address?: string | null
+        }
+        Relationships: []
+      }
       payment_processor_settings: {
         Row: {
           api_key_encrypted: string | null
@@ -2509,6 +2530,15 @@ export type Database = {
       admin_increment_pending_balance: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
+      }
+      check_rate_limit: {
+        Args: {
+          p_identifier: string
+          p_max_attempts: number
+          p_table_name: string
+          p_window_minutes: number
+        }
+        Returns: boolean
       }
       get_generalized_location: { Args: { loc: string }; Returns: string }
       get_public_seller_profile: {
