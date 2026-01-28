@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -50,34 +49,26 @@ serve(async (req) => {
 
     const services: ServiceStatus[] = [];
 
-    // ========== 1. STRIPE ==========
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (stripeKey) {
-      try {
-        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-        const account = await stripe.accounts.retrieve();
-        services.push({
-          name: "Stripe Payments",
-          configured: true,
-          working: true,
-          details: `Account: ${account.id} | Charges: ${account.charges_enabled ? "✓" : "✗"} | Payouts: ${account.payouts_enabled ? "✓" : "✗"}`
-        });
-      } catch (e: unknown) {
-        const error = e instanceof Error ? e.message : "Unknown error";
-        services.push({
-          name: "Stripe Payments",
-          configured: true,
-          working: false,
-          details: "API key configured but not working",
-          error
-        });
-      }
+    // ========== 1. MANGOPAY (Primary Payment Processor) ==========
+    const { data: mangopaySettings } = await supabase
+      .from("payment_processor_settings")
+      .select("*")
+      .eq("processor_name", "mangopay")
+      .single();
+
+    if (mangopaySettings?.api_key_encrypted) {
+      services.push({
+        name: "MangoPay Payments",
+        configured: true,
+        working: true,
+        details: `Environment: ${mangopaySettings.environment || "sandbox"} | Active: ${mangopaySettings.is_active ? "✓" : "✗"}`
+      });
     } else {
       services.push({
-        name: "Stripe Payments",
+        name: "MangoPay Payments",
         configured: false,
         working: false,
-        details: "STRIPE_SECRET_KEY not set"
+        details: "MangoPay not configured - configure in Admin → Payments"
       });
     }
 
@@ -288,18 +279,18 @@ serve(async (req) => {
       configured: !!(buyerFee && sellerCommission),
       working: !!(buyerFee && sellerCommission),
       details: buyerFee && sellerCommission
-        ? `Buyer Fee: £${buyerFee.amount} | Seller Commission: ${sellerCommission.amount}%`
+        ? `Buyer Fee: €${buyerFee.amount} | Seller Commission: ${sellerCommission.amount}%`
         : "Missing fee configuration"
     });
 
     // ========== 8. EDGE FUNCTIONS ==========
     const edgeFunctions = [
-      "ai-manager",
-      "verify-image",
-      "stripe-product-checkout",
+      "process-payment",
       "process-payout",
-      "create-stripe-connect-account",
-      "send-notification"
+      "send-notification",
+      "send-password-reset",
+      "ping-google",
+      "dynamic-sitemap"
     ];
 
     services.push({
