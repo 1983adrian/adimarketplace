@@ -56,7 +56,7 @@ const SellerMode = () => {
   const [postalCode, setPostalCode] = useState('');
   
   // KYC & Payout
-  const [kycStatus, setKycStatus] = useState('pending');
+  const [kycStatus, setKycStatus] = useState('not_started');
   const [businessType, setBusinessType] = useState<'individual' | 'company'>('individual');
   const [companyName, setCompanyName] = useState('');
   const [companyRegistration, setCompanyRegistration] = useState('');
