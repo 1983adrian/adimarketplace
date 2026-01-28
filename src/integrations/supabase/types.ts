@@ -2316,7 +2316,7 @@ export type Database = {
           display_name?: string | null
           is_seller?: boolean | null
           is_verified?: boolean | null
-          location?: string | null
+          location?: never
           store_name?: string | null
           total_sales_count?: number | null
           user_id?: string | null
@@ -2331,7 +2331,7 @@ export type Database = {
           display_name?: string | null
           is_seller?: boolean | null
           is_verified?: boolean | null
-          location?: string | null
+          location?: never
           store_name?: string | null
           total_sales_count?: number | null
           user_id?: string | null
