@@ -107,7 +107,7 @@ serve(async (req) => {
       // Send a generic "we received your request" email even if user doesn't exist
       try {
         await resend.emails.send({
-          from: "Marketplace România <noreply@marketplaceromania.lovable.app>",
+          from: "Marketplace România <onboarding@resend.dev>",
           to: [sanitizedEmail],
           subject: "🔐 Cerere de Resetare Parolă - Marketplace România",
           html: `
@@ -147,7 +147,7 @@ serve(async (req) => {
 
     // Send the actual reset email
     await resend.emails.send({
-      from: "Marketplace România <noreply@marketplaceromania.lovable.app>",
+      from: "Marketplace România <onboarding@resend.dev>",
       to: [sanitizedEmail],
       subject: "🔐 Resetează-ți Parola - Marketplace România",
       html: `
