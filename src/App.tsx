@@ -12,7 +12,8 @@ import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-// Password reset pages removed - using Google OAuth only
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import SignOut from "./pages/SignOut";
 import Browse from "./pages/Browse";
 import ListingDetail from "./pages/ListingDetail";
@@ -102,7 +103,8 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
-                {/* Password reset routes removed - using Google OAuth only */}
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/sign-out" element={<SignOut />} />
                 <Route path="/browse" element={<Browse />} />
                 <Route path="/listing/:id" element={<ListingDetail />} />
