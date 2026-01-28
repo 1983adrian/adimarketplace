@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  User, Store, Bell, Shield, MapPin, Save, 
-  Wallet, Package, Building2, EyeOff, Globe
+  User, Store, Shield, MapPin, Save, 
+  Wallet, Package, EyeOff, Globe
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -11,15 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
 import { PasswordReset } from '@/components/settings/PasswordReset';
-import { supabase } from '@/integrations/supabase/client';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 
 // All European languages
@@ -70,13 +67,8 @@ const Settings = () => {
   const [bio, setBio] = useState('');
   const [location, setLocation] = useState('');
   const [phone, setPhone] = useState('');
-  const [storeName, setStoreName] = useState('');
+  // Seller status (read-only, just for display)
   const [isSeller, setIsSeller] = useState(false);
-  const [sellerTermsAccepted, setSellerTermsAccepted] = useState(false);
-  const [hasAcceptedTermsBefore, setHasAcceptedTermsBefore] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
-
   // Setări notificări - real state saved to localStorage
   const [emailNotifications, setEmailNotifications] = useState(() => {
     const saved = localStorage.getItem('notification_email');
@@ -100,6 +92,9 @@ const Settings = () => {
     localStorage.setItem(key, JSON.stringify(value));
   };
 
+  const [saving, setSaving] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
+
   useEffect(() => {
     if (!loading && !user) {
       navigate('/login');
@@ -110,14 +105,7 @@ const Settings = () => {
       setBio(profile.bio || '');
       setLocation(profile.location || '');
       setPhone(profile.phone || '');
-      setStoreName((profile as any).store_name || '');
       setIsSeller((profile as any).is_seller || false);
-      // Check if seller has already accepted terms
-      const termsAcceptedAt = (profile as any).seller_terms_accepted_at;
-      if (termsAcceptedAt) {
-        setHasAcceptedTermsBefore(true);
-        setSellerTermsAccepted(true);
-      }
     }
   }, [user, profile, loading, navigate]);
 
@@ -135,48 +123,6 @@ const Settings = () => {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'Profil actualizat cu succes' });
-    }
-  };
-
-  const handleSaveSellerSettings = async () => {
-    // Validate terms acceptance for new sellers
-    if (isSeller && !hasAcceptedTermsBefore && !sellerTermsAccepted) {
-      toast({ 
-        title: 'Acceptare termeni obligatorie', 
-        description: 'Trebuie să accepți Termenii și Condițiile pentru a deveni vânzător.', 
-        variant: 'destructive' 
-      });
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const updateData: any = {
-        store_name: storeName,
-        is_seller: isSeller,
-      };
-
-      // Set terms acceptance timestamp for first-time sellers
-      if (isSeller && !hasAcceptedTermsBefore && sellerTermsAccepted) {
-        updateData.seller_terms_accepted_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(updateData)
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-      
-      if (isSeller && !hasAcceptedTermsBefore && sellerTermsAccepted) {
-        setHasAcceptedTermsBefore(true);
-      }
-      
-      toast({ title: 'Setări vânzător salvate cu succes' });
-    } catch (error: any) {
-      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -336,115 +282,67 @@ const Settings = () => {
                 </CardContent>
               </Card>
 
-              {/* Seller Mode & Store */}
-              <Card>
+              {/* Mod Vânzător - Quick Link Card */}
+              <Card className="border-amber-500/30 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Store className="h-5 w-5 text-amber-500" />
                     Mod Vânzător
                   </CardTitle>
-                  <CardDescription>Activează pentru a lista produse de vânzare</CardDescription>
+                  <CardDescription>
+                    {isSeller 
+                      ? 'Modul vânzător este activ. Gestionează setările din pagina dedicată.' 
+                      : 'Activează pentru a lista produse de vânzare'}
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-lg border">
+                  <div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-background shadow-sm border">
                     <div className="space-y-1">
-                      <p className="font-medium">Activează Modul Vânzător</p>
-                      <p className="text-sm text-muted-foreground">Permite listarea produselor</p>
+                      <p className="font-semibold text-lg">
+                        {isSeller ? '✅ Vânzător Activ' : 'Devino Vânzător'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {isSeller ? 'Max 10 produse active' : 'Listează produse și câștigă bani'}
+                      </p>
                     </div>
-                    <Switch 
-                      checked={isSeller} 
-                      onCheckedChange={setIsSeller}
-                    />
+                    <Badge variant={isSeller ? "default" : "secondary"} className={isSeller ? "bg-green-500" : ""}>
+                      {isSeller ? 'Activ' : 'Inactiv'}
+                    </Badge>
                   </div>
 
-                  {isSeller && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="storeName">Nume Magazin *</Label>
-                        <Input 
-                          id="storeName"
-                          value={storeName}
-                          onChange={(e) => setStoreName(e.target.value)}
-                          placeholder="Magazinul Meu" 
-                        />
-                      </div>
-
-                      <Alert>
-                        <Package className="h-4 w-4" />
-                        <AlertDescription>
-                          <strong>Limită:</strong> Max 10 produse active simultan. Vânzările sunt nelimitate!
-                        </AlertDescription>
-                      </Alert>
-
-                      {/* Terms - only if not accepted */}
-                      {!hasAcceptedTermsBefore && (
-                        <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 space-y-3">
-                          <div className="flex items-start gap-3">
-                            <Shield className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                            <div className="space-y-2">
-                              <h4 className="font-semibold text-primary">Termeni Vânzător</h4>
-                              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-                                <li>Descriere corectă a produselor</li>
-                                <li>Expediere la timp</li>
-                                <li>Respectarea politicii de returnări</li>
-                              </ul>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3 pt-2 border-t border-primary/20">
-                            <input
-                              type="checkbox"
-                              id="sellerTerms"
-                              checked={sellerTermsAccepted}
-                              onChange={(e) => setSellerTermsAccepted(e.target.checked)}
-                              className="h-5 w-5 rounded border-primary text-primary cursor-pointer"
-                            />
-                            <label htmlFor="sellerTerms" className="text-sm cursor-pointer">
-                              Accept <a href="/terms-of-service" target="_blank" className="text-primary underline">Termenii</a> *
-                            </label>
-                          </div>
-                        </div>
-                      )}
-
-                      {hasAcceptedTermsBefore && (
-                        <Alert className="border-green-500/30 bg-green-500/10">
-                          <Shield className="h-4 w-4 text-green-600" />
-                          <AlertDescription className="text-green-700">
-                            ✓ Termeni acceptați
-                          </AlertDescription>
-                        </Alert>
-                      )}
-                    </>
-                  )}
-
                   <Button 
-                    onClick={handleSaveSellerSettings} 
-                    disabled={saving || (isSeller && !hasAcceptedTermsBefore && !sellerTermsAccepted)} 
+                    onClick={() => navigate('/seller-mode')}
                     size="lg"
-                    className="gap-2 w-full sm:w-auto bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
+                    className="w-full gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white"
                   >
-                    <Save className="h-5 w-5" />
-                    {saving ? 'Se salvează...' : 'Salvează Magazin'}
+                    <Store className="h-5 w-5" />
+                    {isSeller ? 'Setări Vânzător & KYC' : 'Activează Mod Vânzător'}
                   </Button>
+
+                  {isSeller && (
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 gap-1"
+                        onClick={() => navigate('/wallet')}
+                      >
+                        <Wallet className="h-4 w-4" />
+                        Portofel
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 gap-1"
+                        onClick={() => navigate('/my-products')}
+                      >
+                        <Package className="h-4 w-4" />
+                        Produse
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
-
-              {/* Info că setările bancare sunt în Mod Vânzător */}
-              {isSeller && (
-                <Card className="border-amber-500/20 bg-amber-500/5">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <Wallet className="h-5 w-5 text-amber-600 mt-0.5" />
-                      <div>
-                        <p className="font-medium">Setări Încasări</p>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Pentru setările bancare și KYC, accesează <a href="/seller-mode" className="text-primary underline font-medium">Mod Vânzător</a>.
-                          Pentru sold, accesează <a href="/wallet" className="text-primary underline font-medium">Portofel</a>.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </TabsContent>
 
             {/* Tab Securitate */}
