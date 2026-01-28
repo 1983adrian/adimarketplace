@@ -1,14 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Shield, Chrome } from 'lucide-react';
+import { Loader2, Shield, Eye, EyeOff, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -25,8 +32,67 @@ const Login = () => {
     checkSession();
   }, [navigate]);
 
-  const handleGoogleSignIn = async () => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    if (!normalizedEmail || !password) {
+      toast({
+        title: 'Date incomplete',
+        description: 'Te rugăm să completezi email-ul și parola.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
+    try {
+      // Clear any existing session first
+      await supabase.auth.signOut();
+      
+      const { error } = await supabase.auth.signInWithPassword({
+        email: normalizedEmail,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        
+        let errorMessage = 'Email sau parolă incorectă.';
+        if (error.message.includes('Invalid login credentials')) {
+          errorMessage = 'Email sau parolă incorectă. Verifică datele și încearcă din nou.';
+        } else if (error.message.includes('Email not confirmed')) {
+          errorMessage = 'Te rugăm să confirmi emailul înainte de a te autentifica.';
+        }
+        
+        toast({
+          title: 'Autentificare eșuată',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
+      toast({
+        title: 'Bine ai venit!',
+        description: 'Te-ai autentificat cu succes.',
+      });
+      navigate('/');
+    } catch (err) {
+      console.error('Unexpected login error:', err);
+      toast({
+        title: 'Eroare neașteptată',
+        description: 'A apărut o problemă. Încearcă din nou.',
+        variant: 'destructive',
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -42,7 +108,7 @@ const Login = () => {
           description: error.message || 'Nu s-a putut conecta cu Google. Încearcă din nou.',
           variant: 'destructive',
         });
-        setLoading(false);
+        setGoogleLoading(false);
       }
     } catch (err) {
       console.error('Unexpected Google sign-in error:', err);
@@ -51,7 +117,7 @@ const Login = () => {
         description: 'A apărut o problemă. Încearcă din nou.',
         variant: 'destructive',
       });
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -86,18 +152,91 @@ const Login = () => {
         </CardHeader>
         
         <CardContent className="pb-8 space-y-6">
+          {/* Email/Password Form */}
+          <form onSubmit={handleEmailLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="exemplu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Parolă</Label>
+                <Link 
+                  to="/forgot-password" 
+                  className="text-xs text-primary hover:underline"
+                >
+                  Ai uitat parola?
+                </Link>
+              </div>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Introdu parola"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Se autentifică...
+                </>
+              ) : (
+                <>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Autentifică-te cu Email
+                </>
+              )}
+            </Button>
+          </form>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">sau</span>
+            </div>
+          </div>
+
           {/* Google Sign In Button */}
           <Button
             type="button"
             variant="outline"
-            className="w-full h-14 gap-3 border-2 border-border hover:bg-accent/50 text-base font-medium"
+            className="w-full h-12 gap-3 border-2 border-border hover:bg-accent/50"
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={googleLoading}
           >
-            {loading ? (
+            {googleLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              <svg className="h-6 w-6" viewBox="0 0 24 24">
+              <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#4285F4"
@@ -116,21 +255,22 @@ const Login = () => {
                 />
               </svg>
             )}
-            {loading ? 'Se conectează...' : 'Continuă cu Google'}
+            {googleLoading ? 'Se conectează...' : 'Continuă cu Google'}
           </Button>
-
-          {/* Info about account */}
-          <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
-            <p className="text-sm text-center text-muted-foreground">
-              📱 Folosește contul tău <span className="font-semibold text-foreground">Google</span> sau <span className="font-semibold text-foreground">iCloud</span> (Apple) pentru autentificare rapidă și sigură.
-            </p>
-          </div>
 
           {/* Security badge */}
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Shield className="h-4 w-4 text-emerald-500" />
-            <span>Conexiune securizată OAuth 2.0</span>
+            <span>Conexiune securizată</span>
           </div>
+
+          {/* Register link */}
+          <p className="text-center text-sm text-muted-foreground">
+            Nu ai cont?{' '}
+            <Link to="/signup" className="text-primary hover:underline font-medium">
+              Înregistrează-te gratuit
+            </Link>
+          </p>
 
           {/* Terms */}
           <p className="text-xs text-center text-muted-foreground">

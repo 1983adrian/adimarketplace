@@ -1,17 +1,34 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Shield, UserPlus } from 'lucide-react';
+import { Loader2, Shield, UserPlus, Eye, EyeOff, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
+import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
+import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 
 const Signup = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { validateSync } = usePasswordValidation();
+
+  // Validate password on change
+  const passwordValidation = useMemo(() => {
+    if (!password) return { strength: 'weak' as const, errors: [] };
+    return validateSync(password);
+  }, [password, validateSync]);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -25,8 +42,94 @@ const Signup = () => {
     checkSession();
   }, [navigate]);
 
-  const handleGoogleSignIn = async () => {
+  const handleEmailSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    if (!normalizedEmail || !password) {
+      toast({
+        title: 'Date incomplete',
+        description: 'Te rugăm să completezi toate câmpurile.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast({
+        title: 'Parolele nu coincid',
+        description: 'Te rugăm să verifici că parolele introduse sunt identice.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (password.length < 8) {
+      toast({
+        title: 'Parolă prea scurtă',
+        description: 'Parola trebuie să aibă cel puțin 8 caractere.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (passwordValidation.errors.length > 0) {
+      toast({
+        title: 'Parolă invalidă',
+        description: passwordValidation.errors[0],
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
+    try {
+      const { error, data } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
+      });
+
+      if (error) {
+        console.error('Signup error:', error);
+        
+        let errorMessage = 'Nu am putut crea contul. Încearcă din nou.';
+        if (error.message.includes('already registered')) {
+          errorMessage = 'Acest email este deja înregistrat. Încearcă să te autentifici sau resetează parola.';
+        } else if (error.message.includes('weak password')) {
+          errorMessage = 'Parola este prea slabă. Alege o parolă mai puternică.';
+        }
+        
+        toast({
+          title: 'Eroare la înregistrare',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        setLoading(false);
+        return;
+      }
+
+      toast({
+        title: 'Cont creat cu succes!',
+        description: 'Bine ai venit pe Marketplace Romania!',
+      });
+      navigate('/');
+    } catch (err) {
+      console.error('Unexpected signup error:', err);
+      toast({
+        title: 'Eroare neașteptată',
+        description: 'A apărut o problemă. Încearcă din nou.',
+        variant: 'destructive',
+      });
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
@@ -42,7 +145,7 @@ const Signup = () => {
           description: error.message || 'Nu s-a putut conecta cu Google. Încearcă din nou.',
           variant: 'destructive',
         });
-        setLoading(false);
+        setGoogleLoading(false);
       }
     } catch (err) {
       console.error('Unexpected Google sign-in error:', err);
@@ -51,7 +154,7 @@ const Signup = () => {
         description: 'A apărut o problemă. Încearcă din nou.',
         variant: 'destructive',
       });
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -87,18 +190,18 @@ const Signup = () => {
         </CardHeader>
         
         <CardContent className="pb-8 space-y-6">
-          {/* Google Sign In Button */}
+          {/* Google Sign In Button - Primary */}
           <Button
             type="button"
             variant="outline"
-            className="w-full h-14 gap-3 border-2 border-border hover:bg-accent/50 text-base font-medium"
+            className="w-full h-12 gap-3 border-2 border-border hover:bg-accent/50"
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={googleLoading}
           >
-            {loading ? (
+            {googleLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
-              <svg className="h-6 w-6" viewBox="0 0 24 24">
+              <svg className="h-5 w-5" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                   fill="#4285F4"
@@ -117,35 +220,106 @@ const Signup = () => {
                 />
               </svg>
             )}
-            {loading ? 'Se creează contul...' : 'Înregistrează-te cu Google'}
+            {googleLoading ? 'Se creează contul...' : 'Înregistrează-te cu Google'}
           </Button>
 
-          {/* Benefits */}
-          <div className="space-y-3">
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
-              <span className="text-lg">✅</span>
-              <p className="text-sm text-foreground">
-                <span className="font-semibold">Instant</span> - Fără emailuri de confirmare
-              </p>
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <Separator />
             </div>
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
-              <span className="text-lg">🔐</span>
-              <p className="text-sm text-foreground">
-                <span className="font-semibold">Sigur</span> - Parola ta rămâne la Google
-              </p>
-            </div>
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
-              <span className="text-lg">📱</span>
-              <p className="text-sm text-foreground">
-                <span className="font-semibold">Simplu</span> - Un singur click pentru acces
-              </p>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">sau cu email</span>
             </div>
           </div>
+
+          {/* Email/Password Form */}
+          <form onSubmit={handleEmailSignup} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="exemplu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="password">Parolă</Label>
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Minim 8 caractere"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              {password && (
+                <PasswordStrengthIndicator 
+                  strength={passwordValidation.strength} 
+                  errors={passwordValidation.errors}
+                  showErrors={true}
+                />
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmă parola</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Repetă parola"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+              />
+              {confirmPassword && password !== confirmPassword && (
+                <p className="text-xs text-destructive">Parolele nu coincid</p>
+              )}
+            </div>
+            
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={loading || password.length < 8 || password !== confirmPassword}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Se creează contul...
+                </>
+              ) : (
+                <>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Creează cont cu Email
+                </>
+              )}
+            </Button>
+          </form>
 
           {/* Security badge */}
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Shield className="h-4 w-4 text-emerald-500" />
-            <span>Conexiune securizată OAuth 2.0</span>
+            <span>Conexiune securizată</span>
           </div>
 
           {/* Terms */}
