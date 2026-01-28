@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Store, Package, Shield, User, Building, Globe, 
   Banknote, Building2, CreditCard, Save, Clock,
-  CheckCircle2, AlertCircle, Loader2
+  CheckCircle2, AlertCircle, Loader2, Phone, MapPin
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -50,6 +50,13 @@ const SellerMode = () => {
   const [sellerTermsAccepted, setSellerTermsAccepted] = useState(false);
   const [hasAcceptedTermsBefore, setHasAcceptedTermsBefore] = useState(false);
   
+  // Contact & Location
+  const [phone, setPhone] = useState('');
+  const [location, setLocation] = useState('');
+  const [addressLine1, setAddressLine1] = useState('');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  
   // KYC & Payout
   const [kycStatus, setKycStatus] = useState('pending');
   const [businessType, setBusinessType] = useState<'individual' | 'company'>('individual');
@@ -75,6 +82,13 @@ const SellerMode = () => {
       setStoreName(p.store_name || '');
       setHasAcceptedTermsBefore(!!p.seller_terms_accepted_at);
       setSellerTermsAccepted(!!p.seller_terms_accepted_at);
+      // Contact & Location
+      setPhone(p.phone || '');
+      setLocation(p.location || '');
+      setAddressLine1(p.address_line1 || '');
+      setCity(p.city || '');
+      setPostalCode(p.postal_code || '');
+      // KYC & Payout
       setKycStatus(p.kyc_status || 'pending');
       setBusinessType(p.business_type || 'individual');
       setCompanyName(p.company_name || '');
@@ -106,6 +120,13 @@ const SellerMode = () => {
       const updateData: any = {
         is_seller: isSeller,
         store_name: storeName,
+        // Contact & Location
+        phone: phone,
+        location: location,
+        address_line1: addressLine1,
+        city: city,
+        postal_code: postalCode,
+        // KYC & Payout
         business_type: businessType,
         company_name: companyName,
         company_registration: companyRegistration,
@@ -322,6 +343,93 @@ const SellerMode = () => {
                       <span className="font-medium">✓ Termeni acceptați</span>
                     </div>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* Contact & Locație */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <MapPin className="h-5 w-5" />
+                    Contact & Locație
+                  </CardTitle>
+                  <CardDescription>Informații de contact pentru clienți (opțional, dar recomandat)</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="flex items-center gap-2">
+                      <Phone className="h-4 w-4" />
+                      Număr de Telefon
+                    </Label>
+                    <Input 
+                      id="phone"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+40 700 000 000" 
+                      className="h-12"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Vizibil doar pentru cumpărătorii care au plasat comenzi
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="location" className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Locație / Oraș
+                    </Label>
+                    <Input 
+                      id="location"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      placeholder="București, România" 
+                      className="h-12"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Orașul va fi afișat pe profilul tău de vânzător
+                    </p>
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  <div className="space-y-2">
+                    <Label htmlFor="addressLine1">Adresa Completă (Stradă, Număr)</Label>
+                    <Input 
+                      id="addressLine1"
+                      value={addressLine1}
+                      onChange={(e) => setAddressLine1(e.target.value)}
+                      placeholder="Str. Exemplu nr. 10" 
+                      className="h-12"
+                    />
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="city">Oraș</Label>
+                      <Input 
+                        id="city"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        placeholder="București" 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="postalCode">Cod Poștal</Label>
+                      <Input 
+                        id="postalCode"
+                        value={postalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
+                        placeholder="010000" 
+                      />
+                    </div>
+                  </div>
+
+                  <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800">
+                    <MapPin className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-blue-700 dark:text-blue-300">
+                      Adresa completă este necesară pentru verificarea KYC și pentru livrări. Nu va fi afișată public.
+                    </AlertDescription>
+                  </Alert>
                 </CardContent>
               </Card>
 
