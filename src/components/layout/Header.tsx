@@ -15,7 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { LanguageSelector } from './LanguageSelector';
+import { LanguageCurrencySelector } from './LanguageCurrencySelector';
 import { SearchDialog } from './SearchDialog';
 import { NotificationBell } from './NotificationBell';
 import { SellerNotificationBell } from './SellerNotificationBell';
@@ -152,7 +152,7 @@ export const Header: React.FC = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             <CartDropdown />
-            <LanguageSelector />
+            <LanguageCurrencySelector />
             
             {user ? (
               <>
@@ -422,7 +422,7 @@ export const Header: React.FC = () => {
                   
                   <div className="p-4 border-t border-border">
                     <div className="flex items-center justify-center gap-2">
-                      <LanguageSelector />
+                      <LanguageCurrencySelector />
                     </div>
                   </div>
                 </div>
