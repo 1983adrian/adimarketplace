@@ -101,9 +101,7 @@ serve(async (req: Request): Promise<Response> => {
         "Authorization": `Bearer ${resendApiKey}`,
       },
       body: JSON.stringify({
-        // IMPORTANT: Change this to your verified domain email
-        // Example: from: "Marketplace Romania <noreply@marketplaceromania.ro>"
-        from: "Marketplace Romania <onboarding@resend.dev>",
+        from: "Marketplace Romania <vanzare@marketplaceromania.com>",
         to: [normalizedEmail],
         subject: "🔐 Resetează-ți Parola - Marketplace Romania",
         html: `
