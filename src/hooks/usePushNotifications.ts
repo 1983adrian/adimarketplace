@@ -28,12 +28,16 @@ export const usePushNotifications = () => {
   // Check if push notifications are supported (native platform only)
   const isNativePlatform = Capacitor.isNativePlatform();
 
-  // Save token to database
+  // Save token to database with expiration and validation
   const saveTokenToDatabase = useCallback(async (token: string) => {
     if (!user) return;
 
     try {
-      // Upsert the push token for this user
+      // Calculate expiration date (30 days from now)
+      const expiresAt = new Date();
+      expiresAt.setDate(expiresAt.getDate() + 30);
+
+      // Upsert the push token with security fields
       const { error } = await supabase
         .from('push_tokens')
         .upsert({
@@ -41,6 +45,9 @@ export const usePushNotifications = () => {
           token: token,
           platform: Capacitor.getPlatform(),
           updated_at: new Date().toISOString(),
+          expires_at: expiresAt.toISOString(),
+          is_valid: true,
+          last_used_at: new Date().toISOString(),
         }, {
           onConflict: 'user_id,token'
         });
@@ -48,7 +55,7 @@ export const usePushNotifications = () => {
       if (error) {
         console.error('Error saving push token:', error);
       } else {
-        console.log('Push token saved successfully');
+        console.log('Push token saved with 30-day expiration');
       }
     } catch (err) {
       console.error('Failed to save push token:', err);
