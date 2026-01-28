@@ -100,7 +100,12 @@ const SellerMode = () => {
   }, [profile]);
 
   const handleSave = async () => {
-    if (!user) return;
+    console.log('[SellerMode] handleSave called, user:', user?.id);
+    if (!user) {
+      console.log('[SellerMode] No user, aborting save');
+      toast({ title: 'Eroare', description: 'Trebuie să fii autentificat.', variant: 'destructive' });
+      return;
+    }
     
     if (isSeller && !hasAcceptedTermsBefore && !sellerTermsAccepted) {
       toast({ 
@@ -112,6 +117,7 @@ const SellerMode = () => {
     }
 
     setSaving(true);
+    console.log('[SellerMode] Saving data...');
     try {
       const updateData: any = {
         is_seller: isSeller,
@@ -147,8 +153,10 @@ const SellerMode = () => {
         setHasAcceptedTermsBefore(true);
       }
       
+      console.log('[SellerMode] Save successful');
       toast({ title: 'Setări salvate cu succes!' });
     } catch (error: any) {
+      console.error('[SellerMode] Save error:', error);
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     } finally {
       setSaving(false);
@@ -156,7 +164,12 @@ const SellerMode = () => {
   };
 
   const handleInitiateKYC = async () => {
-    if (!user) return;
+    console.log('[SellerMode] handleInitiateKYC called, user:', user?.id);
+    if (!user) {
+      console.log('[SellerMode] No user, aborting KYC');
+      toast({ title: 'Eroare', description: 'Trebuie să fii autentificat.', variant: 'destructive' });
+      return;
+    }
     
     // Validate required fields
     if (!storeName) {
