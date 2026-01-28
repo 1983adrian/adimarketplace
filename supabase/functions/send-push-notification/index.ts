@@ -87,11 +87,13 @@ serve(async (req: Request) => {
       );
     }
 
-    // Get all push tokens for this user
+    // Get only VALID and NON-EXPIRED push tokens for this user
     const { data: tokens, error: tokenError } = await supabase
       .from("push_tokens")
       .select("token, platform")
-      .eq("user_id", user_id);
+      .eq("user_id", user_id)
+      .eq("is_valid", true)
+      .gt("expires_at", new Date().toISOString());
 
     if (tokenError) {
       console.error("Error fetching push tokens:", tokenError);
@@ -102,12 +104,19 @@ serve(async (req: Request) => {
     }
 
     if (!tokens || tokens.length === 0) {
-      console.log("No push tokens found for user:", user_id);
+      console.log("No valid push tokens found for user:", user_id);
       return new Response(
-        JSON.stringify({ message: "No push tokens registered for user", sent: 0 }),
+        JSON.stringify({ message: "No valid push tokens registered for user", sent: 0 }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    
+    // Update last_used_at for tokens being used
+    await supabase
+      .from("push_tokens")
+      .update({ last_used_at: new Date().toISOString() })
+      .eq("user_id", user_id)
+      .eq("is_valid", true);
 
     // If FCM server key is not configured, log and return demo mode
     if (!fcmServerKey) {

@@ -1321,6 +1321,7 @@ export type Database = {
       profiles: {
         Row: {
           account_number: string | null
+          account_number_encrypted: string | null
           address_line1: string | null
           address_line2: string | null
           adyen_account_holder_id: string | null
@@ -1329,6 +1330,7 @@ export type Database = {
           avatar_url: string | null
           average_rating: number | null
           bic: string | null
+          bic_encrypted: string | null
           bio: string | null
           birthday: string | null
           business_type: string | null
@@ -1345,6 +1347,7 @@ export type Database = {
           fraud_flags: Json | null
           fraud_score: number | null
           iban: string | null
+          iban_encrypted: string | null
           id: string
           is_seller: boolean | null
           is_suspended: boolean | null
@@ -1364,12 +1367,14 @@ export type Database = {
           payout_balance: number | null
           payout_method: string | null
           paypal_email: string | null
+          paypal_email_encrypted: string | null
           pending_balance: number | null
           phone: string | null
           postal_code: string | null
           region: string | null
           seller_terms_accepted_at: string | null
           sort_code: string | null
+          sort_code_encrypted: string | null
           store_name: string | null
           suspended_at: string | null
           suspended_by: string | null
@@ -1386,6 +1391,7 @@ export type Database = {
         }
         Insert: {
           account_number?: string | null
+          account_number_encrypted?: string | null
           address_line1?: string | null
           address_line2?: string | null
           adyen_account_holder_id?: string | null
@@ -1394,6 +1400,7 @@ export type Database = {
           avatar_url?: string | null
           average_rating?: number | null
           bic?: string | null
+          bic_encrypted?: string | null
           bio?: string | null
           birthday?: string | null
           business_type?: string | null
@@ -1410,6 +1417,7 @@ export type Database = {
           fraud_flags?: Json | null
           fraud_score?: number | null
           iban?: string | null
+          iban_encrypted?: string | null
           id?: string
           is_seller?: boolean | null
           is_suspended?: boolean | null
@@ -1429,12 +1437,14 @@ export type Database = {
           payout_balance?: number | null
           payout_method?: string | null
           paypal_email?: string | null
+          paypal_email_encrypted?: string | null
           pending_balance?: number | null
           phone?: string | null
           postal_code?: string | null
           region?: string | null
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
+          sort_code_encrypted?: string | null
           store_name?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
@@ -1451,6 +1461,7 @@ export type Database = {
         }
         Update: {
           account_number?: string | null
+          account_number_encrypted?: string | null
           address_line1?: string | null
           address_line2?: string | null
           adyen_account_holder_id?: string | null
@@ -1459,6 +1470,7 @@ export type Database = {
           avatar_url?: string | null
           average_rating?: number | null
           bic?: string | null
+          bic_encrypted?: string | null
           bio?: string | null
           birthday?: string | null
           business_type?: string | null
@@ -1475,6 +1487,7 @@ export type Database = {
           fraud_flags?: Json | null
           fraud_score?: number | null
           iban?: string | null
+          iban_encrypted?: string | null
           id?: string
           is_seller?: boolean | null
           is_suspended?: boolean | null
@@ -1494,12 +1507,14 @@ export type Database = {
           payout_balance?: number | null
           payout_method?: string | null
           paypal_email?: string | null
+          paypal_email_encrypted?: string | null
           pending_balance?: number | null
           phone?: string | null
           postal_code?: string | null
           region?: string | null
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
+          sort_code_encrypted?: string | null
           store_name?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
@@ -1519,7 +1534,10 @@ export type Database = {
       push_tokens: {
         Row: {
           created_at: string
+          expires_at: string | null
           id: string
+          is_valid: boolean | null
+          last_used_at: string | null
           platform: string
           token: string
           updated_at: string
@@ -1527,7 +1545,10 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          expires_at?: string | null
           id?: string
+          is_valid?: boolean | null
+          last_used_at?: string | null
           platform: string
           token: string
           updated_at?: string
@@ -1535,7 +1556,10 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          expires_at?: string | null
           id?: string
+          is_valid?: boolean | null
+          last_used_at?: string | null
           platform?: string
           token?: string
           updated_at?: string
@@ -2570,6 +2594,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      cleanup_expired_push_tokens: { Args: never; Returns: number }
+      decrypt_profile_field: {
+        Args: { p_encrypted: string; p_key: string }
+        Returns: string
+      }
+      encrypt_profile_field: {
+        Args: { p_key: string; p_value: string }
+        Returns: string
+      }
       get_generalized_location: { Args: { loc: string }; Returns: string }
       get_public_seller_profile: {
         Args: { seller_user_id: string }
@@ -2655,6 +2688,19 @@ export type Database = {
         Returns: Json
       }
       refresh_platform_statistics: { Args: never; Returns: undefined }
+      rotate_push_token: {
+        Args: {
+          p_new_token: string
+          p_old_token: string
+          p_platform: string
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      validate_push_token: {
+        Args: { p_token: string; p_user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
