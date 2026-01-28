@@ -164,27 +164,20 @@ export const FeaturedListings: React.FC = () => {
                 </div>
 
                 {/* Benefits */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 mt-6 border-t border-border/50">
-                  <div className="flex flex-col items-center gap-2 p-4">
-                    <div className="p-2 rounded-lg bg-success/10">
-                      <TrendingUp className="h-5 w-5 text-success" />
-                    </div>
-                    <span className="font-medium text-sm">0% Comision</span>
-                    <span className="text-xs text-muted-foreground">Prima lună</span>
-                  </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 mt-6 border-t border-border/50">
                   <div className="flex flex-col items-center gap-2 p-4">
                     <div className="p-2 rounded-lg bg-primary/10">
                       <Sparkles className="h-5 w-5 text-primary" />
                     </div>
-                    <span className="font-medium text-sm">Promovare Gratuită</span>
-                    <span className="text-xs text-muted-foreground">Primele 5 produse</span>
+                    <span className="font-medium text-sm">Listare Rapidă</span>
+                    <span className="text-xs text-muted-foreground">În doar câteva minute</span>
                   </div>
                   <div className="flex flex-col items-center gap-2 p-4">
                     <div className="p-2 rounded-lg bg-accent/10">
                       <Store className="h-5 w-5 text-accent" />
                     </div>
-                    <span className="font-medium text-sm">Magazin Personal</span>
-                    <span className="text-xs text-muted-foreground">Brand propriu</span>
+                    <span className="font-medium text-sm">Profil Vânzător</span>
+                    <span className="text-xs text-muted-foreground">Construiește-ți reputația</span>
                   </div>
                 </div>
               </div>
