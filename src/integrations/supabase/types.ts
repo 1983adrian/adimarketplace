@@ -2603,6 +2603,10 @@ export type Database = {
         Args: { p_key: string; p_value: string }
         Returns: string
       }
+      extend_token_expiration: {
+        Args: { p_token: string; p_user_id: string }
+        Returns: boolean
+      }
       get_generalized_location: { Args: { loc: string }; Returns: string }
       get_public_seller_profile: {
         Args: { seller_user_id: string }
@@ -2687,6 +2691,7 @@ export type Database = {
         }
         Returns: Json
       }
+      purge_old_tokens: { Args: never; Returns: number }
       refresh_platform_statistics: { Args: never; Returns: undefined }
       rotate_push_token: {
         Args: {
