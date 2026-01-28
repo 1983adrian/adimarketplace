@@ -44,7 +44,7 @@ const ROUTES_TO_AUDIT = [
   { category: 'Pagini Publice', name: 'Browse/Explorare', url: '/browse', requiresAuth: false },
   { category: 'Pagini Publice', name: 'Login', url: '/login', requiresAuth: false },
   { category: 'Pagini Publice', name: 'Signup', url: '/signup', requiresAuth: false },
-  { category: 'Pagini Publice', name: 'Forgot Password', url: '/forgot-password', requiresAuth: false },
+  // Forgot Password removed - using OAuth only
   { category: 'Pagini Publice', name: 'About Us', url: '/about', requiresAuth: false },
   { category: 'Pagini Publice', name: 'Contact', url: '/contact', requiresAuth: false },
   { category: 'Pagini Publice', name: 'FAQ', url: '/faq', requiresAuth: false },
