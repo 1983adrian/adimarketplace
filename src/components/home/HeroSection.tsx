@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Smartphone, Apple, Share, QrCode, Shield, Truck, CreditCard, Gavel, Users, Star, ChevronRight, ArrowRight, ShoppingCart, Heart, Laptop } from 'lucide-react';
+import { TrendingUp, Smartphone, Apple, Share, QrCode, Truck, ChevronRight, ArrowRight, Laptop } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { cn } from '@/lib/utils';
@@ -64,14 +64,6 @@ export const HeroSection: React.FC = () => {
     poor: t('condition.poor'),
   };
 
-  const benefits = [
-    { icon: Shield, title: 'Plăți Sigure', color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10' },
-    { icon: Truck, title: 'Livrare Rapidă', color: 'text-blue-600 dark:text-blue-400 bg-blue-500/10' },
-    { icon: CreditCard, title: 'Comisioane Mici', color: 'text-violet-600 dark:text-violet-400 bg-violet-500/10' },
-    { icon: Gavel, title: 'Licitații', color: 'text-orange-600 dark:text-orange-400 bg-orange-500/10' },
-    { icon: Users, title: 'Comunitate', color: 'text-pink-600 dark:text-pink-400 bg-pink-500/10' },
-    { icon: Star, title: 'Recenzii', color: 'text-yellow-600 dark:text-yellow-400 bg-yellow-500/10' },
-  ];
 
   return (
     <section className="relative bg-background">
@@ -210,7 +202,7 @@ export const HeroSection: React.FC = () => {
                       <div className="flex flex-col items-center gap-3 py-3">
                         <div className="p-3 bg-white rounded-xl border shadow">
                           <QRCodeSVG 
-                            value="https://adimarketplace.lovable.app/install" 
+                            value="https://marketplaceromania.lovable.app/install" 
                             size={150}
                             level="H"
                             includeMargin={true}
@@ -229,24 +221,6 @@ export const HeroSection: React.FC = () => {
         </div>
       </div>
 
-      {/* Benefits Bar - Amazon/eMAG style horizontal strip */}
-      <div className="border-y border-border bg-secondary/30">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between overflow-x-auto py-3 gap-4 md:gap-6 scrollbar-hide">
-            {benefits.map((benefit, index) => (
-              <div 
-                key={index}
-                className="flex items-center gap-2 flex-shrink-0"
-              >
-                <div className={`p-2 rounded-lg ${benefit.color}`}>
-                  <benefit.icon className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium text-foreground whitespace-nowrap">{benefit.title}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Products Section - Clean eBay/Amazon grid */}
       <div className="container mx-auto px-4 py-6">

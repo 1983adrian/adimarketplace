@@ -1,20 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, CreditCard, Shield, Truck, HeadphonesIcon, Ban, Leaf, Bomb } from 'lucide-react';
+import { Shield, Ban, Leaf, Bomb } from 'lucide-react';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
-import { usePlatformSettings } from '@/hooks/useAdminSettings';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
-  const { data: dbSettings } = usePlatformSettings();
-  
-  const socialLinks = {
-    facebook: dbSettings?.['social']?.facebook || 'https://facebook.com/marketplace.romania',
-    instagram: dbSettings?.['social']?.instagram || 'https://instagram.com/marketplace.romania',
-    twitter: dbSettings?.['social']?.twitter || 'https://twitter.com/marketplace_ro',
-    youtube: dbSettings?.['social']?.youtube || 'https://youtube.com/@marketplace-romania',
-    tiktok: dbSettings?.['social']?.tiktok || 'https://tiktok.com/@marketplace.romania',
-  };
 
   const footerLinks = {
     shop: [
@@ -28,7 +18,6 @@ export const Footer: React.FC = () => {
       { label: 'Start Selling', href: '/sell' },
       { label: 'Seller Dashboard', href: '/dashboard' },
       { label: 'Seller Analytics', href: '/seller-analytics' },
-      { label: 'Pricing & Fees', href: '/help' },
     ],
     support: [
       { label: 'Centru Ajutor', href: '/help' },
@@ -45,35 +34,8 @@ export const Footer: React.FC = () => {
     ],
   };
 
-  const trustBadges = [
-    { icon: Shield, label: 'Buyer Protection', href: '/safety' },
-    { icon: Truck, label: 'Tracked Delivery', href: '/help' },
-    { icon: CreditCard, label: 'Secure Payments', href: '/help' },
-    { icon: HeadphonesIcon, label: '24/7 Support', href: '/contact' },
-  ];
-
   return (
     <footer className="bg-card border-t border-border">
-      {/* Trust Badges */}
-      <div className="border-b border-border">
-        <div className="container mx-auto px-4 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {trustBadges.map(({ icon: Icon, label, href }) => (
-              <Link 
-                key={label} 
-                to={href}
-                className="flex items-center justify-center gap-3 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors cursor-pointer"
-              >
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Icon className="h-5 w-5 text-primary" />
-                </div>
-                <span className="font-medium text-sm">{label}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
@@ -81,72 +43,8 @@ export const Footer: React.FC = () => {
           <div className="col-span-2 md:col-span-1 space-y-4">
             <MarketplaceBrand size="sm" showTagline linkTo="/" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Marketplace-ul tău de încredere pentru cumpărare și vânzare de produse de calitate. Alătură-te miilor de clienți mulțumiți.
+              Marketplace-ul tău pentru cumpărare și vânzare de produse.
             </p>
-            <div className="flex gap-3">
-              {/* Facebook */}
-              {socialLinks.facebook && (
-                <a 
-                  href={socialLinks.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary dark:bg-primary/20 dark:hover:bg-primary/30 transition-all hover:scale-110 shadow-sm"
-                  aria-label="Facebook"
-                >
-                  <Facebook className="h-5 w-5" />
-                </a>
-              )}
-              {/* Twitter/X */}
-              {socialLinks.twitter && (
-                <a 
-                  href={socialLinks.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-all hover:scale-110 shadow-sm"
-                  aria-label="Twitter"
-                >
-                  <Twitter className="h-5 w-5" />
-                </a>
-              )}
-              {/* Instagram */}
-              {socialLinks.instagram && (
-                <a 
-                  href={socialLinks.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500/20 via-pink-500/20 to-purple-500/20 hover:from-amber-500/30 hover:via-pink-500/30 hover:to-purple-500/30 text-pink-600 dark:text-pink-400 transition-all hover:scale-110 shadow-sm"
-                  aria-label="Instagram"
-                >
-                  <Instagram className="h-5 w-5" />
-                </a>
-              )}
-              {/* YouTube */}
-              {socialLinks.youtube && (
-                <a 
-                  href={socialLinks.youtube}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-destructive/10 hover:bg-destructive/20 text-destructive transition-all hover:scale-110 shadow-sm"
-                  aria-label="YouTube"
-                >
-                  <Youtube className="h-5 w-5" />
-                </a>
-              )}
-              {/* TikTok */}
-              {socialLinks.tiktok && (
-                <a 
-                  href={socialLinks.tiktok}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-muted hover:bg-muted/80 text-foreground transition-all hover:scale-110 shadow-sm"
-                  aria-label="TikTok"
-                >
-                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-                  </svg>
-                </a>
-              )}
-            </div>
           </div>
 
           {/* Shop */}
@@ -242,11 +140,9 @@ export const Footer: React.FC = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <p>© {currentYear} Marketplace România. Toate drepturile rezervate.</p>
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Plăți securizate prin MangoPay
-              </span>
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              <span>Plăți securizate</span>
             </div>
           </div>
         </div>
