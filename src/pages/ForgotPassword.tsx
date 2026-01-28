@@ -28,14 +28,20 @@ const ForgotPassword = () => {
     }
 
     setLoading(true);
+    
+    // Normalizare email - lowercase și trim pentru a evita probleme
+    const normalizedEmail = email.toLowerCase().trim();
+    
     try {
       // First try via our custom edge function for better email delivery
-      const { error: edgeFnError } = await supabase.functions.invoke('send-password-reset', {
+      const { data, error: edgeFnError } = await supabase.functions.invoke('send-password-reset', {
         body: { 
-          email, 
+          email: normalizedEmail, 
           resetUrl: `${window.location.origin}/reset-password` 
         }
       });
+      
+      console.log('Password reset response:', data);
       
       // Fallback to Supabase native if edge function fails
       if (edgeFnError) {
