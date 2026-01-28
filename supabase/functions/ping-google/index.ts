@@ -74,7 +74,7 @@ serve(async (req) => {
     }
 
     // Fallback: Use Google ping URL (works for sitemaps)
-    const sitemapUrl = "https://marketplaceromania.lovable.app/sitemap.xml";
+    const sitemapUrl = "https://marketplaceromania.com/sitemap.xml";
     const pingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
     
     const pingResponse = await fetch(pingUrl);

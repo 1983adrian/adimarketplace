@@ -95,7 +95,7 @@ User-agent: BLEXBot
 Disallow: /
 
 # Sitemap - CRITICAL for fast indexing
-Sitemap: https://marketplaceromania.lovable.app/sitemap.xml
+Sitemap: https://marketplaceromania.com/sitemap.xml
 
 # Host directive for search engines
-Host: https://marketplaceromania.lovable.app
+Host: https://marketplaceromania.com
