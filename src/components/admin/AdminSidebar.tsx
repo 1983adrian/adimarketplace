@@ -12,7 +12,18 @@ import {
   Palette,
   ClipboardCheck,
   Sliders,
-  LucideIcon
+  LucideIcon,
+  Truck,
+  RotateCcw,
+  Gavel,
+  MessageSquare,
+  AlertTriangle,
+  Search,
+  CreditCard,
+  Wallet,
+  FolderTree,
+  Mail,
+  FileText
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -35,7 +46,7 @@ interface MenuItem {
   premium?: boolean;
 }
 
-// Simplified to 4 main categories with essential pages only
+// Main navigation - essential admin pages
 const mainItems: MenuItem[] = [
   { title: 'Control Center', url: '/admin/control-center', icon: Sliders, premium: true },
   { title: 'Owner Dashboard', url: '/admin/owner', icon: Crown, premium: true },
@@ -44,11 +55,26 @@ const mainItems: MenuItem[] = [
   { title: 'Utilizatori', url: '/admin/users', icon: Users },
   { title: 'Produse', url: '/admin/listings', icon: Package },
   { title: 'Comenzi', url: '/admin/orders', icon: ShoppingCart },
+  { title: 'Livrări', url: '/admin/deliveries', icon: Truck },
+  { title: 'Retururi', url: '/admin/returns', icon: RotateCcw },
+  { title: 'Licitații', url: '/admin/auctions', icon: Gavel },
+  { title: 'Mesaje', url: '/admin/messages', icon: MessageSquare },
+  { title: 'Dispute', url: '/admin/disputes', icon: AlertTriangle },
 ];
 
 const financeItems: MenuItem[] = [
   { title: 'Finanțe & Plăți', url: '/admin/fees', icon: DollarSign },
+  { title: 'Procesatori Plăți', url: '/admin/payments', icon: CreditCard },
+  { title: 'Plăți Vânzători', url: '/admin/seller-payouts', icon: Wallet },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
+  { title: 'Fraud Alerts', url: '/admin/fraud-alerts', icon: AlertTriangle, premium: true },
+];
+
+const contentItems: MenuItem[] = [
+  { title: 'Categorii', url: '/admin/categories', icon: FolderTree },
+  { title: 'Email Templates', url: '/admin/email-templates', icon: Mail },
+  { title: 'Politici', url: '/admin/policies', icon: FileText },
+  { title: 'SEO Dashboard', url: '/admin/seo-dashboard', icon: Search },
 ];
 
 const settingsItems: MenuItem[] = [
@@ -142,6 +168,19 @@ export function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {financeItems.map((item) => (
+                <SimpleMenuItem key={item.title} item={item} collapsed={collapsed} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase text-muted-foreground mb-2">
+            Conținut
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {contentItems.map((item) => (
                 <SimpleMenuItem key={item.title} item={item} collapsed={collapsed} />
               ))}
             </SidebarMenu>
