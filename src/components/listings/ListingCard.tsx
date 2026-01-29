@@ -221,7 +221,17 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               <span className="text-xs text-muted-foreground">({sellerRating.count})</span>
             </div>
           )}
-          {/* Location removed from homepage cards per user request */}
+          {/* Stock quantity visible to buyers */}
+          {listing.quantity && listing.quantity > 1 && (
+            <p className="text-xs text-muted-foreground">
+              {listing.quantity} în stoc
+            </p>
+          )}
+          {listing.quantity === 1 && (
+            <p className="text-xs text-orange-600 font-medium">
+              Ultimul produs!
+            </p>
+          )}
           
           {/* Price & Buy Button */}
           <div className="mt-auto pt-3 space-y-2">
