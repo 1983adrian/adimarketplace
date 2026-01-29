@@ -274,6 +274,18 @@ const ListingDetail = () => {
             )}
             </div>
 
+            {/* Stock quantity visible to buyers */}
+            {listing.quantity && listing.quantity > 1 && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" /> {listing.quantity} bucăți în stoc
+              </p>
+            )}
+            {listing.quantity === 1 && (
+              <p className="text-sm text-orange-600 font-medium flex items-center gap-2">
+                <TrendingUp className="h-4 w-4" /> Ultimul produs disponibil!
+              </p>
+            )}
+
             {listing.location && (
               <p className="text-muted-foreground flex items-center gap-2">
                 <MapPin className="h-4 w-4" /> {listing.location}
