@@ -86,18 +86,12 @@ export const PromotedGrid: React.FC<PromotedGridProps> = ({
         return (
           <Link key={listing.id} to={`/listing/${listing.id}`}>
             <Card className="group overflow-hidden hover-lift cursor-pointer border-primary/20 hover:border-primary/50 bg-background/80 backdrop-blur-sm relative h-full flex flex-col">
-              {/* Featured badge */}
-              <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
+              {/* Featured badge only - auction badge shown in ListingCard */}
+              <div className="absolute top-2 left-2 z-10">
                 <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white border-0 shadow-lg text-xs">
                   <Crown className="h-3 w-3 mr-1" />
                   {t('home.featured')}
                 </Badge>
-                {isAuction && (
-                  <Badge className="bg-orange-500 text-white text-xs flex items-center gap-1">
-                    <Gavel className="h-3 w-3" />
-                    Licitație
-                  </Badge>
-                )}
               </div>
               
               <div className="relative aspect-square overflow-hidden bg-muted">
