@@ -45,7 +45,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "Marketplace România",
-      "alternateName": ["Market România", "Place România", "MarketplaceRomania", "Marketplace RO", "Market RO", "C Market România"],
+      "alternateName": ["Market România", "Place România", "Market Place România", "MarketplaceRomania", "Marketplace RO", "Market RO", "Market Place RO", "C Market România", "Market Place", "www.marketplaceromania.com"],
       "url": "https://www.marketplaceromania.com",
       "logo": "https://www.marketplaceromania.com/icons/icon-512x512.png",
       "description": "Marketplace România - cel mai mare market online din România. Place România pentru cumpărături și vânzări sigure.",
