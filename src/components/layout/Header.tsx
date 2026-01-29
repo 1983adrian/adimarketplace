@@ -15,7 +15,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { LanguageCurrencySelector } from './LanguageCurrencySelector';
 import { SearchDialog } from './SearchDialog';
 import { NotificationBell } from './NotificationBell';
 import { SellerNotificationBell } from './SellerNotificationBell';
@@ -152,7 +151,6 @@ export const Header: React.FC = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
             <CartDropdown />
-            <LanguageCurrencySelector />
             
             {user ? (
               <>
@@ -420,10 +418,11 @@ export const Header: React.FC = () => {
                     )}
                   </div>
                   
+                  {/* Auto-detection message - no manual selector */}
                   <div className="p-4 border-t border-border">
-                    <div className="flex items-center justify-center gap-2">
-                      <LanguageCurrencySelector />
-                    </div>
+                    <p className="text-xs text-center text-muted-foreground">
+                      🌍 Limbă și monedă detectate automat
+                    </p>
                   </div>
                 </div>
               </SheetContent>

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 
-export type Currency = 'GBP' | 'EUR' | 'USD' | 'RON' | 'PLN' | 'CZK' | 'HUF' | 'BGN' | 'SEK' | 'DKK' | 'NOK' | 'CHF';
+export type Currency = 'GBP' | 'EUR' | 'USD' | 'RON';
 
 interface CurrencyInfo {
   code: Currency;
@@ -14,89 +14,70 @@ const CURRENCIES: Record<Currency, CurrencyInfo> = {
   EUR: { code: 'EUR', symbol: '€', name: 'Euro', locale: 'de-DE' },
   USD: { code: 'USD', symbol: '$', name: 'US Dollar', locale: 'en-US' },
   RON: { code: 'RON', symbol: 'lei', name: 'Romanian Leu', locale: 'ro-RO' },
-  PLN: { code: 'PLN', symbol: 'zł', name: 'Polish Zloty', locale: 'pl-PL' },
-  CZK: { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna', locale: 'cs-CZ' },
-  HUF: { code: 'HUF', symbol: 'Ft', name: 'Hungarian Forint', locale: 'hu-HU' },
-  BGN: { code: 'BGN', symbol: 'лв', name: 'Bulgarian Lev', locale: 'bg-BG' },
-  SEK: { code: 'SEK', symbol: 'kr', name: 'Swedish Krona', locale: 'sv-SE' },
-  DKK: { code: 'DKK', symbol: 'kr', name: 'Danish Krone', locale: 'da-DK' },
-  NOK: { code: 'NOK', symbol: 'kr', name: 'Norwegian Krone', locale: 'nb-NO' },
-  CHF: { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc', locale: 'de-CH' },
 };
 
-// Country to currency mapping
-const COUNTRY_CURRENCY: Record<string, Currency> = {
-  GB: 'GBP', UK: 'GBP',
-  US: 'USD',
-  RO: 'RON',
-  DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', IE: 'EUR', PT: 'EUR', GR: 'EUR', FI: 'EUR', SK: 'EUR', SI: 'EUR', LV: 'EUR', LT: 'EUR', EE: 'EUR', CY: 'EUR', MT: 'EUR', LU: 'EUR',
-  PL: 'PLN',
-  CZ: 'CZK',
-  HU: 'HUF',
-  BG: 'BGN',
-  SE: 'SEK',
-  DK: 'DKK',
-  NO: 'NOK',
-  CH: 'CHF',
-};
-
-// Static exchange rates (base: GBP) - in production use an API
+// Exchange rates (base: GBP) - in production use an API
 const EXCHANGE_RATES: Record<Currency, number> = {
   GBP: 1,
   EUR: 1.17,
   USD: 1.27,
   RON: 5.82,
-  PLN: 5.06,
-  CZK: 29.5,
-  HUF: 460,
-  BGN: 2.29,
-  SEK: 13.5,
-  DKK: 8.72,
-  NOK: 13.8,
-  CHF: 1.12,
+};
+
+// Country to currency mapping for auto-detection
+const COUNTRY_CURRENCY: Record<string, Currency> = {
+  // Romania -> RON
+  RO: 'RON',
+  // UK -> GBP
+  GB: 'GBP', UK: 'GBP',
+  // Europe -> EUR
+  DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', 
+  IE: 'EUR', PT: 'EUR', GR: 'EUR', FI: 'EUR', SK: 'EUR', SI: 'EUR', LV: 'EUR', 
+  LT: 'EUR', EE: 'EUR', CY: 'EUR', MT: 'EUR', LU: 'EUR', PL: 'EUR', CZ: 'EUR', 
+  HU: 'EUR', BG: 'EUR', SE: 'EUR', DK: 'EUR', NO: 'EUR', CH: 'EUR', HR: 'EUR',
+  // US and rest of world -> USD (default)
+  US: 'USD',
 };
 
 interface CurrencyContextType {
   currency: Currency;
   currencyInfo: CurrencyInfo;
-  setCurrency: (currency: Currency) => void;
-  formatPrice: (priceInGBP: number, showOriginal?: boolean) => string;
-  convertPrice: (priceInGBP: number) => number;
+  formatPrice: (price: number, fromCurrency?: Currency) => string;
+  convertPrice: (price: number, fromCurrency: Currency, toCurrency?: Currency) => number;
   availableCurrencies: CurrencyInfo[];
-  baseCurrency: Currency;
+  detectedCountry: string | null;
+  isDetecting: boolean;
 }
 
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
 export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currency, setCurrencyState] = useState<Currency>('GBP');
+  const [currency, setCurrency] = useState<Currency>('GBP');
   const [detectedCountry, setDetectedCountry] = useState<string | null>(null);
+  const [isDetecting, setIsDetecting] = useState(true);
 
-  // Detect user's country on mount
+  // Auto-detect currency based on IP geolocation
   useEffect(() => {
-    const detectLocation = async () => {
-      // Check saved preference first
-      const saved = localStorage.getItem('currency') as Currency;
-      if (saved && CURRENCIES[saved]) {
-        setCurrencyState(saved);
-        return;
-      }
-
-      // Try to detect from timezone
+    const detectCurrency = async () => {
+      setIsDetecting(true);
+      
+      // Try timezone detection first (instant, no network)
       try {
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const countryFromTimezone = getCountryFromTimezone(timezone);
+        
         if (countryFromTimezone) {
           setDetectedCountry(countryFromTimezone);
-          const currencyForCountry = COUNTRY_CURRENCY[countryFromTimezone] || 'GBP';
-          setCurrencyState(currencyForCountry);
+          const detectedCurrency = getCurrencyForCountry(countryFromTimezone);
+          setCurrency(detectedCurrency);
+          setIsDetecting(false);
           return;
         }
       } catch (e) {
-        console.log('Could not detect timezone');
+        console.log('Timezone detection failed');
       }
 
-      // Fallback: try IP geolocation (free API)
+      // Fallback: IP geolocation
       try {
         const response = await fetch('https://ipapi.co/json/', { 
           signal: AbortSignal.timeout(3000) 
@@ -105,59 +86,57 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
           const data = await response.json();
           if (data.country_code) {
             setDetectedCountry(data.country_code);
-            const currencyForCountry = COUNTRY_CURRENCY[data.country_code] || 'GBP';
-            setCurrencyState(currencyForCountry);
+            const detectedCurrency = getCurrencyForCountry(data.country_code);
+            setCurrency(detectedCurrency);
           }
         }
       } catch (e) {
-        console.log('Could not detect location from IP');
+        console.log('IP geolocation failed, using default GBP');
+        setCurrency('GBP');
       }
+      
+      setIsDetecting(false);
     };
 
-    detectLocation();
+    detectCurrency();
   }, []);
 
-  const setCurrency = useCallback((newCurrency: Currency) => {
-    setCurrencyState(newCurrency);
-    localStorage.setItem('currency', newCurrency);
-  }, []);
-
-  const convertPrice = useCallback((priceInGBP: number): number => {
-    const rate = EXCHANGE_RATES[currency] || 1;
-    return priceInGBP * rate;
-  }, [currency]);
-
-  const formatPrice = useCallback((priceInGBP: number, showOriginal = false): string => {
-    const convertedPrice = convertPrice(priceInGBP);
-    const currencyInfo = CURRENCIES[currency];
+  // Convert price from one currency to visitor's currency
+  const convertPrice = useCallback((price: number, fromCurrency: Currency, toCurrency?: Currency): number => {
+    const targetCurrency = toCurrency || currency;
     
-    const formatted = new Intl.NumberFormat(currencyInfo.locale, {
-      style: 'currency',
-      currency: currency,
-      minimumFractionDigits: currency === 'HUF' ? 0 : 2,
-      maximumFractionDigits: currency === 'HUF' ? 0 : 2,
-    }).format(convertedPrice);
-
-    if (showOriginal && currency !== 'GBP') {
-      const originalFormatted = new Intl.NumberFormat('en-GB', {
-        style: 'currency',
-        currency: 'GBP',
-        minimumFractionDigits: 2,
-      }).format(priceInGBP);
-      return `${formatted} (${originalFormatted})`;
+    if (fromCurrency === targetCurrency) {
+      return price;
     }
 
-    return formatted;
+    // Convert to GBP first (base currency), then to target
+    const priceInGBP = price / EXCHANGE_RATES[fromCurrency];
+    const priceInTarget = priceInGBP * EXCHANGE_RATES[targetCurrency];
+    
+    return priceInTarget;
+  }, [currency]);
+
+  // Format price in visitor's currency
+  const formatPrice = useCallback((price: number, fromCurrency: Currency = 'GBP'): string => {
+    const convertedPrice = convertPrice(price, fromCurrency, currency);
+    const currencyInfo = CURRENCIES[currency];
+    
+    return new Intl.NumberFormat(currencyInfo.locale, {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(convertedPrice);
   }, [currency, convertPrice]);
 
   const value: CurrencyContextType = {
     currency,
     currencyInfo: CURRENCIES[currency],
-    setCurrency,
     formatPrice,
     convertPrice,
     availableCurrencies: Object.values(CURRENCIES),
-    baseCurrency: 'GBP',
+    detectedCountry,
+    isDetecting,
   };
 
   return (
@@ -175,11 +154,31 @@ export const useCurrency = () => {
   return context;
 };
 
+// Get currency based on country code
+function getCurrencyForCountry(countryCode: string): Currency {
+  // Romania -> RON
+  if (countryCode === 'RO') return 'RON';
+  
+  // UK -> GBP
+  if (countryCode === 'GB' || countryCode === 'UK') return 'GBP';
+  
+  // European countries -> EUR
+  const europeanCountries = [
+    'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT', 'IE', 'PT', 'GR', 'FI', 'SK', 
+    'SI', 'LV', 'LT', 'EE', 'CY', 'MT', 'LU', 'PL', 'CZ', 'HU', 'BG', 'SE', 
+    'DK', 'NO', 'CH', 'HR', 'MD'
+  ];
+  if (europeanCountries.includes(countryCode)) return 'EUR';
+  
+  // Rest of the world -> USD
+  return 'USD';
+}
+
 // Helper to guess country from timezone
 function getCountryFromTimezone(timezone: string): string | null {
   const timezoneCountryMap: Record<string, string> = {
-    'Europe/London': 'GB',
     'Europe/Bucharest': 'RO',
+    'Europe/London': 'GB',
     'Europe/Berlin': 'DE',
     'Europe/Paris': 'FR',
     'Europe/Rome': 'IT',
@@ -202,6 +201,7 @@ function getCountryFromTimezone(timezone: string): string | null {
     'America/New_York': 'US',
     'America/Los_Angeles': 'US',
     'America/Chicago': 'US',
+    'America/Denver': 'US',
   };
   return timezoneCountryMap[timezone] || null;
 }

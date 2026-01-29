@@ -223,7 +223,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           {/* Price & Buy Button */}
           <div className="mt-auto pt-3 space-y-2">
             <p className="text-xl md:text-2xl font-bold text-foreground">
-              {formatPrice(listing.price)}
+              {formatPrice(listing.price, ((listing as any).price_currency || 'GBP') as any)}
             </p>
             
             <Button 

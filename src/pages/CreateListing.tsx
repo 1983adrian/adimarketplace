@@ -90,6 +90,9 @@ const CreateListing = () => {
   const [promoteProduct, setPromoteProduct] = useState(false);
   const PROMOTION_PRICE = 5; // RON
   const PROMOTION_DURATION = 7; // days
+  
+  // Seller currency selection
+  const [priceCurrency, setPriceCurrency] = useState<'RON' | 'GBP' | 'EUR' | 'USD'>('GBP');
 
   // Predefined sizes and colors
   const SHOE_SIZES = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
@@ -247,6 +250,8 @@ const CreateListing = () => {
         cod_fixed_fee: codEnabled ? parseFloat(codFixedFee) : null,
         cod_transport_fee: codEnabled ? parseFloat(codTransportFee) : null,
         seller_country: sellerCountry || sellerCountryInput || null,
+        // Seller's chosen currency for the price
+        price_currency: priceCurrency,
       };
 
       const newListing = await createListing.mutateAsync(listingData);
@@ -773,24 +778,43 @@ const CreateListing = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               {listingType !== 'auction' && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="price">
                       {listingType === 'both' ? 'Preț Buy Now *' : 'Preț *'}
                     </Label>
                     <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        {priceCurrency === 'RON' ? 'lei' : priceCurrency === 'EUR' ? '€' : priceCurrency === 'USD' ? '$' : '£'}
+                      </span>
                       <Input 
                         id="price" 
                         type="number" 
                         placeholder="0" 
                         value={price} 
                         onChange={(e) => setPrice(e.target.value)} 
-                        className="pl-8" 
+                        className="pl-10" 
                         min="0" 
                         step="0.01" 
                       />
                     </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="priceCurrency">Moneda Prețului *</Label>
+                    <Select value={priceCurrency} onValueChange={(v) => setPriceCurrency(v as 'RON' | 'GBP' | 'EUR' | 'USD')}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selectează moneda" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="RON">🇷🇴 RON (Lei)</SelectItem>
+                        <SelectItem value="GBP">🇬🇧 GBP (£)</SelectItem>
+                        <SelectItem value="EUR">🇪🇺 EUR (€)</SelectItem>
+                        <SelectItem value="USD">🇺🇸 USD ($)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Prețul va fi afișat automat în moneda vizitatorului
+                    </p>
                   </div>
                 </div>
               )}

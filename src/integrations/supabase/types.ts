@@ -678,6 +678,7 @@ export type Database = {
           listing_type: string | null
           location: string | null
           price: number
+          price_currency: string | null
           quantity: number | null
           reserve_price: number | null
           seller_country: string | null
@@ -710,6 +711,7 @@ export type Database = {
           listing_type?: string | null
           location?: string | null
           price: number
+          price_currency?: string | null
           quantity?: number | null
           reserve_price?: number | null
           seller_country?: string | null
@@ -742,6 +744,7 @@ export type Database = {
           listing_type?: string | null
           location?: string | null
           price?: number
+          price_currency?: string | null
           quantity?: number | null
           reserve_price?: number | null
           seller_country?: string | null

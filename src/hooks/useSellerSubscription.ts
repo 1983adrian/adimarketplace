@@ -153,8 +153,9 @@ export const useSellerPortal = () => {
 export const useSubscriptionPrice = () => {
   const { currency, convertPrice, formatPrice } = useCurrency();
   
-  const priceInLocalCurrency = convertPrice(BASE_SUBSCRIPTION_GBP);
-  const formattedPrice = formatPrice(BASE_SUBSCRIPTION_GBP);
+  // convertPrice now requires fromCurrency
+  const priceInLocalCurrency = convertPrice(BASE_SUBSCRIPTION_GBP, 'GBP');
+  const formattedPrice = formatPrice(BASE_SUBSCRIPTION_GBP, 'GBP');
   
   return {
     basePrice: BASE_SUBSCRIPTION_GBP,
