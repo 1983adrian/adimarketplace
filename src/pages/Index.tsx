@@ -14,8 +14,8 @@ const Index = () => {
   return (
     <>
       <SEOHead 
-        title="Marketplace România - Cumpără și Vinde Online | Alternativă OLX & eBay"
-        description="Marketplace românesc pentru cumpărături și vânzări online. Licitații, produse noi și second-hand. Livrare rapidă în toată România. Comision doar 8%. Cel mai mic comision din România!"
+        title="Marketplace România | Market România - Cumpără și Vinde Online"
+        description="Marketplace România - cel mai mare market online din România. Place România pentru licitații, produse noi și second-hand. Livrare rapidă în toată România. Comision doar 8% - cel mai mic din România!"
         url="https://www.marketplaceromania.com"
         type="website"
       />

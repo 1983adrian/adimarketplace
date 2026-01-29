@@ -11,7 +11,8 @@ interface MarketplaceBrandProps {
 }
 
 /**
- * Unified branding component for "Marketplace România"
+ * Unified branding component for "Marketplace România" / "Market România"
+ * SEO Keywords: Marketplace România, Market România, Place România
  * Colors: Market (blue), place (orange), România (green with colored accents)
  * 
  * Variants:
@@ -90,7 +91,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
         </span>
       </h1>
 
-      {/* Tagline */}
+      {/* Tagline - SEO optimized */}
       {showTagline && (
         <p className={cn(
           'text-muted-foreground font-medium',
@@ -102,7 +103,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
           <span className="mx-1.5 text-muted-foreground/50">•</span>
           <span className="text-[#EA4335]">Licitează</span>
           <span className="mx-2 text-muted-foreground">—</span>
-          <span className="text-muted-foreground">Produse noi și second-hand</span>
+          <span className="text-muted-foreground">Market România pentru produse noi și second-hand</span>
         </p>
       )}
 

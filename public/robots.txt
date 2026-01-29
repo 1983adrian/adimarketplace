@@ -1,5 +1,6 @@
-# Marketplace România - Robots.txt
-# Updated: 2026-01-28 - SEO Optimized for Fast Indexing
+# Marketplace România | Market România | Place România - Robots.txt
+# SEO Keywords: marketplace romania, market romania, place romania
+# Updated: 2026-01-29 - SEO Optimized for Fast Indexing
 
 # Google - Priority crawler, no delay
 User-agent: Googlebot

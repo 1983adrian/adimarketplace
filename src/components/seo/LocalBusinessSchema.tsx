@@ -6,8 +6,8 @@ export const LocalBusinessSchema: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "OnlineStore",
     "name": "Marketplace România",
-    "alternateName": ["C Market", "MarketplaceRomania", "Marketplace RO"],
-    "description": "Prima platformă 100% românească de cumpărături și vânzări online cu licitații integrate. Comision doar 8%.",
+    "alternateName": ["Market România", "Place România", "MarketplaceRomania", "Marketplace RO", "Market RO", "C Market", "Piata Online Romania"],
+    "description": "Marketplace România - cel mai mare market online din România. Place România pentru cumpărături și vânzări online cu licitații integrate. Comision doar 8% - cel mai mic din România!",
     "url": "https://www.marketplaceromania.com",
     "logo": "https://www.marketplaceromania.com/icons/icon-512x512.png",
     "image": "https://www.marketplaceromania.com/og-image.png",
@@ -140,8 +140,8 @@ export const LocalBusinessSchema: React.FC = () => {
         "target": "https://www.marketplaceromania.com/browse"
       }
     ],
-    "slogan": "Cumpără și vinde online în România - Comision doar 8%",
-    "keywords": "marketplace romania, olx alternativa, ebay romania, cumparaturi online, vanzari online, licitatii online, second hand romania"
+    "slogan": "Marketplace România - Market România pentru Cumpără și Vinde Online cu Comision Doar 8%",
+    "keywords": "marketplace romania, market romania, place romania, marketplace ro, market ro, olx alternativa, ebay romania, cumparaturi online romania, vanzari online romania, licitatii online romania, second hand romania, piata online romania, anunturi romania"
   };
 
   return (

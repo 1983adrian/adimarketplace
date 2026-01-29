@@ -19,8 +19,8 @@ interface SEOHeadProps {
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
-  title = 'Marketplace România - Cumpără și Vinde Online',
-  description = 'Platformă de licitații și vânzări directe cu taxe mici (8%). Cumpără și vinde produse la cel mai bun preț în România.',
+  title = 'Marketplace România | Market România - Cumpără și Vinde Online',
+  description = 'Marketplace România - cel mai mare market online din România. Place România pentru licitații și vânzări directe cu taxe mici (8%). Cumpără și vinde la cel mai bun preț!',
   image = 'https://www.marketplaceromania.com/og-image.png',
   url = 'https://www.marketplaceromania.com',
   type = 'website',
@@ -34,20 +34,22 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   startingBid,
   noindex = false
 }) => {
-  const fullTitle = title.includes('Marketplace') ? title : `${title} | Marketplace România`;
+  const fullTitle = title.includes('Marketplace') || title.includes('Market') ? title : `${title} | Marketplace România`;
 
   // Generate JSON-LD structured data
   const generateSchemaMarkup = () => {
     const schemas: any[] = [];
 
-    // Organization Schema
+    // Organization Schema with brand keywords
     schemas.push({
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "Marketplace România",
-      "alternateName": "C Market România",
+      "alternateName": ["Market România", "Place România", "MarketplaceRomania", "Marketplace RO", "Market RO", "C Market România"],
       "url": "https://www.marketplaceromania.com",
       "logo": "https://www.marketplaceromania.com/icons/icon-512x512.png",
+      "description": "Marketplace România - cel mai mare market online din România. Place România pentru cumpărături și vânzări sigure.",
+      "slogan": "Market România - Cumpără și Vinde Online cu Comision Doar 8%",
       "sameAs": [
         "https://www.facebook.com/marketplaceromania",
         "https://www.instagram.com/marketplaceromania",
