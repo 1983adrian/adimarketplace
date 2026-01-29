@@ -91,8 +91,8 @@ const CreateListing = () => {
   const PROMOTION_PRICE = 5; // RON
   const PROMOTION_DURATION = 7; // days
   
-  // Seller currency selection
-  const [priceCurrency, setPriceCurrency] = useState<'RON' | 'GBP' | 'EUR' | 'USD'>('GBP');
+  // Seller currency selection - default to RON for Romanian sellers
+  const [priceCurrency, setPriceCurrency] = useState<'RON' | 'GBP' | 'EUR' | 'USD'>('RON');
 
   // Predefined sizes and colors
   const SHOE_SIZES = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];

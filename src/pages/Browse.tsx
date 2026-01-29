@@ -243,7 +243,7 @@ const Browse = () => {
                     {listing.title}
                   </h3>
                   <p className="text-lg md:text-xl font-bold text-primary mt-1">
-                    {formatPrice(listing.price, ((listing as any).price_currency || 'GBP') as any)}
+                    {formatPrice(listing.price, ((listing as any).price_currency || 'RON') as any)}
                   </p>
                   {listing.location && (
                     <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">

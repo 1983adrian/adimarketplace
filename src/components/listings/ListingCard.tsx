@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Star, Truck, CheckCircle, Gavel, Banknote, Share2 } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Truck, Gavel, Banknote, Share2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,13 +22,7 @@ interface ListingCardProps {
   listing: ListingWithImages;
 }
 
-const conditionLabels: Record<ItemCondition, string> = {
-  new: 'New',
-  like_new: 'Like New',
-  good: 'Good',
-  fair: 'Fair',
-  poor: 'Poor',
-};
+// Condition labels will use translation function - defined inside component
 
 const conditionStyles: Record<ItemCondition, string> = {
   new: 'bg-success text-success-foreground',
@@ -48,6 +42,15 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
   const { toast } = useToast();
   const { playFavoriteSound } = useNotificationSound();
   const navigate = useNavigate();
+
+  // Condition labels with translation
+  const conditionLabels: Record<ItemCondition, string> = {
+    new: t('condition.new'),
+    like_new: t('condition.like_new'),
+    good: t('condition.good'),
+    fair: t('condition.fair'),
+    poor: t('condition.poor'),
+  };
 
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
   const imageUrl = primaryImage?.image_url || '/placeholder.svg';
@@ -166,22 +169,18 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {conditionLabels[listing.condition]}
           </Badge>
           
-          {/* Badges Row */}
+          {/* Badges Row - Simplified to avoid duplicates */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
-            <div className="flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
-              <Truck className="h-3 w-3" />
-              Free Shipping
-            </div>
+            {listing.shipping_cost === 0 && (
+              <div className="flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
+                <Truck className="h-3 w-3" />
+                {t('listing.freeShipping')}
+              </div>
+            )}
             {isAuction && (
               <div className="flex items-center gap-1 bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
                 <Gavel className="h-3 w-3" />
                 Licitație
-              </div>
-            )}
-            {isVerified && (
-              <div className="flex items-center gap-1 bg-green-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                <CheckCircle className="h-3 w-3" />
-                Verificat
               </div>
             )}
             {(listing as any).cod_enabled && (
@@ -190,6 +189,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
                 Ramburs
               </div>
             )}
+          </div>
+          
+          {/* Verified Badge - Bottom Left */}
+          <div className="absolute bottom-2 right-2">
             <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={false} />
           </div>
         </div>
@@ -223,7 +226,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           {/* Price & Buy Button */}
           <div className="mt-auto pt-3 space-y-2">
             <p className="text-xl md:text-2xl font-bold text-foreground">
-              {formatPrice(listing.price, ((listing as any).price_currency || 'GBP') as any)}
+              {formatPrice(listing.price, ((listing as any).price_currency || 'RON') as any)}
             </p>
             
             <Button 

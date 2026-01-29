@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import { useCurrency } from '@/contexts/CurrencyContext';
 import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
 
@@ -46,18 +47,17 @@ const FavoriteButton: React.FC<{ listingId: string; userId?: string }> = ({ list
 interface PromotedGridProps {
   listings: any[];
   conditionLabels: Record<string, string>;
-  formatPrice: (price: number) => string;
   t: (key: string) => string;
 }
 
 export const PromotedGrid: React.FC<PromotedGridProps> = ({
   listings,
   conditionLabels,
-  formatPrice,
   t,
 }) => {
   const { user } = useAuth();
   const { addItem } = useCart();
+  const { formatPrice } = useCurrency();
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -120,7 +120,7 @@ export const PromotedGrid: React.FC<PromotedGridProps> = ({
                   {listing.title}
                 </h3>
                 <p className="text-lg font-bold text-primary">
-                  {formatPrice(listing.price)}
+                  {formatPrice(listing.price, ((listing as any).price_currency || 'RON') as any)}
                 </p>
                 
                 {/* Action Buttons - Always Visible */}
