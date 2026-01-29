@@ -169,18 +169,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {conditionLabels[listing.condition]}
           </Badge>
           
-          {/* Badges Row - Simplified to avoid duplicates */}
+          {/* Badges Row - Only shipping and COD, auction badge is on button */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {listing.shipping_cost === 0 && (
               <div className="flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
                 <Truck className="h-3 w-3" />
                 {t('listing.freeShipping')}
-              </div>
-            )}
-            {isAuction && (
-              <div className="flex items-center gap-1 bg-orange-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                <Gavel className="h-3 w-3" />
-                Licitație
               </div>
             )}
             {(listing as any).cod_enabled && (
@@ -241,11 +235,25 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             
             <Button 
               size="sm" 
-              className="w-full gap-2 gradient-primary text-primary-foreground font-medium"
+              className={cn(
+                "w-full gap-2 font-medium",
+                isAuction 
+                  ? "bg-orange-500 hover:bg-orange-600 text-white" 
+                  : "gradient-primary text-primary-foreground"
+              )}
               onClick={handleAddToCart}
             >
-              <ShoppingCart className="h-4 w-4" />
-              {t('listing.addToCart')}
+              {isAuction ? (
+                <>
+                  <Gavel className="h-4 w-4" />
+                  Licitează
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4" />
+                  {t('listing.addToCart')}
+                </>
+              )}
             </Button>
           </div>
         </CardContent>
