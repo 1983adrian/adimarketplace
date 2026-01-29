@@ -58,8 +58,8 @@ const defaultSettings: PlatformSettings = {
     supportEmail: 'support@marketplace-romania.ro',
   },
   localization: {
-    defaultLanguage: 'en',
-    defaultCurrency: 'GBP',
+    defaultLanguage: 'ro',
+    defaultCurrency: 'RON',
   },
   notifications: {
     emailNotifications: true,

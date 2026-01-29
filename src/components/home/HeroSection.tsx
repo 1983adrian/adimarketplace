@@ -252,7 +252,7 @@ export const HeroSection: React.FC = () => {
               ))}
             </div>
           ) : listings && listings.length > 0 ? (
-            <PopularProductsGrid listings={listings} conditionLabels={conditionLabels} formatPrice={formatPrice} />
+            <PopularProductsGrid listings={listings} conditionLabels={conditionLabels} />
           ) : (
             <div className="text-center py-12 text-muted-foreground">
               <p>Nu există produse disponibile momentan.</p>

@@ -79,8 +79,7 @@ export const PromotedListings: React.FC = () => {
 
         <PromotedGrid 
           listings={promotedListings.slice(0, 8)} 
-          conditionLabels={conditionLabels} 
-          formatPrice={formatPrice} 
+          conditionLabels={conditionLabels}
           t={t}
         />
       </div>

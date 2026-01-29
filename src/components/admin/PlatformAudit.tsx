@@ -161,7 +161,7 @@ export const PlatformAudit = forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
             { id: 'pay-payouts', name: 'Payouts Vânzători', status: 'pass', details: 'process-payout edge function', metric: 'IBAN + Card UK' },
             { id: 'pay-kyc', name: 'KYC Onboarding', status: 'pass', details: 'kyc-onboarding edge function', metric: 'PF/PJ support' },
             { id: 'pay-invoices', name: 'Facturare', status: 'pass', details: 'Generare automată facturi', metric: `${invoicesResult.count || 0} facturi` },
-            { id: 'pay-currency', name: 'Valută', status: 'pass', details: 'GBP (Lire Sterline)', metric: '£ GBP' },
+            { id: 'pay-currency', name: 'Valută', status: 'pass', details: 'Multi-valutar (RON, EUR, GBP, USD)', metric: 'RON default' },
           ],
         },
         // NOTIFICATIONS

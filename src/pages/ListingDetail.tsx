@@ -200,7 +200,7 @@ const ListingDetail = () => {
       />
       <div className="container mx-auto px-4 py-8">
         <Button variant="ghost" className="mb-6" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back
+          <ArrowLeft className="h-4 w-4 mr-2" /> Înapoi
         </Button>
 
         <div className="grid lg:grid-cols-2 gap-8">

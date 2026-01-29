@@ -52,7 +52,7 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
 export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [currency, setCurrency] = useState<Currency>('GBP');
+  const [currency, setCurrency] = useState<Currency>('RON');
   const [detectedCountry, setDetectedCountry] = useState<string | null>(null);
   const [isDetecting, setIsDetecting] = useState(true);
 
@@ -91,8 +91,8 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
           }
         }
       } catch (e) {
-        console.log('IP geolocation failed, using default GBP');
-        setCurrency('GBP');
+        console.log('IP geolocation failed, using default RON');
+        setCurrency('RON');
       }
       
       setIsDetecting(false);
@@ -117,7 +117,7 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
   }, [currency]);
 
   // Format price in visitor's currency
-  const formatPrice = useCallback((price: number, fromCurrency: Currency = 'GBP'): string => {
+  const formatPrice = useCallback((price: number, fromCurrency: Currency = 'RON'): string => {
     const convertedPrice = convertPrice(price, fromCurrency, currency);
     const currencyInfo = CURRENCIES[currency];
     
