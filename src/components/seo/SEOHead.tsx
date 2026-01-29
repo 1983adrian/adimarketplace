@@ -73,8 +73,25 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       }
     });
 
-    // Product Schema (when applicable)
-    if (type === 'product' && price) {
+    // Product Schema (when applicable) - Google Search Console compliant
+    if (type === 'product') {
+      // Ensure price is a valid number for Schema.org
+      const validPrice = price !== undefined && price !== null ? Number(price) : 0;
+      const formattedPrice = validPrice.toFixed(2);
+      
+      // Map availability to full Schema.org URLs (required by Google)
+      const availabilityMap: Record<string, string> = {
+        'InStock': 'https://schema.org/InStock',
+        'OutOfStock': 'https://schema.org/OutOfStock',
+        'PreOrder': 'https://schema.org/PreOrder',
+        'Discontinued': 'https://schema.org/Discontinued',
+        'SoldOut': 'https://schema.org/SoldOut'
+      };
+      const schemaAvailability = availabilityMap[availability] || 'https://schema.org/InStock';
+      
+      // Validate currency (must be 3-letter ISO 4217 code)
+      const validCurrency = ['RON', 'EUR', 'GBP', 'USD'].includes(currency) ? currency : 'RON';
+
       const productSchema: any = {
         "@context": "https://schema.org",
         "@type": "Product",
@@ -82,25 +99,32 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
         "description": description,
         "image": image,
         "url": url,
+        "sku": url.split('/').pop() || 'unknown', // Use listing ID as SKU
+        "brand": {
+          "@type": "Brand",
+          "name": "Marketplace România"
+        },
         "offers": {
-          "@type": isAuction ? "AggregateOffer" : "Offer",
-          "price": price,
-          "priceCurrency": currency,
-          "availability": `https://schema.org/${availability}`,
+          "@type": "Offer",
+          "url": url,
+          "price": formattedPrice,
+          "priceCurrency": validCurrency,
+          "availability": schemaAvailability,
+          "itemCondition": "https://schema.org/UsedCondition",
           "seller": {
             "@type": "Organization",
-            "name": "Marketplace România"
+            "name": "Marketplace România",
+            "url": "https://www.marketplaceromania.com"
           }
         }
       };
 
       // Add auction-specific data
       if (isAuction && auctionEndDate) {
-        productSchema.offers["@type"] = "Offer";
         productSchema.offers.priceValidUntil = auctionEndDate;
         productSchema.offers.availabilityEnds = auctionEndDate;
         
-        // Add Auction schema
+        // Add Auction schema as Event
         schemas.push({
           "@context": "https://schema.org",
           "@type": "Event",
@@ -113,8 +137,9 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
           "endDate": auctionEndDate,
           "offers": {
             "@type": "Offer",
-            "price": startingBid || price,
-            "priceCurrency": currency,
+            "url": url,
+            "price": (startingBid || validPrice).toFixed(2),
+            "priceCurrency": validCurrency,
             "availability": "https://schema.org/InStock"
           },
           "organizer": {
@@ -129,10 +154,10 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       if (rating && reviewCount && reviewCount > 0) {
         productSchema.aggregateRating = {
           "@type": "AggregateRating",
-          "ratingValue": rating,
+          "ratingValue": Number(rating).toFixed(1),
           "reviewCount": reviewCount,
-          "bestRating": 5,
-          "worstRating": 1
+          "bestRating": "5",
+          "worstRating": "1"
         };
       }
 

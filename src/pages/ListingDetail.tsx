@@ -19,6 +19,7 @@ import { SimilarListings } from '@/components/listings/SimilarListings';
 import { AuctionBidding } from '@/components/listings/AuctionBidding';
 import { CODBadge } from '@/components/listings/CODBadge';
 import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSellerStats } from '@/hooks/useReviews';
@@ -172,8 +173,31 @@ const ListingDetail = () => {
   const isBuyNow = listing.listing_type === 'buy_now' || listing.listing_type === 'both';
   const isVerifiedSeller = sellerProfile?.is_verified;
 
+  // SEO Data Preparation
+  const seoPrice = listing.buy_now_price || listing.price;
+  const seoCurrency = listing.price_currency || 'RON';
+  const seoAvailability = listing.is_sold ? 'OutOfStock' : 'InStock';
+  const seoUrl = `https://www.marketplaceromania.com/listing/${listing.id}`;
+  const seoImage = primaryImage || 'https://www.marketplaceromania.com/og-image.png';
+
   return (
     <Layout>
+      {/* Product SEO Schema */}
+      <SEOHead
+        title={listing.title}
+        description={listing.description?.slice(0, 155) || `${listing.title} - Cumpără acum pe Marketplace România`}
+        image={seoImage}
+        url={seoUrl}
+        type="product"
+        price={seoPrice}
+        currency={seoCurrency}
+        availability={seoAvailability as 'InStock' | 'OutOfStock' | 'PreOrder'}
+        rating={sellerStats?.average_rating}
+        reviewCount={sellerStats?.total_reviews}
+        isAuction={isAuction}
+        auctionEndDate={listing.auction_end_date}
+        startingBid={listing.starting_bid}
+      />
       <div className="container mx-auto px-4 py-8">
         <Button variant="ghost" className="mb-6" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4 mr-2" /> Back
