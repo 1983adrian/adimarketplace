@@ -2,20 +2,6 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 export type Language = 'ro' | 'en';
 
-// Country to language mapping
-const COUNTRY_LANGUAGE: Record<string, Language> = {
-  RO: 'ro', MD: 'ro',
-  GB: 'en', US: 'en', AU: 'en', CA: 'en', IE: 'en', NZ: 'en',
-  DE: 'en', AT: 'en', CH: 'en',
-  FR: 'en', BE: 'en',
-  ES: 'en',
-  IT: 'en',
-  PL: 'en',
-  HU: 'en',
-  BG: 'en',
-  NL: 'en',
-};
-
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
@@ -453,9 +439,9 @@ const translations: Record<Language, Record<string, string>> = {
     'messages.noMessages': 'Niciun mesaj încă',
     
     // Cart
-    'cart.title': 'Coșul de Cumpărături',
+    'cart.title': 'Coș de Cumpărături',
     'cart.empty': 'Coșul tău este gol',
-    'cart.checkout': 'Finalizează Comanda',
+    'cart.checkout': 'Finalizare Comandă',
     'cart.total': 'Total',
     'cart.remove': 'Șterge',
     'cart.continueShopping': 'Continuă Cumpărăturile',
@@ -464,8 +450,8 @@ const translations: Record<Language, Record<string, string>> = {
     'checkout.title': 'Finalizare Comandă',
     'checkout.shipping': 'Adresă de Livrare',
     'checkout.payment': 'Metodă de Plată',
-    'checkout.card': 'Plată cu Cardul',
-    'checkout.cod': 'Plată la Livrare',
+    'checkout.card': 'Plată cu Card',
+    'checkout.cod': 'Plata la Livrare',
     'checkout.placeOrder': 'Plasează Comanda',
     'checkout.processing': 'Se procesează...',
     
@@ -484,7 +470,7 @@ const translations: Record<Language, Record<string, string>> = {
     'common.viewAll': 'Vezi Tot',
     'common.currency': 'RON',
     'common.price': 'Preț',
-    'common.noResults': 'Niciun rezultat găsit',
+    'common.noResults': 'Nu s-au găsit rezultate',
     'common.tryAgain': 'Încearcă din nou',
     
     // Footer
@@ -506,12 +492,12 @@ const translations: Record<Language, Record<string, string>> = {
     'admin.totalOrders': 'Total Comenzi',
     'admin.allTime': 'Din totdeauna',
     'admin.platformRevenue': 'Venituri Platformă',
-    'admin.revenueDesc': 'Venituri totale din comenzile finalizate',
-    'admin.feeStructure': 'Structură Taxe Curente',
+    'admin.revenueDesc': 'Venituri totale din comenzi finalizate',
+    'admin.feeStructure': 'Structura Taxelor',
     'admin.activeFees': 'Taxe active pe platformă',
     'admin.buyerFee': 'Taxă Cumpărător',
     'admin.sellerCommission': 'Comision Vânzător',
-    'admin.sellerSubscription': 'Taxă Lunară Vânzător',
+    'admin.sellerSubscription': 'Abonament Lunar Vânzător',
     'admin.recentOrders': 'Comenzi Recente',
     'admin.latestTransactions': 'Ultimele tranzacții pe platformă',
     'admin.noOrders': 'Nicio comandă încă',
@@ -521,43 +507,56 @@ const translations: Record<Language, Record<string, string>> = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem('language') as Language;
-    if (saved) return saved;
-    
-    // Detect browser language
-    const browserLang = navigator.language.toLowerCase();
-    if (browserLang.startsWith('ro')) return 'ro';
-    return 'en';
-  });
+  const [language, setLanguageState] = useState<Language>('en');
   const [detectedFromLocation, setDetectedFromLocation] = useState(false);
 
-  // Auto-detect language from location
+  // Auto-detect language based on IP geolocation
   useEffect(() => {
-    const savedLang = localStorage.getItem('language');
-    if (savedLang) return; // User has set preference, don't auto-detect
+    const detectLanguage = async () => {
+      // Try timezone detection first (instant, no network)
+      try {
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (timezone === 'Europe/Bucharest') {
+          setLanguageState('ro');
+          setDetectedFromLocation(true);
+          return;
+        }
+      } catch (e) {
+        console.log('Timezone detection failed');
+      }
 
-    const detectedCountry = localStorage.getItem('detectedCountry');
-    if (detectedCountry) {
-      const langForCountry = COUNTRY_LANGUAGE[detectedCountry] || 'en';
-      setLanguageState(langForCountry);
-      setDetectedFromLocation(true);
-    }
+      // Fallback: IP geolocation
+      try {
+        const response = await fetch('https://ipapi.co/json/', { 
+          signal: AbortSignal.timeout(3000) 
+        });
+        if (response.ok) {
+          const data = await response.json();
+          // Only Romanian for Romania, English for everyone else
+          if (data.country_code === 'RO') {
+            setLanguageState('ro');
+            setDetectedFromLocation(true);
+          } else {
+            setLanguageState('en');
+            setDetectedFromLocation(true);
+          }
+        }
+      } catch (e) {
+        console.log('IP geolocation failed, using default English');
+        setLanguageState('en');
+      }
+    };
+
+    detectLanguage();
   }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('language', lang);
-    setDetectedFromLocation(false);
   };
 
   const t = (key: string): string => {
-    return translations[language][key] || translations['en'][key] || key;
+    return translations[language][key] || key;
   };
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-  }, [language]);
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t, detectedFromLocation }}>

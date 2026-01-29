@@ -261,7 +261,7 @@ export const FeaturedListings: React.FC = () => {
                       {listing.title}
                     </h3>
                     <p className="text-base sm:text-lg font-bold text-primary">
-                      {formatPrice(listing.price)}
+                      {formatPrice(listing.price, ((listing as any).price_currency || 'GBP') as any)}
                     </p>
                     
                     {/* Action Buttons - Always Visible */}
