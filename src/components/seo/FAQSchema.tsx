@@ -11,7 +11,7 @@ import { HelpCircle } from 'lucide-react';
 const faqs = [
   {
     question: "Ce este Marketplace România?",
-    answer: "Marketplace România este prima platformă 100% românească de cumpărături și vânzări online, cu sistem de licitații integrate. Oferim o alternativă locală la OLX, eBay și Amazon, cu comisioane de doar 8% - cele mai mici din România."
+    answer: "Marketplace România (cunoscut și ca Market România sau Place România) este cel mai mare market online 100% românesc pentru cumpărături și vânzări online, cu sistem de licitații integrate. Oferim o alternativă locală la OLX, eBay și Amazon, cu comisioane de doar 8% - cele mai mici din România."
   },
   {
     question: "Cât costă să vinzi pe Marketplace România?",

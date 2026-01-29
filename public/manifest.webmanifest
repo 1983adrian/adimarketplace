@@ -1,7 +1,7 @@
 {
-  "name": "Marketplace România - Cumpără și Vinde Online",
-  "short_name": "Marketplace RO",
-  "description": "Cumpără și vinde produse în siguranță pe Marketplace România. Marketplace-ul românesc cu plăți securizate și livrare rapidă.",
+  "name": "Marketplace România | Market România - Cumpără și Vinde Online",
+  "short_name": "Market România",
+  "description": "Marketplace România - cel mai mare market online din România. Place România pentru cumpărături și vânzări sigure cu plăți securizate și livrare rapidă. Comision doar 8%!",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",

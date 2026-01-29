@@ -43,7 +43,7 @@ export const Footer: React.FC = () => {
           <div className="col-span-2 md:col-span-1 space-y-4">
             <MarketplaceBrand size="sm" showTagline linkTo="/" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Marketplace-ul tău pentru cumpărare și vânzare de produse.
+              Marketplace România - cel mai mare market online din România. Place România pentru cumpărături și vânzări sigure cu comision doar 8%.
             </p>
           </div>
 
@@ -135,11 +135,11 @@ export const Footer: React.FC = () => {
         </div>
       </div>
 
-      {/* Copyright */}
+      {/* Copyright - SEO optimized */}
       <div className="border-t border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>© {currentYear} Marketplace România. Toate drepturile rezervate.</p>
+            <p>© {currentYear} Marketplace România | Market România - Cel mai mare market online din România. Toate drepturile rezervate.</p>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
               <span>Plăți securizate</span>
