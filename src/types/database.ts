@@ -41,12 +41,14 @@ export interface Listing {
   is_sold: boolean;
   is_active: boolean;
   views_count: number;
+  quantity: number | null;
   listing_type: ListingType | null;
   auction_end_date: string | null;
   starting_bid: number | null;
   reserve_price: number | null;
   buy_now_price: number | null;
   bid_increment: number | null;
+  price_currency: string | null;
   created_at: string;
   updated_at: string;
 }

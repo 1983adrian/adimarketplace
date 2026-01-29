@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Package, Plus, Eye, Edit, Trash2, Tag, Loader2 } from 'lucide-react';
+import { Package, Plus, Eye, Edit, Trash2, Tag, Loader2, Boxes } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -124,9 +124,17 @@ const MyProducts = () => {
                           </Badge>
                         </div>
 
-                        <div className="flex items-center gap-2 mt-3 text-sm text-muted-foreground">
-                          <Eye className="h-4 w-4" />
-                          {listing.views_count} vizualizări
+                        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Eye className="h-4 w-4" />
+                            {listing.views_count} vizualizări
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Boxes className="h-4 w-4" />
+                            <span className={listing.quantity <= 2 ? 'text-orange-600 font-medium' : ''}>
+                              {listing.quantity || 1} în stoc
+                            </span>
+                          </span>
                         </div>
 
                         {/* Actions */}
