@@ -9,6 +9,7 @@ import { LiveActivityFeed } from '@/components/seo/LiveActivityFeed';
 import { TrustSignals } from '@/components/seo/TrustSignals';
 import { FAQSchema } from '@/components/seo/FAQSchema';
 import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
+import { BrandSchema } from '@/components/seo/BrandSchema';
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
         type="website"
       />
       <LocalBusinessSchema />
+      <BrandSchema />
       <Layout>
         <HeroSection />
         <LiveActivityFeed />
