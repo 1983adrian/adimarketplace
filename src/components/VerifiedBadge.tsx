@@ -140,7 +140,9 @@ export const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <BadgeIcon ref={ref} size={size} />
+        <span className="inline-flex">
+          <BadgeIcon ref={ref} size={size} />
+        </span>
       </TooltipTrigger>
       <TooltipContent>
         <p className="font-medium">{badgeType}</p>
