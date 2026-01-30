@@ -27,7 +27,7 @@ export const BrandSchema: React.FC = () => {
     ],
     "description": "Marketplace România este brandul oficial al celui mai mare market online 100% românesc. Cunoscut și ca Market România sau Place România, oferim o platformă sigură pentru cumpărături și vânzări online cu cel mai mic comision din România (8%).",
     "url": "https://www.marketplaceromania.com",
-    "logo": "https://www.marketplaceromania.com/icons/icon-512x512.png",
+    "logo": "https://www.marketplaceromania.com/logo-oficial.png",
     "image": "https://www.marketplaceromania.com/og-image.png",
     "slogan": "Marketplace România - Cumpără, Vinde, Licitează!",
     "foundingDate": "2024",
@@ -45,10 +45,8 @@ export const BrandSchema: React.FC = () => {
       "name": "România"
     },
     "sameAs": [
-      "https://www.facebook.com/marketplaceromania",
-      "https://www.instagram.com/marketplaceromania",
-      "https://www.tiktok.com/@marketplaceromania",
-      "https://twitter.com/marketplacero"
+      "https://www.tiktok.com/@MarketPlaceRomania",
+      "https://www.instagram.com/MarketPlaceRomania"
     ]
   };
 
@@ -69,7 +67,7 @@ export const BrandSchema: React.FC = () => {
       "name": "Marketplace România"
     },
     "url": "https://www.marketplaceromania.com",
-    "logo": "https://www.marketplaceromania.com/icons/icon-512x512.png",
+    "logo": "https://www.marketplaceromania.com/logo-oficial.png",
     "description": "Marketplace România - Cel mai mare market online din România cu cel mai mic comision (8%). Alternativă românească la Facebook Marketplace, OLX și eBay.",
     "foundingDate": "2024",
     "foundingLocation": {

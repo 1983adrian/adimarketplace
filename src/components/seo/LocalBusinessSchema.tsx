@@ -9,10 +9,10 @@ export const LocalBusinessSchema: React.FC = () => {
     "alternateName": ["Market România", "Place România", "Market Place România", "MarketplaceRomania", "Marketplace RO", "Market RO", "Market Place RO", "Market Place", "C Market", "Piata Online Romania", "www.marketplaceromania.com"],
     "description": "Marketplace România - cel mai mare market online din România. Place România pentru cumpărături și vânzări online cu licitații integrate. Comision doar 8% - cel mai mic din România!",
     "url": "https://www.marketplaceromania.com",
-    "logo": "https://www.marketplaceromania.com/icons/icon-512x512.png",
+    "logo": "https://www.marketplaceromania.com/logo-oficial.png",
     "image": "https://www.marketplaceromania.com/og-image.png",
-    "telephone": "+40-XXX-XXX-XXX",
-    "email": "contact@marketplaceromania.com",
+    "telephone": "+40 7949 421640",
+    "email": "Adrianchirita01@gmail.com",
     "foundingDate": "2024",
     "founder": {
       "@type": "Organization",
@@ -47,10 +47,8 @@ export const LocalBusinessSchema: React.FC = () => {
       "closes": "23:59"
     },
     "sameAs": [
-      "https://www.facebook.com/marketplaceromania",
-      "https://www.instagram.com/marketplaceromania",
-      "https://www.tiktok.com/@marketplaceromania",
-      "https://twitter.com/marketplacero"
+      "https://www.tiktok.com/@MarketPlaceRomania",
+      "https://www.instagram.com/MarketPlaceRomania"
     ],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
