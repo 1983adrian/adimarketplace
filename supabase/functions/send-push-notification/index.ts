@@ -87,6 +87,20 @@ serve(async (req: Request) => {
       );
     }
 
+    // Rate limiting check - max 20 notifications per hour per sender
+    const { data: rateCheck } = await supabase.rpc('check_push_rate_limit', {
+      p_user_id: claimsData.user.id,
+      p_max_per_hour: 20
+    });
+
+    if (rateCheck === false) {
+      console.log("Rate limit exceeded for user:", claimsData.user.id);
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Maximum 20 notifications per hour." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Get only VALID and NON-EXPIRED push tokens for this user
     const { data: tokens, error: tokenError } = await supabase
       .from("push_tokens")
