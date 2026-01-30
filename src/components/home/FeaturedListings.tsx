@@ -238,17 +238,11 @@ export const FeaturedListings: React.FC = () => {
                     />
                     <FavoriteButton listingId={listing.id} userId={user?.id} />
                     
-                    {/* Badges Row - Top Left */}
+                    {/* Badges Row - Top Left - Only condition badge, auction shown via button */}
                     <div className="absolute top-2 left-2 flex flex-col gap-1">
                       <Badge className="bg-secondary text-secondary-foreground text-xs">
                         {conditionLabels[listing.condition]}
                       </Badge>
-                      {isAuction && (
-                        <Badge className="bg-orange-500 text-white text-xs flex items-center gap-1">
-                          <Gavel className="h-3 w-3" />
-                          Licitație
-                        </Badge>
-                      )}
                     </div>
                     
                     {/* Verified Badge - Bottom Right */}
