@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin, Ban, Leaf, Bomb } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin, Ban, Leaf, Bomb, Store } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -178,8 +178,10 @@ const CreateListing = () => {
       return;
     }
 
+    // Verificăm dacă utilizatorul este vânzător activat (nu mai necesită abonament)
     if (!isSubscribed) {
-      toast({ title: 'Abonament necesar', description: 'Ai nevoie de un abonament activ de vânzător pentru a crea listări', variant: 'destructive' });
+      toast({ title: 'Mod Vânzător inactiv', description: 'Activează Modul Vânzător pentru a crea listări.', variant: 'destructive' });
+      navigate('/seller-mode');
       return;
     }
 
@@ -338,26 +340,29 @@ const CreateListing = () => {
     );
   }
 
-  // Show subscription required screen
+  // Show seller mode required screen (no subscription needed, just seller activation)
   if (!subscriptionLoading && !isSubscribed) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 max-w-md text-center">
-          <Crown className="h-16 w-16 mx-auto mb-6 text-primary" />
-          <h1 className="text-2xl font-bold mb-4">Devino Vânzător</h1>
+          <Store className="h-16 w-16 mx-auto mb-6 text-amber-500" />
+          <h1 className="text-2xl font-bold mb-4">Activează Modul Vânzător</h1>
           <p className="text-muted-foreground mb-6">
-            Pentru a lista produse spre vânzare, ai nevoie de un abonament de vânzător. 
-            Costă doar {subscriptionPrice.formattedPrice}/lună (debitată automat), plus un comision de 10% când faci o vânzare.
+            Pentru a lista produse spre vânzare, trebuie să activezi modul vânzător și să completezi datele de plată.
+            <br /><br />
+            <strong>Fără taxe de listare sau abonamente lunare!</strong><br />
+            Comision de 8% aplicat doar la vânzare.
           </p>
           <div className="space-y-3">
             <Button 
               size="lg" 
               className="w-full gap-2"
-              onClick={() => createSubscription.mutate()}
-              disabled={createSubscription.isPending}
+              asChild
             >
-              <Crown className="h-4 w-4" />
-              {createSubscription.isPending ? 'Se încarcă...' : `Activează Accesul - ${subscriptionPrice.formattedPrice}/lună`}
+              <Link to="/seller-mode">
+                <Store className="h-4 w-4" />
+                Activează Modul Vânzător
+              </Link>
             </Button>
             <Button variant="outline" className="w-full" asChild>
               <Link to="/dashboard">Înapoi la Dashboard</Link>
