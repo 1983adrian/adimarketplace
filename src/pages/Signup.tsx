@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable';
 import { useToast } from '@/hooks/use-toast';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
@@ -159,21 +160,28 @@ const Signup = () => {
     
     setGoogleLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`,
-        },
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin + '/',
       });
 
-      if (error) {
-        console.error('Google sign-in error:', error);
+      if (result.error) {
+        console.error('Google sign-in error:', result.error);
         toast({
           title: 'Eroare autentificare Google',
-          description: error.message || 'Nu s-a putut conecta cu Google. Încearcă din nou.',
+          description: result.error.message || 'Nu s-a putut conecta cu Google. Încearcă din nou.',
           variant: 'destructive',
         });
         setGoogleLoading(false);
+        return;
+      }
+
+      // If redirected, the page will reload after OAuth flow
+      if (!result.redirected) {
+        toast({
+          title: 'Cont creat cu succes!',
+          description: 'Bine ai venit pe Marketplace Romania!',
+        });
+        navigate('/');
       }
     } catch (err) {
       console.error('Unexpected Google sign-in error:', err);
