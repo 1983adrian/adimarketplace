@@ -13,7 +13,8 @@ import {
   CheckCircle,
   UserCheck,
   Banknote,
-  AlertCircle
+  AlertCircle,
+  Settings
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/components/admin/AdminLayout';
@@ -22,6 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { OwnerMangopaySection } from '@/components/admin/OwnerMangopaySection';
 import { 
   Table, 
   TableBody, 
@@ -244,14 +246,23 @@ export default function OwnerDashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+        <Tabs defaultValue="mangopay" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="mangopay" className="gap-1.5">
+              <Settings className="h-4 w-4" />
+              MangoPay
+            </TabsTrigger>
             <TabsTrigger value="overview">Prezentare</TabsTrigger>
             <TabsTrigger value="payments">Plăți</TabsTrigger>
             <TabsTrigger value="sellers">Vânzători</TabsTrigger>
             <TabsTrigger value="buyers">Cumpărători</TabsTrigger>
             <TabsTrigger value="locations">Locații</TabsTrigger>
           </TabsList>
+
+          {/* MangoPay Owner Section - Separated from disputes/maintenance */}
+          <TabsContent value="mangopay" className="space-y-6">
+            <OwnerMangopaySection />
+          </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
