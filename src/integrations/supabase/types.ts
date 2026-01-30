@@ -1285,6 +1285,36 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_health: {
+        Row: {
+          check_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          last_check_at: string
+          next_check_at: string | null
+          status: string
+        }
+        Insert: {
+          check_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          last_check_at?: string
+          next_check_at?: string | null
+          status?: string
+        }
+        Update: {
+          check_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          last_check_at?: string
+          next_check_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           category: string
@@ -1986,6 +2016,36 @@ export type Database = {
           notify_on_new?: boolean | null
           query?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      security_events: {
+        Row: {
+          created_at: string
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2944,6 +3004,10 @@ export type Database = {
       }
       is_admin_email: { Args: { check_email: string }; Returns: boolean }
       is_top_seller: { Args: { check_user_id: string }; Returns: boolean }
+      log_security_event: {
+        Args: { p_details?: Json; p_event_type: string; p_user_id?: string }
+        Returns: undefined
+      }
       log_sensitive_access:
         | {
             Args: {
