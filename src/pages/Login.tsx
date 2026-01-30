@@ -278,9 +278,13 @@ const Login = () => {
             <Link to="/terms" className="text-primary hover:underline">
               Termenii și Condițiile
             </Link>
-            {' '}și{' '}
+            ,{' '}
             <Link to="/privacy" className="text-primary hover:underline">
               Politica de Confidențialitate
+            </Link>
+            {' '}și{' '}
+            <Link to="/seller-rules" className="text-primary hover:underline">
+              Regulamentul Vânzătorilor
             </Link>
           </p>
         </CardContent>
