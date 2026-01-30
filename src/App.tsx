@@ -43,6 +43,7 @@ import SafetyTips from "./pages/SafetyTips";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiePolicy from "./pages/CookiePolicy";
+import SellerRules from "./pages/SellerRules";
 import InstallApp from "./pages/InstallApp";
 import SellerTutorial from "./pages/SellerTutorial";
 import Feedback from "./pages/Feedback";
@@ -133,6 +134,7 @@ const App = () => (
                 <Route path="/safety" element={<SafetyTips />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/seller-rules" element={<SellerRules />} />
                 <Route path="/cookies" element={<CookiePolicy />} />
                 <Route path="/install" element={<InstallApp />} />
                 <Route path="/seller-tutorial" element={<SellerTutorial />} />

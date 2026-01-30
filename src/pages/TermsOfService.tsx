@@ -1,47 +1,9 @@
 import React from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
-import { usePoliciesContent } from '@/hooks/useAdminSettings';
-import { Skeleton } from '@/components/ui/skeleton';
-import { FileText } from 'lucide-react';
+import { FileText, AlertTriangle, Users, Percent, Ban, Scale, Building2 } from 'lucide-react';
 
 export default function TermsOfService() {
-  const { data: policies, isLoading } = usePoliciesContent();
-  const termsPolicy = policies?.find(p => p.policy_key === 'terms' && p.is_published);
-
-  const renderMarkdown = (content: string) => {
-    return content.split('\n').map((line, index) => {
-      if (line.startsWith('# ')) return <h1 key={index} className="text-3xl font-bold mt-6 mb-4">{line.slice(2)}</h1>;
-      if (line.startsWith('## ')) return <h2 key={index} className="text-2xl font-semibold mt-5 mb-3">{line.slice(3)}</h2>;
-      if (line.startsWith('### ')) return <h3 key={index} className="text-xl font-medium mt-4 mb-2">{line.slice(4)}</h3>;
-      if (line.startsWith('- ')) return <li key={index} className="ml-4 mb-1">{line.slice(2)}</li>;
-      if (line.trim() === '') return <br key={index} />;
-      return <p key={index} className="my-2 text-muted-foreground">{line}</p>;
-    });
-  };
-
-  const defaultContent = `# Termeni și Condiții
-
-## 1. Acceptarea Termenilor
-Prin utilizarea platformei MarketPlace, acceptați acești termeni și condiții în totalitate.
-
-## 2. Utilizarea Serviciului
-- Trebuie să aveți cel puțin 18 ani pentru a utiliza serviciul
-- Sunteți responsabil pentru activitatea din contul dumneavoastră
-- Nu este permisă vânzarea de produse ilegale sau interzise
-
-## 3. Tranzacții
-- Platforma facilitează tranzacțiile între utilizatori
-- Nu suntem parte în tranzacțiile dintre vânzători și cumpărători
-- Comisioanele sunt afișate transparent înainte de finalizarea tranzacției
-
-## 4. Răspundere
-- Nu garantăm calitatea produselor listate de vânzători
-- Utilizatorii sunt responsabili pentru acuratețea informațiilor furnizate
-
-## 5. Modificări
-Ne rezervăm dreptul de a modifica acești termeni în orice moment.`;
-
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12">
@@ -49,22 +11,120 @@ Ne rezervăm dreptul de a modifica acești termeni în orice moment.`;
           <div className="text-center mb-12">
             <FileText className="h-16 w-16 mx-auto mb-4 text-primary" />
             <h1 className="text-4xl font-bold mb-4">Termeni și Condiții</h1>
-            <p className="text-muted-foreground">Ultima actualizare: {new Date().toLocaleDateString('ro-RO')}</p>
+            <p className="text-muted-foreground">MarketPlaceRomania.com</p>
           </div>
 
-          <Card>
-            <CardContent className="py-8">
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}
+          <div className="space-y-8">
+            {/* 1. Despre platformă */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Building2 className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">1.1. Despre platformă</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      MarketPlaceRomania.com este o platformă online de tip marketplace care facilitează contactul dintre vânzători și cumpărători. Platforma nu este parte în tranzacțiile dintre utilizatori și nu vinde produse în nume propriu.
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <div className="prose prose-gray dark:prose-invert max-w-none">
-                  {renderMarkdown(termsPolicy?.content || defaultContent)}
+              </CardContent>
+            </Card>
+
+            {/* 1.2. Rolul MarketPlaceRomania */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Scale className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">1.2. Rolul MarketPlaceRomania</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      MarketPlaceRomania acționează exclusiv ca intermediar tehnic. Toate produsele, descrierile, prețurile, livrarea și garanțiile sunt responsabilitatea vânzătorilor.
+                    </p>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* 1.3. Conturi de utilizator */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Users className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">1.3. Conturi de utilizator</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Crearea unui cont presupune furnizarea de informații reale și acceptarea prezentelor Termeni și Condiții. Platforma își rezervă dreptul de a suspenda sau șterge conturi care încalcă regulile.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 1.4. Vânzători */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Users className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">1.4. Vânzători</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Vânzătorii sunt obligați să declare dacă acționează ca persoană fizică sau persoană juridică și să respecte legislația în vigoare privind comerțul electronic și protecția consumatorilor.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 1.5. Comision */}
+            <Card className="border-primary/50 bg-primary/5">
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Percent className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">1.5. Comision</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Platforma percepe un <strong className="text-foreground">comision de 8%</strong> exclusiv din valoarea produsului vândut. Nu există taxe de listare sau abonamente.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 1.6. Produse interzise */}
+            <Card className="border-destructive/50 bg-destructive/5">
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Ban className="h-6 w-6 text-destructive mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">1.6. Produse interzise</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Este strict interzisă listarea de produse ilegale, contrafăcute sau care încalcă drepturile terților.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 1.7. Limitarea răspunderii */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <AlertTriangle className="h-6 w-6 text-amber-500 mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">1.7. Limitarea răspunderii</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      MarketPlaceRomania nu răspunde pentru calitatea produselor, livrare, retururi sau conflicte apărute între utilizatori.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Last updated */}
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            Ultima actualizare: {new Date().toLocaleDateString('ro-RO')}
+          </p>
         </div>
       </div>
     </Layout>

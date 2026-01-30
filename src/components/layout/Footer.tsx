@@ -38,10 +38,11 @@ export const Footer: React.FC = () => {
       { label: 'FAQ', href: '/faq' },
     ],
     legal: [
-      { label: 'Terms of Service', href: '/terms' },
-      { label: 'Privacy Policy', href: '/privacy' },
-      { label: 'Cookie Policy', href: '/cookies' },
-      { label: 'About Us', href: '/about' },
+      { label: 'Termeni și Condiții', href: '/terms' },
+      { label: 'Politica Confidențialitate', href: '/privacy' },
+      { label: 'Regulament Vânzători', href: '/seller-rules' },
+      { label: 'Politica Cookie', href: '/cookies' },
+      { label: 'Despre Noi', href: '/about' },
     ],
   };
 
@@ -220,6 +221,18 @@ export const Footer: React.FC = () => {
             <span className="flex items-center gap-1.5 text-destructive">
               <Bomb className="h-4 w-4" /> Contrabandă
             </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Operator Identification - Legal Requirement */}
+      <div className="border-t border-border bg-muted/30">
+        <div className="container mx-auto px-4 py-4">
+          <div className="text-center text-xs text-muted-foreground space-y-1">
+            <p><strong className="text-foreground">Operator platformă:</strong> Chirita Adrian Marius</p>
+            <p><strong className="text-foreground">Denumire:</strong> Market Place România</p>
+            <p><strong className="text-foreground">Adresă:</strong> 2 Comelypark Street 2/2 G31 1TA</p>
+            <p><strong className="text-foreground">Email:</strong> <a href="mailto:adrianchirita01@gmail.com" className="text-primary hover:underline">adrianchirita01@gmail.com</a></p>
           </div>
         </div>
       </div>
