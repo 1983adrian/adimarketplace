@@ -90,7 +90,7 @@ const controlSections: ControlSection[] = [
     title: 'Editor Pagină Principală', 
     description: 'Modifică textele și bannerele de pe prima pagină',
     icon: Home, 
-    href: '/admin/homepage-editor',
+    href: '/admin/homepage',
     color: 'text-pink-600 bg-pink-500/10',
     actions: ['view', 'edit', 'add', 'delete'],
     category: 'content'
