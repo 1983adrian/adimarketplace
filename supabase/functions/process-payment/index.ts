@@ -93,7 +93,7 @@ serve(async (req) => {
       .eq("is_active", true);
 
     const sellerCommissionFee = fees?.find(f => f.fee_type === "seller_commission");
-    const commissionPercent = sellerCommissionFee?.amount || 10;
+    const commissionPercent = sellerCommissionFee?.amount || 8; // Default to 8% commission
 
     // Process each item using TRANSACTIONAL function
     const orders: OrderResult[] = [];

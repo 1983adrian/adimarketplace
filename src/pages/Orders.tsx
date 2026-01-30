@@ -174,17 +174,22 @@ const BuyerPurchaseCard = ({
   order, 
   onHide,
   onCancel,
-  isCancelling
+  onConfirmDelivery,
+  isCancelling,
+  isConfirming
 }: { 
   order: Order; 
   onHide: (orderId: string) => void;
   onCancel: (orderId: string, reason: string) => void;
+  onConfirmDelivery: (orderId: string) => void;
   isCancelling: boolean;
+  isConfirming: boolean;
 }) => {
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   
   const primaryImage = order.listings?.listing_images?.find(img => img.is_primary)?.image_url
@@ -194,6 +199,10 @@ const BuyerPurchaseCard = ({
   
   // Can cancel only pending or paid orders (before shipping)
   const canCancel = ['pending', 'paid'].includes(order.status);
+  // Can review only delivered orders
+  const canReview = order.status === 'delivered';
+  // Can confirm delivery only for shipped orders
+  const canConfirmDelivery = order.status === 'shipped';
 
   const handleCancelOrder = () => {
     if (cancelReason.trim()) {
@@ -342,11 +351,35 @@ const BuyerPurchaseCard = ({
               )}
 
               {/* Confirm Delivery - for shipped orders */}
-              {order.status === 'shipped' && (
-                <Button size="sm" variant="default" className="bg-green-600 hover:bg-green-700">
-                  <CheckCircle className="h-4 w-4 mr-1" />
+              {canConfirmDelivery && (
+                <Button 
+                  size="sm" 
+                  variant="default" 
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => onConfirmDelivery(order.id)}
+                  disabled={isConfirming}
+                >
+                  {isConfirming ? (
+                    <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                  )}
                   Confirmă Primirea
                 </Button>
+              )}
+
+              {/* Review Button - for delivered orders */}
+              {canReview && (
+                <ReviewDialog
+                  orderId={order.id}
+                  sellerId={order.seller_id}
+                  sellerName={order.seller_profile?.display_name || 'Vânzător'}
+                >
+                  <Button size="sm" variant="outline" className="gap-1">
+                    <Star className="h-4 w-4" />
+                    Lasă Recenzie
+                  </Button>
+                </ReviewDialog>
               )}
             </div>
           </div>
@@ -538,6 +571,11 @@ const Orders = () => {
     cancelOrder.mutate({ orderId, reason });
   };
 
+  const confirmDelivery = useConfirmDelivery();
+  const handleConfirmDelivery = (orderId: string) => {
+    confirmDelivery.mutate(orderId);
+  };
+
   // Filter out hidden orders
   const visibleBuyingOrders = buyingOrders?.filter(order => !hiddenOrders.includes(order.id));
 
@@ -573,7 +611,9 @@ const Orders = () => {
                 order={order} 
                 onHide={handleHideOrder}
                 onCancel={handleCancelOrder}
+                onConfirmDelivery={handleConfirmDelivery}
                 isCancelling={cancelOrder.isPending}
+                isConfirming={confirmDelivery.isPending}
               />
             ))}
           </div>

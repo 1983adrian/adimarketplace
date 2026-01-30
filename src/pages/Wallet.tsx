@@ -312,7 +312,7 @@ const Wallet = () => {
                 </div>
                 <div>
                   <p className="font-medium">Livrare confirmată</p>
-                  <p className="text-sm text-muted-foreground">Fondurile devin disponibile (-10% comision)</p>
+                  <p className="text-sm text-muted-foreground">Fondurile devin disponibile (-8% comision)</p>
                 </div>
               </div>
               <div className="flex gap-3">
