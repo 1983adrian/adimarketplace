@@ -169,8 +169,20 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {conditionLabels[listing.condition]}
           </Badge>
           
-          {/* Badges Row - Only shipping and COD, auction badge is on button */}
+          {/* Badges Row - Stock, shipping, COD */}
           <div className="absolute top-2 left-2 flex flex-col gap-1">
+            {/* Stock Badge - Always visible when quantity > 1 */}
+            {listing.quantity && listing.quantity > 1 && (
+              <div className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-bold shadow-sm">
+                📦 {listing.quantity} în stoc
+              </div>
+            )}
+            {/* Last item warning */}
+            {listing.quantity === 1 && (
+              <div className="flex items-center gap-1 bg-orange-600 text-white px-2 py-1 rounded-md text-xs font-bold shadow-sm animate-pulse">
+                🔥 Ultimul!
+              </div>
+            )}
             {listing.shipping_cost === 0 && (
               <div className="flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
                 <Truck className="h-3 w-3" />
@@ -214,17 +226,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               </div>
               <span className="text-xs text-muted-foreground">({sellerRating.count})</span>
             </div>
-          )}
-          {/* Stock quantity visible to buyers */}
-          {listing.quantity && listing.quantity > 1 && (
-            <p className="text-xs text-muted-foreground">
-              {listing.quantity} în stoc
-            </p>
-          )}
-          {listing.quantity === 1 && (
-            <p className="text-xs text-orange-600 font-medium">
-              Ultimul produs!
-            </p>
           )}
           
           {/* Price & Buy Button */}
