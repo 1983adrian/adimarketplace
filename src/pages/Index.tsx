@@ -5,8 +5,6 @@ import { CategorySection } from '@/components/home/CategorySection';
 import { FeaturedListings } from '@/components/home/FeaturedListings';
 import { PromotedListings } from '@/components/home/PromotedListings';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { LiveActivityFeed } from '@/components/seo/LiveActivityFeed';
-import { TrustSignals } from '@/components/seo/TrustSignals';
 import { FAQSchema } from '@/components/seo/FAQSchema';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 import { MarketplaceSchema } from '@/components/seo/MarketplaceSchema';
@@ -25,9 +23,7 @@ const Index = () => {
       <MarketplaceSchema />
       <Layout>
         <HeroSection />
-        <LiveActivityFeed />
         <FeaturedListings />
-        <TrustSignals />
         <PromotedListings />
         <CategorySection />
         <FAQSchema showUI={true} />
