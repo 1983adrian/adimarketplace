@@ -681,6 +681,8 @@ export type Database = {
           price_currency: string | null
           quantity: number | null
           reserve_price: number | null
+          return_days: number | null
+          return_policy: string | null
           seller_country: string | null
           seller_id: string
           shipping_carrier: string | null
@@ -714,6 +716,8 @@ export type Database = {
           price_currency?: string | null
           quantity?: number | null
           reserve_price?: number | null
+          return_days?: number | null
+          return_policy?: string | null
           seller_country?: string | null
           seller_id: string
           shipping_carrier?: string | null
@@ -747,6 +751,8 @@ export type Database = {
           price_currency?: string | null
           quantity?: number | null
           reserve_price?: number | null
+          return_days?: number | null
+          return_policy?: string | null
           seller_country?: string | null
           seller_id?: string
           shipping_carrier?: string | null
@@ -1321,6 +1327,38 @@ export type Database = {
         }
         Relationships: []
       }
+      price_history: {
+        Row: {
+          id: string
+          listing_id: string
+          price: number
+          price_type: string
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          price: number
+          price_type?: string
+          recorded_at?: string
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          price?: number
+          price_type?: string
+          recorded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_history_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           account_number: string | null
@@ -1375,6 +1413,8 @@ export type Database = {
           phone: string | null
           postal_code: string | null
           region: string | null
+          return_days: number | null
+          return_policy: string | null
           seller_terms_accepted_at: string | null
           sort_code: string | null
           sort_code_encrypted: string | null
@@ -1445,6 +1485,8 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           region?: string | null
+          return_days?: number | null
+          return_policy?: string | null
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
           sort_code_encrypted?: string | null
@@ -1515,6 +1557,8 @@ export type Database = {
           phone?: string | null
           postal_code?: string | null
           region?: string | null
+          return_days?: number | null
+          return_policy?: string | null
           seller_terms_accepted_at?: string | null
           sort_code?: string | null
           sort_code_encrypted?: string | null
@@ -1531,6 +1575,39 @@ export type Database = {
           withdrawal_blocked?: boolean | null
           withdrawal_blocked_at?: string | null
           withdrawal_blocked_reason?: string | null
+        }
+        Relationships: []
+      }
+      prohibited_items: {
+        Row: {
+          category: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          keyword: string
+          reason: string | null
+          severity: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          keyword: string
+          reason?: string | null
+          severity?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          keyword?: string
+          reason?: string | null
+          severity?: string
         }
         Relationships: []
       }
@@ -1826,6 +1903,75 @@ export type Database = {
           phone?: string | null
           postal_code?: string
           state?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          last_notified_at: string | null
+          name: string
+          notify_on_new: boolean | null
+          query: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_notified_at?: string | null
+          name: string
+          notify_on_new?: boolean | null
+          query?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_notified_at?: string | null
+          name?: string
+          notify_on_new?: boolean | null
+          query?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seller_limits: {
+        Row: {
+          created_at: string
+          current_monthly_sales: number | null
+          id: string
+          limit_tier: string | null
+          max_active_listings: number | null
+          max_monthly_sales: number | null
+          tier_upgraded_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_monthly_sales?: number | null
+          id?: string
+          limit_tier?: string | null
+          max_active_listings?: number | null
+          max_monthly_sales?: number | null
+          tier_upgraded_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_monthly_sales?: number | null
+          id?: string
+          limit_tier?: string | null
+          max_active_listings?: number | null
+          max_monthly_sales?: number | null
+          tier_upgraded_at?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -2156,6 +2302,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      watchlist: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          notify_auction_ending: boolean | null
+          notify_price_drop: boolean | null
+          price_threshold: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          notify_auction_ending?: boolean | null
+          notify_price_drop?: boolean | null
+          price_threshold?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          notify_auction_ending?: boolean | null
+          notify_price_drop?: boolean | null
+          price_threshold?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watchlist_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       webhook_logs: {
         Row: {
