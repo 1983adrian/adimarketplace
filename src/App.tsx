@@ -47,6 +47,8 @@ import InstallApp from "./pages/InstallApp";
 import SellerTutorial from "./pages/SellerTutorial";
 import Feedback from "./pages/Feedback";
 import Notifications from "./pages/Notifications";
+import HowItWorks from "./pages/HowItWorks";
+import FeesAndCommissions from "./pages/FeesAndCommissions";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -136,6 +138,8 @@ const App = () => (
                 <Route path="/seller-tutorial" element={<SellerTutorial />} />
                 <Route path="/feedback" element={<Feedback />} />
                 <Route path="/notifications" element={<Notifications />} />
+                <Route path="/cum-functioneaza" element={<HowItWorks />} />
+                <Route path="/taxe-si-comisioane" element={<FeesAndCommissions />} />
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/owner" element={<OwnerDashboard />} />

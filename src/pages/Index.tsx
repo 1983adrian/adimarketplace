@@ -8,8 +8,8 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { LiveActivityFeed } from '@/components/seo/LiveActivityFeed';
 import { TrustSignals } from '@/components/seo/TrustSignals';
 import { FAQSchema } from '@/components/seo/FAQSchema';
-import { LocalBusinessSchema } from '@/components/seo/LocalBusinessSchema';
-import { BrandSchema } from '@/components/seo/BrandSchema';
+import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
+import { MarketplaceSchema } from '@/components/seo/MarketplaceSchema';
 
 const Index = () => {
   return (
@@ -20,8 +20,9 @@ const Index = () => {
         url="https://www.marketplaceromania.com"
         type="website"
       />
-      <LocalBusinessSchema />
-      <BrandSchema />
+      {/* Schema.org JSON-LD pentru Google Knowledge Panel */}
+      <OrganizationSchema />
+      <MarketplaceSchema />
       <Layout>
         <HeroSection />
         <LiveActivityFeed />

@@ -30,11 +30,12 @@ export const Footer: React.FC = () => {
       { label: 'Seller Analytics', href: '/seller-analytics' },
     ],
     support: [
+      { label: 'Cum Funcționează', href: '/cum-functioneaza' },
+      { label: 'Taxe și Comisioane', href: '/taxe-si-comisioane' },
       { label: 'Centru Ajutor', href: '/help' },
       { label: 'Sfaturi Siguranță', href: '/safety' },
       { label: 'Contactează-ne', href: '/contact' },
       { label: 'FAQ', href: '/faq' },
-      { label: 'Feedback', href: '/feedback' },
     ],
     legal: [
       { label: 'Terms of Service', href: '/terms' },
