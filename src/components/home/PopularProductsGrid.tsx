@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Gavel } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,6 +8,7 @@ import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useToast } from '@/hooks/use-toast';
 import { useIsFavorite, useToggleFavorite } from '@/hooks/useFavorites';
 import { cn } from '@/lib/utils';
 
@@ -60,6 +61,8 @@ export const PopularProductsGrid: React.FC<PopularProductsGridProps> = ({
   const { user } = useAuth();
   const { addItem } = useCart();
   const { formatPrice } = useCurrency();
+  const { toast } = useToast();
+  const navigate = useNavigate();
 
   return (
     <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
@@ -77,12 +80,16 @@ export const PopularProductsGrid: React.FC<PopularProductsGridProps> = ({
             image_url: primaryImage?.image_url || '/placeholder.svg',
             seller_id: listing.seller_id,
           });
+          toast({
+            title: "Adăugat în coș",
+            description: listing.title,
+          });
         };
 
         const handleBuyNow = (e: React.MouseEvent) => {
           e.preventDefault();
           e.stopPropagation();
-          window.location.href = `/checkout?listing=${listing.id}`;
+          navigate(`/checkout?listing=${listing.id}`);
         };
 
         return (
@@ -128,7 +135,7 @@ export const PopularProductsGrid: React.FC<PopularProductsGridProps> = ({
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        window.location.href = `/listing/${listing.id}`;
+                        navigate(`/listing/${listing.id}`);
                       }}
                     >
                       <Gavel className="h-3 w-3" />
