@@ -222,29 +222,31 @@ const ListingDetail = () => {
         auctionEndDate={listing.auction_end_date}
         startingBid={listing.starting_bid}
       />
-      <div className="container mx-auto px-4 py-8">
-        <Button variant="ghost" className="mb-6" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-2" /> Înapoi
+      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8">
+        <Button variant="ghost" className="mb-3 md:mb-6 h-8 md:h-10 text-sm" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-4 w-4 mr-1.5" /> Înapoi
         </Button>
 
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Image Gallery */}
-          <div className="space-y-4">
-            <div className="aspect-square rounded-lg overflow-hidden bg-muted">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+          {/* Image Gallery - eBay-style compact on mobile */}
+          <div className="space-y-3">
+            {/* Main Image - Much smaller on mobile (max 60vh), full on desktop */}
+            <div className="relative rounded-lg overflow-hidden bg-muted aspect-square md:aspect-square max-h-[55vh] md:max-h-none">
               <img 
                 src={images[selectedImage]?.image_url || primaryImage || '/placeholder.svg'} 
                 alt={listing.title} 
-                className="w-full h-full object-cover" 
+                className="w-full h-full object-contain md:object-cover" 
               />
             </div>
+            {/* Thumbnail Gallery - Smaller on mobile */}
             {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto pb-2">
+              <div className="flex gap-1.5 md:gap-2 overflow-x-auto pb-2 px-1">
                 {images.map((img: any, index: number) => (
                   <button
                     key={img.id}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
-                      index === selectedImage ? 'border-primary' : 'border-transparent'
+                    className={`flex-shrink-0 w-14 h-14 md:w-20 md:h-20 rounded-md md:rounded-lg overflow-hidden border-2 transition-colors ${
+                      index === selectedImage ? 'border-primary' : 'border-transparent hover:border-primary/50'
                     }`}
                   >
                     <img src={img.image_url} alt="" className="w-full h-full object-cover" />
