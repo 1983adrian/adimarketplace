@@ -18,6 +18,12 @@ export interface Order {
   payout_status: string | null;
   buyer_fee: number | null;
   seller_commission: number | null;
+  dispute_opened_at: string | null;
+  dispute_reason: string | null;
+  dispute_resolved_at: string | null;
+  cancelled_at: string | null;
+  refund_status: string | null;
+  refund_amount: number | null;
   created_at: string;
   updated_at: string;
   listings?: {

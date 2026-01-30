@@ -35,6 +35,7 @@ import { format } from 'date-fns';
 import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import { ReturnRequestDialog } from '@/components/dashboard/ReturnRequestDialog';
 import { ReturnsSection } from '@/components/dashboard/ReturnsSection';
+import { OpenDisputeDialog } from '@/components/orders/OpenDisputeDialog';
 import { cn } from '@/lib/utils';
 
 const CARRIERS = [
@@ -196,6 +197,7 @@ const BuyerPurchaseCard = ({
     || order.listings?.listing_images?.[0]?.image_url;
   
   const status = statusConfig[order.status] || statusConfig.pending;
+  const { user } = useAuth();
   
   // Can cancel only pending or paid orders (before shipping)
   const canCancel = ['pending', 'paid'].includes(order.status);
@@ -203,6 +205,9 @@ const BuyerPurchaseCard = ({
   const canReview = order.status === 'delivered';
   // Can confirm delivery only for shipped orders
   const canConfirmDelivery = order.status === 'shipped';
+  // Can open dispute for shipped or delivered orders (within 14 days)
+  const daysSinceOrder = (Date.now() - new Date(order.created_at).getTime()) / (1000 * 60 * 60 * 24);
+  const canOpenDispute = ['shipped', 'delivered'].includes(order.status) && daysSinceOrder <= 14 && !order.dispute_opened_at;
 
   const handleCancelOrder = () => {
     if (cancelReason.trim()) {
@@ -380,6 +385,28 @@ const BuyerPurchaseCard = ({
                     Lasă Recenzie
                   </Button>
                 </ReviewDialog>
+              )}
+
+              {/* Open Dispute Button - for shipped/delivered orders within 14 days */}
+              {canOpenDispute && user && (
+                <OpenDisputeDialog
+                  orderId={order.id}
+                  sellerId={order.seller_id}
+                  buyerId={user.id}
+                >
+                  <Button size="sm" variant="outline" className="gap-1 text-orange-600 border-orange-200 hover:bg-orange-50">
+                    <AlertTriangle className="h-4 w-4" />
+                    Deschide Dispută
+                  </Button>
+                </OpenDisputeDialog>
+              )}
+
+              {/* Show dispute badge if already opened */}
+              {order.dispute_opened_at && (
+                <Badge variant="outline" className="text-orange-600 border-orange-300">
+                  <AlertTriangle className="h-3 w-3 mr-1" />
+                  Dispută deschisă
+                </Badge>
               )}
             </div>
           </div>

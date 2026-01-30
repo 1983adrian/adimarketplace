@@ -55,6 +55,16 @@ serve(async (req) => {
       throw new Error("Delivery already confirmed");
     }
 
+    // CRITICAL: Tracking must be provided before payout
+    if (!order.tracking_number || !order.carrier) {
+      throw new Error("Vânzătorul nu a adăugat încă numărul de tracking. Contactează-l pentru detalii.");
+    }
+
+    // Check for active disputes
+    if (order.dispute_opened_at && !order.dispute_resolved_at) {
+      throw new Error("Există o dispută activă pentru această comandă. Plata este blocată până la rezolvare.");
+    }
+
     // Get seller profile for payout details
     const { data: sellerProfile } = await supabase
       .from("profiles")
