@@ -67,13 +67,15 @@ const helpCategories = [
     ],
   },
   {
-    title: 'Securitate',
-    description: 'Protejează-ți contul',
+    title: 'Securitate & Legal',
+    description: 'Protecție și documente legale',
     icon: Shield,
     links: [
       { label: 'Sfaturi siguranță', href: '/safety' },
-      { label: 'Raportează o problemă', href: '/contact' },
-      { label: 'Politica de confidențialitate', href: '/privacy' },
+      { label: 'Termeni și Condiții', href: '/terms' },
+      { label: 'Politica de Confidențialitate', href: '/privacy' },
+      { label: 'Regulament Vânzători', href: '/seller-rules' },
+      { label: 'Taxe și Comisioane', href: '/fees' },
     ],
   },
 ];

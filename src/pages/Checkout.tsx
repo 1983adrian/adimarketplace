@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { z } from 'zod';
 import { 
   CreditCard, Lock, Truck, MapPin, ChevronLeft, 
@@ -667,6 +667,18 @@ const Checkout = () => {
                       codFees={codFees}
                     />
                   )}
+
+                  {/* Legal notice before placing order */}
+                  <p className="text-xs text-muted-foreground text-center">
+                    Plasând această comandă, accepți{' '}
+                    <Link to="/terms" className="text-primary hover:underline">
+                      Termenii și Condițiile
+                    </Link>
+                    {' '}și{' '}
+                    <Link to="/privacy" className="text-primary hover:underline">
+                      Politica de Confidențialitate
+                    </Link>
+                  </p>
 
                   <div className="flex gap-3">
                     <Button variant="outline" onClick={() => setStep('payment')}>Înapoi</Button>
