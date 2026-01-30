@@ -1534,6 +1534,33 @@ export type Database = {
         }
         Relationships: []
       }
+      push_notification_log: {
+        Row: {
+          id: string
+          notification_type: string | null
+          recipient_id: string
+          sent_at: string | null
+          success: boolean | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          notification_type?: string | null
+          recipient_id: string
+          sent_at?: string | null
+          success?: boolean | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          notification_type?: string | null
+          recipient_id?: string
+          sent_at?: string | null
+          success?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       push_tokens: {
         Row: {
           created_at: string
@@ -2588,16 +2615,20 @@ export type Database = {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
       }
+      check_push_rate_limit: {
+        Args: { p_max_per_hour?: number; p_user_id: string }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: {
           p_identifier: string
-          p_max_attempts: number
-          p_table_name: string
-          p_window_minutes: number
+          p_max_attempts?: number
+          p_window_minutes?: number
         }
         Returns: boolean
       }
       cleanup_expired_push_tokens: { Args: never; Returns: number }
+      cleanup_old_push_logs: { Args: never; Returns: number }
       decrypt_profile_field: {
         Args: { p_encrypted: string; p_key: string }
         Returns: string
@@ -2709,6 +2740,7 @@ export type Database = {
         Args: { p_token: string; p_user_id: string }
         Returns: boolean
       }
+      verify_admin_access: { Args: { p_user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
