@@ -43,6 +43,7 @@ export type Database = {
           action: string
           admin_id: string
           created_at: string
+          device_fingerprint: string | null
           entity_id: string | null
           entity_type: string
           id: string
@@ -55,6 +56,7 @@ export type Database = {
           action: string
           admin_id: string
           created_at?: string
+          device_fingerprint?: string | null
           entity_id?: string | null
           entity_type: string
           id?: string
@@ -67,6 +69,7 @@ export type Database = {
           action?: string
           admin_id?: string
           created_at?: string
+          device_fingerprint?: string | null
           entity_id?: string | null
           entity_type?: string
           id?: string
@@ -243,6 +246,51 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_evidence: {
+        Row: {
+          created_at: string
+          description: string | null
+          dispute_id: string
+          file_type: string | null
+          file_url: string
+          id: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          dispute_id: string
+          file_type?: string | null
+          file_url: string
+          id?: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          dispute_id?: string
+          file_type?: string | null
+          file_url?: string
+          id?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_evidence_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_evidence_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -2436,6 +2484,24 @@ export type Database = {
           },
         ]
       }
+      fraud_monitoring: {
+        Row: {
+          alert_type: string | null
+          auto_action_taken: string | null
+          created_at: string | null
+          display_name: string | null
+          fraud_score: number | null
+          id: string | null
+          is_suspended: boolean | null
+          severity: string | null
+          status: string | null
+          title: string | null
+          user_id: string | null
+          username: string | null
+          withdrawal_blocked: boolean | null
+        }
+        Relationships: []
+      }
       orders_safe: {
         Row: {
           amount: number | null
@@ -2867,6 +2933,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_fraud_score: {
+        Args: { p_score: number; p_user_id: string }
+        Returns: undefined
       }
       increment_pending_balance: {
         Args: { p_amount: number; p_user_id: string }

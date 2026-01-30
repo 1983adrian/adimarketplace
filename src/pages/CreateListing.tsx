@@ -28,6 +28,7 @@ import { CODSettings } from '@/components/listings/CODSettings';
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 import { ShippingCostSelector } from '@/components/listings/ShippingCostSelector';
 import { InlinePromotionOption } from '@/components/listings/InlinePromotionOption';
+import { useRequireKYC } from '@/hooks/useKYCEnforcement';
 
 
 const CreateListing = () => {
@@ -43,6 +44,7 @@ const CreateListing = () => {
   const createListing = useCreateListing();
   const { uploadMultipleImages, uploading } = useImageUpload();
   const { location: userLocation } = useLocation();
+  const { canSell, kycStatus, message: kycMessage, isLoading: kycLoading } = useRequireKYC();
   
   const isSubscribed = subscription?.subscribed || false;
   const canCreateMore = listingLimit?.canCreateMore ?? true;
@@ -175,6 +177,17 @@ const CreateListing = () => {
     if (!user) {
       toast({ title: 'Te rugăm să te autentifici', description: 'Trebuie să fii autentificat pentru a crea o listare', variant: 'destructive' });
       navigate('/login');
+      return;
+    }
+
+    // KYC verification check
+    if (!canSell) {
+      toast({ 
+        title: 'Verificare KYC necesară', 
+        description: kycMessage || 'Completează verificarea identității pentru a putea vinde.', 
+        variant: 'destructive' 
+      });
+      navigate('/seller-mode');
       return;
     }
 
