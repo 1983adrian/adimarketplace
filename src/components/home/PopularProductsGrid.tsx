@@ -96,7 +96,7 @@ export const PopularProductsGrid: React.FC<PopularProductsGridProps> = ({
                 />
                 <FavoriteButton listingId={listing.id} userId={user?.id} />
                 
-                {/* Badges Row - Top Left */}
+                {/* Badges Row - Top Left - Only condition badge, auction status shown via button */}
                 <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
                   <Badge 
                     variant="secondary" 
@@ -104,12 +104,6 @@ export const PopularProductsGrid: React.FC<PopularProductsGridProps> = ({
                   >
                     {conditionLabels[listing.condition]}
                   </Badge>
-                  {isAuction && (
-                    <Badge className="bg-orange-500 text-white text-[9px] md:text-[10px] px-1.5 py-0.5 flex items-center gap-0.5">
-                      <Gavel className="h-2.5 w-2.5" />
-                      Licitație
-                    </Badge>
-                  )}
                 </div>
                 
                 {/* Verified Badge - Bottom Right */}

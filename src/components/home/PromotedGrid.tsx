@@ -104,6 +104,7 @@ export const PromotedGrid: React.FC<PromotedGridProps> = ({
                 <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground text-xs">
                   {conditionLabels[listing.condition]}
                 </Badge>
+                {/* Auction badge removed - status shown only via button */}
                 <div className="absolute bottom-2 right-2">
                   <VerifiedBadge userId={listing.seller_id} size="sm" showTooltip={true} />
                 </div>
