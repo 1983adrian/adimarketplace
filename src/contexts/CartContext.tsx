@@ -6,6 +6,8 @@ export interface CartItem {
   price: number;
   image_url: string;
   seller_id: string;
+  selectedSize?: string;
+  selectedColor?: string;
 }
 
 interface CartContextType {
@@ -37,8 +39,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addItem = (item: CartItem) => {
     setItems(prev => {
-      // Don't add duplicates
-      if (prev.some(i => i.id === item.id)) {
+      // Don't add duplicates (same id + same variant)
+      const existingItem = prev.find(i => 
+        i.id === item.id && 
+        i.selectedSize === item.selectedSize && 
+        i.selectedColor === item.selectedColor
+      );
+      if (existingItem) {
         return prev;
       }
       return [...prev, item];

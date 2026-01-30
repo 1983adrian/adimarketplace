@@ -19,6 +19,7 @@ import { SimilarListings } from '@/components/listings/SimilarListings';
 import { AuctionBidding } from '@/components/listings/AuctionBidding';
 import { CODBadge } from '@/components/listings/CODBadge';
 import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
+import { VariantSelector } from '@/components/listings/VariantSelector';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,6 +45,8 @@ const ListingDetail = () => {
   const { toast } = useToast();
   const { playFavoriteSound } = useNotificationSound();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const { data: favorites } = useFavorites(user?.id);
   const toggleFavorite = useToggleFavorite();
   
@@ -149,6 +152,20 @@ const ListingDetail = () => {
       return;
     }
     
+    // Validate variant selection
+    const hasSizes = listing.sizes && listing.sizes.length > 0;
+    const hasColors = listing.colors && listing.colors.length > 0;
+    
+    if (hasSizes && !selectedSize) {
+      toast({ title: 'Selectează mărimea', description: 'Te rugăm să alegi o mărime înainte de a adăuga în coș.', variant: 'destructive' });
+      return;
+    }
+    
+    if (hasColors && !selectedColor) {
+      toast({ title: 'Selectează culoarea', description: 'Te rugăm să alegi o culoare înainte de a adăuga în coș.', variant: 'destructive' });
+      return;
+    }
+    
     const primaryImg = listing.listing_images?.[0]?.image_url || '/placeholder.svg';
     addItem({
       id: listing.id,
@@ -156,14 +173,21 @@ const ListingDetail = () => {
       price: listing.buy_now_price || listing.price,
       image_url: primaryImg,
       seller_id: listing.seller_id,
+      selectedSize: selectedSize || undefined,
+      selectedColor: selectedColor || undefined,
     });
     
     toast({
       title: "Adăugat în coș",
-      description: listing.title,
+      description: `${listing.title}${selectedSize ? ` - Mărime: ${selectedSize}` : ''}${selectedColor ? ` - Culoare: ${selectedColor}` : ''}`,
     });
   };
 
+  // Validate if user can buy (variant selection required)
+  const hasSizes = listing.sizes && listing.sizes.length > 0;
+  const hasColors = listing.colors && listing.colors.length > 0;
+  const needsVariantSelection = hasSizes || hasColors;
+  const canBuy = !needsVariantSelection || ((!hasSizes || selectedSize) && (!hasColors || selectedColor));
 
   const images = listing.listing_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
   const primaryImage = images.find((img: any) => img.is_primary)?.image_url || images[0]?.image_url;
@@ -292,6 +316,19 @@ const ListingDetail = () => {
               </p>
             )}
 
+            {/* Variant Selector for Sizes and Colors */}
+            {needsVariantSelection && (
+              <VariantSelector
+                sizes={listing.sizes}
+                colors={listing.colors}
+                selectedSize={selectedSize}
+                selectedColor={selectedColor}
+                onSizeChange={setSelectedSize}
+                onColorChange={setSelectedColor}
+                quantity={listing.quantity}
+              />
+            )}
+
             {/* Auction Section */}
             {isAuction && listing.auction_end_date && (
               <AuctionBidding
@@ -311,10 +348,24 @@ const ListingDetail = () => {
                 <Button 
                   className="w-full gradient-primary text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all" 
                   size="lg"
-                  onClick={() => navigate(`/checkout?listing=${listing.id}`)}
-                  disabled={listing.is_sold}
+                  onClick={() => {
+                    if (!canBuy) {
+                      toast({ 
+                        title: 'Selectează opțiunile', 
+                        description: 'Te rugăm să alegi mărimea și/sau culoarea înainte de a cumpăra.', 
+                        variant: 'destructive' 
+                      });
+                      return;
+                    }
+                    // Include selected variants in URL
+                    const params = new URLSearchParams({ listing: listing.id });
+                    if (selectedSize) params.set('size', selectedSize);
+                    if (selectedColor) params.set('color', selectedColor);
+                    navigate(`/checkout?${params.toString()}`);
+                  }}
+                  disabled={listing.is_sold || !canBuy}
                 >
-                  {listing.is_sold ? 'Vândut' : 'Cumpără Acum'}
+                  {listing.is_sold ? 'Vândut' : !canBuy ? 'Selectează opțiunile' : 'Cumpără Acum'}
                 </Button>
                 
                 <Button 
@@ -322,10 +373,10 @@ const ListingDetail = () => {
                   className="w-full gap-2 font-medium" 
                   size="lg"
                   onClick={handleAddToCart}
-                  disabled={listing.is_sold || isInCart}
+                  disabled={listing.is_sold || isInCart || !canBuy}
                 >
                   <ShoppingCart className="h-5 w-5" />
-                  {isInCart ? 'În coș' : 'Adaugă în coș'}
+                  {isInCart ? 'În coș' : !canBuy ? 'Selectează opțiunile' : 'Adaugă în coș'}
                 </Button>
               </div>
             )}

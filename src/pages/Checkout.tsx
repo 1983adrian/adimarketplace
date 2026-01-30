@@ -75,19 +75,35 @@ const Checkout = () => {
   });
   const [shippingErrors, setShippingErrors] = useState<Record<string, string>>({});
 
+  // Define checkout item type
+  type CheckoutItem = {
+    id: string;
+    title: string;
+    price: number;
+    image_url: string;
+    seller_id: string;
+    selectedSize?: string;
+    selectedColor?: string;
+    cod_enabled: boolean;
+    cod_fee_percentage: number;
+    cod_fixed_fee: number;
+    cod_transport_fee: number;
+    seller_country: string;
+  };
+
   // Get checkout items
-  const checkoutItems = listingId && singleListing 
+  const checkoutItems: CheckoutItem[] = listingId && singleListing 
     ? [{ 
         id: singleListing.id, 
         title: singleListing.title, 
         price: singleListing.price, 
         image_url: (singleListing as any).listing_images?.[0]?.image_url || '/placeholder.svg', 
         seller_id: singleListing.seller_id,
-        cod_enabled: (singleListing as any).cod_enabled,
-        cod_fee_percentage: (singleListing as any).cod_fee_percentage,
-        cod_fixed_fee: (singleListing as any).cod_fixed_fee,
-        cod_transport_fee: (singleListing as any).cod_transport_fee,
-        seller_country: (singleListing as any).seller_country,
+        cod_enabled: (singleListing as any).cod_enabled || false,
+        cod_fee_percentage: (singleListing as any).cod_fee_percentage || 0,
+        cod_fixed_fee: (singleListing as any).cod_fixed_fee || 0,
+        cod_transport_fee: (singleListing as any).cod_transport_fee || 0,
+        seller_country: (singleListing as any).seller_country || '',
       }]
     : items.map(item => ({
         ...item,
