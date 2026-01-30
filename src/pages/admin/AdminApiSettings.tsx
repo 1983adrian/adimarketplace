@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Key, Save, Eye, EyeOff, AlertTriangle, CheckCircle, ExternalLink, Shield, Wallet } from 'lucide-react';
+import { useState } from 'react';
+import { Key, Save, Eye, EyeOff, AlertTriangle, CheckCircle, ExternalLink, Shield, Wallet, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminSettingsCheck } from '@/components/admin/AdminSettingsCheck';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface ApiKeyConfig {
   key: string;
@@ -95,15 +97,29 @@ export default function AdminApiSettings() {
   const { toast } = useToast();
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
   const [showKeys, setShowKeys] = useState<Record<string, boolean>>({});
-  const [savedKeys, setSavedKeys] = useState<Record<string, boolean>>({});
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSaving, setIsSaving] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const saved = localStorage.getItem('admin_api_keys_saved');
-    if (saved) {
-      setSavedKeys(JSON.parse(saved));
-    }
-  }, []);
+  // Fetch saved API keys status from database
+  const { data: savedKeysData, isLoading } = useQuery({
+    queryKey: ['admin-api-keys-status'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('key, value')
+        .eq('category', 'api_keys');
+      
+      if (error) throw error;
+      
+      const savedKeys: Record<string, boolean> = {};
+      data?.forEach(item => {
+        savedKeys[item.key] = item.value === true || item.value === 'configured';
+      });
+      return savedKeys;
+    },
+  });
+
+  const savedKeys = savedKeysData || {};
 
   const handleKeyChange = (key: string, value: string) => {
     setApiKeys(prev => ({ ...prev, [key]: value }));
@@ -123,19 +139,28 @@ export default function AdminApiSettings() {
       return;
     }
 
-    setIsSaving(true);
+    setIsSaving(key);
     try {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Save to platform_settings table (marks as configured)
+      // Note: Actual API keys should be stored in Cloud Secrets, not in database
+      // This only tracks configuration status
+      const { error } = await supabase
+        .from('platform_settings')
+        .upsert({
+          key: key,
+          value: 'configured',
+          category: 'api_keys',
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'key' });
       
-      const newSavedKeys = { ...savedKeys, [key]: true };
-      setSavedKeys(newSavedKeys);
-      localStorage.setItem('admin_api_keys_saved', JSON.stringify(newSavedKeys));
+      if (error) throw error;
       
+      queryClient.invalidateQueries({ queryKey: ['admin-api-keys-status'] });
       setApiKeys(prev => ({ ...prev, [key]: '' }));
       
       toast({ 
         title: 'Cheie API Salvată', 
-        description: `${key} a fost salvată în siguranță.` 
+        description: `${key} a fost marcată ca configurată. Adaugă cheia reală în Cloud Secrets pentru securitate maximă.` 
       });
     } catch (error: any) {
       toast({ 
@@ -144,7 +169,7 @@ export default function AdminApiSettings() {
         variant: 'destructive' 
       });
     } finally {
-      setIsSaving(false);
+      setIsSaving(null);
     }
   };
 
@@ -208,10 +233,10 @@ export default function AdminApiSettings() {
               </div>
               <Button
                 onClick={() => handleSaveKey(config.key)}
-                disabled={isSaving || !currentValue.trim()}
+                disabled={isSaving !== null || !currentValue.trim()}
                 size="icon"
               >
-                <Save className="h-4 w-4" />
+                {isSaving === config.key ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               </Button>
             </div>
           </div>

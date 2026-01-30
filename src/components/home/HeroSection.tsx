@@ -1,16 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrendingUp, Smartphone, Apple, Share, QrCode, Truck, ChevronRight, ArrowRight, Laptop } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useCart } from '@/contexts/CartContext';
-import { cn } from '@/lib/utils';
+import { TrendingUp, Smartphone, Apple, Share, QrCode, ChevronRight, ArrowRight, Laptop } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -18,7 +13,7 @@ import { usePWAInstall } from '@/hooks/usePWAInstall';
 import { QRCodeSVG } from 'qrcode.react';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 import { PopularProductsGrid } from './PopularProductsGrid';
-
+import { useHomepageContent, usePlatformSettings } from '@/hooks/useAdminSettings';
 
 export const HeroSection: React.FC = () => {
   const { t } = useLanguage();
@@ -30,6 +25,29 @@ export const HeroSection: React.FC = () => {
     promptInstall 
   } = usePWAInstall();
 
+  // Fetch homepage content from Admin settings
+  const { data: homepageData } = useHomepageContent();
+  const { data: platformSettings } = usePlatformSettings();
+  
+  // Extract hero content from database
+  const heroContent = homepageData?.find(h => h.section_key === 'hero');
+  const sectionsConfig = homepageData?.find(h => h.section_key === 'sections');
+  
+  // Parse sections config
+  const sections = sectionsConfig?.description ? (() => {
+    try {
+      return JSON.parse(sectionsConfig.description);
+    } catch {
+      return {};
+    }
+  })() : {};
+  
+  // Get customizable content with fallbacks
+  const heroTitle = heroContent?.title || 'Marketplace România®';
+  const heroSubtitle = heroContent?.subtitle || 'Cumpără și Vinde Smart';
+  const ctaText = heroContent?.button_text || 'Cumpără';
+  const ctaLink = heroContent?.button_url || '/browse';
+  const productsTitle = sections?.featuredTitle || 'Produse Populare';
   const showDownloadButtons = !isStandalone && !isInstalled;
 
   const { data: listings, isLoading } = useQuery({
@@ -86,10 +104,10 @@ export const HeroSection: React.FC = () => {
             
             {/* All Actions in One Compact Row */}
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
-              {/* CTA Buttons */}
-              <Link to="/browse">
+              {/* CTA Buttons - Uses Admin settings */}
+              <Link to={ctaLink}>
                 <Button size="sm" className="h-9 px-4 gap-1.5 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-primary-foreground font-semibold shadow-md text-xs md:text-sm">
-                  Cumpără
+                  {ctaText}
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               </Link>
@@ -227,7 +245,7 @@ export const HeroSection: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <TrendingUp className="h-5 w-5 text-primary" />
-            <h2 className="text-lg md:text-xl font-bold text-foreground">Produse Populare</h2>
+            <h2 className="text-lg md:text-xl font-bold text-foreground">{productsTitle}</h2>
           </div>
           <Link 
             to="/browse" 
