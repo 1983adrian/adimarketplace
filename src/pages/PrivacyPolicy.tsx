@@ -1,53 +1,9 @@
 import React from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
-import { usePoliciesContent } from '@/hooks/useAdminSettings';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Shield } from 'lucide-react';
+import { Shield, Database, Target, Lock, UserCheck, Trash2 } from 'lucide-react';
 
 export default function PrivacyPolicy() {
-  const { data: policies, isLoading } = usePoliciesContent();
-  const privacyPolicy = policies?.find(p => p.policy_key === 'privacy' && p.is_published);
-
-  const renderMarkdown = (content: string) => {
-    return content.split('\n').map((line, index) => {
-      if (line.startsWith('# ')) return <h1 key={index} className="text-3xl font-bold mt-6 mb-4">{line.slice(2)}</h1>;
-      if (line.startsWith('## ')) return <h2 key={index} className="text-2xl font-semibold mt-5 mb-3">{line.slice(3)}</h2>;
-      if (line.startsWith('### ')) return <h3 key={index} className="text-xl font-medium mt-4 mb-2">{line.slice(4)}</h3>;
-      if (line.startsWith('- ')) return <li key={index} className="ml-4 mb-1">{line.slice(2)}</li>;
-      if (line.trim() === '') return <br key={index} />;
-      return <p key={index} className="my-2 text-muted-foreground">{line}</p>;
-    });
-  };
-
-  const defaultContent = `# Politica de Confidențialitate
-
-## 1. Date Colectate
-Colectăm următoarele tipuri de informații:
-- Informații de cont (email, nume)
-- Informații de profil (avatar, locație)
-- Date despre tranzacții
-
-## 2. Utilizarea Datelor
-Datele sunt utilizate pentru:
-- Furnizarea serviciilor platformei
-- Comunicarea cu utilizatorii
-- Îmbunătățirea experienței
-
-## 3. Protecția Datelor
-- Datele sunt stocate securizat
-- Nu vindem datele personale terților
-- Respectăm GDPR
-
-## 4. Drepturile Tale
-Ai dreptul să:
-- Accesezi datele tale
-- Rectifici informațiile incorecte
-- Ștergi contul și datele asociate
-
-## 5. Contact
-Pentru întrebări despre confidențialitate, contactează-ne la privacy@marketplace.com`;
-
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12">
@@ -55,22 +11,115 @@ Pentru întrebări despre confidențialitate, contactează-ne la privacy@marketp
           <div className="text-center mb-12">
             <Shield className="h-16 w-16 mx-auto mb-4 text-primary" />
             <h1 className="text-4xl font-bold mb-4">Politica de Confidențialitate</h1>
-            <p className="text-muted-foreground">Ultima actualizare: {new Date().toLocaleDateString('ro-RO')}</p>
+            <p className="text-muted-foreground">Conformă cu GDPR (Regulamentul UE 2016/679)</p>
           </div>
 
-          <Card>
-            <CardContent className="py-8">
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[...Array(10)].map((_, i) => <Skeleton key={i} className="h-4 w-full" />)}
+          <div className="space-y-8">
+            {/* 2.1. Date colectate */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Database className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">2.1. Date colectate</h2>
+                    <p className="text-muted-foreground leading-relaxed mb-3">
+                      Colectăm date precum:
+                    </p>
+                    <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-2">
+                      <li>Nume și prenume</li>
+                      <li>Adresă de email</li>
+                      <li>Date de contact</li>
+                      <li>Adresa IP</li>
+                      <li>Informații de cont</li>
+                    </ul>
+                    <p className="text-muted-foreground leading-relaxed mt-3">
+                      Aceste date sunt colectate exclusiv pentru funcționarea platformei.
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <div className="prose prose-gray dark:prose-invert max-w-none">
-                  {renderMarkdown(privacyPolicy?.content || defaultContent)}
+              </CardContent>
+            </Card>
+
+            {/* 2.2. Scopul colectării */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Target className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">2.2. Scopul colectării</h2>
+                    <p className="text-muted-foreground leading-relaxed mb-3">
+                      Datele sunt utilizate pentru:
+                    </p>
+                    <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-2">
+                      <li>Crearea și administrarea conturilor</li>
+                      <li>Procesarea tranzacțiilor</li>
+                      <li>Comunicarea cu utilizatorii</li>
+                      <li>Respectarea obligațiilor legale</li>
+                    </ul>
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* 2.3. Protecția datelor */}
+            <Card className="border-primary/50 bg-primary/5">
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Lock className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">2.3. Protecția datelor</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Datele sunt stocate în condiții de securitate și <strong className="text-foreground">nu sunt vândute sau transferate către terți</strong> fără temei legal.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 2.4. Drepturile utilizatorilor */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <UserCheck className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">2.4. Drepturile utilizatorilor</h2>
+                    <p className="text-muted-foreground leading-relaxed mb-3">
+                      Utilizatorii au dreptul de:
+                    </p>
+                    <ul className="list-disc list-inside text-muted-foreground space-y-1 ml-2">
+                      <li><strong className="text-foreground">Acces</strong> - să afle ce date deținem despre ei</li>
+                      <li><strong className="text-foreground">Rectificare</strong> - să corecteze datele incorecte</li>
+                      <li><strong className="text-foreground">Ștergere</strong> - să solicite ștergerea datelor</li>
+                      <li><strong className="text-foreground">Portabilitate</strong> - să primească datele într-un format structurat</li>
+                    </ul>
+                    <p className="text-muted-foreground leading-relaxed mt-3">
+                      Conform Regulamentului (UE) 2016/679 (GDPR).
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 2.5. Ștergerea contului */}
+            <Card>
+              <CardContent className="py-6">
+                <div className="flex items-start gap-4">
+                  <Trash2 className="h-6 w-6 text-primary mt-1 shrink-0" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-3">2.5. Ștergerea contului</h2>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Utilizatorii pot solicita ștergerea contului și a datelor asociate prin contactarea platformei la adresa <a href="mailto:adrianchirita01@gmail.com" className="text-primary hover:underline">adrianchirita01@gmail.com</a>.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Last updated */}
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            Ultima actualizare: {new Date().toLocaleDateString('ro-RO')}
+          </p>
         </div>
       </div>
     </Layout>
