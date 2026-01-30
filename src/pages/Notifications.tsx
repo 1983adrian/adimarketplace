@@ -43,6 +43,29 @@ const Notifications: React.FC = () => {
     }
   }, [user, authLoading, navigate]);
 
+  // Auto-delete notifications older than 3 days
+  React.useEffect(() => {
+    const deleteOldNotifications = async () => {
+      if (!user) return;
+      
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+      
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user.id)
+        .lt('created_at', threeDaysAgo.toISOString());
+      
+      if (!error) {
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        queryClient.invalidateQueries({ queryKey: ['unread-count'] });
+      }
+    };
+    
+    deleteOldNotifications();
+  }, [user, queryClient]);
+
   const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
       markRead.mutate(notification.id);

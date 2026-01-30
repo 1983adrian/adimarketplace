@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Loader2, Shield, Eye, EyeOff, Mail, ExternalLink } from 'lucide-react';
+import { Loader2, Shield, Eye, EyeOff, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
@@ -19,16 +18,8 @@ const Login = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
   
-  // Mandatory acceptance checkboxes for login
-  const [acceptTerms, setAcceptTerms] = useState(false);
-  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
-  const [acceptSellerRules, setAcceptSellerRules] = useState(false);
-  
   const navigate = useNavigate();
   const { toast } = useToast();
-
-  // Check if all mandatory checkboxes are accepted
-  const allAccepted = acceptTerms && acceptPrivacy && acceptSellerRules;
 
   // Redirect if already logged in
   useEffect(() => {
@@ -44,15 +35,6 @@ const Login = () => {
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!allAccepted) {
-      toast({
-        title: 'Acceptare obligatorie',
-        description: 'Trebuie să accepți Termenii, Politica de Confidențialitate și Regulamentul Vânzătorilor pentru a te autentifica.',
-        variant: 'destructive',
-      });
-      return;
-    }
     
     const normalizedEmail = email.toLowerCase().trim();
     
@@ -111,15 +93,6 @@ const Login = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!allAccepted) {
-      toast({
-        title: 'Acceptare obligatorie',
-        description: 'Trebuie să accepți Termenii, Politica de Confidențialitate și Regulamentul Vânzătorilor pentru a te autentifica.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    
     setGoogleLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
@@ -180,64 +153,6 @@ const Login = () => {
         </CardHeader>
         
         <CardContent className="pb-6 space-y-5">
-          {/* Mandatory Checkboxes - MUST accept before login */}
-          <div className="space-y-3 p-4 bg-muted/50 rounded-lg border border-border">
-            <p className="text-sm font-medium text-foreground mb-3">
-              Pentru a te autentifica, trebuie să accepți:
-            </p>
-            
-            {/* Terms checkbox */}
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="accept-terms"
-                checked={acceptTerms}
-                onCheckedChange={(checked) => setAcceptTerms(checked === true)}
-                className="mt-0.5"
-              />
-              <label htmlFor="accept-terms" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                Am citit și accept{' '}
-                <Link to="/terms" target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
-                  Termenii și Condițiile
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
-              </label>
-            </div>
-
-            {/* Privacy checkbox */}
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="accept-privacy"
-                checked={acceptPrivacy}
-                onCheckedChange={(checked) => setAcceptPrivacy(checked === true)}
-                className="mt-0.5"
-              />
-              <label htmlFor="accept-privacy" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                Am citit și accept{' '}
-                <Link to="/privacy" target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
-                  Politica de Confidențialitate
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
-              </label>
-            </div>
-
-            {/* Seller Rules checkbox */}
-            <div className="flex items-start gap-3">
-              <Checkbox
-                id="accept-seller-rules"
-                checked={acceptSellerRules}
-                onCheckedChange={(checked) => setAcceptSellerRules(checked === true)}
-                className="mt-0.5"
-              />
-              <label htmlFor="accept-seller-rules" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                Am citit și accept{' '}
-                <Link to="/seller-rules" target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
-                  Regulamentul pentru Vânzători
-                  <ExternalLink className="h-3 w-3" />
-                </Link>
-              </label>
-            </div>
-          </div>
-
           {/* Email/Password Form */}
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-2">
@@ -286,7 +201,7 @@ const Login = () => {
               </div>
             </div>
             
-            <Button type="submit" className="w-full" disabled={loading || !allAccepted}>
+            <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -317,7 +232,7 @@ const Login = () => {
             variant="outline"
             className="w-full h-12 gap-3 border-2 border-border hover:bg-accent/50"
             onClick={handleGoogleSignIn}
-            disabled={googleLoading || !allAccepted}
+            disabled={googleLoading}
           >
             {googleLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
