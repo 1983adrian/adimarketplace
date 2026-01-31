@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
 import { initializeCapacitor } from "./lib/capacitor-init";
+import { registerServiceWorker } from "./lib/pwa-register";
 
 // Initialize theme from localStorage before render to prevent flash
 const savedTheme = localStorage.getItem('theme');
@@ -14,6 +15,11 @@ if (savedTheme === 'dark') {
 
 // Initialize Capacitor plugins for native apps
 initializeCapacitor().catch(console.error);
+
+// Register PWA service worker with error handling
+registerServiceWorker().catch(() => {
+  // Silent fail - PWA is optional
+});
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
