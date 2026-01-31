@@ -46,35 +46,10 @@ export const MarketplaceSchema: React.FC = () => {
       "https://www.tiktok.com/@MarketPlaceRomania",
       "https://www.instagram.com/MarketPlaceRomania"
     ],
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Categorii de Produse Marketplace România",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Electronice & IT",
-          "description": "Telefoane mobile, Laptopuri, Tablete, Console gaming"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Modă & Accesorii",
-          "description": "Îmbrăcăminte, Încălțăminte, Accesorii, Ceasuri"
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": "Casa & Grădină",
-          "description": "Mobilă, Electrocasnice, Decorațiuni"
-        },
-        {
-          "@type": "ListItem",
-          "position": 4,
-          "name": "Auto & Moto",
-          "description": "Piese auto, Accesorii auto"
-        }
-      ]
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.marketplaceromania.com/browse?q={search_term_string}",
+      "query-input": "required name=search_term_string"
     },
     "aggregateRating": {
       "@type": "AggregateRating",
