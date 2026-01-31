@@ -67,7 +67,7 @@ export const AppDownloadButton = () => {
               <Smartphone className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-base">Descarcă Marketplace România</h3>
+              <h3 className="font-bold text-base">Marketplace România</h3>
               <p className="text-sm text-muted-foreground">Aplicație gratuită pentru mobil</p>
             </div>
           </div>
