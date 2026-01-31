@@ -48,44 +48,31 @@ export const MarketplaceSchema: React.FC = () => {
     ],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
-      "name": "Produse Marketplace România",
+      "name": "Categorii de Produse Marketplace România",
       "itemListElement": [
         {
-          "@type": "OfferCatalog",
+          "@type": "ListItem",
+          "position": 1,
           "name": "Electronice & IT",
-          "itemListElement": [
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Telefoane mobile" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Laptopuri" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Tablete" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Console gaming" } }
-          ]
+          "description": "Telefoane mobile, Laptopuri, Tablete, Console gaming"
         },
         {
-          "@type": "OfferCatalog",
+          "@type": "ListItem",
+          "position": 2,
           "name": "Modă & Accesorii",
-          "itemListElement": [
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Îmbrăcăminte" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Încălțăminte" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Accesorii" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Ceasuri" } }
-          ]
+          "description": "Îmbrăcăminte, Încălțăminte, Accesorii, Ceasuri"
         },
         {
-          "@type": "OfferCatalog",
+          "@type": "ListItem",
+          "position": 3,
           "name": "Casa & Grădină",
-          "itemListElement": [
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Mobilă" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Electrocasnice" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Decorațiuni" } }
-          ]
+          "description": "Mobilă, Electrocasnice, Decorațiuni"
         },
         {
-          "@type": "OfferCatalog",
+          "@type": "ListItem",
+          "position": 4,
           "name": "Auto & Moto",
-          "itemListElement": [
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Piese auto" } },
-            { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Accesorii auto" } }
-          ]
+          "description": "Piese auto, Accesorii auto"
         }
       ]
     },
