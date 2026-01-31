@@ -261,12 +261,12 @@ FCM_PROJECT_ID: "your-firebase-project-id"
                   </h4>
                   <div className="flex gap-2">
                     <code className="flex-1 p-2 bg-muted rounded text-sm">
-                      https://adimarketplace.lovable.app/install
+                      https://www.marketplaceromania.com/install-app
                     </code>
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => copyToClipboard("https://adimarketplace.lovable.app/install", "PWA Link")}
+                      onClick={() => copyToClipboard("https://www.marketplaceromania.com/install-app", "PWA Link")}
                     >
                       {copiedCommand === "PWA Link" ? (
                         <Check className="h-4 w-4 text-green-500" />

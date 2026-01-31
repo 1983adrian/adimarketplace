@@ -22,7 +22,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   title = 'Marketplace România | Market România - Cumpără și Vinde Online',
   description = 'Marketplace România - cel mai mare market online din România. Place România pentru licitații și vânzări directe cu taxe mici (8%). Cumpără și vinde la cel mai bun preț!',
   image = 'https://www.marketplaceromania.com/og-image.png',
-  url = 'https://www.marketplaceromania.com',
+  url,
   type = 'website',
   price,
   currency = 'RON',
@@ -34,7 +34,15 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   startingBid,
   noindex = false
 }) => {
-  const fullTitle = title.includes('Marketplace') || title.includes('Market') ? title : `${title} | Marketplace România`;
+  // Always append "MarketPlace Romania" to titles
+  const fullTitle = title.includes('Marketplace') || title.includes('Market') 
+    ? title 
+    : `${title} | MarketPlace Romania`;
+  
+  // Generate canonical URL - always use www.marketplaceromania.com
+  const canonicalUrl = url 
+    ? url.replace(/https?:\/\/[^/]+/, 'https://www.marketplaceromania.com')
+    : `https://www.marketplaceromania.com${typeof window !== 'undefined' ? window.location.pathname : '/'}`;
 
   // Generate JSON-LD structured data
   const generateSchemaMarkup = () => {
@@ -209,22 +217,24 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <title>{fullTitle}</title>
       <meta name="title" content={fullTitle} />
       <meta name="description" content={description} />
-      <link rel="canonical" href={url} />
+      
+      {/* Self-referencing Canonical URL - Critical for SEO */}
+      <link rel="canonical" href={canonicalUrl} />
       
       {noindex && <meta name="robots" content="noindex, nofollow" />}
       
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
-      <meta property="og:url" content={url} />
+      <meta property="og:url" content={canonicalUrl} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
-      <meta property="og:site_name" content="Marketplace România" />
+      <meta property="og:site_name" content="MarketPlace Romania" />
       <meta property="og:locale" content="ro_RO" />
       
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:url" content={url} />
+      <meta name="twitter:url" content={canonicalUrl} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
