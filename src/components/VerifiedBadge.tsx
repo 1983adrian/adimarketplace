@@ -113,11 +113,11 @@ const BadgeIcon = forwardRef<HTMLSpanElement, { size: 'sm' | 'md' | 'lg'; classN
 );
 BadgeIcon.displayName = 'BadgeIcon';
 
-export const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(({ 
+export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({ 
   userId, 
   size = 'md',
   showTooltip = true 
-}, ref) => {
+}) => {
   const { data: specialData } = useIsSpecialUser(userId);
   const { data: topSellerData } = useTopSellerStatus(userId, !!specialData?.isSpecial);
 
@@ -134,23 +134,19 @@ export const VerifiedBadge = forwardRef<HTMLSpanElement, VerifiedBadgeProps>(({
   if (!isSpecial) return null;
 
   if (!showTooltip) {
-    return <BadgeIcon ref={ref} size={size} />;
+    return <BadgeIcon size={size} />;
   }
 
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="inline-flex">
-          <BadgeIcon ref={ref} size={size} />
-        </span>
+        <BadgeIcon size={size} />
       </TooltipTrigger>
       <TooltipContent>
         <p className="font-medium">{badgeType}</p>
       </TooltipContent>
     </Tooltip>
   );
-});
-
-VerifiedBadge.displayName = 'VerifiedBadge';
+};
 
 export default VerifiedBadge;

@@ -54,7 +54,7 @@ interface PopularProductsGridProps {
   conditionLabels: Record<string, string>;
 }
 
-export const PopularProductsGrid: React.FC<PopularProductsGridProps> = ({
+const PopularProductsGridComponent: React.FC<PopularProductsGridProps> = ({
   listings,
   conditionLabels,
 }) => {
@@ -173,5 +173,8 @@ export const PopularProductsGrid: React.FC<PopularProductsGridProps> = ({
     </div>
   );
 };
+
+export const PopularProductsGrid = React.memo(PopularProductsGridComponent);
+PopularProductsGrid.displayName = 'PopularProductsGrid';
 
 export default PopularProductsGrid;
