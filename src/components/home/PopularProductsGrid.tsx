@@ -99,6 +99,10 @@ export const PopularProductsGrid: React.FC<PopularProductsGridProps> = ({
                 <img
                   src={primaryImage?.image_url || '/placeholder.svg'}
                   alt={listing.title}
+                  width={300}
+                  height={300}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
                 <FavoriteButton listingId={listing.id} userId={user?.id} />

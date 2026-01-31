@@ -115,7 +115,7 @@ export const sendOrderNotificationToSeller = async (
       
       <p style="color: #666;">Plata ta va fi procesată după ce cumpărătorul confirmă primirea coletului.</p>
       
-      <a href="${typeof window !== 'undefined' ? window.location.origin : 'https://adimarketplace.lovable.app'}/orders?section=selling" 
+      <a href="${typeof window !== 'undefined' ? window.location.origin : 'https://www.marketplaceromania.com'}/orders?section=selling" 
          style="display: inline-block; background: #6366f1; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px; font-weight: bold;">
         📦 Adaugă Tracking Acum
       </a>

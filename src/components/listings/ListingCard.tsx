@@ -127,8 +127,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           <img
             src={imageUrl}
             alt={listing.title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            width={400}
+            height={400}
             loading="lazy"
+            decoding="async"
+            fetchPriority="low"
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           
           {/* Favorite Button - Always visible */}

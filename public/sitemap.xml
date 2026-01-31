@@ -1,26 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Static sitemap - Dynamic sitemap available at /functions/v1/dynamic-sitemap -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  <!-- Homepage - Marketplace România | Market România - Highest Priority -->
+  <!-- Homepage - MarketPlace Romania - Highest Priority -->
   <url>
     <loc>https://www.marketplaceromania.com/</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   
-  <!-- Browse Products - Market România Core Functionality -->
+  <!-- Browse Products - Core Functionality -->
   <url>
     <loc>https://www.marketplaceromania.com/browse</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   
-  <!-- Sell Page - Place România pentru vânzări -->
+  <!-- Sell Page -->
   <url>
     <loc>https://www.marketplaceromania.com/sell</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -28,53 +29,53 @@
   <!-- Authentication Pages -->
   <url>
     <loc>https://www.marketplaceromania.com/login</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/signup</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   
-  <!-- Seller Tutorial - Important for Market România SEO -->
+  <!-- Seller Tutorial -->
   <url>
     <loc>https://www.marketplaceromania.com/seller-tutorial</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
-  <!-- Static Information Pages - Marketplace România Brand -->
+  <!-- Static Information Pages -->
   <url>
     <loc>https://www.marketplaceromania.com/about-us</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/help</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/faq</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/contact</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/safety-tips</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -82,27 +83,27 @@
   <!-- Legal Pages -->
   <url>
     <loc>https://www.marketplaceromania.com/privacy-policy</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/terms-of-service</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/cookie-policy</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   
-  <!-- Install App - Market România App -->
+  <!-- Install App -->
   <url>
     <loc>https://www.marketplaceromania.com/install-app</loc>
-    <lastmod>2026-01-29</lastmod>
+    <lastmod>2026-01-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

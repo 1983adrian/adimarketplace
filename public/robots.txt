@@ -95,8 +95,9 @@ Disallow: /
 User-agent: BLEXBot
 Disallow: /
 
-# Sitemap - CRITICAL for fast indexing
+# Sitemaps - Dynamic sitemap for real-time listings
 Sitemap: https://www.marketplaceromania.com/sitemap.xml
+Sitemap: https://zptpqfkuztfjntvyzvca.supabase.co/functions/v1/dynamic-sitemap
 
 # Host directive for search engines
 Host: https://www.marketplaceromania.com
