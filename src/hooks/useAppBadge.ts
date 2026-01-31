@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from 'react';
 import { Capacitor } from '@capacitor/core';
-import { PushNotifications } from '@capacitor/push-notifications';
 import { useUnreadCount } from '@/hooks/useRealTimeNotifications';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 
@@ -11,14 +10,21 @@ export const useAppBadge = () => {
   const totalBadgeCount = (unreadNotifications || 0) + (unreadMessages || 0);
 
   const updateBadge = useCallback(async (count: number) => {
-    // Native iOS badge via Push Notifications plugin
+    // Native iOS/Android badge via Badge plugin
     if (Capacitor.isNativePlatform()) {
       try {
-        // iOS automatically handles badge count through push notifications
-        // For local badge updates, we use the notification system
-        console.log('App badge count updated:', count);
+        // Dynamically import Badge plugin only on native
+        if (Capacitor.isPluginAvailable('Badge')) {
+          const { Badge } = await import('@capawesome/capacitor-badge');
+          if (count > 0) {
+            await Badge.set({ count });
+          } else {
+            await Badge.clear();
+          }
+          console.log('[Badge] Native badge updated:', count);
+        }
       } catch (error) {
-        console.log('Failed to update native badge:', error);
+        console.log('[Badge] Native badge not available:', error);
       }
     }
 
@@ -30,10 +36,10 @@ export const useAppBadge = () => {
         } else {
           await (navigator as any).clearAppBadge();
         }
-        console.log('PWA badge updated:', count);
+        console.log('[Badge] PWA badge updated:', count);
       } catch (error) {
         // Badge API might not be available in all contexts
-        console.log('PWA badge not available:', error);
+        console.log('[Badge] PWA badge not available:', error);
       }
     }
   }, []);

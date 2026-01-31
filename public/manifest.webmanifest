@@ -2,14 +2,20 @@
   "name": "Marketplace România | Market România - Cumpără și Vinde Online",
   "short_name": "Market România",
   "description": "Marketplace România - cel mai mare market online din România. Place România pentru cumpărături și vânzări sigure cu plăți securizate și livrare rapidă. Comision doar 8%!",
-  "start_url": "/",
+  "start_url": "https://www.marketplaceromania.com/",
+  "id": "marketplaceromania",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#1a1a2e",
   "theme_color": "#1a1a2e",
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "ro",
+  "dir": "ltr",
   "categories": ["shopping", "business", "lifestyle"],
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  },
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -111,6 +117,9 @@
     }
   ],
   "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
   "protocol_handlers": [
     {
       "protocol": "web+marketplacero",

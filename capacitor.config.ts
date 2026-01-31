@@ -6,7 +6,9 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     url: 'https://e0bfe707-146b-4b72-b4c4-b072982fc18d.lovableproject.com?forceHideBadge=true',
-    cleartext: true
+    cleartext: true,
+    androidScheme: 'https',
+    iosScheme: 'https'
   },
   plugins: {
     PushNotifications: {
@@ -38,18 +40,27 @@ const config: CapacitorConfig = {
     Keyboard: {
       resize: "body",
       resizeOnFullScreen: true
+    },
+    CapacitorHttp: {
+      enabled: true
     }
   },
   ios: {
     contentInset: "automatic",
     preferredContentMode: "mobile",
     allowsLinkPreview: true,
-    scrollEnabled: true
+    scrollEnabled: true,
+    backgroundColor: "#1a1a2e"
   },
   android: {
     allowMixedContent: true,
     captureInput: true,
-    webContentsDebuggingEnabled: false
+    webContentsDebuggingEnabled: false,
+    backgroundColor: "#1a1a2e",
+    buildOptions: {
+      keystorePath: undefined,
+      keystoreAlias: undefined
+    }
   }
 };
 

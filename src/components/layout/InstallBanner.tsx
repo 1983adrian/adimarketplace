@@ -97,10 +97,10 @@ export const InstallBanner = () => {
         {/* Text */}
         <div className="text-left">
           <p className="text-sm font-medium text-foreground">
-            Instalează aplicația
+            Instalează Marketplace
           </p>
           <p className="text-xs text-muted-foreground">
-            Acces rapid de pe ecran
+            Acces rapid de pe ecranul principal
           </p>
         </div>
 

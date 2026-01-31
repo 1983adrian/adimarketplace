@@ -77,7 +77,7 @@ const InstallApp = () => {
                 Aplicația este instalată! 🎉
               </h2>
               <p className="text-green-700 dark:text-green-300">
-                Folosești deja C Market ca aplicație. Bucură-te de experiența completă!
+                Folosești deja Marketplace România ca aplicație. Bucură-te de experiența completă!
               </p>
             </CardContent>
           </Card>
@@ -97,7 +97,7 @@ const InstallApp = () => {
             </div>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Instalează C Market
+            Instalează Marketplace România
           </h1>
           <p className="text-xl text-muted-foreground max-w-xl mx-auto">
             Aplicația oficială pe orice dispozitiv - gratuit și instant!
@@ -115,7 +115,7 @@ const InstallApp = () => {
                 disabled={installing}
               >
                 <Download className="h-6 w-6 mr-3" />
-                {installing ? "Se instalează..." : "Instalează C Market Acum"}
+                {installing ? "Se instalează..." : "Instalează Marketplace România Acum"}
               </Button>
               <p className="text-center text-sm text-muted-foreground mt-3">
                 Un singur click și aplicația va fi instalată pe dispozitivul tău!
