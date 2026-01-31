@@ -16,10 +16,15 @@ if (savedTheme === 'dark') {
 // Initialize Capacitor plugins for native apps
 initializeCapacitor().catch(console.error);
 
-// Register PWA service worker with error handling
-registerServiceWorker().catch(() => {
-  // Silent fail - PWA is optional
-});
+// Register PWA service worker - delayed and conditional for crawlers
+// Only runs on client-side, won't block rendering or cause errors for bots
+if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+  setTimeout(() => {
+    registerServiceWorker().catch(() => {
+      // Silent fail - PWA is optional enhancement
+    });
+  }, 1000);
+}
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

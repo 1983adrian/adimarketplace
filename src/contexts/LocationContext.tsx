@@ -69,6 +69,12 @@ export const COUNTRY_CARRIERS: Record<string, string[]> = {
 // Default carriers for unknown countries
 const DEFAULT_CARRIERS = ['DHL Express', 'UPS', 'FedEx', 'EMS'];
 
+// Default fallback location for crawlers/bots and failed requests
+const DEFAULT_LOCATION: LocationInfo = {
+  countryCode: 'RO',
+  countryName: 'Romania',
+};
+
 interface LocationContextType {
   location: LocationInfo | null;
   isLoading: boolean;
@@ -79,6 +85,19 @@ interface LocationContextType {
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
+// Detect if user agent is a crawler/bot
+function isBot(): boolean {
+  if (typeof navigator === 'undefined') return true;
+  const userAgent = navigator.userAgent?.toLowerCase() || '';
+  const botPatterns = [
+    'googlebot', 'bingbot', 'yandex', 'baiduspider', 'facebookexternalhit',
+    'twitterbot', 'rogerbot', 'linkedinbot', 'embedly', 'quora link preview',
+    'showyoubot', 'outbrain', 'pinterest', 'slackbot', 'vkshare', 'w3c_validator',
+    'bot', 'spider', 'crawler', 'scraper', 'headless', 'phantom', 'selenium'
+  ];
+  return botPatterns.some(pattern => userAgent.includes(pattern));
+}
+
 export const LocationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [location, setLocation] = useState<LocationInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,7 +105,15 @@ export const LocationProvider: React.FC<{ children: ReactNode }> = ({ children }
   const detectLocation = async () => {
     setIsLoading(true);
     
-    // Try timezone detection first
+    // Immediate fallback for bots/crawlers - don't make any API calls
+    if (isBot()) {
+      console.log('Bot detected, using default Romania location');
+      setLocation(DEFAULT_LOCATION);
+      setIsLoading(false);
+      return;
+    }
+    
+    // Try timezone detection first (no network request)
     try {
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const countryFromTimezone = getCountryFromTimezone(timezone);
@@ -105,11 +132,17 @@ export const LocationProvider: React.FC<{ children: ReactNode }> = ({ children }
       console.log('Could not detect from timezone');
     }
 
-    // Try IP geolocation
+    // Try IP geolocation with robust fallback
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
+      
       const response = await fetch('https://ipapi.co/json/', { 
-        signal: AbortSignal.timeout(5000) 
+        signal: controller.signal 
       });
+      
+      clearTimeout(timeoutId);
+      
       if (response.ok) {
         const data = await response.json();
         if (data.country_code) {
@@ -121,21 +154,28 @@ export const LocationProvider: React.FC<{ children: ReactNode }> = ({ children }
             timezone: data.timezone,
           });
           localStorage.setItem('detectedCountry', data.country_code);
+          setIsLoading(false);
+          return;
         }
       }
     } catch (e) {
-      console.log('Could not detect from IP');
-      // Default to UK if detection fails
-      setLocation({
-        countryCode: 'GB',
-        countryName: 'United Kingdom',
-      });
+      // Silently handle - fallback will be used
+      console.log('IP geolocation unavailable, using fallback');
     }
     
+    // Default to Romania if all detection fails
+    setLocation(DEFAULT_LOCATION);
     setIsLoading(false);
   };
 
   useEffect(() => {
+    // For bots, immediately set default location without any async calls
+    if (isBot()) {
+      setLocation(DEFAULT_LOCATION);
+      setIsLoading(false);
+      return;
+    }
+    
     // Check for cached location first
     const cached = localStorage.getItem('detectedCountry');
     if (cached) {
@@ -158,7 +198,7 @@ export const LocationProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const preferredLanguage = location?.countryCode
     ? COUNTRY_LANGUAGE[location.countryCode] || 'en'
-    : 'en';
+    : 'ro'; // Default to Romanian for SEO
 
   return (
     <LocationContext.Provider value={{ 

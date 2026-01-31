@@ -1,6 +1,6 @@
 # Marketplace România | Market România | Place România - Robots.txt
 # SEO Keywords: marketplace romania, market romania, place romania
-# Updated: 2026-01-29 - SEO Optimized for Fast Indexing
+# Updated: 2026-01-31 - SEO Optimized for Fast Indexing
 
 # Google - Priority crawler, no delay
 User-agent: Googlebot
@@ -10,6 +10,9 @@ Allow: /listing/
 Allow: /seller/
 Allow: /faq
 Allow: /about-us
+Allow: /fonts/
+Allow: /icons/
+Allow: /images/
 Crawl-delay: 0
 
 User-agent: Googlebot-Image
@@ -18,6 +21,9 @@ Allow: /
 # Bing
 User-agent: Bingbot
 Allow: /
+Allow: /fonts/
+Allow: /icons/
+Allow: /images/
 Crawl-delay: 1
 
 # Social Media Crawlers
@@ -57,6 +63,20 @@ Allow: /seller-tutorial
 Allow: /login
 Allow: /signup
 Allow: /install-app
+
+# Allow access to static assets for crawlers
+Allow: /fonts/
+Allow: /icons/
+Allow: /images/
+Allow: /assets/
+Allow: /*.js$
+Allow: /*.css$
+Allow: /*.woff2$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.webp$
+Allow: /*.svg$
 
 # Block private/user-specific pages
 Disallow: /admin
