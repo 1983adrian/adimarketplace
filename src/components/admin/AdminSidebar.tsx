@@ -9,8 +9,6 @@ import {
   Shield,
   Crown,
   Megaphone,
-  Palette,
-  ClipboardCheck,
   Sliders,
   LucideIcon,
   Truck,
@@ -18,12 +16,13 @@ import {
   Gavel,
   MessageSquare,
   AlertTriangle,
-  Search,
-  CreditCard,
   Wallet,
   FolderTree,
-  Mail,
-  FileText
+  FileText,
+  Store,
+  Bell,
+  Palette,
+  Link as LinkIcon
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -46,11 +45,22 @@ interface MenuItem {
   premium?: boolean;
 }
 
-// Main navigation - essential admin pages
-const mainItems: MenuItem[] = [
+// Proprietar & Control
+const ownerItems: MenuItem[] = [
   { title: 'Control Center', url: '/admin/control-center', icon: Sliders, premium: true },
   { title: 'Owner Dashboard', url: '/admin/owner', icon: Crown, premium: true },
   { title: 'Broadcast', url: '/admin/broadcast', icon: Megaphone, premium: true },
+];
+
+// Setări Unificate (1 buton per categorie)
+const settingsItems: MenuItem[] = [
+  { title: 'Setări Unificate', url: '/admin/unified-settings', icon: Settings },
+  { title: 'Categorii', url: '/admin/categories', icon: FolderTree },
+  { title: 'Comisioane & Taxe', url: '/admin/fees', icon: DollarSign },
+];
+
+// Operațional
+const operationalItems: MenuItem[] = [
   { title: 'Overview', url: '/admin', icon: LayoutDashboard },
   { title: 'Utilizatori', url: '/admin/users', icon: Users },
   { title: 'Produse', url: '/admin/listings', icon: Package },
@@ -58,30 +68,15 @@ const mainItems: MenuItem[] = [
   { title: 'Livrări', url: '/admin/deliveries', icon: Truck },
   { title: 'Retururi', url: '/admin/returns', icon: RotateCcw },
   { title: 'Licitații', url: '/admin/auctions', icon: Gavel },
+];
+
+// Comunicare & Securitate
+const communicationItems: MenuItem[] = [
   { title: 'Mesaje', url: '/admin/messages', icon: MessageSquare },
   { title: 'Dispute', url: '/admin/disputes', icon: AlertTriangle },
-];
-
-const financeItems: MenuItem[] = [
-  { title: 'Finanțe & Plăți', url: '/admin/fees', icon: DollarSign },
-  { title: 'Procesatori Plăți', url: '/admin/payments', icon: CreditCard },
+  { title: 'Fraud Alerts', url: '/admin/fraud-alerts', icon: AlertTriangle, premium: true },
   { title: 'Plăți Vânzători', url: '/admin/seller-payouts', icon: Wallet },
   { title: 'Analytics', url: '/admin/analytics', icon: BarChart3 },
-  { title: 'Fraud Alerts', url: '/admin/fraud-alerts', icon: AlertTriangle, premium: true },
-];
-
-const contentItems: MenuItem[] = [
-  { title: 'Categorii', url: '/admin/categories', icon: FolderTree },
-  { title: 'Email Templates', url: '/admin/email-templates', icon: Mail },
-  { title: 'Politici', url: '/admin/policies', icon: FileText },
-  { title: 'SEO Dashboard', url: '/admin/seo-dashboard', icon: Search },
-];
-
-const settingsItems: MenuItem[] = [
-  { title: 'Setări Platformă', url: '/admin/settings', icon: Settings },
-  { title: 'Editor Interfață', url: '/admin/interface-editor', icon: Palette, premium: true },
-  { title: 'Audit Butoane', url: '/admin/button-audit', icon: ClipboardCheck, premium: true },
-  { title: 'Securitate', url: '/admin/security', icon: Shield },
 ];
 
 const SimpleMenuItem = ({ item, collapsed }: { item: MenuItem; collapsed: boolean }) => {
@@ -150,37 +145,11 @@ export function AdminSidebar() {
       <SidebarContent className="p-3 space-y-4">
         <SidebarGroup>
           <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase text-muted-foreground mb-2">
-            Principal
+            Proprietar
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
-              {mainItems.map((item) => (
-                <SimpleMenuItem key={item.title} item={item} collapsed={collapsed} />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase text-muted-foreground mb-2">
-            Finanțe
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {financeItems.map((item) => (
-                <SimpleMenuItem key={item.title} item={item} collapsed={collapsed} />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase text-muted-foreground mb-2">
-            Conținut
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-1">
-              {contentItems.map((item) => (
+              {ownerItems.map((item) => (
                 <SimpleMenuItem key={item.title} item={item} collapsed={collapsed} />
               ))}
             </SidebarMenu>
@@ -194,6 +163,32 @@ export function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1">
               {settingsItems.map((item) => (
+                <SimpleMenuItem key={item.title} item={item} collapsed={collapsed} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase text-muted-foreground mb-2">
+            Operațional
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {operationalItems.map((item) => (
+                <SimpleMenuItem key={item.title} item={item} collapsed={collapsed} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="px-3 text-xs font-semibold uppercase text-muted-foreground mb-2">
+            Comunicare
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu className="space-y-1">
+              {communicationItems.map((item) => (
                 <SimpleMenuItem key={item.title} item={item} collapsed={collapsed} />
               ))}
             </SidebarMenu>

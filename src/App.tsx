@@ -87,6 +87,7 @@ import AdminButtonAudit from "./pages/admin/AdminButtonAudit";
 import AdminControlCenter from "./pages/admin/AdminControlCenter";
 import AdminFraudAlerts from "./pages/admin/AdminFraudAlerts";
 import AdminSEODashboard from "./pages/admin/AdminSEODashboard";
+import AdminUnifiedSettings from "./pages/admin/AdminUnifiedSettings";
 
 const queryClient = new QueryClient();
 
@@ -179,6 +180,7 @@ const App = () => (
                 <Route path="/admin/control-center" element={<AdminControlCenter />} />
                 <Route path="/admin/fraud-alerts" element={<AdminFraudAlerts />} />
                 <Route path="/admin/seo-dashboard" element={<AdminSEODashboard />} />
+                <Route path="/admin/unified-settings" element={<AdminUnifiedSettings />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
