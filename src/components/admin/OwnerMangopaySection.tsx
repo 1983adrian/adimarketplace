@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface OwnerVerification {
   identityVerified: boolean;
@@ -26,6 +27,7 @@ interface OwnerVerification {
 export function OwnerMangopaySection() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { formatPriceWithRON } = useCurrency();
   const [showApiKey, setShowApiKey] = useState(false);
   const [showSecret, setShowSecret] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -208,7 +210,7 @@ export function OwnerMangopaySection() {
             </div>
             <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20">
               <p className="text-sm text-muted-foreground">Taxă Cumpărător</p>
-              <p className="text-3xl font-bold text-blue-600">£{buyerFee}</p>
+              <p className="text-3xl font-bold text-blue-600">{formatPriceWithRON(buyerFee)}</p>
               <p className="text-xs text-muted-foreground">Per comandă</p>
             </div>
           </div>
