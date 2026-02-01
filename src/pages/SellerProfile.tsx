@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { StarRating } from '@/components/reviews/StarRating';
 import { ReviewCard } from '@/components/reviews/ReviewCard';
 import { ListingGrid } from '@/components/listings/ListingGrid';
-import { MapPin, Calendar, ShoppingBag, Star, MessageCircle, Shield, Share2, Crown, TrendingUp } from 'lucide-react';
+import { Calendar, ShoppingBag, Star, MessageCircle, Shield, Share2, Crown, TrendingUp } from 'lucide-react';
 import { ShareStoreDialog } from '@/components/seller/ShareStoreDialog';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -188,13 +188,6 @@ const SellerProfile = () => {
                   </div>
                 </div>
 
-                {/* Location */}
-                {seller.location && (
-                  <div className="flex items-center gap-2 text-sm text-white/60">
-                    <MapPin className="h-4 w-4" />
-                    <span>{seller.location}</span>
-                  </div>
-                )}
               </div>
 
               {/* Actions */}

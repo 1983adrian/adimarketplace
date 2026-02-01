@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  User, MapPin, Save, EyeOff, Loader2, Globe
+  User, Save, EyeOff, Loader2, Globe
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ const ProfileSettings = () => {
   const [displayName, setDisplayName] = useState('');
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
-  const [location, setLocation] = useState('');
+  
   const [phone, setPhone] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
 
@@ -39,7 +39,7 @@ const ProfileSettings = () => {
       setDisplayName(profile.display_name || '');
       setUsername(profile.username || '');
       setBio(profile.bio || '');
-      setLocation(profile.location || '');
+      
       setPhone(profile.phone || '');
     }
   }, [user, profile, loading, navigate]);
@@ -50,7 +50,6 @@ const ProfileSettings = () => {
       display_name: displayName,
       username,
       bio,
-      location,
       phone,
     } as any);
     setSaving(false);
@@ -143,37 +142,22 @@ const ProfileSettings = () => {
               />
             </div>
 
-            {/* Location & Phone */}
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="location" className="text-base font-medium">Locație</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <Input 
-                    id="location" 
-                    value={location} 
-                    onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Oraș, Județ"
-                    className="pl-11 h-12"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="flex items-center gap-2 text-base font-medium">
-                  Telefon
-                  <Badge variant="outline" className="text-xs gap-1 font-normal">
-                    <EyeOff className="h-3 w-3" />
-                    Privat
-                  </Badge>
-                </Label>
-                <Input 
-                  id="phone" 
-                  value={phone} 
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="0712 345 678"
-                  className="h-12"
-                />
-              </div>
+            {/* Phone */}
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="flex items-center gap-2 text-base font-medium">
+                Telefon
+                <Badge variant="outline" className="text-xs gap-1 font-normal">
+                  <EyeOff className="h-3 w-3" />
+                  Privat
+                </Badge>
+              </Label>
+              <Input 
+                id="phone" 
+                value={phone} 
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="0712 345 678"
+                className="h-12"
+              />
             </div>
 
             {/* Bio */}

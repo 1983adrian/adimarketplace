@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Store, Package, Shield, User, Building, Globe, 
   Banknote, Building2, CreditCard, Save, Clock,
-  CheckCircle2, AlertCircle, Loader2, MapPin
+  CheckCircle2, AlertCircle, Loader2
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { X, ImagePlus, Loader2, Truck, ArrowLeft, Trash2, MapPin } from 'lucide-react';
+import { X, ImagePlus, Loader2, Truck, ArrowLeft, Trash2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,7 +39,7 @@ const EditListing = () => {
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState<ItemCondition>('good');
   const [category, setCategory] = useState('');
-  const [location, setLocation] = useState('');
+  
   const [existingImages, setExistingImages] = useState<{ id: string; url: string; is_primary: boolean }[]>([]);
   const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
   const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
@@ -70,7 +70,7 @@ const EditListing = () => {
       setSelectedCourier((listing as any).shipping_carrier || 'free');
       setCondition(listing.condition);
       setCategory(listing.category_id || '');
-      setLocation(listing.location || '');
+      
       setIsActive(listing.is_active);
       setIsSold(listing.is_sold);
       
@@ -432,7 +432,7 @@ const EditListing = () => {
               {/* Seller Country Selection */}
               <div className="pt-4 border-t">
                 <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <Truck className="h-4 w-4 text-muted-foreground" />
                   <Label htmlFor="sellerCountry">Țara ta (pentru tarife de livrare) *</Label>
                 </div>
                 <Select value={sellerCountry || sellerCountryInput} onValueChange={(value) => {

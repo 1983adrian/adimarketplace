@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search, Filter, X, MapPin, Heart, Package, ShoppingCart, Store, User } from 'lucide-react';
+import { Search, Filter, X, Heart, Package, ShoppingCart, Store, User } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -26,7 +26,7 @@ const Browse = () => {
   const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [selectedCondition, setSelectedCondition] = useState<string>('');
   const [sortBy, setSortBy] = useState('newest');
-  const [locationFilter, setLocationFilter] = useState('');
+  
   const { data: categories } = useCategories();
 
   const selectedCategory = searchParams.get('category') || '';
@@ -92,9 +92,7 @@ const Browse = () => {
       (listing.description && listing.description.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesPrice = listing.price >= priceRange[0] && listing.price <= priceRange[1];
     const matchesCondition = !selectedCondition || listing.condition === selectedCondition;
-    const matchesLocation = !locationFilter || 
-      (listing.location && listing.location.toLowerCase().includes(locationFilter.toLowerCase()));
-    return matchesSearch && matchesPrice && matchesCondition && matchesLocation;
+    return matchesSearch && matchesPrice && matchesCondition;
   });
 
   const sortedListings = [...filteredListings].sort((a, b) => {
@@ -119,7 +117,6 @@ const Browse = () => {
     setSearchQuery('');
     setPriceRange([0, 1000000]);
     setSelectedCondition('');
-    setLocationFilter('');
     setSortBy('newest');
     setSearchParams({});
   };
@@ -164,19 +161,6 @@ const Browse = () => {
             <SelectItem value="poor">{t('condition.poor')}</SelectItem>
           </SelectContent>
         </Select>
-      </div>
-
-      <div>
-        <Label className="mb-2 block">{t('settings.location')}</Label>
-        <div className="relative">
-          <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="London, Manchester..."
-            value={locationFilter}
-            onChange={(e) => setLocationFilter(e.target.value)}
-            className="pl-10"
-          />
-        </div>
       </div>
       
       <Button variant="outline" className="w-full" onClick={clearFilters}>
@@ -245,11 +229,6 @@ const Browse = () => {
                   <p className="text-lg md:text-xl font-bold text-primary mt-1">
                     {formatPrice(listing.price, ((listing as any).price_currency || 'RON') as any)}
                   </p>
-                  {listing.location && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                      <MapPin className="h-3 w-3" />{listing.location}
-                    </p>
-                  )}
                   <Button 
                     size="sm" 
                     className="w-full gap-2 mt-auto pt-2"
@@ -370,11 +349,6 @@ const Browse = () => {
                                 </div>
                                 {seller.bio && (
                                   <p className="text-sm text-muted-foreground line-clamp-1 mt-1">{seller.bio}</p>
-                                )}
-                                {seller.location && (
-                                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                    <MapPin className="h-3 w-3" />{seller.location}
-                                  </p>
                                 )}
                               </div>
                               <Button variant="outline" size="sm" className="shrink-0">
