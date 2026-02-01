@@ -19,8 +19,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 export default function FeesAndCommissions() {
+  const { formatPriceWithRON, currency } = useCurrency();
+
   const includedFeatures = [
     "Listare nelimitată de produse",
     "Promovare pe homepage (opțional, plătit)",
@@ -38,6 +41,7 @@ export default function FeesAndCommissions() {
     { name: "OLX (promovări)", fee: "Abonament + taxe", highlight: false },
   ];
 
+  // All examples in RON
   const examples = [
     { price: 100, commission: 8, netAmount: 92 },
     { price: 500, commission: 40, netAmount: 460 },
@@ -60,7 +64,7 @@ export default function FeesAndCommissions() {
     },
     {
       question: "Cum funcționează promovările plătite?",
-      answer: "Promovările sunt opționale și îți cresc vizibilitatea. Produsele promovate apar pe homepage și în topul căutărilor. Prețurile încep de la 5 RON/zi."
+      answer: `Promovările sunt opționale și îți cresc vizibilitatea. Produsele promovate apar pe homepage și în topul căutărilor. Prețul este ${formatPriceWithRON(25)}/săptămână.`
     },
     {
       question: "Când îmi primesc banii?",
@@ -170,9 +174,9 @@ export default function FeesAndCommissions() {
                       <tbody>
                         {examples.map((example, index) => (
                           <tr key={index} className="border-b last:border-0">
-                            <td className="py-3 px-4">{example.price} RON</td>
-                            <td className="py-3 px-4 text-muted-foreground">-{example.commission} RON</td>
-                            <td className="py-3 px-4 font-bold text-green-600">{example.netAmount} RON</td>
+                            <td className="py-3 px-4">{formatPriceWithRON(example.price)}</td>
+                            <td className="py-3 px-4 text-muted-foreground">-{formatPriceWithRON(example.commission)}</td>
+                            <td className="py-3 px-4 font-bold text-green-600">{formatPriceWithRON(example.netAmount)}</td>
                           </tr>
                         ))}
                       </tbody>

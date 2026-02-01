@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface FeeState {
   id: string;
@@ -26,6 +27,7 @@ export default function AdminFees() {
   const { data: fees, isLoading, refetch } = usePlatformFees();
   const updateFee = useUpdatePlatformFee();
   const { toast } = useToast();
+  const { formatPriceWithRON } = useCurrency();
 
   const [buyerFee, setBuyerFee] = useState<FeeState>({ id: '', amount: '', description: '', isActive: true, isPercentage: false });
   const [sellerCommission, setSellerCommission] = useState<FeeState>({ id: '', amount: '', description: '', isActive: true, isPercentage: true });
@@ -168,16 +170,16 @@ export default function AdminFees() {
               <p className="text-xs text-muted-foreground">Taxă adăugată la fiecare comandă pentru cumpărător</p>
               <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Sumă (£)</Label>
+                  <Label className="text-xs">Sumă (RON)</Label>
                   <div className="relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">£</span>
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RON</span>
                     <Input
                       type="number"
                       step="0.01"
                       min="0"
                       value={buyerFee.amount}
                       onChange={(e) => { setBuyerFee(prev => ({ ...prev, amount: e.target.value })); markChanged(); }}
-                      className="pl-6 text-sm font-semibold h-8"
+                      className="pl-12 text-sm font-semibold h-8"
                     />
                   </div>
                 </div>
@@ -269,16 +271,16 @@ export default function AdminFees() {
               <p className="text-xs text-muted-foreground">Taxa lunară pentru a vinde pe platformă</p>
               <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Sumă (£/lună)</Label>
+                  <Label className="text-xs">Sumă (RON/lună)</Label>
                   <div className="relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">£</span>
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RON</span>
                     <Input
                       type="number"
                       step="0.01"
                       min="0"
                       value={sellerSubscription.amount}
                       onChange={(e) => { setSellerSubscription(prev => ({ ...prev, amount: e.target.value })); markChanged(); }}
-                      className="pl-6 text-sm font-semibold h-8"
+                      className="pl-12 text-sm font-semibold h-8"
                     />
                   </div>
                 </div>
@@ -319,16 +321,16 @@ export default function AdminFees() {
               <p className="text-xs text-muted-foreground">Taxa pentru promovarea unui anunț</p>
               <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <Label className="text-xs">Sumă (£/săpt)</Label>
+                  <Label className="text-xs">Sumă (RON/săpt)</Label>
                   <div className="relative">
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">£</span>
+                    <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">RON</span>
                     <Input
                       type="number"
                       step="0.01"
                       min="0"
                       value={weeklyPromotion.amount}
                       onChange={(e) => { setWeeklyPromotion(prev => ({ ...prev, amount: e.target.value })); markChanged(); }}
-                      className="pl-6 text-sm font-semibold h-8"
+                      className="pl-12 text-sm font-semibold h-8"
                     />
                   </div>
                 </div>
@@ -352,7 +354,7 @@ export default function AdminFees() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calculator className="h-5 w-5" />
-              Calculator Taxe - Exemplu Vânzare £{examplePrice}
+              Calculator Taxe - Exemplu Vânzare {formatPriceWithRON(examplePrice)}
             </CardTitle>
             <CardDescription>
               Previzualizare în timp real a taxelor aplicate
@@ -369,16 +371,16 @@ export default function AdminFees() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Preț produs</span>
-                    <span>£{examplePrice.toFixed(2)}</span>
+                    <span>{formatPriceWithRON(examplePrice)}</span>
                   </div>
                   <div className="flex justify-between text-blue-600">
                     <span>+ Taxa serviciu</span>
-                    <span>£{parseFloat(buyerFee.amount || '0').toFixed(2)}</span>
+                    <span>{formatPriceWithRON(parseFloat(buyerFee.amount || '0'))}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg">
                     <span>Total</span>
-                    <span>£{buyerTotal.toFixed(2)}</span>
+                    <span>{formatPriceWithRON(buyerTotal)}</span>
                   </div>
                 </div>
               </div>
@@ -392,16 +394,16 @@ export default function AdminFees() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Preț vânzare</span>
-                    <span>£{examplePrice.toFixed(2)}</span>
+                    <span>{formatPriceWithRON(examplePrice)}</span>
                   </div>
                   <div className="flex justify-between text-red-600">
                     <span>- Comision ({sellerCommission.amount || 0}%)</span>
-                    <span>-£{commissionAmount.toFixed(2)}</span>
+                    <span>-{formatPriceWithRON(commissionAmount)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg text-green-700 dark:text-green-300">
                     <span>Câștig Net</span>
-                    <span>£{sellerNet.toFixed(2)}</span>
+                    <span>{formatPriceWithRON(sellerNet)}</span>
                   </div>
                 </div>
               </div>
@@ -415,16 +417,16 @@ export default function AdminFees() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span>Taxa cumpărător</span>
-                    <span>£{parseFloat(buyerFee.amount || '0').toFixed(2)}</span>
+                    <span>{formatPriceWithRON(parseFloat(buyerFee.amount || '0'))}</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Comision vânzător</span>
-                    <span>£{commissionAmount.toFixed(2)}</span>
+                    <span>{formatPriceWithRON(commissionAmount)}</span>
                   </div>
                   <Separator />
                   <div className="flex justify-between font-bold text-lg text-purple-700 dark:text-purple-300">
                     <span>Total/Tranzacție</span>
-                    <span>£{platformRevenue.toFixed(2)}</span>
+                    <span>{formatPriceWithRON(platformRevenue)}</span>
                   </div>
                 </div>
               </div>
@@ -436,11 +438,11 @@ export default function AdminFees() {
               <div className="grid gap-2 md:grid-cols-2 text-sm">
                 <div className="flex justify-between">
                   <span>Abonament vânzător/lună:</span>
-                  <span className="font-medium">£{parseFloat(sellerSubscription.amount || '0').toFixed(2)}</span>
+                  <span className="font-medium">{formatPriceWithRON(parseFloat(sellerSubscription.amount || '0'))}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Promovare/săptămână:</span>
-                  <span className="font-medium">£{parseFloat(weeklyPromotion.amount || '0').toFixed(2)}</span>
+                  <span className="font-medium">{formatPriceWithRON(parseFloat(weeklyPromotion.amount || '0'))}</span>
                 </div>
               </div>
             </div>

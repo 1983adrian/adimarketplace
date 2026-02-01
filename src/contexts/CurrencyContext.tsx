@@ -43,6 +43,7 @@ interface CurrencyContextType {
   currency: Currency;
   currencyInfo: CurrencyInfo;
   formatPrice: (price: number, fromCurrency?: Currency) => string;
+  formatPriceWithRON: (priceInRON: number) => string;
   convertPrice: (price: number, fromCurrency: Currency, toCurrency?: Currency) => number;
   availableCurrencies: CurrencyInfo[];
   detectedCountry: string | null;
@@ -129,10 +130,37 @@ export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }
     }).format(convertedPrice);
   }, [currency, convertPrice]);
 
+  // Format price showing RON + local currency conversion (for fees, taxes, etc.)
+  const formatPriceWithRON = useCallback((priceInRON: number): string => {
+    const ronFormatted = new Intl.NumberFormat('ro-RO', {
+      style: 'currency',
+      currency: 'RON',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(priceInRON);
+
+    // If user currency is already RON, just show RON
+    if (currency === 'RON') {
+      return ronFormatted;
+    }
+
+    // Otherwise show RON + converted amount
+    const convertedPrice = convertPrice(priceInRON, 'RON', currency);
+    const localFormatted = new Intl.NumberFormat(CURRENCIES[currency].locale, {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(convertedPrice);
+
+    return `${ronFormatted} (~${localFormatted})`;
+  }, [currency, convertPrice]);
+
   const value: CurrencyContextType = {
     currency,
     currencyInfo: CURRENCIES[currency],
     formatPrice,
+    formatPriceWithRON,
     convertPrice,
     availableCurrencies: Object.values(CURRENCIES),
     detectedCountry,
