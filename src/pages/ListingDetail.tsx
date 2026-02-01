@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, MapPin, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote, TrendingUp } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -313,11 +313,6 @@ const ListingDetail = () => {
               </p>
             )}
 
-            {listing.location && (
-              <p className="text-muted-foreground flex items-center gap-2">
-                <MapPin className="h-4 w-4" /> {listing.location}
-              </p>
-            )}
 
             {/* Variant Selector for Sizes and Colors */}
             {needsVariantSelection && (

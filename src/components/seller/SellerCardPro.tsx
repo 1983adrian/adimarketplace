@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, ShoppingBag, MessageCircle, ExternalLink } from 'lucide-react';
+import { Star, ShoppingBag, MessageCircle, ExternalLink } from 'lucide-react';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { TopSellerBadge } from '@/components/TopSellerBadge';
 import { cn } from '@/lib/utils';
@@ -142,13 +142,6 @@ export const SellerCardPro: React.FC<SellerCardProProps> = ({
           </div>
         </div>
 
-        {/* Location */}
-        {seller.location && (
-          <div className="flex items-center gap-2 text-sm text-white/60 mb-4">
-            <MapPin className="h-4 w-4" />
-            <span>{seller.location}</span>
-          </div>
-        )}
 
         {/* Actions */}
         <div className="flex gap-2">

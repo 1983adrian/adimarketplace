@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, MapPin, Ban, Leaf, Bomb, Store } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, Ban, Leaf, Bomb, Store } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,7 +55,7 @@ const CreateListing = () => {
   const [price, setPrice] = useState('');
   const [condition, setCondition] = useState<ItemCondition>('good');
   const [category, setCategory] = useState('');
-  const [location, setLocation] = useState('');
+  
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -245,7 +245,7 @@ const CreateListing = () => {
         price: listingType === 'auction' ? parseFloat(startingBid) : parseFloat(price),
         condition: condition as ItemCondition,
         category_id: category,
-        location,
+        location: null,
         is_active: isActive,
         is_sold: false,
         listing_type: listingType,
@@ -840,7 +840,7 @@ const CreateListing = () => {
               {/* Seller Country Selection - Required for shipping rates */}
               <div className="pt-4 border-t">
                 <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <Truck className="h-4 w-4 text-muted-foreground" />
                   <Label htmlFor="sellerCountry">Țara ta (pentru tarife de livrare) *</Label>
                 </div>
                 <Select value={sellerCountry || sellerCountryInput} onValueChange={(value) => {
