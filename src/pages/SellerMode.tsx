@@ -620,15 +620,16 @@ const SellerMode = () => {
                   {(!kycStatus || kycStatus === 'not_started') && (
                     <Alert>
                       <Shield className="h-4 w-4" />
-                      <AlertTitle>Verificare Necesară</AlertTitle>
+                      <AlertTitle>Verificare Necesară pentru Plăți</AlertTitle>
                       <AlertDescription>
-                        Pentru a primi plăți din vânzări, completează datele de mai sus și apasă butonul de mai jos.
+                        Pentru a primi plăți din vânzări, completează datele tale (nume magazin, țara contului și detaliile bancare), 
+                        apoi apasă butonul de mai jos pentru a trimite verificarea KYC către MangoPay.
                       </AlertDescription>
                     </Alert>
                   )}
 
-                  {/* KYC Initiation Button - only show if not started */}
-                  {(!kycStatus || kycStatus === 'not_started') && (
+                  {/* KYC Initiation Button - only show if not started or rejected */}
+                  {(!kycStatus || kycStatus === 'not_started' || kycStatus === 'rejected') && (
                     <div className="pt-2 space-y-2">
                       <Button 
                         onClick={handleInitiateKYC} 
@@ -641,10 +642,10 @@ const SellerMode = () => {
                         ) : (
                           <Shield className="h-5 w-5" />
                         )}
-                        {kycLoading ? 'Se procesează...' : 'Inițiază Verificarea KYC'}
+                        {kycLoading ? 'Se procesează...' : kycStatus === 'rejected' ? 'Retrimite Verificarea KYC' : 'Inițiază Verificarea KYC'}
                       </Button>
                       <p className="text-xs text-center text-muted-foreground">
-                        Completează: nume magazin, țară și date bancare pentru a iniția verificarea.
+                        ✓ Procesul de verificare durează 1-3 zile lucrătoare. Vei fi notificat când este finalizat.
                       </p>
                     </div>
                   )}

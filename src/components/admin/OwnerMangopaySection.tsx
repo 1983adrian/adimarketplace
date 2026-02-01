@@ -135,15 +135,15 @@ export function OwnerMangopaySection() {
         </AlertDescription>
       </Alert>
 
-      {/* Owner Verification Status */}
+      {/* MangoPay Configuration Status */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <User className="h-5 w-5" />
-            Status Verificare Proprietar
+            Status Configurare MangoPay
           </CardTitle>
           <CardDescription>
-            Verificarea ta ca proprietar al marketplace-ului în MangoPay
+            Configurația MangoPay pentru procesarea plăților platformei
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -153,35 +153,38 @@ export function OwnerMangopaySection() {
                 <FileCheck className="h-5 w-5" />
               </div>
               <div>
-                <p className="font-medium">Identitate</p>
-                <p className="text-sm text-muted-foreground">
-                  {isConfigured ? 'Verificat' : 'În așteptare'}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-4 rounded-lg border bg-muted/30">
-              <div className={`p-2 rounded-full ${isConfigured && mangopaySettings?.merchant_id ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
-                <CreditCard className="h-5 w-5" />
-              </div>
-              <div>
-                <p className="font-medium">Cont Bancar</p>
+                <p className="font-medium">API MangoPay</p>
                 <p className="text-sm text-muted-foreground">
                   {isConfigured ? 'Configurat' : 'Neconfigurat'}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-4 rounded-lg border bg-muted/30">
-              <div className={`p-2 rounded-full ${isConfigured ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
+              <div className={`p-2 rounded-full ${mangopaySettings?.webhook_url ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                <CreditCard className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="font-medium">Webhook</p>
+                <p className="text-sm text-muted-foreground">
+                  {mangopaySettings?.webhook_url ? 'Activ' : 'Neconfigurat'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-4 rounded-lg border bg-muted/30">
+              <div className={`p-2 rounded-full ${isLive ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'}`}>
                 <Building2 className="h-5 w-5" />
               </div>
               <div>
-                <p className="font-medium">Business</p>
+                <p className="font-medium">Mediu</p>
                 <p className="text-sm text-muted-foreground">
-                  {isConfigured ? 'Activ' : 'În așteptare'}
+                  {isLive ? 'Producție (Live)' : 'Sandbox (Test)'}
                 </p>
               </div>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            ℹ️ Configurează cheile API MangoPay în tab-ul de mai jos pentru a activa plățile reale.
+          </p>
         </CardContent>
       </Card>
 
