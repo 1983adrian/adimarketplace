@@ -26,8 +26,8 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(({
         <div
           className={`relative px-4 py-2.5 shadow-lg ${
             isOwn
-              ? 'bg-gradient-to-br from-primary to-primary/80 text-white rounded-2xl rounded-br-sm shadow-primary/20'
-              : 'bg-white/10 backdrop-blur-sm text-white rounded-2xl rounded-bl-sm border border-white/10 shadow-black/20'
+              ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-2xl rounded-br-sm shadow-primary/20'
+              : 'bg-muted text-foreground rounded-2xl rounded-bl-sm border border-border shadow-sm'
           }`}
         >
           {isImage ? (
@@ -35,7 +35,7 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(({
               <img 
                 src={message.content} 
                 alt="Shared image"
-                className="max-w-full h-auto rounded-lg max-h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity ring-1 ring-white/20"
+                className="max-w-full h-auto rounded-lg max-h-64 object-cover cursor-pointer hover:opacity-90 transition-opacity ring-1 ring-border"
               />
             </a>
           ) : (
@@ -43,13 +43,13 @@ export const MessageBubble = forwardRef<HTMLDivElement, MessageBubbleProps>(({
           )}
           
           {/* Time and read status */}
-          <div className={`flex items-center gap-1 mt-1.5 text-[10px] ${isOwn ? 'text-white/70 justify-end' : 'text-white/50'}`}>
+          <div className={`flex items-center gap-1 mt-1.5 text-[10px] ${isOwn ? 'text-primary-foreground/70 justify-end' : 'text-muted-foreground'}`}>
             <span>{format(new Date(message.created_at), 'HH:mm')}</span>
             {isOwn && (
               message.is_read ? (
                 <CheckCheck className="h-3.5 w-3.5 text-emerald-400" />
               ) : (
-                <Check className="h-3.5 w-3.5 text-white/50" />
+                <Check className="h-3.5 w-3.5 text-primary-foreground/50" />
               )
             )}
           </div>

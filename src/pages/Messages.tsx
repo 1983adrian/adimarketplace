@@ -248,12 +248,11 @@ export default function Messages() {
           />
         </div>
 
-        {/* Premium Chat Container */}
-        <Card className="overflow-hidden flex flex-col border border-white/10 shadow-2xl" style={{ 
+        {/* Chat Container */}
+        <Card className="overflow-hidden flex flex-col border border-border shadow-2xl bg-card" style={{ 
           height: isMobile ? 'calc(100vh - 200px)' : 'calc(100vh - 220px)', 
           minHeight: '400px',
-          maxHeight: isMobile ? 'calc(100vh - 160px)' : '800px',
-          background: 'linear-gradient(145deg, hsl(215 30% 14%) 0%, hsl(215 30% 10%) 100%)'
+          maxHeight: isMobile ? 'calc(100vh - 160px)' : '800px'
         }}>
           <div className="flex h-full overflow-hidden">
             {/* Left Panel: Conversation List Only */}
