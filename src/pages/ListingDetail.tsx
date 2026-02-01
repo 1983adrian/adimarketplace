@@ -19,6 +19,7 @@ import { SimilarListings } from '@/components/listings/SimilarListings';
 import { AuctionBidding } from '@/components/listings/AuctionBidding';
 import { CODBadge } from '@/components/listings/CODBadge';
 import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
+import { ReportListingDialog } from '@/components/listings/ReportListingDialog';
 import { VariantSelector } from '@/components/listings/VariantSelector';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useQuery } from '@tanstack/react-query';
@@ -460,9 +461,14 @@ const ListingDetail = () => {
               </CardContent>
             </Card>
 
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Shield className="h-4 w-4" />
-              <span>Plăți securizate prin MangoPay</span>
+            <div className="flex items-center justify-between text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                <span>Plăți securizate prin MangoPay</span>
+              </div>
+              {user?.id !== listing.seller_id && (
+                <ReportListingDialog listingId={listing.id} listingTitle={listing.title} />
+              )}
             </div>
           </div>
         </div>

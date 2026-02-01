@@ -8,7 +8,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { usePlatformSettings } from '@/hooks/useAdminSettings';
-import { Mail, Phone, MapPin, Clock, Send } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Mail, Phone, MapPin, Clock, Send, Loader2 } from 'lucide-react';
 
 export default function Contact() {
   const { toast } = useToast();
@@ -23,24 +24,54 @@ export default function Contact() {
   });
 
   const getSetting = (key: string) => {
-    const setting = settings?.find((s: any) => s.key === key);
-    return setting?.value as string || '';
+    if (!settings) return '';
+    return (settings as Record<string, any>)[key] as string || '';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!form.name || !form.email || !form.subject || !form.message) {
+      toast({
+        title: 'Câmpuri obligatorii',
+        description: 'Te rugăm să completezi toate câmpurile.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: 'Mesaj trimis!',
-      description: 'Îți mulțumim pentru mesaj. Te vom contacta în curând.',
-    });
-    
-    setForm({ name: '', email: '', subject: '', message: '' });
-    setIsSubmitting(false);
+    try {
+      // Save to contact_submissions table
+      const { error } = await supabase
+        .from('contact_submissions')
+        .insert({
+          name: form.name,
+          email: form.email,
+          subject: form.subject,
+          message: form.message,
+          status: 'pending',
+        });
+
+      if (error) throw error;
+      
+      toast({
+        title: 'Mesaj trimis cu succes!',
+        description: 'Îți mulțumim pentru mesaj. Te vom contacta în cel mai scurt timp.',
+      });
+      
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (error: any) {
+      console.error('Error submitting contact form:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Nu am putut trimite mesajul. Te rugăm să încerci din nou.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -179,8 +210,17 @@ export default function Contact() {
                   </div>
 
                   <Button type="submit" className="w-full gap-2" disabled={isSubmitting}>
-                    <Send className="h-4 w-4" />
-                    {isSubmitting ? 'Se trimite...' : 'Trimite mesajul'}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Se trimite...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" />
+                        Trimite mesajul
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
