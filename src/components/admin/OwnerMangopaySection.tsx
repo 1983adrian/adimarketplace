@@ -200,7 +200,7 @@ export function OwnerMangopaySection() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20">
               <p className="text-sm text-muted-foreground">Comision Vânzător</p>
               <p className="text-3xl font-bold text-green-600">{sellerCommission}%</p>
@@ -210,11 +210,6 @@ export function OwnerMangopaySection() {
               <p className="text-sm text-muted-foreground">Taxă Cumpărător</p>
               <p className="text-3xl font-bold text-blue-600">£{buyerFee}</p>
               <p className="text-xs text-muted-foreground">Per comandă</p>
-            </div>
-            <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20">
-              <p className="text-sm text-muted-foreground">Abonamente</p>
-              <p className="text-3xl font-bold text-purple-600">£1/lună</p>
-              <p className="text-xs text-muted-foreground">După 3 luni gratuite</p>
             </div>
           </div>
           <p className="text-xs text-muted-foreground mt-4">

@@ -75,12 +75,12 @@ const controlSections: ControlSection[] = [
   },
   { 
     id: 'payment-processors', 
-    title: 'Procesatori Plăți', 
-    description: 'Activează MangoPay, Adyen sau alți procesatori de carduri',
+    title: 'Procesator Plăți', 
+    description: 'Configurează MangoPay pentru plăți cu cardul',
     icon: CreditCard, 
     href: '/admin/payment-processors',
     color: 'text-indigo-600 bg-indigo-500/10',
-    actions: ['view', 'edit', 'add', 'delete'],
+    actions: ['view', 'edit'],
     category: 'platform'
   },
   
