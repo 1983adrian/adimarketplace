@@ -45,9 +45,11 @@ import {
   Cell,
 } from 'recharts';
 import { useQueryClient } from '@tanstack/react-query';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 export default function OwnerDashboard() {
   const queryClient = useQueryClient();
+  const { formatPriceWithRON } = useCurrency();
   const { data: stats, isLoading: statsLoading } = usePlatformStats();
   const { data: fees } = usePlatformFees();
   const { data: orders, isLoading: ordersLoading } = useAllOrders();
@@ -139,7 +141,7 @@ export default function OwnerDashboard() {
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-muted-foreground">Venituri Astăzi</p>
-                  <p className="text-xl font-bold text-primary">£{revenueToday.toFixed(2)}</p>
+                  <p className="text-xl font-bold text-primary">{formatPriceWithRON(revenueToday)}</p>
                 </div>
               </div>
             </div>
@@ -181,7 +183,7 @@ export default function OwnerDashboard() {
               <ShoppingCart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">£{totalGMV.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <div className="text-2xl font-bold">{formatPriceWithRON(totalGMV)}</div>
               <p className="text-xs text-muted-foreground">{orders?.length || 0} comenzi totale</p>
             </CardContent>
           </Card>
@@ -192,7 +194,7 @@ export default function OwnerDashboard() {
               <Wallet className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">£{platformEarnings.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-green-600">{formatPriceWithRON(platformEarnings)}</div>
               <p className="text-xs text-muted-foreground">Taxe + Comisioane reale</p>
             </CardContent>
           </Card>
@@ -208,7 +210,7 @@ export default function OwnerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Taxe Cumpărători</p>
-                  <p className="text-xl font-bold">£{buyerFeeTotal.toFixed(2)}</p>
+                  <p className="text-xl font-bold">{formatPriceWithRON(buyerFeeTotal)}</p>
                   <p className="text-xs text-muted-foreground">Din {paidOrders.length} comenzi plătite</p>
                 </div>
               </div>
@@ -223,7 +225,7 @@ export default function OwnerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Comisioane Vânzători</p>
-                  <p className="text-xl font-bold">£{sellerCommissionTotal.toFixed(2)}</p>
+                  <p className="text-xl font-bold">{formatPriceWithRON(sellerCommissionTotal)}</p>
                   <p className="text-xs text-muted-foreground">{sellerCommission?.amount || 8}% din vânzări</p>
                 </div>
               </div>
@@ -238,7 +240,7 @@ export default function OwnerDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Promovări Plătite</p>
-                  <p className="text-xl font-bold">£{weeklyPromotion?.amount || 5}/săptămână</p>
+                  <p className="text-xl font-bold">{formatPriceWithRON(weeklyPromotion?.amount || 25)}/săptămână</p>
                   <p className="text-xs text-muted-foreground">Taxă promovare produs</p>
                 </div>
               </div>
@@ -346,7 +348,7 @@ export default function OwnerDashboard() {
                   <div className="flex justify-between items-center p-3 rounded-lg bg-muted/50">
                     <span>Valoare Medie Comandă</span>
                     <span className="font-bold">
-                      £{orders && orders.length > 0 ? (totalGMV / orders.length).toFixed(2) : '0.00'}
+                      {orders && orders.length > 0 ? formatPriceWithRON(totalGMV / orders.length) : '0,00 RON'}
                     </span>
                   </div>
                 </CardContent>
@@ -386,9 +388,9 @@ export default function OwnerDashboard() {
                         <TableRow key={order.id}>
                           <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
                           <TableCell>{order.listings?.title || 'N/A'}</TableCell>
-                          <TableCell className="font-bold">£{Number(order.amount || 0).toFixed(2)}</TableCell>
-                          <TableCell className="text-blue-600">£{Number(order.buyer_fee || 0).toFixed(2)}</TableCell>
-                          <TableCell className="text-purple-600">£{Number(order.seller_commission || 0).toFixed(2)}</TableCell>
+                          <TableCell className="font-bold">{formatPriceWithRON(Number(order.amount || 0))}</TableCell>
+                          <TableCell className="text-blue-600">{formatPriceWithRON(Number(order.buyer_fee || 0))}</TableCell>
+                          <TableCell className="text-purple-600">{formatPriceWithRON(Number(order.seller_commission || 0))}</TableCell>
                           <TableCell>
                             <Badge className={
                               order.status === 'paid' ? 'bg-green-100 text-green-700' :

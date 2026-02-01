@@ -29,8 +29,10 @@ import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
 import { usePlatformSettings } from '@/hooks/useAdminSettings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 export default function AdminDashboard() {
+  const { formatPriceWithRON } = useCurrency();
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = usePlatformStats();
   const { data: fees } = usePlatformFees();
   const { data: recentOrders, refetch: refetchOrders } = useAllOrders();
@@ -219,7 +221,7 @@ export default function AdminDashboard() {
                 <Skeleton className="h-8 w-24" />
               ) : (
                 <div className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                  £{stats?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  {formatPriceWithRON(stats?.totalRevenue || 0)}
                 </div>
               )}
             </CardContent>
@@ -239,7 +241,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex justify-between items-center p-2 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs">
                 <span>Taxă Cumpărător</span>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">£{buyerFee?.amount?.toFixed(2) || '2.00'}</Badge>
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{formatPriceWithRON(buyerFee?.amount || 10)}</Badge>
               </div>
             </CardContent>
           </Card>
@@ -273,7 +275,7 @@ export default function AdminDashboard() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className="font-bold">£{Number(order.amount).toFixed(2)}</p>
+                      <p className="font-bold">{formatPriceWithRON(Number(order.amount))}</p>
                       <Badge 
                         variant="secondary"
                         className={`text-[10px] px-1.5 py-0 ${
