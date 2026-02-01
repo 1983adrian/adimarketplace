@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { ROMANIAN_COURIERS, CourierOption } from './RomanianCouriers';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface CODSummaryProps {
   productPrice: number;
@@ -20,6 +21,7 @@ export const CODSummary: React.FC<CODSummaryProps> = ({
   selectedCourier,
   codFees,
 }) => {
+  const { formatPriceWithRON } = useCurrency();
   const courier = ROMANIAN_COURIERS.find(c => c.id === selectedCourier) || ROMANIAN_COURIERS[0];
   
   // Use listing COD fees if available, otherwise use courier defaults
@@ -46,19 +48,19 @@ export const CODSummary: React.FC<CODSummaryProps> = ({
       <CardContent className="space-y-3">
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           <span className="text-muted-foreground">Preț produs:</span>
-          <span className="text-right font-medium">{productPrice.toFixed(2)} RON</span>
+          <span className="text-right font-medium">{formatPriceWithRON(productPrice)}</span>
           
           <span className="text-muted-foreground">Comision ramburs ({feePercent}%):</span>
-          <span className="text-right text-amber-600">+{percentageFee.toFixed(2)} RON</span>
+          <span className="text-right text-amber-600">+{formatPriceWithRON(percentageFee)}</span>
           
           <span className="text-muted-foreground">Taxă fixă ramburs:</span>
-          <span className="text-right text-amber-600">+{fixedFee.toFixed(2)} RON</span>
+          <span className="text-right text-amber-600">+{formatPriceWithRON(fixedFee)}</span>
           
           <span className="text-muted-foreground flex items-center gap-1">
             <Truck className="h-3.5 w-3.5" />
             Transport COD:
           </span>
-          <span className="text-right text-amber-600">+{transportFee.toFixed(2)} RON</span>
+          <span className="text-right text-amber-600">+{formatPriceWithRON(transportFee)}</span>
         </div>
 
         <Separator />
@@ -66,12 +68,12 @@ export const CODSummary: React.FC<CODSummaryProps> = ({
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <span className="font-semibold text-base">Total de plătit curierului:</span>
-            <span className="font-bold text-xl text-amber-700">{totalToPay.toFixed(2)} RON</span>
+            <span className="font-bold text-xl text-amber-700">{formatPriceWithRON(totalToPay)}</span>
           </div>
           
           <div className="flex justify-between items-center text-sm">
             <span className="text-muted-foreground">Vânzătorul primește:</span>
-            <span className="text-green-600 font-medium">{sellerReceives.toFixed(2)} RON</span>
+            <span className="text-green-600 font-medium">{formatPriceWithRON(sellerReceives)}</span>
           </div>
         </div>
 

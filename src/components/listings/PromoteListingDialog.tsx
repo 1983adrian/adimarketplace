@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useCreateSocialPromotion, useCreatePaidPromotion, usePromotionFee, useListingPromotion } from '@/hooks/usePromotions';
 import { toast } from 'sonner';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface PromoteListingDialogProps {
   open: boolean;
@@ -43,11 +44,15 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
   listingTitle
 }) => {
   const [sharingPlatform, setSharingPlatform] = useState<string | null>(null);
+  const { formatPriceWithRON } = useCurrency();
   
   const { data: activePromotion } = useListingPromotion(listingId);
   const { data: promotionFee } = usePromotionFee();
   const createSocialPromotion = useCreateSocialPromotion();
   const createPaidPromotion = useCreatePaidPromotion();
+  
+  // Promotion fee is 25 RON (stored as 5 in old GBP format, now use 25 RON)
+  const promotionFeeRON = promotionFee?.amount ? promotionFee.amount * 5 : 25;
 
   const handleSocialShare = async (platform: string) => {
     setSharingPlatform(platform);
@@ -181,7 +186,7 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
                   <span className="font-semibold">Premium Boost</span>
                 </div>
                 <Badge className="bg-primary text-primary-foreground">
-                  £{promotionFee?.amount || 3}/week
+                  {formatPriceWithRON(promotionFeeRON)}/săpt
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
