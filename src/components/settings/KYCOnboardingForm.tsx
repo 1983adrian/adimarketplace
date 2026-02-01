@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
-  User, Building, Globe, MapPin, CreditCard, 
-  Loader2, CheckCircle2, AlertCircle, FileText
+  User, Building, Globe, CreditCard, 
+  Loader2, CheckCircle2, AlertCircle, FileText, Home
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -350,8 +350,8 @@ export const KYCOnboardingForm: React.FC<KYCOnboardingFormProps> = ({ onComplete
         {step === 2 && (
           <div className="space-y-4">
             <div className="flex items-center gap-2 mb-4">
-              <MapPin className="h-5 w-5 text-primary" />
-              <h3 className="font-medium">Adresa de Rezidență</h3>
+              <Home className="h-5 w-5 text-primary" />
+              <h3 className="font-medium">Adresa pentru Verificare MangoPay</h3>
             </div>
 
             <div className="space-y-2">
