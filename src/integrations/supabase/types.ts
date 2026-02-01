@@ -253,27 +253,57 @@ export type Database = {
       }
       conversations: {
         Row: {
+          admin_id: string | null
+          admin_joined_at: string | null
+          admin_notes: string | null
+          blocked_at: string | null
+          blocked_by: string | null
           buyer_id: string
+          closed_at: string | null
+          context_type: string | null
           created_at: string
           id: string
+          is_blocked: boolean | null
           listing_id: string
+          order_id: string | null
           seller_id: string
+          status: string | null
           updated_at: string
         }
         Insert: {
+          admin_id?: string | null
+          admin_joined_at?: string | null
+          admin_notes?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
           buyer_id: string
+          closed_at?: string | null
+          context_type?: string | null
           created_at?: string
           id?: string
+          is_blocked?: boolean | null
           listing_id: string
+          order_id?: string | null
           seller_id: string
+          status?: string | null
           updated_at?: string
         }
         Update: {
+          admin_id?: string | null
+          admin_joined_at?: string | null
+          admin_notes?: string | null
+          blocked_at?: string | null
+          blocked_by?: string | null
           buyer_id?: string
+          closed_at?: string | null
+          context_type?: string | null
           created_at?: string
           id?: string
+          is_blocked?: boolean | null
           listing_id?: string
+          order_id?: string | null
           seller_id?: string
+          status?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -282,6 +312,20 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -965,7 +1009,9 @@ export type Database = {
           created_at: string
           id: string
           is_read: boolean
+          original_language: string | null
           sender_id: string
+          translated_content: Json | null
         }
         Insert: {
           content: string
@@ -973,7 +1019,9 @@ export type Database = {
           created_at?: string
           id?: string
           is_read?: boolean
+          original_language?: string | null
           sender_id: string
+          translated_content?: Json | null
         }
         Update: {
           content?: string
@@ -981,7 +1029,9 @@ export type Database = {
           created_at?: string
           id?: string
           is_read?: boolean
+          original_language?: string | null
           sender_id?: string
+          translated_content?: Json | null
         }
         Relationships: [
           {
@@ -1573,6 +1623,7 @@ export type Database = {
           pending_balance: number | null
           phone: string | null
           postal_code: string | null
+          preferred_language: string | null
           region: string | null
           return_days: number | null
           return_policy: string | null
@@ -1645,6 +1696,7 @@ export type Database = {
           pending_balance?: number | null
           phone?: string | null
           postal_code?: string | null
+          preferred_language?: string | null
           region?: string | null
           return_days?: number | null
           return_policy?: string | null
@@ -1717,6 +1769,7 @@ export type Database = {
           pending_balance?: number | null
           phone?: string | null
           postal_code?: string | null
+          preferred_language?: string | null
           region?: string | null
           return_days?: number | null
           return_policy?: string | null
