@@ -38,7 +38,6 @@ export default function AdminDashboard() {
 
   const buyerFee = fees?.find(f => f.fee_type === 'buyer_fee');
   const sellerCommission = fees?.find(f => f.fee_type === 'seller_commission');
-  const sellerSub = fees?.find(f => f.fee_type === 'seller_subscription');
 
   // Check security status
   const securitySettings = platformSettings?.security_advanced as any;
@@ -234,17 +233,13 @@ export default function AdminDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-3 space-y-1.5">
+              <div className="flex justify-between items-center p-2 rounded-lg bg-green-500/5 border border-green-500/20 text-xs">
+                <span>Comision Vânzător</span>
+                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{sellerCommission?.amount || 8}%</Badge>
+              </div>
               <div className="flex justify-between items-center p-2 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs">
                 <span>Taxă Cumpărător</span>
                 <Badge variant="secondary" className="text-[10px] px-1.5 py-0">£{buyerFee?.amount?.toFixed(2) || '2.00'}</Badge>
-              </div>
-              <div className="flex justify-between items-center p-2 rounded-lg bg-green-500/5 border border-green-500/20 text-xs">
-                <span>Comision Vânzător</span>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{sellerCommission?.amount || 20}%</Badge>
-              </div>
-              <div className="flex justify-between items-center p-2 rounded-lg bg-amber-500/5 border border-amber-500/20 text-xs">
-                <span>Abonament</span>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">£{sellerSub?.amount?.toFixed(2) || '1.00'}/lună</Badge>
               </div>
             </CardContent>
           </Card>

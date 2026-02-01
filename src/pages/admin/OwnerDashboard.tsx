@@ -57,7 +57,7 @@ export default function OwnerDashboard() {
 
   const buyerFee = fees?.find(f => f.fee_type === 'buyer_fee');
   const sellerCommission = fees?.find(f => f.fee_type === 'seller_commission');
-  const sellerSub = fees?.find(f => f.fee_type === 'seller_subscription');
+  const weeklyPromotion = fees?.find(f => f.fee_type === 'weekly_promotion');
 
   // Calculate real data
   const totalGMV = orders?.reduce((sum, o) => sum + Number(o.amount || 0), 0) || 0;
@@ -169,7 +169,7 @@ export default function OwnerDashboard() {
               {statsLoading ? <Skeleton className="h-8 w-20" /> : (
                 <>
                   <div className="text-2xl font-bold">{stats?.activeSellers?.toLocaleString() || 0}</div>
-                  <p className="text-xs text-muted-foreground">Cu abonament activ</p>
+                  <p className="text-xs text-muted-foreground">Cu listări active</p>
                 </>
               )}
             </CardContent>
@@ -224,7 +224,7 @@ export default function OwnerDashboard() {
                 <div>
                   <p className="text-sm text-muted-foreground">Comisioane Vânzători</p>
                   <p className="text-xl font-bold">£{sellerCommissionTotal.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">{sellerCommission?.amount || 10}% din vânzări</p>
+                  <p className="text-xs text-muted-foreground">{sellerCommission?.amount || 8}% din vânzări</p>
                 </div>
               </div>
             </CardContent>
@@ -237,9 +237,9 @@ export default function OwnerDashboard() {
                   <Crown className="h-6 w-6 text-orange-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Abonamente Vânzători</p>
-                  <p className="text-xl font-bold">£{((stats?.activeSellers || 0) * (sellerSub?.amount || 1)).toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">{stats?.activeSellers || 0} × £{sellerSub?.amount || 1}/lună</p>
+                  <p className="text-sm text-muted-foreground">Promovări Plătite</p>
+                  <p className="text-xl font-bold">£{weeklyPromotion?.amount || 5}/săptămână</p>
+                  <p className="text-xs text-muted-foreground">Taxă promovare produs</p>
                 </div>
               </div>
             </CardContent>
