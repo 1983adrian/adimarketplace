@@ -125,9 +125,13 @@ export const useCreatePaidPromotion = () => {
     mutationFn: async ({ listingId }: { listingId: string }) => {
       const { data, error } = await supabase.functions.invoke('create-paid-promotion', { body: { listingId } });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error);
       return data;
     },
-    onSuccess: (data) => { if (data?.url) window.open(data.url, '_blank'); },
+    onSuccess: () => { 
+      queryClient.invalidateQueries({ queryKey: ['promoted-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['my-promotions'] });
+    },
   });
 };
 

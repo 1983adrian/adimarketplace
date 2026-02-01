@@ -863,6 +863,7 @@ export type Database = {
           shipping_carrier: string | null
           shipping_cost: number | null
           sizes: string[] | null
+          sku: string | null
           starting_bid: number | null
           title: string
           updated_at: string
@@ -898,6 +899,7 @@ export type Database = {
           shipping_carrier?: string | null
           shipping_cost?: number | null
           sizes?: string[] | null
+          sku?: string | null
           starting_bid?: number | null
           title: string
           updated_at?: string
@@ -933,6 +935,7 @@ export type Database = {
           shipping_carrier?: string | null
           shipping_cost?: number | null
           sizes?: string[] | null
+          sku?: string | null
           starting_bid?: number | null
           title?: string
           updated_at?: string
