@@ -65,8 +65,8 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
     e.stopPropagation();
     if (!user) {
       toast({
-        title: "Conectează-te pentru a salva favorite",
-        description: "Trebuie să fii autentificat pentru a adăuga produse la favorite.",
+        title: t('listing.loginToFavorite'),
+        description: t('listing.loginToFavoriteDesc'),
         variant: "destructive",
       });
       navigate('/login');
@@ -83,16 +83,16 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           playFavoriteSound();
         }
         toast({
-          title: isFavorite ? "Eliminat din favorite" : "❤️ Adăugat la favorite",
+          title: isFavorite ? t('listing.removedFromFavorites') : t('listing.addedToFavorites'),
           description: isFavorite 
-            ? "Produsul a fost eliminat din lista ta de favorite."
-            : "Produsul a fost salvat în favorite. Îl poți găsi în pagina Favorite.",
+            ? t('listing.removedFromFavoritesDesc')
+            : t('listing.addedToFavoritesDesc'),
         });
       },
       onError: () => {
         toast({
-          title: "Eroare",
-          description: "Nu s-a putut salva produsul. Încearcă din nou.",
+          title: t('listing.errorSaving'),
+          description: t('listing.errorSavingDesc'),
           variant: "destructive",
         });
       }
@@ -114,7 +114,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
     });
     
     toast({
-      title: "Adăugat în coș",
+      title: t('listing.addedToCart'),
       description: listing.title,
     });
   };
@@ -178,13 +178,13 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {/* Stock Badge - Always visible when quantity > 1 */}
             {listing.quantity && listing.quantity > 1 && (
               <div className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-bold shadow-sm">
-                📦 {listing.quantity} în stoc
+                📦 {listing.quantity} {t('listing.inStock')}
               </div>
             )}
             {/* Last item warning */}
             {listing.quantity === 1 && (
               <div className="flex items-center gap-1 bg-orange-600 text-white px-2 py-1 rounded-md text-xs font-bold shadow-sm animate-pulse">
-                🔥 Ultimul!
+                🔥 {t('listing.lastOne')}
               </div>
             )}
             {listing.shipping_cost === 0 && (
@@ -196,7 +196,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {(listing as any).cod_enabled && (
               <div className="flex items-center gap-1 bg-amber-500 text-white px-2 py-1 rounded-md text-xs font-medium">
                 <Banknote className="h-3 w-3" />
-                Ramburs
+                {t('listing.cod')}
               </div>
             )}
           </div>
@@ -251,7 +251,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               {isAuction ? (
                 <>
                   <Gavel className="h-4 w-4" />
-                  Licitează
+                  {t('listing.bid')}
                 </>
               ) : (
                 <>
