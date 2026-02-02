@@ -6,16 +6,32 @@ import { Helmet } from 'react-helmet-async';
  * Acest schema descrie serviciul de marketplace pentru Google
  */
 export const MarketplaceSchema: React.FC = () => {
-  // OnlineStore / Marketplace Schema
+  // OnlineStore / Marketplace Schema - Marcă Înregistrată
   const marketplaceSchema = {
     "@context": "https://schema.org",
     "@type": "OnlineStore",
     "@id": "https://www.marketplaceromania.com/#store",
-    "name": "Marketplace România",
-    "alternateName": ["Market România", "Place România", "Market Place România"],
-    "description": "Marketplace România - cel mai mare market online 100% românesc. Platformă pentru cumpărături și vânzări online cu licitații integrate și comision de doar 8%.",
+    "name": "Marketplace România®",
+    "alternateName": [
+      "Market România",
+      "Place România", 
+      "Market Place România",
+      "Marketplace Romania",
+      "Market Romania",
+      "Market Place Romania",
+      "Vânzări România",
+      "Cumpără Online România",
+      "Licitații Online România"
+    ],
+    "description": "Marketplace România® - Primul Market Place din România construit cu AI. Cel mai mare market online 100% românesc. Platformă pentru cumpărături și vânzări online cu licitații integrate și comision de doar 8%. Marcă Înregistrată.",
     "url": "https://www.marketplaceromania.com",
-    "logo": "https://www.marketplaceromania.com/logo-oficial.png",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.marketplaceromania.com/logo-oficial.png",
+      "width": "512",
+      "height": "512",
+      "caption": "Marketplace România® - Logo Oficial Marcă Înregistrată"
+    },
     "image": "https://www.marketplaceromania.com/logo-oficial.png",
     "telephone": "+40 7949 421640",
     "email": "Adrianchirita01@gmail.com",
@@ -65,6 +81,25 @@ export const MarketplaceSchema: React.FC = () => {
       "priceCurrency": "RON",
       "offerCount": "10000",
       "description": "Comision de doar 8% pentru vânzători - cel mai mic din România"
+    },
+    "keywords": [
+      "Market place România",
+      "Market România", 
+      "Vânzări România",
+      "Cumpără online",
+      "Vânzare online",
+      "Cum vând online",
+      "Licitație online",
+      "Licitații",
+      "Vinde la licitații",
+      "Vreau să vând online",
+      "Unde să vând pe net",
+      "Primul Market Place construit cu AI"
+    ],
+    "brand": {
+      "@type": "Brand",
+      "name": "Marketplace România®",
+      "logo": "https://www.marketplaceromania.com/logo-oficial.png"
     }
   };
 
