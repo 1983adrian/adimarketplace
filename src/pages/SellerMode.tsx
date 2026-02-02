@@ -18,6 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 
 const COUNTRIES = [
@@ -39,6 +40,7 @@ const SellerMode = () => {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const [saving, setSaving] = useState(false);
   const [kycLoading, setKycLoading] = useState(false);
@@ -271,9 +273,9 @@ const SellerMode = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Store className="h-6 w-6 text-amber-500" />
-            Mod Vânzător
+            {t('seller.title')}
           </h1>
-          <p className="text-muted-foreground">Activează pentru a lista produse de vânzare</p>
+          <p className="text-muted-foreground">{t('seller.subtitle')}</p>
         </div>
 
         <div className="space-y-6">
@@ -282,8 +284,8 @@ const SellerMode = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-background shadow-sm border">
                 <div className="space-y-1">
-                  <p className="font-semibold text-lg">Activează Modul Vânzător</p>
-                  <p className="text-sm text-muted-foreground">Permite listarea produselor</p>
+                  <p className="font-semibold text-lg">{t('seller.activateMode')}</p>
+                  <p className="text-sm text-muted-foreground">{t('seller.allowListings')}</p>
                 </div>
                 <Switch 
                   checked={isSeller} 
@@ -300,12 +302,12 @@ const SellerMode = () => {
               <Card>
                 <CardContent className="pt-6 space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="storeName" className="text-base font-medium">Nume Magazin *</Label>
+                    <Label htmlFor="storeName" className="text-base font-medium">{t('seller.storeName')} *</Label>
                     <Input 
                       id="storeName"
                       value={storeName}
                       onChange={(e) => setStoreName(e.target.value)}
-                      placeholder="Magazinul Meu" 
+                      placeholder={t('seller.storeNamePlaceholder')} 
                       className="h-12 text-base"
                     />
                   </div>
@@ -313,7 +315,7 @@ const SellerMode = () => {
                   <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800">
                     <Package className="h-4 w-4 text-blue-600" />
                     <AlertDescription className="text-blue-800 dark:text-blue-200">
-                      <strong>Limită:</strong> Max 10 produse active simultan. Vânzările sunt nelimitate!
+                      <strong>{t('seller.limit')}:</strong> {t('seller.limitDesc')}
                     </AlertDescription>
                   </Alert>
 
@@ -323,11 +325,11 @@ const SellerMode = () => {
                       <div className="flex items-start gap-3">
                         <Shield className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                         <div className="space-y-2">
-                          <h4 className="font-semibold text-primary">Termeni Vânzător</h4>
+                          <h4 className="font-semibold text-primary">{t('seller.terms')}</h4>
                           <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
-                            <li>Descriere corectă a produselor</li>
-                            <li>Expediere la timp</li>
-                            <li>Respectarea politicii de returnări</li>
+                            <li>{t('seller.termsDesc1')}</li>
+                            <li>{t('seller.termsDesc2')}</li>
+                            <li>{t('seller.termsDesc3')}</li>
                           </ul>
                         </div>
                       </div>
@@ -340,14 +342,14 @@ const SellerMode = () => {
                           className="h-5 w-5 rounded border-primary text-primary cursor-pointer"
                         />
                         <label htmlFor="sellerTerms" className="text-sm cursor-pointer">
-                          ✓ Termeni acceptați
+                          ✓ {t('seller.termsAccepted')}
                         </label>
                       </div>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-green-600 p-3 rounded-lg bg-green-50 dark:bg-green-950/30">
                       <CheckCircle2 className="h-5 w-5" />
-                      <span className="font-medium">✓ Termeni acceptați</span>
+                      <span className="font-medium">✓ {t('seller.termsAccepted')}</span>
                     </div>
                   )}
                 </CardContent>

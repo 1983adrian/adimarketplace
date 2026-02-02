@@ -14,12 +14,14 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 
 const Wallet = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState(false);
@@ -132,9 +134,9 @@ const Wallet = () => {
         <div className="mb-6">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <WalletIcon className="h-6 w-6 text-amber-500" />
-            Portofel
+            {t('wallet.title')}
           </h1>
-          <p className="text-muted-foreground">Gestionează fondurile din vânzări</p>
+          <p className="text-muted-foreground">{t('wallet.subtitle')}</p>
         </div>
 
         <div className="space-y-6">
@@ -146,9 +148,9 @@ const Wallet = () => {
                   <WalletIcon className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Sold Disponibil</CardTitle>
+                  <CardTitle className="text-lg">{t('wallet.availableBalance')}</CardTitle>
                   <CardDescription className="text-green-700/70 dark:text-green-300/70">
-                    Gata pentru transfer
+                    {t('wallet.readyForTransfer')}
                   </CardDescription>
                 </div>
               </div>
@@ -166,7 +168,7 @@ const Wallet = () => {
                     disabled={payoutBalance <= 0 || (kycStatus !== 'verified' && kycStatus !== 'approved')}
                   >
                     <ArrowUpRight className="h-5 w-5" />
-                    Retrage Fonduri
+                    {t('wallet.withdrawFunds')}
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -253,9 +255,9 @@ const Wallet = () => {
                   <Clock className="h-6 w-6 text-orange-600" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">În Așteptare</CardTitle>
+                  <CardTitle className="text-lg">{t('wallet.pending')}</CardTitle>
                   <CardDescription className="text-orange-700/70 dark:text-orange-300/70">
-                    Se procesează
+                    {t('wallet.processing')}
                   </CardDescription>
                 </div>
               </div>
@@ -266,7 +268,7 @@ const Wallet = () => {
               </p>
               {pendingBalance > 0 && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Fondurile vor fi disponibile după livrarea comenzilor
+                  {t('wallet.fundsAvailableAfter')}
                 </p>
               )}
             </CardContent>
@@ -276,15 +278,15 @@ const Wallet = () => {
           {kycStatus !== 'verified' && kycStatus !== 'approved' && (
             <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/30">
               <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-700 dark:text-amber-300">Verificare necesară</AlertTitle>
+              <AlertTitle className="text-amber-700 dark:text-amber-300">{t('wallet.kycWarning')}</AlertTitle>
               <AlertDescription className="text-amber-600 dark:text-amber-400">
-                Pentru a retrage fonduri, completează verificarea identității în{' '}
+                {t('wallet.kycWarningDesc')}{' '}
                 <Button 
                   variant="link" 
                   className="p-0 h-auto text-amber-700 underline"
                   onClick={() => navigate('/seller-mode')}
                 >
-                  Mod Vânzător
+                  {t('seller.title')}
                 </Button>
                 .
               </AlertDescription>
@@ -294,7 +296,7 @@ const Wallet = () => {
           {/* How it works */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Cum funcționează</CardTitle>
+              <CardTitle className="text-base">{t('wallet.howItWorks')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-3">
@@ -302,8 +304,8 @@ const Wallet = () => {
                   <span className="text-sm font-bold text-primary">1</span>
                 </div>
                 <div>
-                  <p className="font-medium">Vinzi produse</p>
-                  <p className="text-sm text-muted-foreground">Plata este reținută în așteptare</p>
+                  <p className="font-medium">{t('wallet.step1Title')}</p>
+                  <p className="text-sm text-muted-foreground">{t('wallet.step1Desc')}</p>
                 </div>
               </div>
               <div className="flex gap-3">
@@ -311,8 +313,8 @@ const Wallet = () => {
                   <span className="text-sm font-bold text-primary">2</span>
                 </div>
                 <div>
-                  <p className="font-medium">Livrare confirmată</p>
-                  <p className="text-sm text-muted-foreground">Fondurile devin disponibile (-8% comision)</p>
+                  <p className="font-medium">{t('wallet.step2Title')}</p>
+                  <p className="text-sm text-muted-foreground">{t('wallet.step2Desc')}</p>
                 </div>
               </div>
               <div className="flex gap-3">
@@ -320,8 +322,8 @@ const Wallet = () => {
                   <span className="text-sm font-bold text-primary">3</span>
                 </div>
                 <div>
-                  <p className="font-medium">Retragere</p>
-                  <p className="text-sm text-muted-foreground">Transfer în 1-3 zile lucrătoare</p>
+                  <p className="font-medium">{t('wallet.step3Title')}</p>
+                  <p className="text-sm text-muted-foreground">{t('wallet.step3Desc')}</p>
                 </div>
               </div>
             </CardContent>

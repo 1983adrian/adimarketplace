@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote, TrendingUp, Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,9 +10,11 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useNotificationSound } from '@/hooks/useNotificationSound';
+import { useContentTranslation } from '@/hooks/useContentTranslation';
 
 import { StarRating } from '@/components/reviews/StarRating';
 import { SimilarListings } from '@/components/listings/SimilarListings';
@@ -29,19 +31,12 @@ import { useFavorites, useToggleFavorite } from '@/hooks/useFavorites';
 import { format } from 'date-fns';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 
-const conditionLabels: Record<string, string> = {
-  new: 'Nou',
-  like_new: 'Ca Nou',
-  good: 'Bună',
-  fair: 'Acceptabilă',
-  poor: 'Uzată',
-};
-
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { formatPrice } = useCurrency();
+  const { t } = useLanguage();
   const { addItem, items } = useCart();
   const { toast } = useToast();
   const { playFavoriteSound } = useNotificationSound();
@@ -50,6 +45,15 @@ const ListingDetail = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const { data: favorites } = useFavorites(user?.id);
   const toggleFavorite = useToggleFavorite();
+
+  // Condition labels with translation
+  const conditionLabels: Record<string, string> = {
+    new: t('condition.new'),
+    like_new: t('condition.like_new'),
+    good: t('condition.good'),
+    fair: t('condition.fair'),
+    poor: t('condition.poor'),
+  };
   
   const isInCart = items.some(item => item.id === id);
 
@@ -193,10 +197,14 @@ const ListingDetail = () => {
   const images = listing.listing_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
   const primaryImage = images.find((img: any) => img.is_primary)?.image_url || images[0]?.image_url;
   const sellerProfile = listing.seller_profile;
-  const sellerName = sellerProfile?.display_name || sellerProfile?.username || 'Vânzător';
+  const sellerName = sellerProfile?.display_name || sellerProfile?.username || t('listing.sellerInfo');
   const isAuction = listing.listing_type === 'auction' || listing.listing_type === 'both';
   const isBuyNow = listing.listing_type === 'buy_now' || listing.listing_type === 'both';
   const isVerifiedSeller = sellerProfile?.is_verified;
+
+  // Auto-translate title and description
+  const { translatedText: translatedTitle, isLoading: titleLoading } = useContentTranslation(listing.title);
+  const { translatedText: translatedDescription, isLoading: descLoading } = useContentTranslation(listing.description);
 
   // SEO Data Preparation
   const seoPrice = listing.buy_now_price || listing.price;
@@ -268,11 +276,14 @@ const ListingDetail = () => {
                 {isAuction && (
                   <Badge variant="secondary" className="gap-1">
                     <Gavel className="h-3 w-3" />
-                    Licitație
+                    {t('listing.placeBid')}
                   </Badge>
                 )}
               </div>
-              <h1 className="text-3xl font-bold mb-2">{listing.title}</h1>
+              <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
+                {titleLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+                {translatedTitle || listing.title}
+              </h1>
             {isBuyNow && (
               <div className="space-y-1">
                 <p className="text-4xl font-bold text-primary">
@@ -406,9 +417,12 @@ const ListingDetail = () => {
             <Separator />
 
             <div>
-              <h2 className="text-lg font-semibold mb-3">Descriere</h2>
+              <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                {t('listing.description')}
+                {descLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+              </h2>
               <p className="text-muted-foreground whitespace-pre-wrap">
-                {listing.description || 'Nu există descriere.'}
+                {translatedDescription || listing.description || t('common.noResults')}
               </p>
             </div>
 

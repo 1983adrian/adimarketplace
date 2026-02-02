@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Star, Truck, Gavel, Banknote, Share2 } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Truck, Gavel, Banknote, Share2, Loader2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { CODBadge } from '@/components/listings/CODBadge';
 import { useSellerRating } from '@/hooks/useReviews';
 import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
+import { useContentTranslation } from '@/hooks/useContentTranslation';
 
 interface ListingCardProps {
   listing: ListingWithImages;
@@ -51,6 +52,9 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
     fair: t('condition.fair'),
     poor: t('condition.poor'),
   };
+
+  // Auto-translate product title based on selected language
+  const { translatedText: translatedTitle, isLoading: titleLoading } = useContentTranslation(listing.title);
 
   const primaryImage = listing.listing_images?.find((img) => img.is_primary) || listing.listing_images?.[0];
   const imageUrl = primaryImage?.image_url || '/placeholder.svg';
@@ -209,9 +213,10 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
         
         {/* Content */}
         <CardContent className="p-4 flex-1 flex flex-col gap-2">
-          {/* Title */}
-          <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors leading-tight">
-            {listing.title}
+          {/* Title - Auto-translated */}
+          <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors leading-tight flex items-center gap-1">
+            {titleLoading && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+            {translatedTitle || listing.title}
           </h3>
           
           {/* Real Seller Rating from Database */}
