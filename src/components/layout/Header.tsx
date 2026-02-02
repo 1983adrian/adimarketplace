@@ -20,6 +20,7 @@ import { NotificationBell } from './NotificationBell';
 import { SellerNotificationBell } from './SellerNotificationBell';
 import { CartDropdown } from './CartDropdown';
 import { AppDownloadButton } from './AppDownloadButton';
+import { LanguageSelector } from './LanguageSelector';
 import { useRealTimeNotifications, useRealTimeOrders } from '@/hooks/useRealTimeNotifications';
 import { useIsAdmin } from '@/hooks/useAdmin';
 import { useSafeArea } from '@/hooks/useSafeArea';
@@ -150,6 +151,7 @@ export const Header: React.FC = () => {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1">
+            <LanguageSelector />
             <CartDropdown />
             
             {user ? (
@@ -243,10 +245,11 @@ export const Header: React.FC = () => {
             )}
           </nav>
 
-          {/* Right Section - Mobile Menu Toggle */}
+          {/* Right Section - Language Selector + Mobile Menu Toggle */}
           <div className="flex items-center gap-1.5 md:hidden shrink-0">
             <CartDropdown />
             <SearchDialog />
+            <LanguageSelector />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-10 w-10">
