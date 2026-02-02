@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Heart, ShoppingCart, Gavel } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -62,6 +63,7 @@ const PopularProductsGridComponent: React.FC<PopularProductsGridProps> = ({
   const { addItem } = useCart();
   const { formatPrice } = useCurrency();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
@@ -81,7 +83,7 @@ const PopularProductsGridComponent: React.FC<PopularProductsGridProps> = ({
             seller_id: listing.seller_id,
           });
           toast({
-            title: "Adăugat în coș",
+            title: t('cart.title'),
             description: listing.title,
           });
         };
@@ -143,7 +145,7 @@ const PopularProductsGridComponent: React.FC<PopularProductsGridProps> = ({
                       }}
                     >
                       <Gavel className="h-3 w-3" />
-                      Licitează
+                      {t('listing.placeBid')}
                     </Button>
                   ) : (
                     <>
@@ -152,7 +154,7 @@ const PopularProductsGridComponent: React.FC<PopularProductsGridProps> = ({
                         className="flex-1 gap-1 text-[10px] md:text-xs h-7 md:h-8"
                         onClick={handleBuyNow}
                       >
-                        Cumpără
+                        {t('listing.buyNow')}
                       </Button>
                       <Button 
                         size="sm" 
