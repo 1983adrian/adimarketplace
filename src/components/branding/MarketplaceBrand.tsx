@@ -78,28 +78,22 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
   const BrandContent = () => (
     <div className={cn('flex flex-col items-center gap-1', className)}>
-      {/* Main brand text with colored letters */}
+      {/* Main brand text with colored letters - TRANSLATED */}
       <h1 className={cn(
         'font-black tracking-tight drop-shadow-lg',
         sizeClasses[size]
       )}>
-        {/* "Market" - Blue gradient */}
+        {/* First part - Blue gradient */}
         <span className="bg-gradient-to-r from-[#4285F4] via-[#5A9CF4] to-[#4285F4] bg-clip-text text-transparent">
-          Market
+          {t('brand.market')}
         </span>
-        {/* "place" - Orange/Amber gradient */}
+        {/* Second part - Orange/Amber gradient */}
         <span className="bg-gradient-to-r from-[#FBBC04] via-[#F59E0B] to-[#EA580C] bg-clip-text text-transparent">
-          place
+          {t('brand.place')}
         </span>
-        {/* " România" - Green with colored R */}
-        <span className="ml-1">
-          <span className="text-[#34A853]">R</span>
-          <span className="text-[#34A853]">o</span>
-          <span className="text-[#34A853]">m</span>
-          <span className="text-[#34A853]">â</span>
-          <span className="text-[#34A853]">n</span>
-          <span className="text-[#34A853]">i</span>
-          <span className="text-[#34A853]">a</span>
+        {/* Country - Green */}
+        <span className="ml-1 text-[#34A853]">
+          {t('brand.country')}
         </span>
       </h1>
 
