@@ -13,6 +13,14 @@ export const LANGUAGE_CONFIG: Record<SupportedLanguage, { name: string; flag: st
   it: { name: 'Italiano', flag: 'IT' }
 };
 
+export const EXCHANGE_RATES = {
+  GBP: 1,
+  EUR: 1.17,
+  USD: 1.27,
+  RON: 5.85,
+  CNY: 9.15
+};
+
 export const getLanguageFromPath = (pathname: string): SupportedLanguage => {
   const parts = pathname.split('/');
   const lang = parts[1] as SupportedLanguage;
