@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 
 export const AppDownloadButton = () => {
+  const { t } = useTranslation();
   const { 
     isInstalled, 
     isStandalone,
@@ -26,7 +28,6 @@ export const AppDownloadButton = () => {
     isAndroid,
     canPrompt,
     promptInstall,
-    getInstallInstructions
   } = usePWAInstall();
   const [installing, setInstalling] = useState(false);
   const [open, setOpen] = useState(false);
@@ -45,8 +46,6 @@ export const AppDownloadButton = () => {
     }
   };
 
-  const instructions = getInstallInstructions();
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -56,8 +55,8 @@ export const AppDownloadButton = () => {
           className="gap-2 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/30 hover:border-primary hover:bg-primary/20 text-primary font-medium shadow-sm hover:shadow-md transition-all duration-300"
         >
           <Download className="h-4 w-4" />
-          <span className="hidden sm:inline">Descarcă App</span>
-          <span className="sm:hidden">App</span>
+          <span className="hidden sm:inline">{t('app.download')}</span>
+          <span className="sm:hidden">{t('app.downloadShort')}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-0" align="start">
@@ -67,8 +66,8 @@ export const AppDownloadButton = () => {
               <Smartphone className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h3 className="font-bold text-base">Marketplace România</h3>
-              <p className="text-sm text-muted-foreground">Aplicație gratuită pentru mobil</p>
+              <h3 className="font-bold text-base">{t('app.title')}</h3>
+              <p className="text-sm text-muted-foreground">{t('app.freeApp')}</p>
             </div>
           </div>
         </div>
@@ -86,9 +85,9 @@ export const AppDownloadButton = () => {
               </div>
               <div className="flex-1 text-left">
                 <p className="font-semibold">
-                  {installing ? "Se instalează..." : "Instalează Acum"}
+                  {installing ? t('app.installing') : t('app.installNow')}
                 </p>
-                <p className="text-xs opacity-80">Un click și gata!</p>
+                <p className="text-xs opacity-80">{t('app.oneClick')}</p>
               </div>
               <Sparkles className="h-5 w-5" />
             </Button>
@@ -99,20 +98,20 @@ export const AppDownloadButton = () => {
             <div className="p-4 bg-muted/50 rounded-lg space-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <Apple className="h-4 w-4" />
-                Instalare pe iPhone/iPad
+                {t('app.iosInstall')}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">1</div>
-                  <span className="flex-1">Apasă pe <Share className="h-4 w-4 inline mx-1" /> Share</span>
+                  <span className="flex-1">{t('app.iosStep1')} <Share className="h-4 w-4 inline mx-1" /></span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">2</div>
-                  <span className="flex-1">Selectează <Plus className="h-4 w-4 inline mx-1" /> "Add to Home Screen"</span>
+                  <span className="flex-1"><Plus className="h-4 w-4 inline mx-1" /> {t('app.iosStep2')}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">3</div>
-                  <span className="flex-1">Apasă "Add" pentru confirmare</span>
+                  <span className="flex-1">{t('app.iosStep3')}</span>
                 </div>
               </div>
             </div>
@@ -123,20 +122,20 @@ export const AppDownloadButton = () => {
             <div className="p-4 bg-muted/50 rounded-lg space-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <Smartphone className="h-4 w-4" />
-                Instalare pe Android
+                {t('app.androidInstall')}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">1</div>
-                  <span className="flex-1">Apasă pe <Menu className="h-4 w-4 inline mx-1" /> meniul browserului</span>
+                  <span className="flex-1">{t('app.androidStep1')} <Menu className="h-4 w-4 inline mx-1" /></span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">2</div>
-                  <span className="flex-1">Selectează "Install app" sau "Add to Home screen"</span>
+                  <span className="flex-1">{t('app.androidStep2')}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">3</div>
-                  <span className="flex-1">Confirmă instalarea</span>
+                  <span className="flex-1">{t('app.androidStep3')}</span>
                 </div>
               </div>
             </div>
@@ -147,16 +146,16 @@ export const AppDownloadButton = () => {
             <div className="p-4 bg-muted/50 rounded-lg space-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold">
                 <Smartphone className="h-4 w-4" />
-                Instalare pe Desktop
+                {t('app.desktopInstall')}
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">1</div>
-                  <span className="flex-1">Caută iconița <Download className="h-4 w-4 inline mx-1" /> în bara de adrese</span>
+                  <span className="flex-1">{t('app.desktopStep1')} <Download className="h-4 w-4 inline mx-1" /></span>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary">2</div>
-                  <span className="flex-1">Click pe ea și confirmă instalarea</span>
+                  <span className="flex-1">{t('app.desktopStep2')}</span>
                 </div>
               </div>
             </div>
@@ -166,19 +165,19 @@ export const AppDownloadButton = () => {
           <div className="grid grid-cols-2 gap-2 pt-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3 w-3 text-primary" />
-              Funcționează offline
+              {t('app.offlineSupport')}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3 w-3 text-primary" />
-              Notificări push
+              {t('app.pushNotifications')}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3 w-3 text-primary" />
-              100% gratuit
+              {t('app.free')}
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Sparkles className="h-3 w-3 text-primary" />
-              Fără magazin
+              {t('app.noStore')}
             </div>
           </div>
         </div>
@@ -189,7 +188,7 @@ export const AppDownloadButton = () => {
             className="text-sm text-primary hover:underline flex items-center gap-1"
             onClick={() => setOpen(false)}
           >
-            Instrucțiuni detaliate
+            {t('app.detailedInstructions')}
             <ChevronRight className="h-3 w-3" />
           </Link>
         </div>

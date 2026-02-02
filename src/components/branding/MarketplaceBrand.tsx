@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 
 interface MarketplaceBrandProps {
@@ -27,8 +28,8 @@ interface MarketplaceBrandProps {
  * 
  * Variants:
  * - default: Standard branding
- * - welcome: Shows "Bine ai venit!" message with slide animation (3s)
- * - goodbye: Shows "La revedere!" message for sign out
+ * - welcome: Shows translated welcome message with slide animation (3s)
+ * - goodbye: Shows translated goodbye message for sign out
  */
 export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
   size = 'md',
@@ -38,6 +39,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
   linkTo = '/',
 }) => {
   const [showMessage, setShowMessage] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (variant === 'welcome' || variant === 'goodbye') {
@@ -70,8 +72,8 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
   const variantMessages = {
     default: null,
-    welcome: 'Bine ai venit!',
-    goodbye: 'La revedere!',
+    welcome: t('brand.welcome'),
+    goodbye: t('brand.goodbye'),
   };
 
   const BrandContent = () => (
@@ -101,19 +103,19 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
         </span>
       </h1>
 
-      {/* Tagline - SEO optimized */}
+      {/* Tagline - SEO optimized with translations */}
       {showTagline && (
         <p className={cn(
           'text-muted-foreground font-medium',
           taglineSizes[size]
         )}>
-          <span className="text-[#4285F4]">Cumpără</span>
+          <span className="text-[#4285F4]">{t('brand.buy')}</span>
           <span className="mx-1.5 text-muted-foreground/50">•</span>
-          <span className="text-[#FBBC04]">Vinde</span>
+          <span className="text-[#FBBC04]">{t('brand.sell')}</span>
           <span className="mx-1.5 text-muted-foreground/50">•</span>
-          <span className="text-[#EA4335]">Licitează</span>
+          <span className="text-[#EA4335]">{t('brand.bid')}</span>
           <span className="mx-2 text-muted-foreground">—</span>
-          <span className="text-muted-foreground">Brandul oficial al României pentru marketplace online</span>
+          <span className="text-muted-foreground">{t('brand.tagline')}</span>
         </p>
       )}
 
