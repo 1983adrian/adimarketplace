@@ -144,7 +144,7 @@ export const Header: React.FC = () => {
                 className="h-12 px-6 rounded-full m-0 bg-gradient-to-r from-primary via-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-semibold shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-2"
               >
                 <Search className="h-4 w-4" />
-                <span className="hidden lg:inline">Caută</span>
+                <span className="hidden lg:inline">{t('nav.search')}</span>
               </Button>
             </div>
           </form>
@@ -163,7 +163,7 @@ export const Header: React.FC = () => {
                 >
                   <Link to="/browse" className="flex items-center gap-2">
                     <Store className="h-5 w-5" />
-                    <span>Produse</span>
+                    <span>{t('nav.products')}</span>
                   </Link>
                 </Button>
                 <SellerNotificationBell />
@@ -191,7 +191,7 @@ export const Header: React.FC = () => {
                     <DropdownMenuItem asChild className="cursor-pointer">
                       <Link to="/dashboard">
                         <User className="mr-2 h-4 w-4" />
-                        Meniu & Cont
+                        {t('nav.menuAccount')}
                       </Link>
                     </DropdownMenuItem>
                     {isAdmin && (
@@ -200,19 +200,19 @@ export const Header: React.FC = () => {
                         <DropdownMenuItem asChild className="cursor-pointer bg-gradient-to-r from-amber-500/10 to-orange-500/10">
                           <Link to="/admin/owner" className="flex items-center">
                             <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                            <span className="text-amber-600 font-medium">Owner Dashboard</span>
+                            <span className="text-amber-600 font-medium">{t('nav.ownerDashboard')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <Link to="/admin">
                             <Shield className="mr-2 h-4 w-4 text-primary" />
-                            Panou Admin
+                            {t('nav.adminPanel')}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild className="cursor-pointer">
                           <Link to="/admin/fees">
                             <CreditCard className="mr-2 h-4 w-4" />
-                            Plăți & Taxe
+                            {t('nav.paymentsFees')}
                           </Link>
                         </DropdownMenuItem>
                       </>
@@ -305,8 +305,8 @@ export const Header: React.FC = () => {
                               <User className="h-6 w-6 text-white" />
                             </div>
                             <div className="flex-1">
-                              <p className="font-bold text-foreground text-lg group-hover:text-primary transition-colors duration-300">Meniu & Cont</p>
-                              <p className="text-sm text-muted-foreground">Setări, comenzi și profil</p>
+                              <p className="font-bold text-foreground text-lg group-hover:text-primary transition-colors duration-300">{t('nav.menuAccount')}</p>
+                              <p className="text-sm text-muted-foreground">{t('settings.title')}, {t('orders.myPurchases').toLowerCase()}</p>
                             </div>
                             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
                               <svg className="w-4 h-4 text-primary group-hover:translate-x-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -325,13 +325,13 @@ export const Header: React.FC = () => {
                             <Button variant="ghost" className="w-full justify-start bg-gradient-to-r from-amber-500/10 to-orange-500/10" asChild onClick={() => setMobileMenuOpen(false)}>
                               <Link to="/admin/owner">
                                 <Crown className="mr-3 h-4 w-4 text-amber-500" />
-                                <span className="text-amber-600 font-medium">Owner Dashboard</span>
+                                <span className="text-amber-600 font-medium">{t('nav.ownerDashboard')}</span>
                               </Link>
                             </Button>
                             <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
                               <Link to="/admin">
                                 <Shield className="mr-3 h-4 w-4 text-primary" />
-                                Panou Admin
+                                {t('nav.adminPanel')}
                               </Link>
                             </Button>
                             <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>

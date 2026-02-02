@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Shield, Ban, Leaf, Bomb } from 'lucide-react';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 import { useSocialLinks } from '@/hooks/useSocialLinks';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // TikTok SVG icon with forwardRef (not available in lucide-react)
 const TikTokIcon = forwardRef<SVGSVGElement, { className?: string }>(({ className }, ref) => (
@@ -15,36 +16,37 @@ TikTokIcon.displayName = 'TikTokIcon';
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
   const { data: socialLinks } = useSocialLinks();
+  const { t } = useLanguage();
 
   const footerLinks = {
     shop: [
-      { label: 'Electronics', href: '/browse?category=electronics' },
-      { label: 'Fashion', href: '/browse?category=fashion' },
-      { label: 'Home & Garden', href: '/browse?category=home-garden' },
-      { label: 'Sports & Outdoors', href: '/browse?category=sports-outdoors' },
-      { label: 'Vehicles', href: '/browse?category=vehicles' },
+      { label: t('footer.electronics'), href: '/browse?category=electronics' },
+      { label: t('footer.fashion'), href: '/browse?category=fashion' },
+      { label: t('footer.homeGarden'), href: '/browse?category=home-garden' },
+      { label: t('footer.sportsOutdoors'), href: '/browse?category=sports-outdoors' },
+      { label: t('footer.vehicles'), href: '/browse?category=vehicles' },
     ],
     sell: [
-      { label: 'Începe să Vinzi', href: '/seller-mode' },
-      { label: 'Postează Anunț', href: '/sell' },
-      { label: 'Produsele Mele', href: '/my-products' },
-      { label: 'Analiză Vânzări', href: '/seller-analytics' },
-      { label: 'Tutorial Vânzător', href: '/seller-tutorial' },
+      { label: t('footer.startSelling'), href: '/seller-mode' },
+      { label: t('footer.postListing'), href: '/sell' },
+      { label: t('footer.myProducts'), href: '/my-products' },
+      { label: t('footer.salesAnalytics'), href: '/seller-analytics' },
+      { label: t('footer.sellerTutorial'), href: '/seller-tutorial' },
     ],
     support: [
-      { label: 'Cum Funcționează', href: '/cum-functioneaza' },
-      { label: 'Taxe și Comisioane', href: '/taxe-si-comisioane' },
-      { label: 'Centru Ajutor', href: '/help' },
-      { label: 'Sfaturi Siguranță', href: '/safety' },
-      { label: 'Contactează-ne', href: '/contact' },
-      { label: 'FAQ', href: '/faq' },
+      { label: t('footer.howItWorks'), href: '/cum-functioneaza' },
+      { label: t('footer.feesCommissions'), href: '/taxe-si-comisioane' },
+      { label: t('footer.helpCenter'), href: '/help' },
+      { label: t('footer.safetyTips'), href: '/safety' },
+      { label: t('footer.contactUs'), href: '/contact' },
+      { label: t('footer.faq'), href: '/faq' },
     ],
     legal: [
-      { label: 'Termeni și Condiții', href: '/terms' },
-      { label: 'Politica Confidențialitate', href: '/privacy' },
-      { label: 'Regulament Vânzători', href: '/seller-rules' },
-      { label: 'Politica Cookie', href: '/cookies' },
-      { label: 'Despre Noi', href: '/about' },
+      { label: t('footer.termsConditions'), href: '/terms' },
+      { label: t('footer.privacyPolicy'), href: '/privacy' },
+      { label: t('footer.sellerRules'), href: '/seller-rules' },
+      { label: t('footer.cookiePolicy'), href: '/cookies' },
+      { label: t('footer.aboutUs'), href: '/about' },
     ],
   };
 
@@ -66,7 +68,7 @@ export const Footer: React.FC = () => {
           <div className="col-span-2 md:col-span-1 space-y-4">
             <MarketplaceBrand size="sm" showTagline linkTo="/" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              <strong>Marketplace România</strong> - Brandul oficial al celui mai mare market online din România. Cunoscut și ca <em>Market România</em>, <em>Place România</em> sau <em>Market Place România</em>. Alternativa românească la Facebook Marketplace, OLX și eBay cu comision doar 8%.
+              {t('footer.brandDescription')}
             </p>
             
             {/* Social Media Links - Dynamic from Admin Settings */}
@@ -141,7 +143,7 @@ export const Footer: React.FC = () => {
 
           {/* Shop */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Shop</h3>
+            <h3 className="font-semibold mb-4 text-foreground">{t('footer.shop')}</h3>
             <ul className="space-y-2.5">
               {footerLinks.shop.map(({ label, href }) => (
                 <li key={label}>
@@ -158,7 +160,7 @@ export const Footer: React.FC = () => {
 
           {/* Sell */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Sell</h3>
+            <h3 className="font-semibold mb-4 text-foreground">{t('footer.sell')}</h3>
             <ul className="space-y-2.5">
               {footerLinks.sell.map(({ label, href }) => (
                 <li key={label}>
@@ -175,7 +177,7 @@ export const Footer: React.FC = () => {
 
           {/* Support */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Support</h3>
+            <h3 className="font-semibold mb-4 text-foreground">{t('footer.support')}</h3>
             <ul className="space-y-2.5">
               {footerLinks.support.map(({ label, href }) => (
                 <li key={label}>
@@ -192,7 +194,7 @@ export const Footer: React.FC = () => {
 
           {/* Legal */}
           <div>
-            <h3 className="font-semibold mb-4 text-foreground">Legal</h3>
+            <h3 className="font-semibold mb-4 text-foreground">{t('footer.legal')}</h3>
             <ul className="space-y-2.5">
               {footerLinks.legal.map(({ label, href }) => (
                 <li key={label}>
@@ -213,15 +215,15 @@ export const Footer: React.FC = () => {
       <div className="border-t border-border bg-destructive/5 dark:bg-destructive/10">
         <div className="container mx-auto px-4 py-3">
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
-            <span className="text-destructive font-medium">Interzis pe platformă:</span>
+            <span className="text-destructive font-medium">{t('footer.platformRules')}</span>
             <span className="flex items-center gap-1.5 text-destructive">
-              <Ban className="h-4 w-4" /> Armament
+              <Ban className="h-4 w-4" /> {t('footer.weapons')}
             </span>
             <span className="flex items-center gap-1.5 text-destructive">
-              <Leaf className="h-4 w-4" /> Substanțe Interzise
+              <Leaf className="h-4 w-4" /> {t('footer.substances')}
             </span>
             <span className="flex items-center gap-1.5 text-destructive">
-              <Bomb className="h-4 w-4" /> Contrabandă
+              <Bomb className="h-4 w-4" /> {t('footer.contraband')}
             </span>
           </div>
         </div>
@@ -231,10 +233,10 @@ export const Footer: React.FC = () => {
       <div className="border-t border-border bg-muted/30">
         <div className="container mx-auto px-4 py-4">
           <div className="text-center text-xs text-muted-foreground space-y-1">
-            <p><strong className="text-foreground">Operator platformă:</strong> Chirita Adrian Marius</p>
-            <p><strong className="text-foreground">Denumire:</strong> Market Place România</p>
-            <p><strong className="text-foreground">Adresă:</strong> 2 Comelypark Street 2/2 G31 1TA</p>
-            <p><strong className="text-foreground">Email:</strong> <a href="mailto:adrianchirita01@gmail.com" className="text-primary hover:underline">adrianchirita01@gmail.com</a></p>
+            <p><strong className="text-foreground">{t('footer.platformOperator')}</strong> Chirita Adrian Marius</p>
+            <p><strong className="text-foreground">{t('footer.name')}</strong> Market Place România</p>
+            <p><strong className="text-foreground">{t('footer.address')}</strong> 2 Comelypark Street 2/2 G31 1TA</p>
+            <p><strong className="text-foreground">{t('footer.email')}</strong> <a href="mailto:adrianchirita01@gmail.com" className="text-primary hover:underline">adrianchirita01@gmail.com</a></p>
           </div>
         </div>
       </div>
@@ -243,10 +245,10 @@ export const Footer: React.FC = () => {
       <div className="border-t border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>© {currentYear} <strong>Marketplace România®</strong> | Market România | Place România | Market Place România - Brandul oficial al celui mai mare market online din România. www.marketplaceromania.com. Toate drepturile rezervate.</p>
+            <p>© {currentYear} <strong>Marketplace România®</strong> | Market România | Place România | Market Place România - {t('footer.copyright')}</p>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              <span>Plăți securizate</span>
+              <span>{t('footer.securePayments')}</span>
             </div>
           </div>
         </div>

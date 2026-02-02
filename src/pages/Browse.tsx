@@ -293,11 +293,11 @@ const Browse = () => {
                 <TabsList className="mb-4">
                   <TabsTrigger value="listings" className="gap-2">
                     <Package className="h-4 w-4" />
-                    Produse ({sortedListings.length})
+                    {t('browse.products')} ({sortedListings.length})
                   </TabsTrigger>
                   <TabsTrigger value="sellers" className="gap-2">
                     <Store className="h-4 w-4" />
-                    Vânzători ({sellers.length})
+                    {t('browse.sellers')} ({sellers.length})
                   </TabsTrigger>
                 </TabsList>
 
@@ -323,7 +323,7 @@ const Browse = () => {
                   ) : sellers.length === 0 ? (
                     <div className="text-center py-12">
                       <User className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
-                      <p className="text-muted-foreground text-lg">Niciun vânzător găsit pentru "{searchQuery}"</p>
+                      <p className="text-muted-foreground text-lg">{t('browse.noSellersFound')} "{searchQuery}"</p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -340,11 +340,11 @@ const Browse = () => {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2">
                                   <h3 className="font-semibold truncate group-hover:text-primary transition-colors">
-                                    {seller.store_name || seller.display_name || seller.username || 'Vânzător'}
+                                    {seller.store_name || seller.display_name || seller.username || t('browse.sellers')}
                                   </h3>
                                   <VerifiedBadge userId={seller.user_id} size="sm" />
                                   {seller.is_verified && (
-                                    <Badge variant="secondary" className="text-xs">Verificat</Badge>
+                                    <Badge variant="secondary" className="text-xs">{t('browse.verified')}</Badge>
                                   )}
                                 </div>
                                 {seller.bio && (
@@ -353,7 +353,7 @@ const Browse = () => {
                               </div>
                               <Button variant="outline" size="sm" className="shrink-0">
                                 <Store className="h-4 w-4 mr-1" />
-                                Magazin
+                                {t('browse.store')}
                               </Button>
                             </CardContent>
                           </Card>

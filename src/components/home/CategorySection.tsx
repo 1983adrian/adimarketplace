@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Smartphone, Shirt, Home, Dumbbell, Car, Book, Gamepad2, Package, User, Baby } from 'lucide-react';
 import { useCategories } from '@/hooks/useCategories';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Icon configuration with vibrant colors for each category
@@ -66,6 +67,7 @@ const defaultIcon = {
 
 export const CategorySection: React.FC = () => {
   const { data: categories, isLoading } = useCategories();
+  const { t } = useLanguage();
 
   // Filter to show only parent categories (no parent_id)
   const parentCategories = categories?.filter(cat => !cat.parent_id) || [];
@@ -74,7 +76,7 @@ export const CategorySection: React.FC = () => {
     return (
       <section className="py-10 md:py-14">
         <div className="container mx-auto px-4">
-          <h2 className="text-xl md:text-2xl font-bold text-center mb-6">Cumpără după Categorie</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-center mb-6">{t('home.shopByCategory')}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 md:gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <Skeleton key={i} className="aspect-[4/3] rounded-xl" />
@@ -88,7 +90,7 @@ export const CategorySection: React.FC = () => {
   return (
     <section className="py-10 md:py-14">
       <div className="container mx-auto px-4">
-        <h2 className="text-xl md:text-2xl font-bold text-center mb-6">Cumpără după Categorie</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-center mb-6">{t('home.shopByCategory')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-3 md:gap-4">
           {parentCategories.map((category) => {
             const config = category.icon ? iconConfig[category.icon] || defaultIcon : defaultIcon;

@@ -20,29 +20,29 @@ type BadgeType = 'messages' | 'purchases' | 'sales' | 'my-returns' | 'received-r
 
 interface MenuItem {
   id: string;
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
   url: string;
   icon: React.ElementType;
   color: string;
   showBadge?: BadgeType;
 }
 
-const menuItems: MenuItem[] = [
-  { id: 'profile', title: 'Setări Profil', description: 'Editează datele contului', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
-  { id: 'seller-mode', title: 'Mod Vânzător', description: 'Activează cont cu card și acte', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
-  { id: 'sell', title: 'Vinde Un Produs', description: 'Publică anunțuri de vânzare', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
-  { id: 'wallet', title: 'Portofel', description: 'Vezi sold și retrage bani', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-violet-500 to-violet-700' },
-  { id: 'messages', title: 'Mesaje', description: 'Conversații cu clienții', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-400 to-cyan-600', showBadge: 'messages' },
-  { id: 'purchases', title: 'Cumpărăturile Mele', description: 'Produse comandate de tine', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-rose-500 to-rose-700', showBadge: 'purchases' },
-  { id: 'sales', title: 'Vânzările Mele', description: 'Comenzi primite de la clienți', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-lime-500 to-lime-700', showBadge: 'sales' },
-  { id: 'my-returns', title: 'Returnările Mele', description: 'Produse returnate de tine', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-orange-700', showBadge: 'my-returns' },
-  { id: 'received-returns', title: 'Returnări Primite', description: 'Returnări de la clienți', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-700', showBadge: 'received-returns' },
-  { id: 'products', title: 'Produsele Mele', description: 'Anunțurile tale active', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
-  { id: 'analytics', title: 'Statistici', description: 'Vizualizări și performanță', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
-  { id: 'share', title: 'Promovează Magazin', description: 'Share pe rețele sociale', url: '/my-products?share=true', icon: Share2, color: 'bg-gradient-to-br from-pink-500 to-rose-600' },
-  { id: 'favorites', title: 'Favorite', description: 'Produse salvate', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
-  { id: 'tutorial', title: 'Tutorial', description: 'Ghid pas cu pas', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
+const menuItemsConfig: MenuItem[] = [
+  { id: 'profile', titleKey: 'dashboard.profileSettings', descriptionKey: 'dashboard.editAccount', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
+  { id: 'seller-mode', titleKey: 'dashboard.sellerMode', descriptionKey: 'dashboard.activateCard', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
+  { id: 'sell', titleKey: 'dashboard.sellProduct', descriptionKey: 'dashboard.publishListings', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
+  { id: 'wallet', titleKey: 'dashboard.wallet', descriptionKey: 'dashboard.viewBalance', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-violet-500 to-violet-700' },
+  { id: 'messages', titleKey: 'dashboard.messages', descriptionKey: 'dashboard.customerConversations', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-400 to-cyan-600', showBadge: 'messages' },
+  { id: 'purchases', titleKey: 'dashboard.myPurchases', descriptionKey: 'dashboard.orderedProducts', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-rose-500 to-rose-700', showBadge: 'purchases' },
+  { id: 'sales', titleKey: 'dashboard.mySales', descriptionKey: 'dashboard.ordersFromCustomers', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-lime-500 to-lime-700', showBadge: 'sales' },
+  { id: 'my-returns', titleKey: 'dashboard.myReturns', descriptionKey: 'dashboard.returnedByYou', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-orange-700', showBadge: 'my-returns' },
+  { id: 'received-returns', titleKey: 'dashboard.receivedReturns', descriptionKey: 'dashboard.returnsFromCustomers', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-700', showBadge: 'received-returns' },
+  { id: 'products', titleKey: 'dashboard.myProducts', descriptionKey: 'dashboard.yourActiveListings', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
+  { id: 'analytics', titleKey: 'dashboard.statistics', descriptionKey: 'dashboard.viewsPerformance', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
+  { id: 'share', titleKey: 'dashboard.promoteStore', descriptionKey: 'dashboard.shareOnSocial', url: '/my-products?share=true', icon: Share2, color: 'bg-gradient-to-br from-pink-500 to-rose-600' },
+  { id: 'favorites', titleKey: 'dashboard.favorites', descriptionKey: 'dashboard.savedProducts', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
+  { id: 'tutorial', titleKey: 'dashboard.tutorial', descriptionKey: 'dashboard.stepByStep', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
 ];
 
 const Dashboard = () => {
@@ -101,8 +101,6 @@ const Dashboard = () => {
     );
   }
 
-  // Removed earnings display - now only in Wallet
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -122,9 +120,9 @@ const Dashboard = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-lg font-bold">{profile?.display_name || 'Bun venit'}</h1>
+              <h1 className="text-lg font-bold">{profile?.display_name || t('dashboard.welcome')}</h1>
               <p className="text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                Vânzător Marketplace România
+                {t('dashboard.sellerMarketplace')}
               </p>
             </div>
           </div>
@@ -143,7 +141,7 @@ const Dashboard = () => {
               className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-red-500/10 hover:bg-red-500/20 transition-colors text-red-500 font-medium text-sm"
             >
               <LogOut className="h-4 w-4" />
-              <span>Ieșire</span>
+              <span>{t('dashboard.logout')}</span>
             </button>
           </div>
         </div>
@@ -152,7 +150,7 @@ const Dashboard = () => {
         <div className="bg-card border-2 border-border rounded-3xl p-4 shadow-lg max-w-md mx-auto">
           {/* Header with Meniu title and Dark Mode toggle */}
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold">Meniu</h2>
+            <h2 className="text-lg font-bold">{t('dashboard.menu')}</h2>
             
             {/* Dark Mode Toggle */}
             <div className="flex items-center gap-2">
@@ -166,7 +164,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2">
-            {menuItems.map((item) => {
+            {menuItemsConfig.map((item) => {
               const Icon = item.icon;
               
               // Calculate badge count based on badge type
@@ -179,9 +177,9 @@ const Dashboard = () => {
               
               // Format notification text
               const notificationText = badgeCount === 1 
-                ? '1 notificare' 
+                ? `1 ${t('dashboard.notification')}` 
                 : badgeCount > 1 
-                  ? `${badgeCount > 99 ? '99+' : badgeCount} notificări`
+                  ? `${badgeCount > 99 ? '99+' : badgeCount} ${t('dashboard.notifications')}`
                   : null;
               
               return (
@@ -205,14 +203,14 @@ const Dashboard = () => {
                     "text-[10px] font-medium text-foreground text-center leading-tight",
                     item.id === 'sell' && "text-sm font-bold text-white"
                   )}>
-                    {item.title}
+                    {t(item.titleKey)}
                   </span>
                   
                   <span className={cn(
                     "text-[8px] text-muted-foreground text-center leading-tight opacity-70",
                     item.id === 'sell' && "text-[9px] text-white/80"
                   )}>
-                    {item.description}
+                    {t(item.descriptionKey)}
                   </span>
                   
                   {notificationText && (
