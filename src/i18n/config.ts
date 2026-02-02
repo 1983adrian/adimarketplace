@@ -1,1 +1,40 @@
-import i18n from 'i18next';import { initReactI18next } from 'react-i18next';import LanguageDetector from 'i18next-browser-languagedetector';import roTranslations from './locales/ro.json';import enTranslations from './locales/en.json';import deTranslations from './locales/de.json';import esTranslations from './locales/es.json';import zhTranslations from './locales/zh.json';import frTranslations from './locales/fr.json';import itTranslations from './locales/it.json';import ptTranslations from './locales/pt.json';import ruTranslations from './locales/ru.json';import jaTranslations from './locales/ja.json';import arTranslations from './locales/ar.json';import plTranslations from './locales/pl.json';import nlTranslations from './locales/nl.json';import trTranslations from './locales/tr.json';import koTranslations from './locales/ko.json';import hiTranslations from './locales/hi.json';export type SupportedLanguage = 'ro' | 'en' | 'de' | 'es' | 'zh' | 'fr' | 'it' | 'pt' |...
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+export type SupportedLanguage = 'ro' | 'en' | 'de' | 'es' | 'zh' | 'fr' | 'it' | 'pt';
+
+export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['ro', 'en', 'de', 'es', 'zh', 'fr', 'it', 'pt'];
+
+export const LANGUAGE_CONFIG: Record<SupportedLanguage, { name: string; locale: string }> = {
+  ro: { name: 'Română', locale: 'ro-RO' },
+  en: { name: 'English', locale: 'en-US' },
+  de: { name: 'Deutsch', locale: 'de-DE' },
+  es: { name: 'Español', locale: 'es-ES' },
+  zh: { name: '中文', locale: 'zh-CN' },
+  fr: { name: 'Français', locale: 'fr-FR' },
+  it: { name: 'Italiano', locale: 'it-IT' },
+  pt: { name: 'Português', locale: 'pt-PT' },
+};
+
+export const getPathWithoutLanguage = (pathname: string) => {
+  const parts = pathname.split('/');
+  if (SUPPORTED_LANGUAGES.includes(parts[1] as SupportedLanguage)) {
+    return '/' + parts.slice(2).join('/');
+  }
+  return pathname;
+};
+
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    resources: {
+      ro: { translation: {} },
+      en: { translation: {} },
+    },
+    fallbackLng: 'ro',
+    interpolation: { escapeValue: false },
+  });
+
+export default i18n;
