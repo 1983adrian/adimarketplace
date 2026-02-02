@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe } from 'lucide-react';
+import { Globe, Check } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,27 +7,13 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { useLanguage, Language } from '@/contexts/LanguageContext';
-
-interface LanguageOption {
-  code: Language;
-  name: string;
-  nativeName: string;
-  flag: string;
-}
-
-const languages: LanguageOption[] = [
-  { code: 'ro', name: 'Romanian', nativeName: 'Română', flag: '🇷🇴' },
-  { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧' },
-  { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪' },
-  { code: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇪🇸' },
-  { code: 'zh', name: 'Chinese', nativeName: '中文', flag: '🇨🇳' },
-];
+import { useLocalizedNavigation } from '@/hooks/useLocalizedNavigation';
+import { SUPPORTED_LANGUAGES, LANGUAGE_CONFIG, type SupportedLanguage } from '@/i18n/config';
 
 export const LanguageSelector: React.FC = () => {
-  const { language, setLanguage } = useLanguage();
+  const { currentLanguage, changeLanguage } = useLocalizedNavigation();
   
-  const currentLanguage = languages.find(l => l.code === language) || languages[0];
+  const currentConfig = LANGUAGE_CONFIG[currentLanguage];
 
   return (
     <DropdownMenu>
@@ -38,37 +24,46 @@ export const LanguageSelector: React.FC = () => {
           className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 hover:from-blue-500/30 hover:to-indigo-500/30 border-2 border-blue-500/30 transition-all duration-200 hover:scale-105"
           title="Select Language"
         >
-          <span className="text-lg">{currentLanguage.flag}</span>
+          <span className="text-lg">{currentConfig.flag}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 shadow-xl">
-        <div className="px-2 py-2 border-b border-border">
+      <DropdownMenuContent align="end" className="w-52 shadow-xl">
+        <div className="px-3 py-2 border-b border-border">
           <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <Globe className="h-4 w-4" />
-            <span>Select Language</span>
+            <span>Language / Limbă</span>
           </div>
         </div>
-        {languages.map((lang) => (
-          <DropdownMenuItem
-            key={lang.code}
-            onClick={() => setLanguage(lang.code)}
-            className={`cursor-pointer flex items-center gap-3 py-2.5 ${
-              language === lang.code 
-                ? 'bg-primary/10 text-primary font-medium' 
-                : ''
-            }`}
-          >
-            <span className="text-xl">{lang.flag}</span>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">{lang.nativeName}</span>
-              <span className="text-xs text-muted-foreground">{lang.name}</span>
-            </div>
-            {language === lang.code && (
-              <span className="ml-auto text-primary">✓</span>
-            )}
-          </DropdownMenuItem>
-        ))}
+        {SUPPORTED_LANGUAGES.map((langCode) => {
+          const config = LANGUAGE_CONFIG[langCode];
+          const isActive = currentLanguage === langCode;
+          
+          return (
+            <DropdownMenuItem
+              key={langCode}
+              onClick={() => changeLanguage(langCode)}
+              className={`cursor-pointer flex items-center gap-3 py-2.5 px-3 ${
+                isActive 
+                  ? 'bg-primary/10 text-primary font-medium' 
+                  : 'hover:bg-muted'
+              }`}
+            >
+              <span className="text-xl">{config.flag}</span>
+              <div className="flex flex-col flex-1">
+                <span className="text-sm font-medium">{config.nativeName}</span>
+                <span className="text-xs text-muted-foreground">
+                  {config.name} • {config.currency}
+                </span>
+              </div>
+              {isActive && (
+                <Check className="h-4 w-4 text-primary" />
+              )}
+            </DropdownMenuItem>
+          );
+        })}
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
+
+export default LanguageSelector;

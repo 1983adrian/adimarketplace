@@ -9,6 +9,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { LocationProvider } from "@/contexts/LocationContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { HreflangTags } from "@/components/seo/HreflangTags";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -91,106 +92,137 @@ import AdminUnifiedSettings from "./pages/admin/AdminUnifiedSettings";
 
 const queryClient = new QueryClient();
 
+// Define all public routes that need language prefixes
+const publicRoutes = [
+  { path: "/", element: <Index /> },
+  { path: "/login", element: <Login /> },
+  { path: "/signup", element: <Signup /> },
+  { path: "/forgot-password", element: <ForgotPassword /> },
+  { path: "/reset-password", element: <ResetPassword /> },
+  { path: "/sign-out", element: <SignOut /> },
+  { path: "/browse", element: <Browse /> },
+  { path: "/listing/:id", element: <ListingDetail /> },
+  { path: "/sell", element: <CreateListing /> },
+  { path: "/listing/:id/edit", element: <EditListing /> },
+  { path: "/dashboard", element: <Dashboard /> },
+  { path: "/seller-mode", element: <SellerMode /> },
+  { path: "/my-products", element: <MyProducts /> },
+  { path: "/wallet", element: <Wallet /> },
+  { path: "/profile-settings", element: <ProfileSettings /> },
+  { path: "/seller-analytics", element: <SellerAnalytics /> },
+  { path: "/settings", element: <Settings /> },
+  { path: "/checkout", element: <Checkout /> },
+  { path: "/checkout/success", element: <CheckoutSuccess /> },
+  { path: "/orders", element: <Orders /> },
+  { path: "/messages", element: <Messages /> },
+  { path: "/favorites", element: <Favorites /> },
+  { path: "/seller/:id", element: <SellerProfile /> },
+  { path: "/about", element: <AboutUs /> },
+  { path: "/contact", element: <Contact /> },
+  { path: "/faq", element: <FAQ /> },
+  { path: "/help", element: <HelpCenter /> },
+  { path: "/safety", element: <SafetyTips /> },
+  { path: "/terms", element: <TermsOfService /> },
+  { path: "/privacy", element: <PrivacyPolicy /> },
+  { path: "/seller-rules", element: <SellerRules /> },
+  { path: "/cookies", element: <CookiePolicy /> },
+  { path: "/install", element: <InstallApp /> },
+  { path: "/seller-tutorial", element: <SellerTutorial /> },
+  { path: "/feedback", element: <Feedback /> },
+  { path: "/notifications", element: <Notifications /> },
+  { path: "/cum-functioneaza", element: <HowItWorks /> },
+  { path: "/taxe-si-comisioane", element: <FeesAndCommissions /> },
+];
+
+// Admin routes (no language prefix needed)
+const adminRoutes = [
+  { path: "/admin", element: <AdminDashboard /> },
+  { path: "/admin/owner", element: <OwnerDashboard /> },
+  { path: "/admin/ai-sales", element: <AdminAISales /> },
+  { path: "/admin/users", element: <AdminUsers /> },
+  { path: "/admin/listings", element: <AdminListings /> },
+  { path: "/admin/orders", element: <AdminOrders /> },
+  { path: "/admin/deliveries", element: <AdminDeliveryManagement /> },
+  { path: "/admin/fees", element: <AdminFees /> },
+  { path: "/admin/payments", element: <AdminPaymentProcessors /> },
+  { path: "/admin/messages", element: <AdminMessages /> },
+  { path: "/admin/api-settings", element: <AdminApiSettings /> },
+  { path: "/admin/disputes", element: <AdminDisputes /> },
+  { path: "/admin/analytics", element: <AdminAnalytics /> },
+  { path: "/admin/settings", element: <AdminPlatformSettings /> },
+  { path: "/admin/policies", element: <AdminPolicies /> },
+  { path: "/admin/homepage", element: <AdminHomepageEditor /> },
+  { path: "/admin/categories", element: <AdminCategories /> },
+  { path: "/admin/email-templates", element: <AdminEmailTemplates /> },
+  { path: "/admin/seo", element: <AdminSEO /> },
+  { path: "/admin/maintenance", element: <AdminMaintenance /> },
+  { path: "/admin/ai-maintenance", element: <AdminAIMaintenance /> },
+  { path: "/admin/audit-log", element: <AdminAuditLog /> },
+  { path: "/admin/returns", element: <AdminReturns /> },
+  { path: "/admin/seller-verifications", element: <AdminSellerVerifications /> },
+  { path: "/admin/auctions", element: <AdminAuctions /> },
+  { path: "/admin/security", element: <AdminSecuritySettings /> },
+  { path: "/admin/seller-payouts", element: <AdminSellerPayouts /> },
+  { path: "/admin/couriers", element: <AdminCouriers /> },
+  { path: "/admin/mobile-app", element: <AdminMobileApp /> },
+  { path: "/admin/broadcast", element: <AdminBroadcast /> },
+  { path: "/admin/interface-editor", element: <AdminInterfaceEditor /> },
+  { path: "/admin/button-audit", element: <AdminButtonAudit /> },
+  { path: "/admin/control-center", element: <AdminControlCenter /> },
+  { path: "/admin/fraud-alerts", element: <AdminFraudAlerts /> },
+  { path: "/admin/seo-dashboard", element: <AdminSEODashboard /> },
+  { path: "/admin/unified-settings", element: <AdminUnifiedSettings /> },
+];
+
+// Language prefixes for routes
+const languagePrefixes = ['en', 'de', 'es', 'zh'];
+
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CartProvider>
-          <LocationProvider>
-            <LanguageProvider>
-              <CurrencyProvider>
-                <TooltipProvider>
-                  <Toaster />
-                  <Sonner />
-                <BrowserRouter>
-                <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/sign-out" element={<SignOut />} />
-                <Route path="/browse" element={<Browse />} />
-                <Route path="/listing/:id" element={<ListingDetail />} />
-                <Route path="/sell" element={<CreateListing />} />
-                <Route path="/listing/:id/edit" element={<EditListing />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/seller-mode" element={<SellerMode />} />
-                <Route path="/my-products" element={<MyProducts />} />
-                <Route path="/wallet" element={<Wallet />} />
-                <Route path="/profile-settings" element={<ProfileSettings />} />
-                <Route path="/seller-analytics" element={<SellerAnalytics />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/checkout" element={<Checkout />} />
-                <Route path="/checkout/success" element={<CheckoutSuccess />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/messages" element={<Messages />} />
-                <Route path="/favorites" element={<Favorites />} />
-                <Route path="/seller/:id" element={<SellerProfile />} />
-                {/* Public Informational Pages */}
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/faq" element={<FAQ />} />
-                <Route path="/help" element={<HelpCenter />} />
-                <Route path="/safety" element={<SafetyTips />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/seller-rules" element={<SellerRules />} />
-                <Route path="/cookies" element={<CookiePolicy />} />
-                <Route path="/install" element={<InstallApp />} />
-                <Route path="/seller-tutorial" element={<SellerTutorial />} />
-                <Route path="/feedback" element={<Feedback />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/cum-functioneaza" element={<HowItWorks />} />
-                <Route path="/taxe-si-comisioane" element={<FeesAndCommissions />} />
-                {/* Admin Routes */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/owner" element={<OwnerDashboard />} />
-                <Route path="/admin/ai-sales" element={<AdminAISales />} />
-                <Route path="/admin/users" element={<AdminUsers />} />
-                <Route path="/admin/listings" element={<AdminListings />} />
-                <Route path="/admin/orders" element={<AdminOrders />} />
-                <Route path="/admin/deliveries" element={<AdminDeliveryManagement />} />
-                <Route path="/admin/fees" element={<AdminFees />} />
-                <Route path="/admin/payments" element={<AdminPaymentProcessors />} />
-                <Route path="/admin/messages" element={<AdminMessages />} />
-                <Route path="/admin/api-settings" element={<AdminApiSettings />} />
-                <Route path="/admin/disputes" element={<AdminDisputes />} />
-                <Route path="/admin/analytics" element={<AdminAnalytics />} />
-                <Route path="/admin/settings" element={<AdminPlatformSettings />} />
-                <Route path="/admin/policies" element={<AdminPolicies />} />
-                <Route path="/admin/homepage" element={<AdminHomepageEditor />} />
-                <Route path="/admin/categories" element={<AdminCategories />} />
-                <Route path="/admin/email-templates" element={<AdminEmailTemplates />} />
-                <Route path="/admin/seo" element={<AdminSEO />} />
-                <Route path="/admin/maintenance" element={<AdminMaintenance />} />
-                <Route path="/admin/ai-maintenance" element={<AdminAIMaintenance />} />
-                <Route path="/admin/audit-log" element={<AdminAuditLog />} />
-                <Route path="/admin/returns" element={<AdminReturns />} />
-                <Route path="/admin/seller-verifications" element={<AdminSellerVerifications />} />
-                <Route path="/admin/auctions" element={<AdminAuctions />} />
-                
-                <Route path="/admin/security" element={<AdminSecuritySettings />} />
-                <Route path="/admin/seller-payouts" element={<AdminSellerPayouts />} />
-                <Route path="/admin/couriers" element={<AdminCouriers />} />
-                <Route path="/admin/mobile-app" element={<AdminMobileApp />} />
-                <Route path="/admin/broadcast" element={<AdminBroadcast />} />
-                <Route path="/admin/interface-editor" element={<AdminInterfaceEditor />} />
-                <Route path="/admin/button-audit" element={<AdminButtonAudit />} />
-                <Route path="/admin/control-center" element={<AdminControlCenter />} />
-                <Route path="/admin/fraud-alerts" element={<AdminFraudAlerts />} />
-                <Route path="/admin/seo-dashboard" element={<AdminSEODashboard />} />
-                <Route path="/admin/unified-settings" element={<AdminUnifiedSettings />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
-            </TooltipProvider>
-            </CurrencyProvider>
-          </LanguageProvider>
-        </LocationProvider>
-      </CartProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <CartProvider>
+            <LocationProvider>
+              <LanguageProvider>
+                <CurrencyProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <HreflangTags />
+                    <Routes>
+                      {/* Default Romanian routes (no prefix) */}
+                      {publicRoutes.map(({ path, element }) => (
+                        <Route key={path} path={path} element={element} />
+                      ))}
+                      
+                      {/* Language-prefixed routes */}
+                      {languagePrefixes.map(lang => (
+                        publicRoutes.map(({ path, element }) => (
+                          <Route 
+                            key={`${lang}${path}`} 
+                            path={`/${lang}${path === '/' ? '' : path}`} 
+                            element={element} 
+                          />
+                        ))
+                      ))}
+                      
+                      {/* Admin routes (no language prefix) */}
+                      {adminRoutes.map(({ path, element }) => (
+                        <Route key={path} path={path} element={element} />
+                      ))}
+                      
+                      {/* 404 for all unmatched routes */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </TooltipProvider>
+                </CurrencyProvider>
+              </LanguageProvider>
+            </LocationProvider>
+          </CartProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   </HelmetProvider>
 );
 

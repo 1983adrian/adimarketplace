@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Smartphone, Apple, Share, QrCode, ChevronRight, ArrowRight, Laptop } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +16,7 @@ import { PopularProductsGrid } from './PopularProductsGrid';
 import { useHomepageContent, usePlatformSettings } from '@/hooks/useAdminSettings';
 
 export const HeroSection: React.FC = () => {
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const { formatPrice } = useCurrency();
   const { 
     isInstalled, 
@@ -75,11 +75,11 @@ export const HeroSection: React.FC = () => {
   });
 
   const conditionLabels: Record<string, string> = {
-    new: t('condition.new'),
-    like_new: t('condition.like_new'),
-    good: t('condition.good'),
-    fair: t('condition.fair'),
-    poor: t('condition.poor'),
+    new: t('condition.new') as string,
+    like_new: t('condition.like_new') as string,
+    good: t('condition.good') as string,
+    fair: t('condition.fair') as string,
+    poor: t('condition.poor') as string,
   };
 
 
@@ -113,7 +113,7 @@ export const HeroSection: React.FC = () => {
               </Link>
               <Link to="/sell">
                 <Button size="sm" variant="outline" className="h-9 px-4 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold text-xs md:text-sm">
-                  Vinde
+                  {t('header.sell')}
                 </Button>
               </Link>
               
@@ -251,7 +251,7 @@ export const HeroSection: React.FC = () => {
             to="/browse" 
             className="flex items-center gap-1 text-sm text-primary hover:text-primary/80 font-medium"
           >
-            Vezi toate
+            {t('common.viewAll')}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
