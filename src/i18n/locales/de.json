@@ -143,6 +143,8 @@
       "title": "Lokal Kaufen & Verkaufen",
       "cta": "Jetzt stöbern"
     },
+    "noProducts": "Derzeit keine Produkte verfügbar.",
+    "beFirstToList": "Seien Sie der Erste, der ein Produkt listet!",
     "categories": "Kategorien",
     "shopByCategory": "Nach Kategorie einkaufen",
     "featured": "Empfohlene Anzeigen",
@@ -368,5 +370,44 @@
     "books": "Bücher",
     "automotive": "Auto",
     "other": "Sonstiges"
+  },
+  "app": {
+    "download": "App herunterladen",
+    "downloadShort": "App",
+    "title": "Marketplace Romania",
+    "freeApp": "Kostenlose mobile App",
+    "installNow": "Jetzt installieren",
+    "installing": "Wird installiert...",
+    "oneClick": "Ein Klick und fertig!",
+    "iosInstall": "Installation auf iPhone/iPad",
+    "iosStep1": "Tippen Sie auf Teilen",
+    "iosStep2": "Wählen Sie \"Zum Home-Bildschirm\"",
+    "iosStep3": "Tippen Sie auf \"Hinzufügen\" zur Bestätigung",
+    "androidInstall": "Installation auf Android",
+    "androidStep1": "Tippen Sie auf das Browser-Menü",
+    "androidStep2": "\"App installieren\" oder \"Zum Startbildschirm\"",
+    "androidStep3": "Installation bestätigen",
+    "macInstall": "Installation auf macOS",
+    "macStep1": "Öffnen Sie Chrome oder Safari",
+    "macStep2": "Klicken Sie auf das Installations-Symbol oder Datei → Zum Dock hinzufügen",
+    "macStep3": "Installation bestätigen",
+    "desktopInstall": "Installation auf Desktop",
+    "desktopStep1": "Suchen Sie das Installations-Symbol in der Adressleiste",
+    "desktopStep2": "Klicken Sie darauf und bestätigen Sie die Installation",
+    "scanForApp": "📱 Für App scannen",
+    "scanWithCamera": "Mit Handykamera scannen",
+    "offlineSupport": "Funktioniert offline",
+    "pushNotifications": "Push-Benachrichtigungen",
+    "free": "100% kostenlos",
+    "noStore": "Kein App Store",
+    "detailedInstructions": "Detaillierte Anleitung"
+  },
+  "brand": {
+    "buy": "Kaufen",
+    "sell": "Verkaufen",
+    "bid": "Bieten",
+    "tagline": "Rumäniens offizielle Marke für Online-Marktplätze",
+    "welcome": "Willkommen!",
+    "goodbye": "Auf Wiedersehen!"
   }
 }

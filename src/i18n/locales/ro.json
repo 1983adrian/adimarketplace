@@ -143,6 +143,8 @@
       "title": "Cumpără și Vinde Local",
       "cta": "Începe să Cauți"
     },
+    "noProducts": "Nu există produse disponibile momentan.",
+    "beFirstToList": "Fii primul care listează un produs!",
     "categories": "Categorii",
     "shopByCategory": "Cumpără după Categorie",
     "featured": "Anunțuri Promovate",
@@ -368,5 +370,44 @@
     "books": "Cărți",
     "automotive": "Auto",
     "other": "Altele"
+  },
+  "app": {
+    "download": "Descarcă App",
+    "downloadShort": "App",
+    "title": "Marketplace România",
+    "freeApp": "Aplicație gratuită pentru mobil",
+    "installNow": "Instalează Acum",
+    "installing": "Se instalează...",
+    "oneClick": "Un click și gata!",
+    "iosInstall": "Instalare pe iPhone/iPad",
+    "iosStep1": "Apasă pe Share",
+    "iosStep2": "Selectează \"Add to Home Screen\"",
+    "iosStep3": "Apasă \"Add\" pentru confirmare",
+    "androidInstall": "Instalare pe Android",
+    "androidStep1": "Apasă pe meniul browserului",
+    "androidStep2": "\"Install app\" sau \"Add to Home screen\"",
+    "androidStep3": "Confirmă instalarea",
+    "macInstall": "Instalare pe macOS",
+    "macStep1": "Deschide Chrome sau Safari",
+    "macStep2": "Click pe iconița de instalare sau File → Add to Dock",
+    "macStep3": "Confirmă instalarea",
+    "desktopInstall": "Instalare pe Desktop",
+    "desktopStep1": "Caută iconița de instalare în bara de adrese",
+    "desktopStep2": "Click pe ea și confirmă instalarea",
+    "scanForApp": "📱 Scanează pentru App",
+    "scanWithCamera": "Scanează cu camera telefonului",
+    "offlineSupport": "Funcționează offline",
+    "pushNotifications": "Notificări push",
+    "free": "100% gratuit",
+    "noStore": "Fără magazin",
+    "detailedInstructions": "Instrucțiuni detaliate"
+  },
+  "brand": {
+    "buy": "Cumpără",
+    "sell": "Vinde",
+    "bid": "Licitează",
+    "tagline": "Brandul oficial al României pentru marketplace online",
+    "welcome": "Bine ai venit!",
+    "goodbye": "La revedere!"
   }
 }

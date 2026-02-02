@@ -143,6 +143,8 @@
       "title": "Buy & Sell Locally",
       "cta": "Start Browsing"
     },
+    "noProducts": "No products available at the moment.",
+    "beFirstToList": "Be the first to list a product!",
     "categories": "Categories",
     "shopByCategory": "Shop by Category",
     "featured": "Featured Listings",
@@ -368,5 +370,44 @@
     "books": "Books",
     "automotive": "Automotive",
     "other": "Other"
+  },
+  "app": {
+    "download": "Download App",
+    "downloadShort": "App",
+    "title": "Marketplace Romania",
+    "freeApp": "Free mobile app",
+    "installNow": "Install Now",
+    "installing": "Installing...",
+    "oneClick": "One click and done!",
+    "iosInstall": "Install on iPhone/iPad",
+    "iosStep1": "Tap Share",
+    "iosStep2": "Select \"Add to Home Screen\"",
+    "iosStep3": "Tap \"Add\" to confirm",
+    "androidInstall": "Install on Android",
+    "androidStep1": "Tap the browser menu",
+    "androidStep2": "\"Install app\" or \"Add to Home screen\"",
+    "androidStep3": "Confirm installation",
+    "macInstall": "Install on macOS",
+    "macStep1": "Open Chrome or Safari",
+    "macStep2": "Click install icon or File → Add to Dock",
+    "macStep3": "Confirm installation",
+    "desktopInstall": "Install on Desktop",
+    "desktopStep1": "Look for the install icon in the address bar",
+    "desktopStep2": "Click it and confirm installation",
+    "scanForApp": "📱 Scan for App",
+    "scanWithCamera": "Scan with your phone camera",
+    "offlineSupport": "Works offline",
+    "pushNotifications": "Push notifications",
+    "free": "100% free",
+    "noStore": "No app store",
+    "detailedInstructions": "Detailed instructions"
+  },
+  "brand": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "bid": "Bid",
+    "tagline": "Romania's official brand for online marketplace",
+    "welcome": "Welcome!",
+    "goodbye": "Goodbye!"
   }
 }

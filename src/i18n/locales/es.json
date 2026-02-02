@@ -136,13 +136,15 @@
   "home": {
     "hero": {
       "tagline": "Compra y Vende Inteligente",
-      "subtitle": "Únete a millones de personas descubriendo ofertas increíbles en artículos únicos. Desde electrónica hasta moda, encuentra lo que buscas.",
+      "subtitle": "Únete a millones de personas que descubren ofertas increíbles. Desde electrónica hasta moda, encuentra lo que buscas.",
       "searchPlaceholder": "¿Qué estás buscando?",
       "popular": "Popular",
       "furniture": "Muebles",
       "title": "Compra y Vende Localmente",
       "cta": "Comenzar a Explorar"
     },
+    "noProducts": "No hay productos disponibles en este momento.",
+    "beFirstToList": "¡Sé el primero en publicar un producto!",
     "categories": "Categorías",
     "shopByCategory": "Comprar por Categoría",
     "featured": "Anuncios Destacados",
@@ -368,5 +370,44 @@
     "books": "Libros",
     "automotive": "Automotriz",
     "other": "Otros"
+  },
+  "app": {
+    "download": "Descargar App",
+    "downloadShort": "App",
+    "title": "Marketplace Romania",
+    "freeApp": "Aplicación móvil gratuita",
+    "installNow": "Instalar Ahora",
+    "installing": "Instalando...",
+    "oneClick": "¡Un clic y listo!",
+    "iosInstall": "Instalar en iPhone/iPad",
+    "iosStep1": "Toca Compartir",
+    "iosStep2": "Selecciona \"Añadir a pantalla de inicio\"",
+    "iosStep3": "Toca \"Añadir\" para confirmar",
+    "androidInstall": "Instalar en Android",
+    "androidStep1": "Toca el menú del navegador",
+    "androidStep2": "\"Instalar app\" o \"Añadir a pantalla\"",
+    "androidStep3": "Confirmar instalación",
+    "macInstall": "Instalar en macOS",
+    "macStep1": "Abre Chrome o Safari",
+    "macStep2": "Haz clic en el icono de instalación o Archivo → Añadir al Dock",
+    "macStep3": "Confirmar instalación",
+    "desktopInstall": "Instalar en Escritorio",
+    "desktopStep1": "Busca el icono de instalación en la barra de direcciones",
+    "desktopStep2": "Haz clic y confirma la instalación",
+    "scanForApp": "📱 Escanear para App",
+    "scanWithCamera": "Escanea con la cámara de tu teléfono",
+    "offlineSupport": "Funciona sin conexión",
+    "pushNotifications": "Notificaciones push",
+    "free": "100% gratis",
+    "noStore": "Sin tienda de apps",
+    "detailedInstructions": "Instrucciones detalladas"
+  },
+  "brand": {
+    "buy": "Comprar",
+    "sell": "Vender",
+    "bid": "Pujar",
+    "tagline": "La marca oficial de Rumanía para mercado en línea",
+    "welcome": "¡Bienvenido!",
+    "goodbye": "¡Adiós!"
   }
 }

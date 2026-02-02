@@ -137,14 +137,14 @@ export const HeroSection: React.FC = () => {
                     </PopoverTrigger>
                     <PopoverContent className="w-64 p-3" align="center">
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 font-semibold text-sm">
-                          <Apple className="h-4 w-4" />
-                          Instalare pe iPhone
-                        </div>
-                        <div className="space-y-1.5 text-xs text-muted-foreground">
-                          <p>1. Apasă <Share className="h-3 w-3 inline" /> Share în Safari</p>
-                          <p>2. Selectează "Add to Home Screen"</p>
-                          <p>3. Confirmă cu "Add"</p>
+                          <div className="flex items-center gap-2 font-semibold text-sm">
+                            <Apple className="h-4 w-4" />
+                            {t('app.iosInstall')}
+                          </div>
+                          <div className="space-y-1.5 text-xs text-muted-foreground">
+                            <p>1. {t('app.iosStep1')}</p>
+                            <p>2. {t('app.iosStep2')}</p>
+                            <p>3. {t('app.iosStep3')}</p>
                         </div>
                       </div>
                     </PopoverContent>
@@ -166,12 +166,12 @@ export const HeroSection: React.FC = () => {
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 font-semibold text-sm">
                             <Smartphone className="h-4 w-4 text-emerald-600" />
-                            Instalare pe Android
+                            {t('app.androidInstall')}
                           </div>
                           <div className="space-y-1.5 text-xs text-muted-foreground">
-                            <p>1. Apasă meniul browserului</p>
-                            <p>2. "Install app" sau "Add to Home screen"</p>
-                            <p>3. Confirmă instalarea</p>
+                            <p>1. {t('app.androidStep1')}</p>
+                            <p>2. {t('app.androidStep2')}</p>
+                            <p>3. {t('app.androidStep3')}</p>
                           </div>
                         </div>
                       </PopoverContent>
@@ -192,12 +192,12 @@ export const HeroSection: React.FC = () => {
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 font-semibold text-sm">
                           <Laptop className="h-4 w-4" />
-                          Instalare pe macOS
+                          {t('app.macInstall')}
                         </div>
                         <div className="space-y-1.5 text-xs text-muted-foreground">
-                          <p>1. Deschide Chrome sau Safari</p>
-                          <p>2. Click pe iconița de instalare sau File → Add to Dock</p>
-                          <p>3. Confirmă instalarea</p>
+                          <p>1. {t('app.macStep1')}</p>
+                          <p>2. {t('app.macStep2')}</p>
+                          <p>3. {t('app.macStep3')}</p>
                         </div>
                       </div>
                     </PopoverContent>
@@ -215,7 +215,7 @@ export const HeroSection: React.FC = () => {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-xs">
                       <DialogHeader>
-                        <DialogTitle className="text-center text-base">📱 Scanează pentru App</DialogTitle>
+                        <DialogTitle className="text-center text-base">{t('app.scanForApp')}</DialogTitle>
                       </DialogHeader>
                       <div className="flex flex-col items-center gap-3 py-3">
                         <div className="p-3 bg-white rounded-xl border shadow">
@@ -227,7 +227,7 @@ export const HeroSection: React.FC = () => {
                           />
                         </div>
                         <p className="text-xs text-muted-foreground text-center">
-                          Scanează cu camera telefonului
+                          {t('app.scanWithCamera')}
                         </p>
                       </div>
                     </DialogContent>
@@ -273,9 +273,9 @@ export const HeroSection: React.FC = () => {
             <PopularProductsGrid listings={listings} conditionLabels={conditionLabels} />
           ) : (
             <div className="text-center py-12 text-muted-foreground">
-              <p>Nu există produse disponibile momentan.</p>
+              <p>{t('home.noProducts')}</p>
               <Link to="/sell" className="text-primary hover:underline mt-2 inline-block">
-                Fii primul care listează un produs!
+                {t('home.beFirstToList')}
               </Link>
             </div>
           )}
