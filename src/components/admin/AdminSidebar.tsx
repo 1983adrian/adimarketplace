@@ -1,42 +1,43 @@
-import {  LayoutDashboard,
-  Users,
-  Package,
-  ShoppingCart,
-  Settings,
-  DollarSign,
-  BarChart3,
-  Shield,
-  Crown,
-  Megaphone,
-  Sliders,
-  LucideIcon,
-  Truck,
-  RotateCcw,
-  Gavel,
-  MessageSquare,
-  AlertTriangle,
-  Wallet,
-  FolderTree,
-  CreditCard,
-  Globe,
-  Home,
-  Mail,
-  FileText,
-  UserCheck,
-  Search,
-  Smartphone,
-  Bot,
-  Palette,
-  Database,
-  Activity,
-  ClipboardList,
-  Key} from 'lucide-react';import { NavLink } from '@/components/NavLink';import {  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  useSidebar,} from '@/components/ui/sidebar';interface MenuItem {  title: string;  url: string;  icon: LucideIcon;  premium?: boolean;}// Proprietar & Control (Premium) - Full Owner Accessconst ownerItems: MenuItem[] = [  { title: 'Control Center', url: '/admin/control-center', icon: Sliders, premium: true },  { title: 'Owner Dashboard', url...
+import { 
+  LayoutDashboard, Users, Package, ShoppingCart, Settings, Sliders, 
+  Shield, Crown, Truck, Gavel, Wallet, Globe, Activity
+} from 'lucide-react';
+import { NavLink } from '@/components/NavLink';
+import { 
+  Sidebar, SidebarContent, SidebarGroup, SidebarMenu, 
+  SidebarMenuItem, SidebarMenuButton, SidebarHeader 
+} from '@/components/ui/sidebar';
+
+const adminItems = [
+  { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
+  { title: 'Utilizatori', url: '/admin/users', icon: Users },
+  { title: 'Anunțuri', url: '/admin/listings', icon: Package },
+  { title: 'Comenzi', url: '/admin/orders', icon: ShoppingCart },
+  { title: 'Control Center', url: '/admin/control-center', icon: Sliders, premium: true },
+  { title: 'Setări Platformă', url: '/admin/settings', icon: Settings },
+];
+
+export function AdminSidebar() {
+  return (
+    <Sidebar>
+      <SidebarHeader className="p-4 font-bold text-xl">Admin Panel</SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarMenu>
+            {adminItems.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild>
+                  <NavLink to={item.url} className="flex items-center gap-3">
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                    {item.premium && <Crown className="h-3 w-3 text-amber-500" />}
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
+  );
+}
