@@ -42,12 +42,12 @@ export const HeroSection: React.FC = () => {
     }
   })() : {};
   
-  // Get customizable content with fallbacks
+  // Get customizable content with fallbacks - prefer i18n translations
   const heroTitle = heroContent?.title || 'Marketplace România®';
-  const heroSubtitle = heroContent?.subtitle || 'Cumpără și Vinde Smart';
-  const ctaText = heroContent?.button_text || 'Cumpără';
+  const heroSubtitle = heroContent?.subtitle || t('home.hero.tagline');
+  const ctaText = heroContent?.button_text || t('home.hero.cta');
   const ctaLink = heroContent?.button_url || '/browse';
-  const productsTitle = sections?.featuredTitle || 'Produse Populare';
+  const productsTitle = t('home.popular');
   const showDownloadButtons = !isStandalone && !isInstalled;
 
   const { data: listings, isLoading } = useQuery({
