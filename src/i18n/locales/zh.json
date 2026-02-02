@@ -330,7 +330,10 @@
     "viewAll": "查看全部",
     "price": "价格",
     "noResults": "未找到结果",
-    "tryAgain": "重试"
+    "tryAgain": "重试",
+    "or": "或",
+    "autoDetectedLang": "语言和货币自动检测",
+    "joinCommunity": "加入罗马尼亚市场社区"
   },
   "footer": {
     "about": "关于我们",
@@ -409,5 +412,41 @@
     "tagline": "罗马尼亚在线市场官方品牌",
     "welcome": "欢迎！",
     "goodbye": "再见！"
+  },
+  "signup": {
+    "title": "创建账户",
+    "subtitle": "免费注册即可买卖",
+    "toCreate": "创建账户，您必须接受：",
+    "acceptTerms": "我已阅读并接受",
+    "termsConditions": "条款和条件",
+    "privacyPolicy": "隐私政策",
+    "sellerRules": "卖家规则",
+    "emailPlaceholder": "example@email.com（包括iCloud）",
+    "emailNote": "我们接受所有类型的邮箱：Gmail、iCloud、Yahoo、Outlook等。",
+    "password": "密码",
+    "passwordPlaceholder": "至少8个字符",
+    "confirmPassword": "确认密码",
+    "confirmPasswordPlaceholder": "重复密码",
+    "passwordsNoMatch": "密码不匹配",
+    "createAccount": "创建账户",
+    "creating": "正在创建账户...",
+    "secureConnection": "安全连接",
+    "haveAccount": "已有账户？",
+    "login": "登录",
+    "acceptRequired": "需要接受",
+    "acceptRequiredDesc": "您必须接受条款、隐私政策和卖家规则才能创建账户。",
+    "incompleteData": "数据不完整",
+    "incompleteDataDesc": "请填写所有字段。",
+    "passwordTooShort": "密码太短",
+    "passwordTooShortDesc": "密码必须至少8个字符。",
+    "invalidPassword": "密码无效",
+    "signupError": "注册错误",
+    "couldNotCreate": "无法创建账户。请重试。",
+    "alreadyRegistered": "此邮箱已注册。请尝试登录或重置密码。",
+    "weakPassword": "密码太弱。请选择更强的密码。",
+    "unexpectedError": "意外错误",
+    "problemOccurred": "出现问题。请重试。",
+    "accountCreated": "账户创建成功！",
+    "welcomeMessage": "欢迎来到罗马尼亚市场！"
   }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2, Shield, UserPlus, Eye, EyeOff, Mail, ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
+import { useLocalizedNavigation } from '@/hooks/useLocalizedNavigation';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -27,7 +29,9 @@ const Signup = () => {
   
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { validateSync } = usePasswordValidation();
+  const { getLocalizedHref, navigateTo } = useLocalizedNavigation();
 
   // Validate password on change
   const passwordValidation = useMemo(() => {
@@ -43,20 +47,20 @@ const Signup = () => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate('/');
+        navigateTo('/');
       }
       setCheckingSession(false);
     };
     checkSession();
-  }, [navigate]);
+  }, [navigateTo]);
 
   const handleEmailSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!allAccepted) {
       toast({
-        title: 'Acceptare obligatorie',
-        description: 'Trebuie să accepți Termenii, Politica de Confidențialitate și Regulamentul Vânzătorilor pentru a crea un cont.',
+        title: t('signup.acceptRequired'),
+        description: t('signup.acceptRequiredDesc'),
         variant: 'destructive',
       });
       return;
@@ -66,8 +70,8 @@ const Signup = () => {
     
     if (!normalizedEmail || !password) {
       toast({
-        title: 'Date incomplete',
-        description: 'Te rugăm să completezi toate câmpurile.',
+        title: t('signup.incompleteData'),
+        description: t('signup.incompleteDataDesc'),
         variant: 'destructive',
       });
       return;
@@ -75,8 +79,8 @@ const Signup = () => {
 
     if (password !== confirmPassword) {
       toast({
-        title: 'Parolele nu coincid',
-        description: 'Te rugăm să verifici că parolele introduse sunt identice.',
+        title: t('signup.passwordsNoMatch'),
+        description: t('signup.passwordsNoMatch'),
         variant: 'destructive',
       });
       return;
@@ -84,8 +88,8 @@ const Signup = () => {
 
     if (password.length < 8) {
       toast({
-        title: 'Parolă prea scurtă',
-        description: 'Parola trebuie să aibă cel puțin 8 caractere.',
+        title: t('signup.passwordTooShort'),
+        description: t('signup.passwordTooShortDesc'),
         variant: 'destructive',
       });
       return;
@@ -93,7 +97,7 @@ const Signup = () => {
 
     if (passwordValidation.errors.length > 0) {
       toast({
-        title: 'Parolă invalidă',
+        title: t('signup.invalidPassword'),
         description: passwordValidation.errors[0],
         variant: 'destructive',
       });
@@ -113,15 +117,15 @@ const Signup = () => {
       if (error) {
         console.error('Signup error:', error);
         
-        let errorMessage = 'Nu am putut crea contul. Încearcă din nou.';
+        let errorMessage = t('signup.couldNotCreate');
         if (error.message.includes('already registered')) {
-          errorMessage = 'Acest email este deja înregistrat. Încearcă să te autentifici sau resetează parola.';
+          errorMessage = t('signup.alreadyRegistered');
         } else if (error.message.includes('weak password')) {
-          errorMessage = 'Parola este prea slabă. Alege o parolă mai puternică.';
+          errorMessage = t('signup.weakPassword');
         }
         
         toast({
-          title: 'Eroare la înregistrare',
+          title: t('signup.signupError'),
           description: errorMessage,
           variant: 'destructive',
         });
@@ -130,15 +134,15 @@ const Signup = () => {
       }
 
       toast({
-        title: 'Cont creat cu succes!',
-        description: 'Bine ai venit pe Marketplace Romania!',
+        title: t('signup.accountCreated'),
+        description: t('signup.welcomeMessage'),
       });
-      navigate('/');
+      navigateTo('/');
     } catch (err) {
       console.error('Unexpected signup error:', err);
       toast({
-        title: 'Eroare neașteptată',
-        description: 'A apărut o problemă. Încearcă din nou.',
+        title: t('signup.unexpectedError'),
+        description: t('signup.problemOccurred'),
         variant: 'destructive',
       });
       setLoading(false);
@@ -168,10 +172,10 @@ const Signup = () => {
           <div className="space-y-2">
             <CardTitle className="text-2xl font-bold text-foreground flex items-center justify-center gap-2">
               <UserPlus className="h-6 w-6" />
-              Creează Cont
+              {t('signup.title')}
             </CardTitle>
             <CardDescription className="text-muted-foreground">
-              Înregistrează-te gratuit pentru a cumpăra și vinde
+              {t('signup.subtitle')}
             </CardDescription>
           </div>
         </CardHeader>
@@ -180,7 +184,7 @@ const Signup = () => {
           {/* Mandatory Checkboxes - MUST accept before signup */}
           <div className="space-y-3 p-4 bg-muted/50 rounded-lg border border-border">
             <p className="text-sm font-medium text-foreground mb-3">
-              Pentru a crea un cont, trebuie să accepți:
+              {t('signup.toCreate')}
             </p>
             
             {/* Terms checkbox */}
@@ -192,9 +196,9 @@ const Signup = () => {
                 className="mt-0.5"
               />
               <label htmlFor="accept-terms" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                Am citit și accept{' '}
-                <Link to="/terms" target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
-                  Termenii și Condițiile
+                {t('signup.acceptTerms')}{' '}
+                <Link to={getLocalizedHref('/terms')} target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
+                  {t('signup.termsConditions')}
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               </label>
@@ -209,9 +213,9 @@ const Signup = () => {
                 className="mt-0.5"
               />
               <label htmlFor="accept-privacy" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                Am citit și accept{' '}
-                <Link to="/privacy" target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
-                  Politica de Confidențialitate
+                {t('signup.acceptTerms')}{' '}
+                <Link to={getLocalizedHref('/privacy')} target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
+                  {t('signup.privacyPolicy')}
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               </label>
@@ -226,9 +230,9 @@ const Signup = () => {
                 className="mt-0.5"
               />
               <label htmlFor="accept-seller-rules" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                Am citit și accept{' '}
-                <Link to="/seller-rules" target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
-                  Regulamentul pentru Vânzători
+                {t('signup.acceptTerms')}{' '}
+                <Link to={getLocalizedHref('/seller-rules')} target="_blank" className="text-primary hover:underline inline-flex items-center gap-1">
+                  {t('signup.sellerRules')}
                   <ExternalLink className="h-3 w-3" />
                 </Link>
               </label>
@@ -242,24 +246,24 @@ const Signup = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="exemplu@email.com (inclusiv iCloud)"
+                placeholder={t('signup.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
               />
               <p className="text-xs text-muted-foreground">
-                Acceptăm toate tipurile de email: Gmail, iCloud, Yahoo, Outlook, etc.
+                {t('signup.emailNote')}
               </p>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Parolă</Label>
+              <Label htmlFor="password">{t('signup.password')}</Label>
               <div className="relative">
                 <Input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="Minim 8 caractere"
+                  placeholder={t('signup.passwordPlaceholder')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -287,18 +291,18 @@ const Signup = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirmă parola</Label>
+              <Label htmlFor="confirmPassword">{t('signup.confirmPassword')}</Label>
               <Input
                 id="confirmPassword"
                 type="password"
-                placeholder="Repetă parola"
+                placeholder={t('signup.confirmPasswordPlaceholder')}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 autoComplete="new-password"
               />
               {confirmPassword && password !== confirmPassword && (
-                <p className="text-xs text-destructive">Parolele nu coincid</p>
+                <p className="text-xs text-destructive">{t('signup.passwordsNoMatch')}</p>
               )}
             </div>
             
@@ -310,12 +314,12 @@ const Signup = () => {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Se creează contul...
+                  {t('signup.creating')}
                 </>
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  Creează cont
+                  {t('signup.createAccount')}
                 </>
               )}
             </Button>
@@ -324,14 +328,14 @@ const Signup = () => {
           {/* Security badge */}
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <Shield className="h-4 w-4 text-emerald-500" />
-            <span>Conexiune securizată</span>
+            <span>{t('signup.secureConnection')}</span>
           </div>
 
           {/* Already have account */}
           <p className="text-center text-sm text-muted-foreground">
-            Ai deja cont?{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
-              Autentifică-te
+            {t('signup.haveAccount')}{' '}
+            <Link to={getLocalizedHref('/login')} className="text-primary hover:underline font-medium">
+              {t('signup.login')}
             </Link>
           </p>
         </CardContent>

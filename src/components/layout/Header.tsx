@@ -26,6 +26,7 @@ import { useIsAdmin } from '@/hooks/useAdmin';
 import { useSafeArea } from '@/hooks/useSafeArea';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { NotificationBadge } from '@/components/ui/NotificationBadge';
+import { useLocalizedNavigation } from '@/hooks/useLocalizedNavigation';
 
 // ForwardRef wrapper for DropdownMenuTrigger compatibility
 const AvatarTriggerButton = forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<typeof Button>>(
@@ -40,6 +41,7 @@ export const Header: React.FC = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { getLocalizedHref, navigateTo } = useLocalizedNavigation();
 
   useRealTimeNotifications();
   useRealTimeOrders();
@@ -50,7 +52,7 @@ export const Header: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
+      navigateTo(`/browse?search=${encodeURIComponent(searchQuery.trim())}`);
       setMobileMenuOpen(false);
     }
   };
@@ -161,7 +163,7 @@ export const Header: React.FC = () => {
                   asChild
                   className="h-11 px-5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all duration-300 hover:scale-105 mr-2"
                 >
-                  <Link to="/browse" className="flex items-center gap-2">
+                  <Link to={getLocalizedHref('/browse')} className="flex items-center gap-2">
                     <Store className="h-5 w-5" />
                     <span>{t('nav.products')}</span>
                   </Link>
@@ -189,7 +191,7 @@ export const Header: React.FC = () => {
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                     <DropdownMenuItem asChild className="cursor-pointer">
-                      <Link to="/dashboard">
+                      <Link to={getLocalizedHref('/dashboard')}>
                         <User className="mr-2 h-4 w-4" />
                         {t('nav.menuAccount')}
                       </Link>
@@ -236,10 +238,10 @@ export const Header: React.FC = () => {
             ) : (
               <div className="flex items-center gap-2 ml-2">
                 <Button variant="ghost" asChild className="font-medium">
-                  <Link to="/login">{t('header.login')}</Link>
+                  <Link to={getLocalizedHref('/login')}>{t('header.login')}</Link>
                 </Button>
                 <Button asChild className="gradient-primary text-primary-foreground font-medium">
-                  <Link to="/signup">{t('header.signup')}</Link>
+                  <Link to={getLocalizedHref('/signup')}>{t('header.signup')}</Link>
                 </Button>
               </div>
             )}
@@ -362,10 +364,10 @@ export const Header: React.FC = () => {
                         <div className="text-center space-y-2 pb-4 border-b border-border/50">
                           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
                             <Sparkles className="h-4 w-4" />
-                            Bine ai venit!
+                            {t('brand.welcome')}
                           </div>
                           <p className="text-muted-foreground text-sm">
-                            Alătură-te comunității Marketplace România
+                            {t('common.joinCommunity') || 'Join the Marketplace Romania community'}
                           </p>
                         </div>
                         
@@ -375,7 +377,7 @@ export const Header: React.FC = () => {
                           className="w-full h-14 bg-gradient-to-r from-[#4A90D9] via-[#5BA3EC] to-[#8B5CF6] hover:from-[#3A80C9] hover:via-[#4B93DC] hover:to-[#7C4CE6] text-white font-semibold rounded-xl shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300 transform hover:scale-[1.02] group" 
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          <Link to="/signup" className="flex items-center justify-center gap-2">
+                          <Link to={getLocalizedHref('/signup')} className="flex items-center justify-center gap-2">
                             <UserPlus className="h-5 w-5 group-hover:scale-110 transition-transform" />
                             <span className="text-lg">{t('header.signup')}</span>
                           </Link>
@@ -387,7 +389,7 @@ export const Header: React.FC = () => {
                             <div className="w-full border-t border-border/50" />
                           </div>
                           <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background px-3 text-muted-foreground">sau</span>
+                            <span className="bg-background px-3 text-muted-foreground">{t('common.or') || 'or'}</span>
                           </div>
                         </div>
                         
@@ -398,7 +400,7 @@ export const Header: React.FC = () => {
                           asChild 
                           onClick={() => setMobileMenuOpen(false)}
                         >
-                          <Link to="/login" className="flex items-center justify-center gap-2">
+                          <Link to={getLocalizedHref('/login')} className="flex items-center justify-center gap-2">
                             <div className="p-1.5 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
                               <LogIn className="h-4 w-4 text-primary" />
                             </div>
@@ -410,11 +412,11 @@ export const Header: React.FC = () => {
                         <div className="flex items-center justify-center gap-4 pt-4 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Shield className="h-3.5 w-3.5 text-green-500" />
-                            <span>Securizat</span>
+                            <span>{t('signup.secureConnection')}</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <BadgeCheck className="h-3.5 w-3.5 text-blue-500" />
-                            <span>Verificat</span>
+                            <span>{t('browse.verified')}</span>
                           </div>
                         </div>
                       </div>
@@ -424,7 +426,7 @@ export const Header: React.FC = () => {
                   {/* Auto-detection message - no manual selector */}
                   <div className="p-4 border-t border-border">
                     <p className="text-xs text-center text-muted-foreground">
-                      🌍 Limbă și monedă detectate automat
+                      🌍 {t('common.autoDetectedLang') || 'Language and currency auto-detected'}
                     </p>
                   </div>
                 </div>

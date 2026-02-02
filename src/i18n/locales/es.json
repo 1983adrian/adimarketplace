@@ -330,7 +330,10 @@
     "viewAll": "Ver Todo",
     "price": "Precio",
     "noResults": "No se encontraron resultados",
-    "tryAgain": "Intentar de nuevo"
+    "tryAgain": "Intentar de nuevo",
+    "or": "o",
+    "autoDetectedLang": "Idioma y moneda detectados automáticamente",
+    "joinCommunity": "Únete a la comunidad de Marketplace Romania"
   },
   "footer": {
     "about": "Sobre Nosotros",
@@ -409,5 +412,41 @@
     "tagline": "La marca oficial de Rumanía para mercado en línea",
     "welcome": "¡Bienvenido!",
     "goodbye": "¡Adiós!"
+  },
+  "signup": {
+    "title": "Crear Cuenta",
+    "subtitle": "Regístrate gratis para comprar y vender",
+    "toCreate": "Para crear una cuenta, debes aceptar:",
+    "acceptTerms": "He leído y acepto los",
+    "termsConditions": "Términos y Condiciones",
+    "privacyPolicy": "Política de Privacidad",
+    "sellerRules": "Reglas para Vendedores",
+    "emailPlaceholder": "ejemplo@email.com (incluyendo iCloud)",
+    "emailNote": "Aceptamos todo tipo de correo: Gmail, iCloud, Yahoo, Outlook, etc.",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Mínimo 8 caracteres",
+    "confirmPassword": "Confirmar Contraseña",
+    "confirmPasswordPlaceholder": "Repetir contraseña",
+    "passwordsNoMatch": "Las contraseñas no coinciden",
+    "createAccount": "Crear Cuenta",
+    "creating": "Creando cuenta...",
+    "secureConnection": "Conexión segura",
+    "haveAccount": "¿Ya tienes cuenta?",
+    "login": "Iniciar Sesión",
+    "acceptRequired": "Aceptación Requerida",
+    "acceptRequiredDesc": "Debes aceptar los Términos, Política de Privacidad y Reglas para Vendedores para crear una cuenta.",
+    "incompleteData": "Datos Incompletos",
+    "incompleteDataDesc": "Por favor completa todos los campos.",
+    "passwordTooShort": "Contraseña Muy Corta",
+    "passwordTooShortDesc": "La contraseña debe tener al menos 8 caracteres.",
+    "invalidPassword": "Contraseña Inválida",
+    "signupError": "Error de Registro",
+    "couldNotCreate": "No se pudo crear la cuenta. Inténtalo de nuevo.",
+    "alreadyRegistered": "Este correo ya está registrado. Intenta iniciar sesión o restablece tu contraseña.",
+    "weakPassword": "La contraseña es muy débil. Elige una contraseña más segura.",
+    "unexpectedError": "Error Inesperado",
+    "problemOccurred": "Ocurrió un problema. Inténtalo de nuevo.",
+    "accountCreated": "¡Cuenta creada exitosamente!",
+    "welcomeMessage": "¡Bienvenido a Marketplace Romania!"
   }
 }

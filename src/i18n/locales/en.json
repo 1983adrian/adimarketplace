@@ -330,7 +330,10 @@
     "viewAll": "View All",
     "price": "Price",
     "noResults": "No results found",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "or": "or",
+    "autoDetectedLang": "Language and currency auto-detected",
+    "joinCommunity": "Join the Marketplace Romania community"
   },
   "footer": {
     "about": "About Us",
@@ -409,5 +412,41 @@
     "tagline": "Romania's official brand for online marketplace",
     "welcome": "Welcome!",
     "goodbye": "Goodbye!"
+  },
+  "signup": {
+    "title": "Create Account",
+    "subtitle": "Sign up for free to buy and sell",
+    "toCreate": "To create an account, you must accept:",
+    "acceptTerms": "I have read and accept the",
+    "termsConditions": "Terms and Conditions",
+    "privacyPolicy": "Privacy Policy",
+    "sellerRules": "Seller Rules",
+    "emailPlaceholder": "example@email.com (including iCloud)",
+    "emailNote": "We accept all email types: Gmail, iCloud, Yahoo, Outlook, etc.",
+    "password": "Password",
+    "passwordPlaceholder": "Minimum 8 characters",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Repeat password",
+    "passwordsNoMatch": "Passwords do not match",
+    "createAccount": "Create Account",
+    "creating": "Creating account...",
+    "secureConnection": "Secure connection",
+    "haveAccount": "Already have an account?",
+    "login": "Log In",
+    "acceptRequired": "Acceptance Required",
+    "acceptRequiredDesc": "You must accept the Terms, Privacy Policy and Seller Rules to create an account.",
+    "incompleteData": "Incomplete Data",
+    "incompleteDataDesc": "Please fill in all fields.",
+    "passwordTooShort": "Password Too Short",
+    "passwordTooShortDesc": "Password must be at least 8 characters.",
+    "invalidPassword": "Invalid Password",
+    "signupError": "Signup Error",
+    "couldNotCreate": "Could not create account. Try again.",
+    "alreadyRegistered": "This email is already registered. Try logging in or reset your password.",
+    "weakPassword": "Password is too weak. Choose a stronger password.",
+    "unexpectedError": "Unexpected Error",
+    "problemOccurred": "A problem occurred. Try again.",
+    "accountCreated": "Account created successfully!",
+    "welcomeMessage": "Welcome to Marketplace Romania!"
   }
 }

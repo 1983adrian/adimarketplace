@@ -330,7 +330,10 @@
     "viewAll": "Vezi Tot",
     "price": "Preț",
     "noResults": "Nu s-au găsit rezultate",
-    "tryAgain": "Încearcă din nou"
+    "tryAgain": "Încearcă din nou",
+    "or": "sau",
+    "autoDetectedLang": "Limbă și monedă detectate automat",
+    "joinCommunity": "Alătură-te comunității Marketplace România"
   },
   "footer": {
     "about": "Despre Noi",
@@ -409,5 +412,41 @@
     "tagline": "Brandul oficial al României pentru marketplace online",
     "welcome": "Bine ai venit!",
     "goodbye": "La revedere!"
+  },
+  "signup": {
+    "title": "Creează Cont",
+    "subtitle": "Înregistrează-te gratuit pentru a cumpăra și vinde",
+    "toCreate": "Pentru a crea un cont, trebuie să accepți:",
+    "acceptTerms": "Am citit și accept",
+    "termsConditions": "Termenii și Condițiile",
+    "privacyPolicy": "Politica de Confidențialitate",
+    "sellerRules": "Regulamentul pentru Vânzători",
+    "emailPlaceholder": "exemplu@email.com (inclusiv iCloud)",
+    "emailNote": "Acceptăm toate tipurile de email: Gmail, iCloud, Yahoo, Outlook, etc.",
+    "password": "Parolă",
+    "passwordPlaceholder": "Minim 8 caractere",
+    "confirmPassword": "Confirmă parola",
+    "confirmPasswordPlaceholder": "Repetă parola",
+    "passwordsNoMatch": "Parolele nu coincid",
+    "createAccount": "Creează cont",
+    "creating": "Se creează contul...",
+    "secureConnection": "Conexiune securizată",
+    "haveAccount": "Ai deja cont?",
+    "login": "Autentifică-te",
+    "acceptRequired": "Acceptare obligatorie",
+    "acceptRequiredDesc": "Trebuie să accepți Termenii, Politica de Confidențialitate și Regulamentul Vânzătorilor pentru a crea un cont.",
+    "incompleteData": "Date incomplete",
+    "incompleteDataDesc": "Te rugăm să completezi toate câmpurile.",
+    "passwordTooShort": "Parolă prea scurtă",
+    "passwordTooShortDesc": "Parola trebuie să aibă cel puțin 8 caractere.",
+    "invalidPassword": "Parolă invalidă",
+    "signupError": "Eroare la înregistrare",
+    "couldNotCreate": "Nu am putut crea contul. Încearcă din nou.",
+    "alreadyRegistered": "Acest email este deja înregistrat. Încearcă să te autentifici sau resetează parola.",
+    "weakPassword": "Parola este prea slabă. Alege o parolă mai puternică.",
+    "unexpectedError": "Eroare neașteptată",
+    "problemOccurred": "A apărut o problemă. Încearcă din nou.",
+    "accountCreated": "Cont creat cu succes!",
+    "welcomeMessage": "Bine ai venit pe Marketplace Romania!"
   }
 }

@@ -140,7 +140,9 @@ export const VerifiedBadge: React.FC<VerifiedBadgeProps> = ({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <BadgeIcon size={size} />
+        <span className="inline-flex">
+          <BadgeIcon size={size} />
+        </span>
       </TooltipTrigger>
       <TooltipContent>
         <p className="font-medium">{badgeType}</p>
