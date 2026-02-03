@@ -1,19 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Category } from '@/types/database';
 
-export function useListing(id: string | undefined) {
+export const useCategories = () => {
   return useQuery({
-    queryKey: ['listing', id],
+    queryKey: ['categories'],
     queryFn: async () => {
-      if (!id) return null;
       const { data, error } = await supabase
-        .from('listings')
+        .from('categories')
         .select('*')
-        .eq('id', id)
-        .single();
+        .order('name');
+      
       if (error) throw error;
-      return data;
+      return data as Category[];
     },
-    enabled: !!id,
   });
-}
+};
