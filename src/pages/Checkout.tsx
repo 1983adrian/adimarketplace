@@ -1,40 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { z } from 'zod';
-import { 
-  CreditCard, Lock, Truck, MapPin, ChevronLeft,
-  Check, ShieldCheck, Package, Loader2, Trash2, Banknote
-} from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
-import { useListing } from '@/hooks/useListing';
-
-const checkoutSchema = z.object({
-  fullName: z.string().min(3, 'Numele complet este obligatoriu'),
-  email: z.string().email('Email invalid'),
-  phone: z.string().min(10, 'Număr de telefon invalid'),
-  address: z.string().min(5, 'Adresa este obligatorie'),
-  city: z.string().min(2, 'Orașul este obligatoriu'),
-  county: z.string().min(2, 'Județul este obligatoriu'),
-  postalCode: z.string().min(6, 'Cod poștal invalid'),
-});
 
 export default function Checkout() {
-  const { user } = useAuth();
-  const { items, total, clearCart } = useCart();
+  useAuth();
+  const { total, clearCart } = useCart();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const [processing, setProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'cod'>('card');
 
