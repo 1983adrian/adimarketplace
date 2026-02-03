@@ -1,6 +1,5 @@
 import { 
-  LayoutDashboard, Users, Package, ShoppingCart, Settings, Sliders, 
-  Shield, Crown, Truck, Gavel, Wallet, Globe, Activity
+  LayoutDashboard, Users, Package, ShoppingCart, Settings, Sliders, Crown
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { 
