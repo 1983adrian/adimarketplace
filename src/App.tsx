@@ -24,6 +24,7 @@ import Dashboard from "./pages/Dashboard";
 import Settings from "./pages/Settings";
 import Checkout from "./pages/Checkout";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import CheckoutCancel from "./pages/CheckoutCancel";
 import NotFound from "./pages/NotFound";
 import Orders from "./pages/Orders";
 import Messages from "./pages/Messages";
@@ -113,6 +114,7 @@ const publicRoutes = [
   { path: "/settings", element: <Settings /> },
   { path: "/checkout", element: <Checkout /> },
   { path: "/checkout/success", element: <CheckoutSuccess /> },
+  { path: "/checkout/cancel", element: <CheckoutCancel /> },
   { path: "/orders", element: <Orders /> },
   { path: "/messages", element: <Messages /> },
   { path: "/favorites", element: <Favorites /> },
