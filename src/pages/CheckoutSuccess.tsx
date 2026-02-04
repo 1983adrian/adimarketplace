@@ -1,50 +1,107 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { CheckCircle, Loader2, Package, ArrowRight } from 'lucide-react';
+import { CheckCircle, Loader2, Package, ArrowRight, XCircle, AlertCircle } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCurrency } from '@/contexts/CurrencyContext';
+
+type PaymentStatus = 'verifying' | 'confirmed' | 'failed' | 'pending' | 'error';
 
 const CheckoutSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [processing, setProcessing] = useState(true);
+  const { formatPrice } = useCurrency();
+  
+  const [status, setStatus] = useState<PaymentStatus>('verifying');
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [totalAmount, setTotalAmount] = useState<number | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
 
   const orderIds = searchParams.get('order_ids');
+  const invoiceNumber = searchParams.get('invoice');
+  const needsVerification = searchParams.get('verify') === 'true';
+  const paymentParam = searchParams.get('payment');
 
   useEffect(() => {
-    const processPayment = async () => {
-      // Handle new order_ids format
-      if (orderIds) {
-        setOrderId(orderIds.split(',')[0]); // Take first order ID for display
-        setProcessing(false);
+    const verifyPayment = async () => {
+      if (!orderIds) {
+        setStatus('error');
+        setErrorMessage('Informații comandă lipsă');
         return;
       }
 
-      // No session ID - missing order info
-      if (!orderIds) {
-        setError('Missing order information');
+      const orderIdArray = orderIds.split(',');
+      setOrderId(orderIdArray[0]);
+      setPaymentMethod(paymentParam);
+
+      // For COD orders, payment verification is not needed
+      if (paymentParam === 'cod') {
+        setStatus('confirmed');
+        return;
       }
-      setProcessing(false);
+
+      // Verify payment status via edge function
+      try {
+        const { data, error } = await supabase.functions.invoke('verify-payment', {
+          body: {
+            orderIds: orderIdArray,
+            invoiceNumber,
+          },
+        });
+
+        if (error) {
+          console.error('Payment verification error:', error);
+          setStatus('error');
+          setErrorMessage(error.message || 'Eroare la verificarea plății');
+          return;
+        }
+
+        if (data.paymentConfirmed) {
+          setStatus('confirmed');
+          if (data.results?.[0]?.amount) {
+            setTotalAmount(data.results[0].amount);
+          }
+          toast({
+            title: '✅ Plată confirmată!',
+            description: 'Comanda ta a fost procesată cu succes.',
+          });
+        } else if (data.status === 'awaiting_verification') {
+          setStatus('pending');
+          setErrorMessage('Așteptăm confirmarea plății de la bancă...');
+        } else {
+          setStatus('failed');
+          setErrorMessage(data.message || 'Plata nu a putut fi procesată');
+          toast({
+            title: '❌ Plata a eșuat',
+            description: data.message || 'Te rugăm să încerci din nou.',
+            variant: 'destructive',
+          });
+        }
+      } catch (err: any) {
+        console.error('Verification error:', err);
+        setStatus('error');
+        setErrorMessage(err.message || 'Eroare la verificarea plății');
+      }
     };
 
-    processPayment();
-  }, [orderIds]);
+    verifyPayment();
+  }, [orderIds, invoiceNumber, paymentParam, toast]);
 
-  if (processing) {
+  // Verifying state
+  if (status === 'verifying') {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-md mx-auto text-center">
             <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto mb-6" />
-            <h1 className="text-2xl font-bold mb-2">Se procesează plata...</h1>
+            <h1 className="text-2xl font-bold mb-2">Se verifică plata...</h1>
             <p className="text-muted-foreground">
-              Te rugăm să aștepți câteva secunde.
+              Te rugăm să aștepți câteva secunde pentru confirmarea plății.
             </p>
           </div>
         </div>
@@ -52,25 +109,42 @@ const CheckoutSuccess = () => {
     );
   }
 
-  if (error) {
+  // Pending state (awaiting bank confirmation)
+  if (status === 'pending') {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16">
           <Card className="max-w-md mx-auto">
             <CardHeader className="text-center">
-              <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
-                <span className="text-4xl">⚠️</span>
+              <div className="w-20 h-20 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="h-12 w-12 text-yellow-600" />
               </div>
-              <CardTitle>Problemă la procesare</CardTitle>
-              <CardDescription>{error}</CardDescription>
+              <CardTitle className="text-2xl">Plată în așteptare</CardTitle>
+              <CardDescription>
+                Comanda ta este în curs de procesare.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <Button className="w-full" onClick={() => navigate('/dashboard?tab=orders')}>
-                Vezi Comenzile
-              </Button>
-              <Button variant="outline" className="w-full" onClick={() => navigate('/browse')}>
-                Continuă Cumpărăturile
-              </Button>
+            <CardContent className="space-y-6">
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 space-y-2">
+                <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                  Așteptăm confirmarea plății de la bancă. Acest proces poate dura până la câteva minute.
+                </p>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                  Vei primi un email când plata este confirmată.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Button className="w-full" onClick={() => window.location.reload()}>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Verifică din nou
+                </Button>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/dashboard?tab=orders">
+                    Vezi Comenzile Mele
+                  </Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -78,6 +152,56 @@ const CheckoutSuccess = () => {
     );
   }
 
+  // Failed state
+  if (status === 'failed' || status === 'error') {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16">
+          <Card className="max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                <XCircle className="h-12 w-12 text-destructive" />
+              </div>
+              <CardTitle className="text-2xl">
+                {status === 'failed' ? 'Plata a eșuat' : 'Eroare la procesare'}
+              </CardTitle>
+              <CardDescription>
+                {errorMessage || 'Nu am putut procesa plata ta.'}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-destructive/10 rounded-lg p-4 space-y-2">
+                <p className="text-sm font-medium text-destructive">
+                  Ce s-a întâmplat?
+                </p>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Cardul poate avea fonduri insuficiente</li>
+                  <li>• Banca poate bloca tranzacția</li>
+                  <li>• Datele cardului pot fi incorecte</li>
+                </ul>
+                <p className="text-sm text-muted-foreground mt-2">
+                  <strong>Stocul produsului a fost restaurat</strong> și poți încerca din nou.
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <Button className="w-full" onClick={() => navigate('/browse')}>
+                  Încearcă din nou
+                </Button>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/dashboard?tab=orders">
+                    Vezi Comenzile
+                  </Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Success state
   return (
     <Layout>
       <div className="container mx-auto px-4 py-16">
@@ -86,18 +210,35 @@ const CheckoutSuccess = () => {
             <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="h-12 w-12 text-green-600" />
             </div>
-            <CardTitle className="text-2xl">Plată Reușită! 🎉</CardTitle>
+            <CardTitle className="text-2xl">
+              {paymentMethod === 'cod' ? 'Comandă Plasată! 🎉' : 'Plată Reușită! 🎉'}
+            </CardTitle>
             <CardDescription>
-              Comanda ta a fost procesată cu succes.
+              {paymentMethod === 'cod' 
+                ? 'Vei plăti la livrare când primești coletul.'
+                : 'Comanda ta a fost procesată cu succes.'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 space-y-3">
               <div className="flex items-center gap-2 text-sm">
-                <Package className="h-4 w-4 text-muted-foreground" />
+                <Package className="h-4 w-4 text-green-600" />
                 <span className="text-muted-foreground">Număr comandă:</span>
                 <span className="font-mono font-medium">{orderId?.slice(0, 8)}...</span>
               </div>
+              {totalAmount && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-muted-foreground">Total:</span>
+                  <span className="font-semibold text-green-600">{formatPrice(totalAmount)}</span>
+                </div>
+              )}
+              {paymentMethod === 'cod' && (
+                <div className="flex items-center gap-2 text-sm bg-yellow-100 dark:bg-yellow-900/30 p-2 rounded">
+                  <span className="text-yellow-800 dark:text-yellow-200">
+                    💵 Plătești la livrare (Ramburs)
+                  </span>
+                </div>
+              )}
               <p className="text-sm text-muted-foreground">
                 Vei primi un email de confirmare cu detaliile comenzii.
               </p>

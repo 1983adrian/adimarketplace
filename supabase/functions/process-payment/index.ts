@@ -33,6 +33,7 @@ interface OrderResult {
   listingTitle: string;
   sellerId: string;
   sellerCommission: number;
+  paymentStatus: string;
 }
 
 serve(async (req) => {
@@ -66,6 +67,7 @@ serve(async (req) => {
       courier,
       deliveryType,
       selectedLocker,
+      paymentMethod,
     } = body;
 
     if (!items || items.length === 0) {
@@ -81,10 +83,11 @@ serve(async (req) => {
       .from("payment_processor_settings")
       .select("*")
       .eq("processor_name", "mangopay")
-      .single();
+      .maybeSingle();
 
     const processorName = "mangopay";
     const processorEnv = mangopaySettings?.environment || "sandbox";
+    const hasLiveKeys = !!mangopaySettings?.api_key_encrypted;
 
     // Get platform fees
     const { data: fees } = await supabase
@@ -95,15 +98,15 @@ serve(async (req) => {
     const sellerCommissionFee = fees?.find(f => f.fee_type === "seller_commission");
     const commissionPercent = sellerCommissionFee?.amount || 8; // Default to 8% commission
 
-    // Process each item using TRANSACTIONAL function
+    // Process each item - create PENDING orders
     const orders: OrderResult[] = [];
     let totalAmount = 0;
 
     for (const item of items) {
-      // CRITICAL: Validate listing exists and get real price from DB
+      // CRITICAL: Validate listing exists, check stock, and get real price from DB
       const { data: listing, error: listingError } = await supabase
         .from("listings")
-        .select("id, seller_id, title, price, is_active, is_sold")
+        .select("id, seller_id, title, price, is_active, is_sold, quantity")
         .eq("id", item.listingId)
         .single();
 
@@ -112,16 +115,22 @@ serve(async (req) => {
       }
 
       if (!listing.is_active) {
-        throw new Error(`Listing "${listing.title}" is no longer active`);
+        throw new Error(`Produsul "${listing.title}" nu mai este disponibil`);
       }
 
       if (listing.is_sold) {
-        throw new Error(`Listing "${listing.title}" has already been sold`);
+        throw new Error(`Produsul "${listing.title}" a fost deja vândut`);
+      }
+
+      // Check stock quantity
+      const currentQuantity = listing.quantity ?? 1;
+      if (currentQuantity < 1) {
+        throw new Error(`Produsul "${listing.title}" nu mai este în stoc`);
       }
 
       // Prevent self-purchase
       if (listing.seller_id === userId) {
-        throw new Error("Cannot purchase your own listing");
+        throw new Error("Nu poți cumpăra propriul produs");
       }
 
       // Calculate amounts using DB price (not client price)
@@ -133,9 +142,9 @@ serve(async (req) => {
       const payoutAmount = itemPrice - sellerCommission;
 
       // Generate transaction ID
-      const transactionId = `MANGOPAY-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
+      const transactionId = `PENDING-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
 
-      // Use TRANSACTIONAL function for atomic order creation
+      // Use TRANSACTIONAL function for atomic order creation (PENDING status)
       const { data: orderResult, error: orderError } = await supabase.rpc(
         "process_order_transaction",
         {
@@ -164,12 +173,13 @@ serve(async (req) => {
         listingTitle: orderResult.listing_title,
         sellerId: listing.seller_id,
         sellerCommission,
+        paymentStatus: "pending",
       });
 
       totalAmount += itemTotal;
     }
 
-    // Create invoice for first order
+    // Create invoice with PENDING status
     const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
     await supabase.from("invoices").insert({
       order_id: orders[0].id,
@@ -180,40 +190,92 @@ serve(async (req) => {
       buyer_fee: buyerFee,
       seller_commission: orders.reduce((sum, o) => sum + o.sellerCommission, 0),
       total: totalAmount,
-      status: "issued",
+      status: "pending", // Invoice is pending until payment confirmed
     });
 
-    // Handle locker delivery
-    if (deliveryType === "locker" && selectedLocker && userEmail) {
-      const pickupCode = Math.random().toString().slice(2, 8);
-      const awbNumber = `AWB-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
-      
-      try {
-        await supabase.functions.invoke("send-easybox-code", {
-          body: {
-            orderId: orders[0].id,
-            buyerEmail: userEmail,
-            lockerName: selectedLocker.name,
-            lockerAddress: `${selectedLocker.address}, ${selectedLocker.city}, ${selectedLocker.county}`,
-            awbNumber,
-            pickupCode,
-            courier: courier || "sameday",
-            productTitle: orders[0].listingTitle || "Produs",
-          },
+    const origin = req.headers.get("origin") || "https://www.marketplaceromania.com";
+    const orderIds = orders.map(o => o.id).join(",");
+
+    // Handle COD (Cash on Delivery) - confirm immediately since payment is at delivery
+    if (paymentMethod === "cod") {
+      // For COD, confirm orders immediately as payment will be collected at delivery
+      for (const order of orders) {
+        await supabase.rpc("confirm_order_payment", {
+          p_order_id: order.id,
+          p_transaction_id: `COD-${order.transactionId}`,
+          p_processor_status: "cod_pending_delivery",
         });
-      } catch (emailError) {
-        console.error("Failed to send easybox code email:", emailError);
       }
-      
+
+      // Update invoice to issued
       await supabase
-        .from("orders")
-        .update({ tracking_number: awbNumber, carrier: courier })
-        .eq("id", orders[0].id);
+        .from("invoices")
+        .update({ status: "issued" })
+        .eq("invoice_number", invoiceNumber);
+
+      // Handle locker delivery
+      if (deliveryType === "locker" && selectedLocker && userEmail) {
+        const pickupCode = Math.random().toString().slice(2, 8);
+        const awbNumber = `AWB-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
+        
+        try {
+          await supabase.functions.invoke("send-easybox-code", {
+            body: {
+              orderId: orders[0].id,
+              buyerEmail: userEmail,
+              lockerName: selectedLocker.name,
+              lockerAddress: `${selectedLocker.address}, ${selectedLocker.city}, ${selectedLocker.county}`,
+              awbNumber,
+              pickupCode,
+              courier: courier || "sameday",
+              productTitle: orders[0].listingTitle || "Produs",
+            },
+          });
+        } catch (emailError) {
+          console.error("Failed to send easybox code email:", emailError);
+        }
+        
+        await supabase
+          .from("orders")
+          .update({ tracking_number: awbNumber, carrier: courier })
+          .eq("id", orders[0].id);
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          processor: processorName,
+          environment: processorEnv,
+          orders: orders.map(o => ({ id: o.id, amount: o.amount, transactionId: o.transactionId })),
+          total: totalAmount,
+          invoiceNumber,
+          paymentMethod: "cod",
+          message: "Comandă plasată! Plătești la livrare.",
+          requiresPayment: false,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // Generate payment URL
-    const origin = req.headers.get("origin") || "https://www.marketplaceromania.com";
-    const successUrl = `${origin}/checkout/success?order_ids=${orders.map(o => o.id).join(",")}&total=${totalAmount}`;
+    // For CARD payments - redirect to payment processor
+    // The orders are in PAYMENT_PENDING status
+    // Payment confirmation will happen via webhook or return URL
+
+    // Build payment URL for MangoPay (or demo mode)
+    const successUrl = `${origin}/checkout/success?order_ids=${orderIds}&invoice=${invoiceNumber}&verify=true`;
+    const cancelUrl = `${origin}/checkout/cancel?order_ids=${orderIds}&restore=true`;
+
+    // If live MangoPay keys are configured, create actual payment session
+    let paymentUrl = successUrl; // Default to success for demo mode
+    let requiresExternalPayment = false;
+
+    if (hasLiveKeys && processorEnv === "live") {
+      // TODO: Integrate actual MangoPay payment creation here
+      // For now, we'll use demo mode which goes directly to success
+      // In production, this would create a MangoPay PayIn and return the redirect URL
+      requiresExternalPayment = true;
+      paymentUrl = successUrl; // Replace with actual MangoPay redirect
+    }
 
     return new Response(
       JSON.stringify({
@@ -223,11 +285,19 @@ serve(async (req) => {
         orders: orders.map(o => ({ id: o.id, amount: o.amount, transactionId: o.transactionId })),
         total: totalAmount,
         invoiceNumber,
-        redirectUrl: successUrl,
-        message: mangopaySettings?.api_key_encrypted 
-          ? "Redirecționare către MangoPay" 
-          : "Demo mode - configurează cheile API pentru plăți reale",
-        isLive: processorEnv === "live" && !!mangopaySettings?.api_key_encrypted,
+        paymentMethod: "card",
+        // CRITICAL: Tell frontend that payment verification is needed
+        requiresPayment: true,
+        requiresExternalPayment,
+        paymentUrl,
+        successUrl,
+        cancelUrl,
+        message: hasLiveKeys 
+          ? "Redirecționare către procesatorul de plăți..." 
+          : "Demo mode - configurează cheile MangoPay pentru plăți reale",
+        isLive: processorEnv === "live" && hasLiveKeys,
+        // Include order IDs for verification on success page
+        pendingOrderIds: orderIds,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

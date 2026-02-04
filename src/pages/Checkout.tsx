@@ -245,18 +245,37 @@ const Checkout = () => {
       }
 
       if (data?.success) {
-        // Clear cart on successful checkout
+        // Clear cart on successful order creation
         clearCart();
-        toast({
-          title: paymentMethod === 'cod' 
-            ? 'Comandă plasată! Plătești la livrare.' 
-            : 'Comandă plasată cu succes!',
-          description: `Factura #${data.invoiceNumber}. Total: ${formatPrice(data.total)}`,
-        });
-        // Redirect to success page
-        navigate(`/checkout/success?order_ids=${data.orders.map((o: any) => o.id).join(',')}&payment=${paymentMethod}`);
+        
+        const orderIds = data.orders.map((o: any) => o.id).join(',');
+        const invoiceNum = data.invoiceNumber;
+        
+        // Check if payment requires verification
+        if (data.requiresPayment && data.paymentMethod !== 'cod') {
+          // For card payments, redirect to success with verification flag
+          toast({
+            title: '🔄 Procesare plată...',
+            description: 'Redirecționare către confirmarea comenzii.',
+          });
+          navigate(`/checkout/success?order_ids=${orderIds}&invoice=${invoiceNum}&verify=true&payment=card`);
+        } else if (data.paymentMethod === 'cod' || paymentMethod === 'cod') {
+          // COD - payment at delivery
+          toast({
+            title: '✅ Comandă plasată!',
+            description: `Plătești la livrare. Factura #${invoiceNum}`,
+          });
+          navigate(`/checkout/success?order_ids=${orderIds}&invoice=${invoiceNum}&payment=cod`);
+        } else {
+          // Fallback
+          toast({
+            title: '✅ Comandă plasată!',
+            description: `Factura #${invoiceNum}. Total: ${formatPrice(data.total)}`,
+          });
+          navigate(`/checkout/success?order_ids=${orderIds}&invoice=${invoiceNum}&verify=true&payment=${paymentMethod}`);
+        }
       } else {
-        throw new Error(data?.error || 'Payment processing failed');
+        throw new Error(data?.error || 'Procesarea comenzii a eșuat');
       }
     } catch (error: any) {
       console.error('Order error:', error);

@@ -3064,6 +3064,10 @@ export type Database = {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
       }
+      cancel_pending_order: {
+        Args: { p_order_id: string; p_reason?: string }
+        Returns: Json
+      }
       check_push_rate_limit: {
         Args: { p_max_per_hour?: number; p_user_id: string }
         Returns: boolean
@@ -3079,6 +3083,14 @@ export type Database = {
       cleanup_expired_push_tokens: { Args: never; Returns: number }
       cleanup_old_push_logs: { Args: never; Returns: number }
       cleanup_old_returns: { Args: never; Returns: undefined }
+      confirm_order_payment: {
+        Args: {
+          p_order_id: string
+          p_processor_status?: string
+          p_transaction_id: string
+        }
+        Returns: Json
+      }
       decrypt_profile_field: {
         Args: { p_encrypted: string; p_key: string }
         Returns: string
@@ -3168,21 +3180,37 @@ export type Database = {
             }
             Returns: undefined
           }
-      process_order_transaction: {
-        Args: {
-          p_amount: number
-          p_buyer_fee: number
-          p_buyer_id: string
-          p_listing_id: string
-          p_payment_processor: string
-          p_payout_amount: number
-          p_seller_commission: number
-          p_seller_id: string
-          p_shipping_address: string
-          p_transaction_id: string
-        }
-        Returns: Json
-      }
+      process_order_transaction:
+        | {
+            Args: {
+              p_amount: number
+              p_buyer_fee: number
+              p_buyer_id: string
+              p_listing_id: string
+              p_payment_processor: string
+              p_payout_amount: number
+              p_seller_commission: number
+              p_seller_id: string
+              p_shipping_address: string
+              p_transaction_id: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_amount: number
+              p_buyer_fee: number
+              p_buyer_id: string
+              p_listing_id: string
+              p_payment_processor: string
+              p_payout_amount: number
+              p_seller_commission: number
+              p_seller_id: string
+              p_shipping_address: string
+              p_transaction_id: string
+            }
+            Returns: Json
+          }
       purge_old_tokens: { Args: never; Returns: number }
       refresh_platform_statistics: { Args: never; Returns: undefined }
       rotate_push_token: {
