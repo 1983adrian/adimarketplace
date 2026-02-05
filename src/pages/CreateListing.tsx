@@ -24,6 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
 import { addDays } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from 'react-i18next';
 import { CODSettings } from '@/components/listings/CODSettings';
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 import { ShippingCostSelector } from '@/components/listings/ShippingCostSelector';
@@ -35,7 +36,7 @@ const CreateListing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { language } = useLanguage();
+  const { t } = useTranslation();
   const { data: categories } = useCategories();
   const { data: subscription, isLoading: subscriptionLoading } = useSellerSubscription();
   const { data: listingLimit, isLoading: limitLoading } = useListingLimit();
@@ -133,8 +134,8 @@ const CreateListing = () => {
     
     if (remainingSlots <= 0) {
       toast({ 
-        title: 'Limită atinsă', 
-        description: 'Poți adăuga maxim 3 fotografii per produs.', 
+        title: t('createListing.limitReached'), 
+        description: t('createListing.imageLimit'), 
         variant: 'destructive' 
       });
       return;
@@ -159,8 +160,8 @@ const CreateListing = () => {
     
     if (files.length > filesToAdd.length) {
       toast({ 
-        title: 'Imagini limitate', 
-        description: `Doar ${filesToAdd.length} din ${files.length} imagini au fost adăugate (maxim 3).`,
+        title: t('createListing.imagesLimited'), 
+        description: t('createListing.imagesLimitedDesc').replace('{count}', filesToAdd.length.toString()).replace('{total}', files.length.toString()),
         variant: 'default'
       });
     }
@@ -175,7 +176,7 @@ const CreateListing = () => {
     e.preventDefault();
     
     if (!user) {
-      toast({ title: 'Te rugăm să te autentifici', description: 'Trebuie să fii autentificat pentru a crea o listare', variant: 'destructive' });
+      toast({ title: t('createListing.loginRequired'), description: t('createListing.loginRequiredDesc'), variant: 'destructive' });
       navigate('/login');
       return;
     }
@@ -183,7 +184,7 @@ const CreateListing = () => {
     // KYC verification check
     if (!canSell) {
       toast({ 
-        title: 'Verificare KYC necesară', 
+        title: t('createListing.kycRequired'), 
         description: kycMessage || 'Completează verificarea identității pentru a putea vinde.', 
         variant: 'destructive' 
       });
@@ -193,40 +194,40 @@ const CreateListing = () => {
 
     // Verificăm dacă utilizatorul este vânzător activat (nu mai necesită abonament)
     if (!isSubscribed) {
-      toast({ title: 'Mod Vânzător inactiv', description: 'Activează Modul Vânzător pentru a crea listări.', variant: 'destructive' });
+      toast({ title: t('createListing.sellerModeInactive'), description: t('createListing.sellerModeDesc'), variant: 'destructive' });
       navigate('/seller-mode');
       return;
     }
 
     if (!canCreateMore) {
       toast({ 
-        title: 'Limită atinsă', 
-        description: `Ai atins limita maximă de ${listingLimit?.maxListings} produse.`, 
+        title: t('createListing.limitReached'), 
+        description: `${t('createListing.limitDesc')} ${listingLimit?.maxListings} ${t('createListing.products')}.`, 
         variant: 'destructive' 
       });
       return;
     }
 
     if (!title || !condition || !category) {
-      toast({ title: 'Câmpuri lipsă', description: 'Te rugăm să completezi toate câmpurile obligatorii', variant: 'destructive' });
+      toast({ title: t('createListing.missingFields'), description: t('createListing.missingFieldsDesc'), variant: 'destructive' });
       return;
     }
 
     // Validate price and shipping cost for non-auction
     if (listingType !== 'auction') {
       if (!price) {
-        toast({ title: 'Preț lipsă', description: 'Te rugăm să adaugi prețul produsului', variant: 'destructive' });
+        toast({ title: t('createListing.missingPrice'), description: t('createListing.missingPriceDesc'), variant: 'destructive' });
         return;
       }
       // Shipping cost is now set by courier selection - no manual validation needed
       if (!selectedCourier) {
-        toast({ title: 'Metodă livrare lipsă', description: 'Te rugăm să selectezi o metodă de livrare', variant: 'destructive' });
+        toast({ title: t('createListing.missingShipping'), description: t('createListing.missingShippingDesc'), variant: 'destructive' });
         return;
       }
     }
 
     if (imageFiles.length === 0) {
-      toast({ title: 'Imagine necesară', description: 'Te rugăm să adaugi cel puțin o imagine', variant: 'destructive' });
+      toast({ title: t('createListing.imageRequired'), description: t('createListing.imageRequiredDesc'), variant: 'destructive' });
       return;
     }
 
@@ -312,20 +313,20 @@ const CreateListing = () => {
           console.error('Error creating promotion:', promotionError);
           // Don't fail the whole operation, just notify
           toast({ 
-            title: 'Produs creat!', 
-            description: 'Produsul a fost creat, dar promoția nu a putut fi activată. Încearcă din nou din pagina produsului.',
+            title: t('createListing.success'), 
+            description: t('createListing.successDesc'),
             variant: 'destructive'
           });
         } else {
           toast({ 
-            title: '🎉 Produs creat și promovat!', 
-            description: `Produsul tău va apărea pe homepage timp de ${PROMOTION_DURATION} zile.`
+            title: t('createListing.successPromo'), 
+            description: t('createListing.successPromoDesc').replace('{days}', PROMOTION_DURATION.toString())
           });
         }
       } else {
         toast({ 
-          title: 'Produs creat cu succes!', 
-          description: isActive ? 'Produsul tău este acum live.' : 'Produsul a fost salvat ca draft.'
+          title: t('createListing.success'), 
+          description: isActive ? t('createListing.successDesc') : t('createListing.draftDesc')
         });
       }
       
@@ -333,8 +334,8 @@ const CreateListing = () => {
     } catch (error: any) {
       console.error('Error creating listing:', error);
       toast({ 
-        title: 'Eroare', 
-        description: error.message || 'Nu s-a putut crea listarea', 
+        title: t('createListing.error'), 
+        description: error.message || t('createListing.errorDesc'), 
         variant: 'destructive' 
       });
     } finally {
@@ -346,8 +347,8 @@ const CreateListing = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Te rugăm să te autentifici pentru a vinde</h1>
-          <Button onClick={() => navigate('/login')}>Autentificare</Button>
+          <h1 className="text-2xl font-bold mb-4">{t('createListing.loginRequired')}</h1>
+          <Button onClick={() => navigate('/login')}>{t('auth.login')}</Button>
         </div>
       </Layout>
     );
@@ -359,12 +360,12 @@ const CreateListing = () => {
       <Layout>
         <div className="container mx-auto px-4 py-16 max-w-md text-center">
           <Store className="h-16 w-16 mx-auto mb-6 text-amber-500" />
-          <h1 className="text-2xl font-bold mb-4">Activează Modul Vânzător</h1>
+          <h1 className="text-2xl font-bold mb-4">{t('createListing.activateSellerMode')}</h1>
           <p className="text-muted-foreground mb-6">
-            Pentru a lista produse spre vânzare, trebuie să activezi modul vânzător și să completezi datele de plată.
+            {t('createListing.activateSellerModeDesc')}
             <br /><br />
-            <strong>Fără taxe de listare sau abonamente lunare!</strong><br />
-            Comision de 8% aplicat doar la vânzare.
+            <strong>{t('createListing.noFees')}</strong><br />
+            {t('createListing.commission')}
           </p>
           <div className="space-y-3">
             <Button 
@@ -374,11 +375,11 @@ const CreateListing = () => {
             >
               <Link to="/seller-mode">
                 <Store className="h-4 w-4" />
-                Activează Modul Vânzător
+                {t('createListing.activateSellerMode')}
               </Link>
             </Button>
             <Button variant="outline" className="w-full" asChild>
-              <Link to="/dashboard">Înapoi la Dashboard</Link>
+              <Link to="/dashboard">{t('createListing.backToDashboard')}</Link>
             </Button>
           </div>
         </div>
@@ -391,7 +392,7 @@ const CreateListing = () => {
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Se verifică statusul contului...</p>
+          <p className="text-muted-foreground">{t('createListing.checkingStatus')}</p>
         </div>
       </Layout>
     );
@@ -403,21 +404,21 @@ const CreateListing = () => {
       <Layout>
         <div className="container mx-auto px-4 py-16 max-w-md text-center">
           <Package className="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
-          <h1 className="text-2xl font-bold mb-4">Limită Atinsă</h1>
+          <h1 className="text-2xl font-bold mb-4">{t('createListing.limitTitle')}</h1>
           <p className="text-muted-foreground mb-6">
-            Ai atins limita maximă de <span className="font-bold text-foreground">{listingLimit?.maxListings} produse</span>.
-            Șterge un produs existent pentru a adăuga altul nou.
+            {t('createListing.limitDesc')} <span className="font-bold text-foreground">{listingLimit?.maxListings} {t('createListing.products')}</span>.
+            {t('createListing.limitAction')}
           </p>
           <Alert className="text-left mb-6">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Produse active: {listingLimit?.currentCount}/{listingLimit?.maxListings}</AlertTitle>
+            <AlertTitle>{t('createListing.activeProducts')} {listingLimit?.currentCount}/{listingLimit?.maxListings}</AlertTitle>
             <AlertDescription>
-              Vânzările sunt nelimitate! Poți vinde oricâte produse, dar poți avea maxim {listingLimit?.maxListings} listări active simultan.
+              {t('createListing.unlimitedSales').replace('{max}', (listingLimit?.maxListings || 10).toString())}
             </AlertDescription>
           </Alert>
           <div className="space-y-3">
             <Button variant="outline" className="w-full" asChild>
-              <Link to="/dashboard">Gestionează Produsele</Link>
+              <Link to="/dashboard">{t('createListing.manageProducts')}</Link>
             </Button>
           </div>
         </div>
@@ -429,13 +430,11 @@ const CreateListing = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">
-            {language === 'ro' ? 'Vinde un Produs' : 'Sell a Product'}
-          </h1>
+          <h1 className="text-3xl font-bold">{t('createListing.title')}</h1>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="gap-1">
               <Package className="h-3 w-3" />
-              {listingLimit?.currentCount}/{listingLimit?.maxListings} {language === 'ro' ? 'produse' : 'products'}
+              {listingLimit?.currentCount}/{listingLimit?.maxListings} {t('createListing.products')}
             </Badge>
           </div>
         </div>
@@ -443,21 +442,21 @@ const CreateListing = () => {
         {/* Platform Rules Warning */}
         <Alert className="border-red-200 bg-red-50">
           <AlertCircle className="h-4 w-4 text-red-600" />
-          <AlertTitle className="text-red-800">Produse Interzise pe Platformă</AlertTitle>
+          <AlertTitle className="text-red-800">{t('createListing.prohibited')}</AlertTitle>
           <AlertDescription className="mt-2">
             <div className="flex flex-wrap gap-4 text-sm">
               <span className="flex items-center gap-1.5 text-red-600">
-                <Ban className="h-4 w-4" /> Armament (arme, muniție, cuțite)
+                <Ban className="h-4 w-4" /> {t('createListing.prohibitedWeapons')}
               </span>
               <span className="flex items-center gap-1.5 text-red-600">
-                <Leaf className="h-4 w-4" /> Substanțe Interzise (droguri, medicamente fără rețetă)
+                <Leaf className="h-4 w-4" /> {t('createListing.prohibitedSubstances')}
               </span>
               <span className="flex items-center gap-1.5 text-red-600">
-                <Bomb className="h-4 w-4" /> Contrabandă (bunuri furate, falsificate)
+                <Bomb className="h-4 w-4" /> {t('createListing.prohibitedContraband')}
               </span>
             </div>
             <p className="text-xs text-red-500 mt-2">
-              Încălcarea regulilor duce la suspendarea permanentă a contului și raportarea către autorități.
+              {t('createListing.prohibitedWarning')}
             </p>
           </AlertDescription>
         </Alert>
