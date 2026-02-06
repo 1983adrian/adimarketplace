@@ -1,16 +1,10 @@
-import { useCallback, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
-import { 
-  getLanguageFromPath, 
-  LANGUAGE_CONFIG, 
-  EXCHANGE_RATES,
-  type SupportedLanguage 
-} from '@/i18n/config';
+import { useCallback } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LANGUAGE_CONFIG, EXCHANGE_RATES, type SupportedLanguage } from '@/i18n/config';
 
 export const useLocalizedCurrency = () => {
-  const location = useLocation();
-  const currentLanguage = getLanguageFromPath(location.pathname) as SupportedLanguage;
-  const config = LANGUAGE_CONFIG[currentLanguage];
+  const { language } = useLanguage();
+  const config = LANGUAGE_CONFIG[language];
   
   const currency = config.currency;
   const currencySymbol = config.currencySymbol;
@@ -58,7 +52,7 @@ export const useLocalizedCurrency = () => {
     currency,
     currencySymbol,
     locale,
-    currentLanguage,
+    currentLanguage: language,
     convertFromRON,
     formatPrice,
     formatPriceWithRON

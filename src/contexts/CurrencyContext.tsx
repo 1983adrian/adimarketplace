@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
-import { getLanguageFromPath, LANGUAGE_CONFIG, EXCHANGE_RATES, type SupportedLanguage } from '@/i18n/config';
+import { LANGUAGE_CONFIG, EXCHANGE_RATES, type SupportedLanguage } from '@/i18n/config';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-export type Currency = 'GBP' | 'EUR' | 'USD' | 'RON' | 'CNY';
+export type Currency = 'GBP' | 'EUR' | 'USD' | 'RON' | 'CNY' | 'PLN';
 
 interface CurrencyInfo {
   code: Currency;
@@ -17,6 +17,7 @@ const CURRENCIES: Record<Currency, CurrencyInfo> = {
   USD: { code: 'USD', symbol: '$', name: 'US Dollar', locale: 'en-US' },
   RON: { code: 'RON', symbol: 'lei', name: 'Romanian Leu', locale: 'ro-RO' },
   CNY: { code: 'CNY', symbol: '¥', name: 'Chinese Yuan', locale: 'zh-CN' },
+  PLN: { code: 'PLN', symbol: 'zł', name: 'Polish Zloty', locale: 'pl-PL' },
 };
 
 interface CurrencyContextType {
@@ -33,14 +34,13 @@ interface CurrencyContextType {
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
 export const CurrencyProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const location = useLocation();
+  const { language } = useLanguage();
   const [detectedCountry, setDetectedCountry] = useState<string | null>(null);
   const [isDetecting, setIsDetecting] = useState(false);
   
-  // Get currency from URL language
-  const currentLanguage = getLanguageFromPath(location.pathname);
-  const languageConfig = LANGUAGE_CONFIG[currentLanguage];
-  const currency = languageConfig.currency as Currency;
+  // Get currency from current language
+  const languageConfig = LANGUAGE_CONFIG[language];
+  const currency = (languageConfig?.currency || 'RON') as Currency;
 
   // Convert price from one currency to visitor's currency
   const convertPrice = useCallback((price: number, fromCurrency: Currency, toCurrency?: Currency): number => {

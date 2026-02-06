@@ -176,8 +176,7 @@ const adminRoutes = [
   { path: "/admin/unified-settings", element: <AdminUnifiedSettings /> },
 ];
 
-// Language prefixes for routes
-const languagePrefixes = ['en', 'de', 'es', 'zh'];
+// No language prefixes needed - using geo-based auto-detection
 
 const App = () => (
   <HelmetProvider>
@@ -193,20 +192,9 @@ const App = () => (
                     <Sonner />
                     <HreflangTags />
                     <Routes>
-                      {/* Default Romanian routes (no prefix) */}
+                      {/* All public routes - no language prefixes, auto-detected via geo */}
                       {publicRoutes.map(({ path, element }) => (
                         <Route key={path} path={path} element={element} />
-                      ))}
-                      
-                      {/* Language-prefixed routes */}
-                      {languagePrefixes.map(lang => (
-                        publicRoutes.map(({ path, element }) => (
-                          <Route 
-                            key={`${lang}${path}`} 
-                            path={`/${lang}${path === '/' ? '' : path}`} 
-                            element={element} 
-                          />
-                        ))
                       ))}
                       
                       {/* Admin routes (no language prefix) */}
