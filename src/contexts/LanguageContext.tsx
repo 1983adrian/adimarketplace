@@ -1,46 +1,74 @@
-import React, { createContext, useContext, ReactNode } from 'react';
-import { useLocation } from 'react-router-dom';
-import { getLanguageFromPath, LANGUAGE_CONFIG, type SupportedLanguage } from '@/i18n/config';
-import { useTranslation } from 'react-i18next';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useLocation as useRouterLocation } from 'react-router-dom';
+import { LANGUAGE_CONFIG, COUNTRY_TO_LANGUAGE, type SupportedLanguage } from '@/i18n/config';
+import { translations, getTranslation } from '@/i18n/translations';
+import { useLocation } from '@/contexts/LocationContext';
 
 interface LanguageContextType {
   language: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
   t: (key: string) => string;
   detectedFromLocation: boolean;
+  isAutoDetected: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const location = useLocation();
-  const { t: i18nT, i18n } = useTranslation();
+  const { location: geoLocation, isLoading: geoLoading } = useLocation();
+  const [language, setLanguageState] = useState<SupportedLanguage>('ro');
+  const [isAutoDetected, setIsAutoDetected] = useState(false);
   
-  // Get language from URL path
-  const language = getLanguageFromPath(location.pathname);
-  
-  // Sync i18next with current route language
-  React.useEffect(() => {
-    if (i18n.language !== language) {
-      i18n.changeLanguage(language);
+  // Auto-detect language based on country
+  useEffect(() => {
+    // Check localStorage first for manual preference
+    const savedLang = localStorage.getItem('user_language') as SupportedLanguage;
+    if (savedLang && LANGUAGE_CONFIG[savedLang]) {
+      setLanguageState(savedLang);
+      return;
     }
-  }, [language, i18n]);
+    
+    // Auto-detect from geolocation
+    if (geoLocation?.countryCode) {
+      const detectedLang = COUNTRY_TO_LANGUAGE[geoLocation.countryCode] || 'en';
+      setLanguageState(detectedLang);
+      setIsAutoDetected(true);
+      console.log(`Auto-detected language: ${detectedLang} for country: ${geoLocation.countryCode}`);
+    }
+  }, [geoLocation]);
   
   const setLanguage = (lang: SupportedLanguage) => {
-    i18n.changeLanguage(lang);
-    localStorage.setItem('i18nextLng', lang);
+    setLanguageState(lang);
+    setIsAutoDetected(false);
+    localStorage.setItem('user_language', lang);
+    console.log(`Language manually set to: ${lang}`);
   };
   
-  // Translation function that supports dot notation
+  // Translation function that uses our static translations
   const t = (key: string): string => {
-    return i18nT(key) || key;
+    const keys = key.split('.') as (keyof typeof translations['en'])[];
+    const fullKey = key as keyof typeof translations['en'];
+    
+    // Try to get translation from current language
+    if (translations[language] && (translations[language] as any)[fullKey]) {
+      return (translations[language] as any)[fullKey];
+    }
+    
+    // Fallback to English
+    if (translations.en && (translations.en as any)[fullKey]) {
+      return (translations.en as any)[fullKey];
+    }
+    
+    // Return key if no translation found
+    return key;
   };
 
   const value: LanguageContextType = {
     language,
     setLanguage,
     t,
-    detectedFromLocation: true
+    detectedFromLocation: isAutoDetected,
+    isAutoDetected
   };
 
   return (

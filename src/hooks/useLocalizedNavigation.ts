@@ -1,47 +1,36 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
-import { 
-  getLanguageFromPath, 
-  getLocalizedPath, 
-  LANGUAGE_CONFIG, 
-  type SupportedLanguage 
-} from '@/i18n/config';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { LANGUAGE_CONFIG, type SupportedLanguage } from '@/i18n/config';
 
 export const useLocalizedNavigation = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { i18n } = useTranslation();
+  const { language, setLanguage } = useLanguage();
+  const languageConfig = LANGUAGE_CONFIG[language];
   
-  const currentLanguage = getLanguageFromPath(location.pathname) as SupportedLanguage;
-  const languageConfig = LANGUAGE_CONFIG[currentLanguage];
-  
-  // Navigate to a path while preserving language prefix
+  // Navigate to a path (no more language prefixes needed)
   const navigateTo = useCallback((path: string) => {
-    const localizedPath = getLocalizedPath(path, currentLanguage);
-    navigate(localizedPath);
-  }, [navigate, currentLanguage]);
+    navigate(path);
+  }, [navigate]);
   
-  // Change language and navigate to the same page in new language
+  // Change language (stores in localStorage, triggers re-render)
   const changeLanguage = useCallback((newLang: SupportedLanguage) => {
-    const newPath = getLocalizedPath(location.pathname, newLang);
-    i18n.changeLanguage(newLang);
-    localStorage.setItem('i18nextLng', newLang);
-    navigate(newPath);
-  }, [navigate, location.pathname, i18n]);
+    setLanguage(newLang);
+    // No navigation needed - the language context handles everything
+  }, [setLanguage]);
   
-  // Get localized href for links
+  // Get href for links (no prefix needed anymore)
   const getLocalizedHref = useCallback((path: string) => {
-    return getLocalizedPath(path, currentLanguage);
-  }, [currentLanguage]);
+    return path;
+  }, []);
   
   return {
     navigateTo,
     changeLanguage,
     getLocalizedHref,
-    currentLanguage,
+    currentLanguage: language,
     languageConfig,
-    currentCurrency: languageConfig.currency
+    currentCurrency: languageConfig?.currency || 'RON'
   };
 };
 

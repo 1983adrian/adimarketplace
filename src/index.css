@@ -269,3 +269,29 @@
 ::selection {
   @apply bg-primary/20 text-foreground;
 }
+
+/* Google Translate - Hide default bar */
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+.goog-te-gadget {
+  font-size: 0 !important;
+}
+
+.goog-te-gadget img {
+  display: none !important;
+}
+
+.skiptranslate {
+  display: none !important;
+}
+
+/* Keep translated content visible */
+.goog-te-spinner-pos {
+  display: none !important;
+}

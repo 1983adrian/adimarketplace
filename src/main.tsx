@@ -2,7 +2,6 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
-import "./i18n/config"; // Initialize i18next
 import { initializeCapacitor } from "./lib/capacitor-init";
 import { registerServiceWorker } from "./lib/pwa-register";
 
@@ -18,7 +17,6 @@ if (savedTheme === 'dark') {
 initializeCapacitor().catch(console.error);
 
 // Register PWA service worker - delayed and conditional for crawlers
-// Only runs on client-side, won't block rendering or cause errors for bots
 if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
   setTimeout(() => {
     registerServiceWorker().catch(() => {
