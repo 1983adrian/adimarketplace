@@ -28,9 +28,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideFooter = false }) 
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Grand Opening Banner - visible until April 29, 2025 */}
-      <GrandOpeningBanner />
       <Header />
+      {/* Grand Opening Banner - positioned below header, visible until April 29, 2026 */}
+      <GrandOpeningBanner />
       <main className="flex-1">{children}</main>
       {!hideFooter && (
         <Footer />
