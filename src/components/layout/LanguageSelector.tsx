@@ -35,23 +35,41 @@ export const LanguageSelector: React.FC = () => {
 
   // Initialize Google Translate
   useEffect(() => {
+    // Clean up any existing Google Translate instance
+    const existingElement = document.getElementById('google_translate_element');
+    if (existingElement) {
+      existingElement.innerHTML = '';
+    }
+    
+    // Define the callback before loading the script
+    (window as any).googleTranslateElementInit = () => {
+      try {
+        new (window as any).google.translate.TranslateElement({
+          pageLanguage: 'ro',
+          includedLanguages: 'en,de,es,fr,it,pt,nl,pl,zh-CN',
+          layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false,
+          multilanguagePage: true,
+        }, 'google_translate_element');
+        console.log('Google Translate initialized successfully');
+      } catch (error) {
+        console.error('Google Translate init error:', error);
+      }
+    };
+    
     // Add Google Translate script if not already loaded
     if (!document.getElementById('google-translate-script')) {
       const script = document.createElement('script');
       script.id = 'google-translate-script';
       script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
       script.async = true;
+      script.onerror = () => console.error('Failed to load Google Translate script');
       document.body.appendChild(script);
-      
-      // Initialize callback
-      (window as any).googleTranslateElementInit = () => {
-        new (window as any).google.translate.TranslateElement({
-          pageLanguage: 'ro',
-          includedLanguages: 'en,de,es,fr,it,pt,nl,pl,zh-CN,zh-TW,ja,ko,ar,ru,tr,hi',
-          layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
-          autoDisplay: false,
-        }, 'google_translate_element');
-      };
+    } else {
+      // If script already exists, reinitialize
+      if ((window as any).google?.translate?.TranslateElement) {
+        (window as any).googleTranslateElementInit();
+      }
     }
   }, []);
 
@@ -72,13 +90,40 @@ export const LanguageSelector: React.FC = () => {
   const triggerGoogleTranslate = (langCode: string) => {
     setIsTranslating(true);
     
-    const selectElement = document.querySelector('.goog-te-combo') as HTMLSelectElement;
-    if (selectElement) {
-      selectElement.value = langCode;
-      selectElement.dispatchEvent(new Event('change'));
+    // Try multiple methods to trigger translation
+    const attemptTranslate = () => {
+      // Method 1: Direct select manipulation
+      const selectElement = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+      if (selectElement) {
+        selectElement.value = langCode;
+        selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+        console.log('Translation triggered via select for:', langCode);
+        return true;
+      }
+      
+      // Method 2: Via iframe
+      const iframe = document.querySelector('.goog-te-menu-frame') as HTMLIFrameElement;
+      if (iframe?.contentDocument) {
+        const items = iframe.contentDocument.querySelectorAll('.goog-te-menu2-item');
+        items.forEach((item: Element) => {
+          if ((item as HTMLElement).innerText?.includes(langCode)) {
+            (item as HTMLElement).click();
+          }
+        });
+        return true;
+      }
+      
+      return false;
+    };
+    
+    // Try immediately and with delays (Google Translate can be slow to initialize)
+    if (!attemptTranslate()) {
+      setTimeout(attemptTranslate, 500);
+      setTimeout(attemptTranslate, 1000);
+      setTimeout(attemptTranslate, 2000);
     }
     
-    setTimeout(() => setIsTranslating(false), 2000);
+    setTimeout(() => setIsTranslating(false), 2500);
   };
 
   // Change language manually
@@ -100,8 +145,8 @@ export const LanguageSelector: React.FC = () => {
 
   return (
     <>
-      {/* Hidden Google Translate element */}
-      <div id="google_translate_element" className="hidden" />
+      {/* Google Translate element - hidden via CSS but functional */}
+      <div id="google_translate_element" />
       
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

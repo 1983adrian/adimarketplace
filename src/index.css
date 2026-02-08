@@ -270,28 +270,49 @@
   @apply bg-primary/20 text-foreground;
 }
 
-/* Google Translate - Hide default bar */
-.goog-te-banner-frame {
+/* Google Translate - Hide UI but keep functional */
+.goog-te-banner-frame.skiptranslate {
   display: none !important;
 }
 
 body {
   top: 0 !important;
+  position: relative !important;
 }
 
+/* Hide the Google Translate dropdown but keep it functional */
+#google_translate_element {
+  position: absolute !important;
+  left: -9999px !important;
+  visibility: hidden !important;
+}
+
+/* Keep the select functional for programmatic access */
+#google_translate_element .goog-te-combo {
+  visibility: visible !important;
+}
+
+/* Hide the attribution bar */
 .goog-te-gadget {
-  font-size: 0 !important;
+  color: transparent !important;
 }
 
-.goog-te-gadget img {
+.goog-te-gadget .goog-te-gadget-simple {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Hide powered by Google text */
+.goog-te-gadget > span {
   display: none !important;
 }
 
-.skiptranslate {
-  display: none !important;
-}
-
-/* Keep translated content visible */
+/* Hide the loading spinner */
 .goog-te-spinner-pos {
+  display: none !important;
+}
+
+/* Fix body jumping when translate activates */
+.goog-te-banner-frame + iframe {
   display: none !important;
 }
