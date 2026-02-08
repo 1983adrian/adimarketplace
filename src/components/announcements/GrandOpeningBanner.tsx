@@ -24,11 +24,11 @@ export const GrandOpeningBanner: React.FC = () => {
     }
   }, []);
 
-  // Text appears and disappears every 2 seconds
+  // Text appears and disappears every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setIsVisible(prev => !prev);
-    }, 2000);
+    }, 5000);
     return () => clearInterval(interval);
   }, []);
 
@@ -42,69 +42,60 @@ export const GrandOpeningBanner: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-4">
+    <div className="container mx-auto px-4 py-3">
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl",
-          "bg-gradient-to-br from-amber-500 via-orange-500 to-red-500",
-          "text-white p-6 md:p-8",
-          "shadow-xl border border-amber-400/30"
+          "relative overflow-hidden rounded-xl",
+          "bg-gradient-to-r from-amber-500 via-orange-500 to-red-500",
+          "text-white p-4 md:p-5",
+          "shadow-lg border border-amber-400/20"
         )}
       >
-        {/* Animated sparkles background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-4 left-[10%] w-2 h-2 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '0s', animationDuration: '2s' }} />
-          <div className="absolute top-8 left-[25%] w-1.5 h-1.5 bg-white/40 rounded-full animate-ping" style={{ animationDelay: '0.5s', animationDuration: '2s' }} />
-          <div className="absolute bottom-6 left-[50%] w-2 h-2 bg-white/25 rounded-full animate-ping" style={{ animationDelay: '1s', animationDuration: '2s' }} />
-          <div className="absolute top-6 right-[20%] w-1.5 h-1.5 bg-white/35 rounded-full animate-ping" style={{ animationDelay: '1.5s', animationDuration: '2s' }} />
-          <div className="absolute bottom-4 right-[10%] w-2 h-2 bg-white/30 rounded-full animate-ping" style={{ animationDelay: '0.7s', animationDuration: '2s' }} />
-        </div>
-
         {/* Close button */}
         <button
           onClick={handleDismiss}
-          className="absolute top-3 right-3 p-2 hover:bg-white/20 rounded-full transition-colors z-10"
+          className="absolute top-2 right-2 p-1.5 hover:bg-white/20 rounded-full transition-colors z-10"
           aria-label="Închide anunțul"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
 
-        {/* Content - fades in/out every 2 seconds */}
+        {/* Content - fades in/out every 5 seconds */}
         <div 
           className={cn(
-            "relative z-10 flex flex-col items-center text-center gap-4 transition-opacity duration-500",
+            "relative z-10 flex flex-col items-center text-center gap-2 transition-opacity duration-700",
             isVisible ? "opacity-100" : "opacity-0"
           )}
         >
           {/* Icon header */}
-          <div className="flex items-center gap-3">
-            <Sparkles className="h-6 w-6 text-yellow-200" />
-            <Megaphone className="h-8 w-8" />
-            <Sparkles className="h-6 w-6 text-yellow-200" />
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-yellow-200" />
+            <Megaphone className="h-5 w-5" />
+            <Sparkles className="h-4 w-4 text-yellow-200" />
           </div>
 
           {/* Title */}
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+          <h2 className="text-lg md:text-xl font-bold tracking-tight">
             📢 Marea Deschidere MarketPlaceRomania.com!
           </h2>
 
           {/* Message */}
-          <p className="text-base md:text-lg text-white/95 max-w-xl leading-relaxed">
+          <p className="text-sm md:text-base text-white/95 max-w-lg leading-snug">
             Din <strong className="text-yellow-200">1 Mai</strong>, dăm startul la vânzări, cumpărări și licitații online. 
-            Nu aștepta! Înregistrează-te acum ca vânzător și rezervă-ți locul în cea mai nouă comunitate de comerț din România.
+            Înregistrează-te acum și rezervă-ți locul!
           </p>
 
           {/* CTA Button */}
           <Link
             to="/signup"
             className={cn(
-              "inline-flex items-center gap-2 px-6 py-3 mt-2",
-              "bg-white text-orange-600 font-bold rounded-full",
-              "shadow-lg hover:shadow-xl transition-all duration-300",
+              "inline-flex items-center gap-1.5 px-4 py-2 mt-1",
+              "bg-white text-orange-600 font-semibold text-sm rounded-full",
+              "shadow-md hover:shadow-lg transition-all duration-300",
               "hover:scale-105 hover:bg-yellow-50"
             )}
           >
-            <Sparkles className="h-5 w-5" />
+            <Sparkles className="h-4 w-4" />
             Înregistrează-te Acum!
           </Link>
         </div>
