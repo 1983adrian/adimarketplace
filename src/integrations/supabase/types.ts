@@ -1891,6 +1891,33 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          action_type: string
+          attempts: number | null
+          created_at: string | null
+          id: string
+          identifier: string
+          window_start: string | null
+        }
+        Insert: {
+          action_type: string
+          attempts?: number | null
+          created_at?: string | null
+          id?: string
+          identifier: string
+          window_start?: string | null
+        }
+        Update: {
+          action_type?: string
+          attempts?: number | null
+          created_at?: string | null
+          id?: string
+          identifier?: string
+          window_start?: string | null
+        }
+        Relationships: []
+      }
       refunds: {
         Row: {
           amount: number
@@ -3062,6 +3089,15 @@ export type Database = {
     Functions: {
       admin_increment_pending_balance: {
         Args: { p_amount: number; p_user_id: string }
+        Returns: undefined
+      }
+      audit_sensitive_operation: {
+        Args: {
+          p_details?: Json
+          p_operation: string
+          p_record_id?: string
+          p_table_name: string
+        }
         Returns: undefined
       }
       cancel_pending_order: {
