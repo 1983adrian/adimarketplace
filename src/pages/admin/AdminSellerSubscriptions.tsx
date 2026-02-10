@@ -28,7 +28,7 @@ const useAllSellers = () => {
     queryFn: async () => {
       const { data: sellers, error } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username, avatar_url, store_name, is_seller, seller_trial_started_at, is_listing_blocked, is_buying_blocked, blocked_reason, blocked_at, created_at')
+        .select('user_id, display_name, username, avatar_url, store_name, is_seller, seller_trial_started_at, is_listing_blocked, is_buying_blocked, blocked_reason, blocked_at, created_at, paypal_email')
         .eq('is_seller', true)
         .order('created_at', { ascending: false });
 
@@ -420,6 +420,7 @@ export default function AdminSellerSubscriptions() {
                         <TableRow>
                           <TableHead className="text-xs">Vânzător</TableHead>
                           <TableHead className="text-xs">ID</TableHead>
+                          <TableHead className="text-xs">PayPal</TableHead>
                           <TableHead className="text-xs">Abonament</TableHead>
                           <TableHead className="text-xs">Trial</TableHead>
                           <TableHead className="text-xs">Listare</TableHead>
@@ -444,6 +445,17 @@ export default function AdminSellerSubscriptions() {
                               </TableCell>
                               <TableCell className="py-2">
                                 <code className="text-[10px] bg-muted px-1 py-0.5 rounded">#{seller.user_id?.slice(0, 8)}</code>
+                              </TableCell>
+                              <TableCell className="py-2">
+                                {(seller as any).paypal_email ? (
+                                  <Badge variant="default" className="text-[10px] bg-blue-600 gap-1">
+                                    <CheckCircle2 className="h-3 w-3" /> Activ
+                                  </Badge>
+                                ) : (
+                                  <Badge variant="destructive" className="text-[10px] gap-1">
+                                    <XCircle className="h-3 w-3" /> Lipsă
+                                  </Badge>
+                                )}
                               </TableCell>
                               <TableCell className="py-2">
                                 {sub ? (
@@ -505,7 +517,7 @@ export default function AdminSellerSubscriptions() {
                         })}
                         {filteredSellers?.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                            <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                               Niciun vânzător găsit
                             </TableCell>
                           </TableRow>

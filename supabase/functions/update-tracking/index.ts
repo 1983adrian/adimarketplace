@@ -78,6 +78,30 @@ serve(async (req) => {
     }
     logStep("Order updated to shipped with tracking");
 
+    // Check if seller has PayPal and send tracking
+    const { data: sellerProfile } = await supabaseClient
+      .from("profiles")
+      .select("paypal_email")
+      .eq("user_id", order.seller_id)
+      .single();
+
+    if (sellerProfile?.paypal_email) {
+      try {
+        logStep("Seller has PayPal, sending tracking", { email: sellerProfile.paypal_email });
+        await supabaseClient.functions.invoke("paypal-add-tracking", {
+          body: {
+            order_id,
+            tracking_number,
+            carrier,
+            transaction_id: order.processor_transaction_id,
+          },
+        });
+        logStep("PayPal tracking sent successfully");
+      } catch (paypalError) {
+        logStep("PayPal tracking failed (non-blocking)", paypalError);
+      }
+    }
+
     // Get listing details
     const { data: listing } = await supabaseClient
       .from("listings")
