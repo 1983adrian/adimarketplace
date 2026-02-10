@@ -66,14 +66,7 @@ const SellerMode = () => {
       return;
     }
 
-    if (isSeller && !paypalEmail) {
-      toast({ 
-        title: 'PayPal obligatoriu', 
-        description: 'Trebuie să adaugi adresa de email PayPal Business pentru a vinde.', 
-        variant: 'destructive' 
-      });
-      return;
-    }
+    // PayPal is optional at activation but strongly recommended
 
     setSaving(true);
     try {
@@ -205,20 +198,51 @@ const SellerMode = () => {
                 </CardContent>
               </Card>
 
-              {/* PayPal - Obligatoriu */}
-              <Card className="border-2 border-primary/30">
+              {/* PayPal - Recomandat */}
+              <Card className={`border-2 ${paypalEmail ? 'border-green-500/30' : 'border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/10'}`}>
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Globe className="h-5 w-5 text-primary" />
-                    Cont PayPal Business *
+                    Cont PayPal Business
+                    {!paypalEmail && (
+                      <Badge variant="outline" className="text-amber-600 border-amber-400 text-xs">Recomandat</Badge>
+                    )}
                   </CardTitle>
                   <CardDescription>
                     Conectează contul tău PayPal Business pentru a primi plăți din vânzări și protecție automată cu tracking
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {!paypalEmail && (
+                    <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/30">
+                      <AlertCircle className="h-4 w-4 text-amber-600" />
+                      <AlertTitle className="text-amber-700 dark:text-amber-300">Configurează PayPal pentru a primi plăți</AlertTitle>
+                      <AlertDescription className="space-y-2 text-amber-800 dark:text-amber-200">
+                        <p>Fără PayPal Business, nu vei putea primi banii din vânzări. Poți lista produse, dar configurează PayPal cât mai curând.</p>
+                        <div className="pt-2">
+                          <a 
+                            href="https://www.paypal.com/ro/business/open-business-account" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
+                          >
+                            <Globe className="h-4 w-4" />
+                            Deschide Cont PayPal Business Gratuit →
+                          </a>
+                        </div>
+                        <div className="text-xs mt-2 space-y-1">
+                          <p><strong>Pași rapizi:</strong></p>
+                          <p>1. Accesează link-ul de mai sus</p>
+                          <p>2. Creează cont PayPal Business (gratuit)</p>
+                          <p>3. Verifică-ți identitatea în contul PayPal (documente)</p>
+                          <p>4. Revino aici și adaugă email-ul PayPal</p>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   <div className="space-y-2">
-                    <Label className="text-base">Email PayPal Business *</Label>
+                    <Label className="text-base">Email PayPal Business</Label>
                     <Input
                       type="email"
                       value={paypalEmail}
@@ -231,21 +255,12 @@ const SellerMode = () => {
                     </p>
                   </div>
 
-                  {paypalEmail ? (
+                  {paypalEmail && (
                     <Alert className="border-green-500/50 bg-green-500/10">
                       <CheckCircle2 className="h-4 w-4 text-green-600" />
                       <AlertTitle className="text-green-700">PayPal conectat ✅</AlertTitle>
                       <AlertDescription>
                         Contul tău PayPal ({paypalEmail}) este legat. Vei primi plăți și tracking automat pentru comenzi.
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>PayPal obligatoriu</AlertTitle>
-                      <AlertDescription>
-                        Trebuie să ai un cont PayPal Business activ pentru a putea vinde pe platformă. 
-                        Creează-ți unul gratuit pe <a href="https://www.paypal.com/business" target="_blank" rel="noopener noreferrer" className="underline font-semibold">paypal.com/business</a>.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -267,8 +282,8 @@ const SellerMode = () => {
                         <span>Tracking-ul se trimite automat la PayPal pentru protecția ta</span>
                       </div>
                       <div className="flex items-start gap-2">
-                        <span className="font-bold text-green-600">4.</span>
-                        <span className="text-green-700 dark:text-green-400 font-medium">Cumpărătorul confirmă livrarea → banii se eliberează în contul tău PayPal</span>
+                        <span className="font-bold text-primary">4.</span>
+                        <span className="font-medium">Cumpărătorul confirmă livrarea → banii se eliberează în contul tău PayPal</span>
                       </div>
                     </div>
                   </div>
