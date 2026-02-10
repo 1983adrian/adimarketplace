@@ -23,7 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { OwnerMangopaySection } from '@/components/admin/OwnerMangopaySection';
+// MangoPay removed - using PayPal only
 import { 
   Table, 
   TableBody, 
@@ -248,23 +248,14 @@ export default function OwnerDashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="mangopay" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="mangopay" className="gap-1.5">
-              <Settings className="h-4 w-4" />
-              MangoPay
-            </TabsTrigger>
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Prezentare</TabsTrigger>
             <TabsTrigger value="payments">Plăți</TabsTrigger>
             <TabsTrigger value="sellers">Vânzători</TabsTrigger>
             <TabsTrigger value="buyers">Cumpărători</TabsTrigger>
             <TabsTrigger value="locations">Locații</TabsTrigger>
           </TabsList>
-
-          {/* MangoPay Owner Section - Separated from disputes/maintenance */}
-          <TabsContent value="mangopay" className="space-y-6">
-            <OwnerMangopaySection />
-          </TabsContent>
 
           <TabsContent value="overview" className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
