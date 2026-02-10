@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useActiveSellerPlan } from '@/hooks/useUserSubscription';
 import { useListingLimit } from '@/hooks/useListingLimit';
 import { useCreateListing } from '@/hooks/useListings';
+import { useSellerTrial, useStartSellerTrial } from '@/hooks/useSellerTrial';
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { useLocation } from '@/contexts/LocationContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,8 +46,12 @@ const CreateListing = () => {
   const { location: userLocation } = useLocation();
   const { canSell, kycStatus, message: kycMessage, isLoading: kycLoading } = useRequireKYC();
   
-  const hasActivePlan = !!activePlan;
+  const { data: trialStatus, isLoading: trialLoading } = useSellerTrial();
+  const startTrial = useStartSellerTrial();
+  
+  const hasActivePlan = !!activePlan || trialStatus?.isInTrial;
   const canCreateMore = listingLimit?.canCreateMore ?? false;
+  const isBlocked = trialStatus?.isListingBlocked ?? false;
 
 
   const [title, setTitle] = useState('');
@@ -351,25 +356,20 @@ const CreateListing = () => {
     );
   }
 
-  // Show plan required screen
-  if (!planLoading && !hasActivePlan) {
+  // Show blocked screen
+  if (isBlocked) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 max-w-md text-center">
-          <Store className="h-16 w-16 mx-auto mb-6 text-amber-500" />
-          <h1 className="text-2xl font-bold mb-4">Plan Vânzător Necesar</h1>
+          <Ban className="h-16 w-16 mx-auto mb-6 text-destructive" />
+          <h1 className="text-2xl font-bold mb-4">Listare Blocată</h1>
           <p className="text-muted-foreground mb-6">
-            Pentru a lista produse, trebuie să alegi un plan de vânzător.
+            Butonul de listare a fost blocat deoarece abonamentul tău a expirat și nu a fost reînnoit în 72 de ore.
             <br /><br />
-            <strong>Planuri de la 11 LEI</strong><br />
-            Alege planul potrivit pentru afacerea ta.
+            Contactează administratorul sau alege un plan pentru a continua.
           </p>
           <div className="space-y-3">
-            <Button 
-              size="lg" 
-              className="w-full gap-2"
-              asChild
-            >
+            <Button size="lg" className="w-full gap-2" asChild>
               <Link to="/seller-plans">
                 <Store className="h-4 w-4" />
                 Vezi Planurile
@@ -384,7 +384,60 @@ const CreateListing = () => {
     );
   }
 
-  if (planLoading || limitLoading) {
+  // Show plan required screen - with trial option
+  if (!planLoading && !trialLoading && !hasActivePlan) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-16 max-w-md text-center">
+          <Store className="h-16 w-16 mx-auto mb-6 text-amber-500" />
+          <h1 className="text-2xl font-bold mb-4">Plan Vânzător Necesar</h1>
+          <p className="text-muted-foreground mb-6">
+            {!trialStatus?.trialStartedAt ? (
+              <>
+                Începe cu <strong>30 de zile gratuit</strong> (max 10 produse) sau alege un plan plătit.
+              </>
+            ) : (
+              <>
+                Perioada de trial a expirat. Alege un plan pentru a continua.
+                <br /><br />
+                <strong>Planuri de la 11 LEI</strong>
+              </>
+            )}
+          </p>
+          <div className="space-y-3">
+            {!trialStatus?.trialStartedAt && (
+              <Button
+                size="lg"
+                className="w-full gap-2"
+                variant="default"
+                disabled={startTrial.isPending}
+                onClick={() => startTrial.mutate()}
+              >
+                {startTrial.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Crown className="h-4 w-4" />}
+                Începe 30 Zile Gratuit
+              </Button>
+            )}
+            <Button 
+              size="lg" 
+              className="w-full gap-2"
+              variant={trialStatus?.trialStartedAt ? 'default' : 'outline'}
+              asChild
+            >
+              <Link to="/seller-plans">
+                <Store className="h-4 w-4" />
+                Vezi Planurile Plătite
+              </Link>
+            </Button>
+            <Button variant="outline" className="w-full" asChild>
+              <Link to="/dashboard">{t('createListing.backToDashboard')}</Link>
+            </Button>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (planLoading || limitLoading || trialLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
@@ -443,6 +496,30 @@ const CreateListing = () => {
             )}
           </div>
         </div>
+
+        {/* Trial Expiry Warning */}
+        {trialStatus?.shouldWarnExpiry && (
+          <Alert className="border-amber-300 bg-amber-50 dark:bg-amber-950/20 mb-4">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertTitle className="text-amber-800">⚠️ Perioada de trial expiră în {trialStatus.trialDaysRemaining} zile!</AlertTitle>
+            <AlertDescription className="text-amber-700">
+              După expirare, ai 72 de ore să alegi un plan plătit, altfel butonul de listare se blochează automat.{' '}
+              <Link to="/seller-plans" className="underline font-semibold">Alege un plan acum →</Link>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Remaining listings warning */}
+        {listingLimit && !listingLimit.isUnlimited && listingLimit.remaining <= 3 && listingLimit.remaining > 0 && (
+          <Alert className="border-orange-300 bg-orange-50 dark:bg-orange-950/20 mb-4">
+            <AlertCircle className="h-4 w-4 text-orange-600" />
+            <AlertTitle className="text-orange-800">⚠️ Mai poți adăuga doar {listingLimit.remaining} produse!</AlertTitle>
+            <AlertDescription className="text-orange-700">
+              Abonamentul tău permite maxim {listingLimit.maxListings} listări. Fă upgrade pentru mai mult spațiu.{' '}
+              <Link to="/seller-plans" className="underline font-semibold">Upgrade →</Link>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Platform Rules Warning */}
         <Alert className="border-red-200 bg-red-50">

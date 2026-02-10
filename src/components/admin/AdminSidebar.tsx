@@ -57,6 +57,7 @@ const settingsItems: MenuItem[] = [
   { title: 'Setări Unificate', url: '/admin/unified-settings', icon: Settings },
   { title: 'Categorii', url: '/admin/categories', icon: FolderTree },
   { title: 'Comisioane & Taxe', url: '/admin/fees', icon: DollarSign },
+  { title: 'Abonamente Vânzători', url: '/admin/seller-subscriptions', icon: Crown, premium: true },
 ];
 
 // Operațional
