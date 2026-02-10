@@ -116,6 +116,39 @@ const Dashboard = () => {
         <div className="mb-4">
           <SubscriptionAlerts />
         </div>
+
+        {/* PayPal Setup Banner for sellers without PayPal */}
+        {(profile as any)?.is_seller && !(profile as any)?.paypal_email && (
+          <div className="mb-4 p-4 rounded-xl border-2 border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
+            <div className="flex items-start gap-3">
+              <Wallet className="h-6 w-6 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <h3 className="font-semibold text-amber-800 dark:text-amber-200">
+                  ⚠️ Configurează PayPal pentru a primi plăți
+                </h3>
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  Ai modul vânzător activ, dar nu ai conectat un cont PayPal Business. Fără PayPal, nu poți primi banii din vânzări.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <a
+                    href="https://www.paypal.com/ro/business/open-business-account"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition-colors"
+                  >
+                    Deschide Cont PayPal →
+                  </a>
+                  <Link
+                    to="/seller-mode"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-400 text-amber-700 dark:text-amber-300 text-sm font-medium hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+                  >
+                    Conectează PayPal Existent
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header: Avatar + Name + Balance + Actions */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
