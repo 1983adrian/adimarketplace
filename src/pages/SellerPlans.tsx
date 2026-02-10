@@ -37,7 +37,7 @@ const SellerPlans = () => {
       const { data } = await supabase
         .from('platform_settings')
         .select('key, value')
-        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution']);
+        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution', 'subscription_bank_bic']);
 
       const result: Record<string, string> = {};
       (data || []).forEach(row => {
@@ -169,6 +169,7 @@ const SellerPlans = () => {
   const ibanFormatted = bankDetails?.subscription_bank_iban || '';
   const bankName = bankDetails?.subscription_bank_institution || '';
   const accountName = bankDetails?.subscription_bank_name || '';
+  const bicCode = bankDetails?.subscription_bank_bic || '';
 
   return (
     <Layout>
@@ -407,6 +408,18 @@ const SellerPlans = () => {
                       <p className="font-medium text-sm">{bankName}</p>
                     </div>
                     <Button variant="ghost" size="sm" onClick={() => copyToClipboard(bankName, 'Bancă')}>
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+
+                {bicCode && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">BIC / SWIFT</p>
+                      <p className="font-mono font-bold text-sm">{bicCode}</p>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(bicCode, 'BIC')}>
                       <Copy className="h-3 w-3" />
                     </Button>
                   </div>
