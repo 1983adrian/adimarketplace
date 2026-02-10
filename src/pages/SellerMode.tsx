@@ -203,13 +203,13 @@ const SellerMode = () => {
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Globe className="h-5 w-5 text-primary" />
-                    Cont PayPal Business
+                    Cont PayPal
                     {!paypalEmail && (
                       <Badge variant="outline" className="text-amber-600 border-amber-400 text-xs">Recomandat</Badge>
                     )}
                   </CardTitle>
                   <CardDescription>
-                    Conectează contul tău PayPal Business pentru a primi plăți din vânzări și protecție automată cu tracking
+                    Conectează contul tău PayPal pentru a primi plăți din vânzări și protecție automată cu tracking
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -217,24 +217,39 @@ const SellerMode = () => {
                     <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/30">
                       <AlertCircle className="h-4 w-4 text-amber-600" />
                       <AlertTitle className="text-amber-700 dark:text-amber-300">Configurează PayPal pentru a primi plăți</AlertTitle>
-                      <AlertDescription className="space-y-2 text-amber-800 dark:text-amber-200">
-                        <p>Fără PayPal Business, nu vei putea primi banii din vânzări. Poți lista produse, dar configurează PayPal cât mai curând.</p>
-                        <div className="pt-2">
+                      <AlertDescription className="space-y-3 text-amber-800 dark:text-amber-200">
+                        <p>Fără PayPal, nu vei putea primi banii din vânzări. Poți lista produse, dar configurează PayPal cât mai curând.</p>
+                        
+                        <div className="rounded-lg border border-amber-300 dark:border-amber-700 p-3 space-y-2 bg-white/50 dark:bg-background/50">
+                          <p className="font-semibold text-sm">Ce tip de cont ai nevoie?</p>
+                          <div className="space-y-1.5 text-xs">
+                            <div className="flex items-start gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-600 mt-0.5 flex-shrink-0" />
+                              <span><strong>Planul START sau LICITAȚII</strong> (până la 10 produse) → <strong>PayPal Personal</strong> este suficient</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                              <span><strong>Planul SILVER, GOLD, PLATINUM, VIP</strong> (50+ produse) → <strong>PayPal Business</strong> recomandat</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 pt-1">
                           <a 
-                            href="https://www.paypal.com/ro/business/open-business-account" 
+                            href="https://www.paypal.com/ro/webapps/mpp/account-selection" 
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
                           >
                             <Globe className="h-4 w-4" />
-                            Deschide Cont PayPal Business Gratuit →
+                            Deschide Cont PayPal Gratuit →
                           </a>
                         </div>
-                        <div className="text-xs mt-2 space-y-1">
+                        <div className="text-xs mt-1 space-y-1">
                           <p><strong>Pași rapizi:</strong></p>
-                          <p>1. Accesează link-ul de mai sus</p>
-                          <p>2. Creează cont PayPal Business (gratuit)</p>
-                          <p>3. Verifică-ți identitatea în contul PayPal (documente)</p>
+                          <p>1. Accesează link-ul de mai sus și alege tipul de cont</p>
+                          <p>2. Creează contul PayPal (gratuit)</p>
+                          <p>3. Verifică-ți identitatea în contul PayPal</p>
                           <p>4. Revino aici și adaugă email-ul PayPal</p>
                         </div>
                       </AlertDescription>
@@ -242,7 +257,7 @@ const SellerMode = () => {
                   )}
 
                   <div className="space-y-2">
-                    <Label className="text-base">Email PayPal Business</Label>
+                    <Label className="text-base">Email PayPal</Label>
                     <Input
                       type="email"
                       value={paypalEmail}
@@ -251,7 +266,7 @@ const SellerMode = () => {
                       className="h-12"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Adresa de email a contului tău PayPal Business. Tracking-ul comenzilor va fi trimis automat la PayPal.
+                      Adresa de email asociată contului tău PayPal. Tracking-ul comenzilor va fi trimis automat la PayPal.
                     </p>
                   </div>
 
