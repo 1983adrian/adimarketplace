@@ -11,7 +11,7 @@ import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, 
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   SELLER_PLANS,
   BIDDER_PLAN,
@@ -20,12 +20,32 @@ import {
   SellerPlan,
 } from '@/hooks/useUserSubscription';
 
-// Admin bank details for transfers
-const BANK_DETAILS = {
-  name: 'C-Market Romania SRL',
-  iban: 'RO49 AAAA 1B31 0075 9384 0000',
-  bank: 'Banca Transilvania',
-  description: 'Transfer bancar pentru abonament',
+// Fetch bank details from platform_settings
+const useBankDetails = () => {
+  return useQuery({
+    queryKey: ['bank-details'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('key, value')
+        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution']);
+
+      if (error) throw error;
+
+      const map: Record<string, string> = {};
+      (data || []).forEach(row => {
+        const val = row.value;
+        map[row.key] = typeof val === 'string' ? val : String(val ?? '');
+      });
+
+      return {
+        name: map['subscription_bank_name'] || 'N/A',
+        iban: map['subscription_bank_iban'] || 'N/A',
+        bank: map['subscription_bank_institution'] || 'N/A',
+      };
+    },
+    staleTime: 60000,
+  });
 };
 
 const SellerPlans = () => {
@@ -35,6 +55,7 @@ const SellerPlans = () => {
   const queryClient = useQueryClient();
   const { data: activePlan, isLoading: planLoading } = useActiveSellerPlan();
   const { data: bidderPlan, isLoading: bidderLoading } = useActiveBidderPlan();
+  const { data: bankDetails, isLoading: bankLoading } = useBankDetails();
   const [selectedPlan, setSelectedPlan] = useState<SellerPlan | typeof BIDDER_PLAN | null>(null);
   const [showPayDialog, setShowPayDialog] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -79,7 +100,7 @@ const SellerPlans = () => {
   };
 
   const copyIBAN = () => {
-    navigator.clipboard.writeText(BANK_DETAILS.iban.replace(/\s/g, ''));
+    navigator.clipboard.writeText((bankDetails?.iban || '').replace(/\s/g, ''));
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -289,16 +310,16 @@ const SellerPlans = () => {
               <div className="space-y-3 bg-card border rounded-lg p-4">
                 <div>
                   <p className="text-xs text-muted-foreground">Beneficiar</p>
-                  <p className="font-medium text-sm">{BANK_DETAILS.name}</p>
+                  <p className="font-medium text-sm">{bankDetails?.name}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Bancă</p>
-                  <p className="font-medium text-sm">{BANK_DETAILS.bank}</p>
+                  <p className="font-medium text-sm">{bankDetails?.bank}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">IBAN</p>
                   <div className="flex items-center gap-2">
-                    <code className="font-mono text-sm bg-muted px-2 py-1 rounded flex-1">{BANK_DETAILS.iban}</code>
+                    <code className="font-mono text-sm bg-muted px-2 py-1 rounded flex-1">{bankDetails?.iban}</code>
                     <Button size="sm" variant="outline" className="gap-1 shrink-0" onClick={copyIBAN}>
                       {copied ? <CheckCircle2 className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
                       {copied ? 'Copiat!' : 'Copiază'}
