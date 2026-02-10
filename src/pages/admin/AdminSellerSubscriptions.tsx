@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Search, Store, Lock, Unlock, Crown, CheckCircle2, XCircle, BanknoteIcon, Clock, CreditCard } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, Store, Lock, Unlock, Crown, CheckCircle2, XCircle, BanknoteIcon, Clock, CreditCard, Save, Pencil } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -88,13 +88,78 @@ const usePendingPayments = () => {
   });
 };
 
+const useBankSettings = () => {
+  return useQuery({
+    queryKey: ['admin-bank-settings'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('key, value')
+        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution']);
+
+      if (error) throw error;
+
+      const map: Record<string, string> = {};
+      (data || []).forEach(row => {
+        const val = row.value;
+        map[row.key] = typeof val === 'string' ? val : String(val ?? '');
+      });
+
+      return {
+        name: map['subscription_bank_name'] || '',
+        iban: map['subscription_bank_iban'] || '',
+        bank: map['subscription_bank_institution'] || '',
+      };
+    },
+  });
+};
+
 export default function AdminSellerSubscriptions() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const { data: sellers, isLoading } = useAllSellers();
   const { data: payments, isLoading: paymentsLoading } = usePendingPayments();
+  const { data: bankSettings } = useBankSettings();
+  const [bankName, setBankName] = useState('');
+  const [bankIban, setBankIban] = useState('');
+  const [bankInstitution, setBankInstitution] = useState('');
+  const [bankLoaded, setBankLoaded] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Load bank settings into state once
+  useEffect(() => {
+    if (bankSettings && !bankLoaded) {
+      setBankName(bankSettings.name);
+      setBankIban(bankSettings.iban);
+      setBankInstitution(bankSettings.bank);
+      setBankLoaded(true);
+    }
+  }, [bankSettings, bankLoaded]);
+
+  const saveBankSettingsMutation = useMutation({
+    mutationFn: async () => {
+      const updates = [
+        { key: 'subscription_bank_name', value: JSON.stringify(bankName), category: 'payments' },
+        { key: 'subscription_bank_iban', value: JSON.stringify(bankIban), category: 'payments' },
+        { key: 'subscription_bank_institution', value: JSON.stringify(bankInstitution), category: 'payments' },
+      ];
+      for (const u of updates) {
+        const { error } = await supabase
+          .from('platform_settings')
+          .upsert({ key: u.key, value: u.value as any, category: u.category }, { onConflict: 'key' });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bank-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['bank-details'] });
+      toast({ title: '✅ Date bancare salvate!' });
+    },
+    onError: () => {
+      toast({ title: 'Eroare la salvare', variant: 'destructive' });
+    },
+  });
 
   const toggleBlockMutation = useMutation({
     mutationFn: async ({ userId, field, value }: { userId: string; field: 'is_listing_blocked' | 'is_buying_blocked'; value: boolean }) => {
@@ -300,7 +365,7 @@ export default function AdminSellerSubscriptions() {
         </div>
 
         <Tabs defaultValue="sellers" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="sellers" className="gap-1">
               <Store className="h-4 w-4" /> Vânzători
             </TabsTrigger>
@@ -311,6 +376,9 @@ export default function AdminSellerSubscriptions() {
                   {pendingPayments.length}
                 </span>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="bank-settings" className="gap-1">
+              <Pencil className="h-4 w-4" /> Cont Bancar
             </TabsTrigger>
           </TabsList>
 
@@ -560,6 +628,56 @@ export default function AdminSellerSubscriptions() {
                     </Table>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* BANK SETTINGS TAB */}
+          <TabsContent value="bank-settings" className="space-y-4">
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <h3 className="text-lg font-bold flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Date Bancare pentru Abonamente
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  Aceste date sunt afișate vânzătorilor când aleg să plătească un abonament prin transfer bancar.
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-sm font-medium">Numele Beneficiarului</label>
+                    <Input 
+                      value={bankName} 
+                      onChange={(e) => setBankName(e.target.value)} 
+                      placeholder="ex: C-Market Romania SRL" 
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">IBAN</label>
+                    <Input 
+                      value={bankIban} 
+                      onChange={(e) => setBankIban(e.target.value)} 
+                      placeholder="ex: RO49 XXXX 1B31 0075 9384 0000" 
+                      className="font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Bancă</label>
+                    <Input 
+                      value={bankInstitution} 
+                      onChange={(e) => setBankInstitution(e.target.value)} 
+                      placeholder="ex: Banca Transilvania" 
+                    />
+                  </div>
+                </div>
+                <Button 
+                  className="w-full gap-2" 
+                  disabled={saveBankSettingsMutation.isPending}
+                  onClick={() => saveBankSettingsMutation.mutate()}
+                >
+                  <Save className="h-4 w-4" />
+                  {saveBankSettingsMutation.isPending ? 'Se salvează...' : 'Salvează Datele Bancare'}
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
