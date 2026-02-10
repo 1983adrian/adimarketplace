@@ -66,6 +66,7 @@ const SellerMode = () => {
   const [cardHolderName, setCardHolderName] = useState('');
   const [sortCode, setSortCode] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
+  const [paypalEmail, setPaypalEmail] = useState('');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -95,6 +96,7 @@ const SellerMode = () => {
       setCardHolderName(p.card_holder_name || '');
       setSortCode(p.sort_code || '');
       setAccountNumber(p.account_number || '');
+      setPaypalEmail(p.paypal_email || '');
       setDataLoading(false);
     }
   }, [profile]);
@@ -136,6 +138,7 @@ const SellerMode = () => {
         card_holder_name: cardHolderName,
         sort_code: sortCode,
         account_number: accountNumber,
+        paypal_email: paypalEmail || null,
       };
 
       if (isSeller && !hasAcceptedTermsBefore && sellerTermsAccepted) {
@@ -580,6 +583,41 @@ const SellerMode = () => {
                         </div>
                       </div>
                     </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* PayPal Integration */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Globe className="h-5 w-5" />
+                    PayPal (Opțional)
+                  </CardTitle>
+                  <CardDescription>Conectează contul PayPal Business pentru protecție suplimentară la vânzări</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-base">Email PayPal Business</Label>
+                    <Input
+                      type="email"
+                      value={paypalEmail}
+                      onChange={(e) => setPaypalEmail(e.target.value)}
+                      placeholder="email@paypal.com"
+                      className="h-12"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Adaugă adresa de email a contului tău PayPal Business. Când adaugi tracking (AWB) la o comandă, acesta va fi trimis automat și la PayPal pentru protecția ta ca vânzător.
+                    </p>
+                  </div>
+                  {paypalEmail && (
+                    <Alert className="border-green-500/50 bg-green-500/10">
+                      <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      <AlertTitle className="text-green-700">PayPal conectat</AlertTitle>
+                      <AlertDescription>
+                        Tracking-ul comenzilor tale va fi trimis automat la PayPal ({paypalEmail}).
+                      </AlertDescription>
+                    </Alert>
                   )}
                 </CardContent>
               </Card>
