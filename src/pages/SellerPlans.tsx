@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,11 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2 } from 'lucide-react';
+import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2, Copy, User, Briefcase, Info } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   SELLER_PLANS,
   BIDDER_PLAN,
@@ -30,11 +30,33 @@ const SellerPlans = () => {
   const [selectedPlan, setSelectedPlan] = useState<SellerPlan | typeof BIDDER_PLAN | null>(null);
   const [showPayDialog, setShowPayDialog] = useState(false);
 
+  // Fetch bank details from platform_settings
+  const { data: bankDetails } = useQuery({
+    queryKey: ['bank-details'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('platform_settings')
+        .select('key, value')
+        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution']);
+
+      const result: Record<string, string> = {};
+      (data || []).forEach(row => {
+        result[row.key] = typeof row.value === 'string' ? row.value : JSON.stringify(row.value).replace(/"/g, '');
+      });
+      return result;
+    },
+  });
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: `${label} copiat!`, description: text });
+  };
+
   const createPaymentRequest = useMutation({
     mutationFn: async (plan: SellerPlan | typeof BIDDER_PLAN) => {
       if (!user) throw new Error('Trebuie să fii autentificat');
 
-      // Create payment request
+      // Create payment request in subscription_payments
       const { data, error } = await supabase
         .from('subscription_payments')
         .insert({
@@ -51,33 +73,44 @@ const SellerPlans = () => {
 
       if (error) throw error;
 
-      // Notify all admins about the new payment request
-      const { data: adminEmails } = await supabase
-        .from('admin_emails')
-        .select('email')
-        .eq('is_active', true);
+      // Notify admins in-app
+      const { data: adminRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
 
-      if (adminEmails && adminEmails.length > 0) {
-        // Get admin user IDs from auth
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('user_id')
-          .in('user_id', 
-            // Get user IDs that have admin role
-            (await supabase.from('user_roles').select('user_id').eq('role', 'admin')).data?.map(r => r.user_id) || []
-          );
+      if (adminRoles && adminRoles.length > 0) {
+        const notifications = adminRoles.map(r => ({
+          user_id: r.user_id,
+          type: 'admin_payment',
+          title: '💰 Cerere Plată Abonament',
+          message: `${user.email} a solicitat activarea planului ${plan.plan_name} (${plan.price_ron} LEI). Verifică transferul bancar și confirmă.`,
+          data: { payment_id: data.id, plan_type: plan.plan_type } as any,
+        }));
+        await supabase.from('notifications').insert(notifications);
+      }
 
-        if (profiles) {
-          const notifications = profiles.map(p => ({
-            user_id: p.user_id,
-            type: 'admin_payment',
-            title: '💰 Cerere Plată Abonament',
-            message: `${user.email} a solicitat activarea planului ${plan.plan_name} (${plan.price_ron} LEI). Verifică transferul și confirmă.`,
-            data: { payment_id: data.id, plan_type: plan.plan_type } as any,
-          }));
-
-          await supabase.from('notifications').insert(notifications);
-        }
+      // Send email notification to admin
+      try {
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            type: 'email',
+            to: 'adrianchirita01@gmail.com',
+            subject: `💰 Cerere Plată: ${plan.plan_name} - ${plan.price_ron} LEI`,
+            message: `
+              <h2>Cerere Nouă de Plată Abonament</h2>
+              <p><strong>Utilizator:</strong> ${user.email}</p>
+              <p><strong>Plan solicitat:</strong> ${plan.plan_name}</p>
+              <p><strong>Suma:</strong> ${plan.price_ron} LEI</p>
+              <p><strong>Metoda:</strong> Transfer Bancar</p>
+              <p><strong>Data:</strong> ${new Date().toLocaleString('ro-RO')}</p>
+              <hr/>
+              <p>Verifică transferul bancar și confirmă activarea din panoul de administrare.</p>
+            `,
+          },
+        });
+      } catch (emailErr) {
+        console.warn('Email notification failed:', emailErr);
       }
 
       return data;
@@ -133,17 +166,37 @@ const SellerPlans = () => {
     }
   };
 
+  const ibanFormatted = bankDetails?.subscription_bank_iban || '';
+  const bankName = bankDetails?.subscription_bank_institution || '';
+  const accountName = bankDetails?.subscription_bank_name || '';
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-2">Planuri Vânzători</h1>
-          <p className="text-muted-foreground">Alege planul potrivit pentru afacerea ta</p>
+          <p className="text-muted-foreground">Alege planul potrivit pentru activitatea ta</p>
           <div className="flex items-center justify-center gap-2 mt-3">
             <Camera className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Maxim 3 poze per produs pentru toate planurile</span>
           </div>
         </div>
+
+        {/* Info Tip Vânzător */}
+        <Alert className="mb-6 border-primary/30 bg-primary/5">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Tip de activitate</AlertTitle>
+          <AlertDescription className="space-y-2 text-sm">
+            <div className="flex items-start gap-2 mt-1">
+              <User className="h-4 w-4 mt-0.5 flex-shrink-0 text-muted-foreground" />
+              <span><strong>Vânzător Ocazional</strong> (Plan START / LICITAȚII) — Vinzi obiecte personale ocazional. <strong>PayPal Personal</strong> este suficient.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <Briefcase className="h-4 w-4 mt-0.5 flex-shrink-0 text-muted-foreground" />
+              <span><strong>Vânzător Comercial</strong> (SILVER, GOLD, PLATINUM, VIP) — Activitate comercială regulată. <strong>PayPal Business obligatoriu</strong> conform regulilor PayPal.</span>
+            </div>
+          </AlertDescription>
+        </Alert>
 
         {activePlan && (
           <Alert className="mb-6 border-green-500/50 bg-green-50 dark:bg-green-950/20">
@@ -160,7 +213,17 @@ const SellerPlans = () => {
           <BanknoteIcon className="h-4 w-4 text-blue-600" />
           <AlertTitle className="text-blue-800 dark:text-blue-200">Plata prin Transfer Bancar</AlertTitle>
           <AlertDescription className="text-blue-700 dark:text-blue-300 text-sm">
-            Alege planul dorit și apasă butonul de plată. Vei primi instrucțiunile de transfer. Abonamentul se activează după confirmarea plății.
+            Alege planul dorit → Transferă suma în contul afișat → Adminul confirmă plata → Abonamentul se activează automat.
+          </AlertDescription>
+        </Alert>
+
+        {/* Trial Info */}
+        <Alert className="mb-6 border-green-500/30 bg-green-50/50 dark:bg-green-950/20">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <AlertTitle className="text-green-800 dark:text-green-200">Trial Gratuit 30 Zile</AlertTitle>
+          <AlertDescription className="text-green-700 dark:text-green-300 text-sm">
+            Vânzătorii noi beneficiază de <strong>30 de zile gratuite</strong> cu max <strong>10 produse</strong>. 
+            După expirarea perioadei de trial, alege un plan plătit pentru a continua.
           </AlertDescription>
         </Alert>
 
@@ -168,6 +231,7 @@ const SellerPlans = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {SELLER_PLANS.map((plan) => {
             const isActive = activePlan?.plan_type === plan.plan_type;
+            const isCommercial = !['start', 'licitatii'].includes(plan.plan_type);
             
             return (
               <Card 
@@ -212,6 +276,13 @@ const SellerPlans = () => {
                         Plan special pentru licitații
                       </li>
                     )}
+                    <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                      {isCommercial ? (
+                        <><Briefcase className="h-3 w-3 flex-shrink-0" /> PayPal Business obligatoriu</>
+                      ) : (
+                        <><User className="h-3 w-3 flex-shrink-0" /> PayPal Personal suficient</>
+                      )}
+                    </li>
                   </ul>
 
                   <Button
@@ -279,16 +350,16 @@ const SellerPlans = () => {
         </div>
       </div>
 
-      {/* Confirmation Dialog - NO bank details shown */}
+      {/* Payment Dialog with REAL bank details */}
       <Dialog open={showPayDialog} onOpenChange={setShowPayDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BanknoteIcon className="h-5 w-5 text-green-600" />
-              Confirmă Plata
+              Plătește prin Transfer Bancar
             </DialogTitle>
             <DialogDescription>
-              După confirmare, vei primi instrucțiunile de plată. Abonamentul se activează după verificarea transferului.
+              Transferă suma de mai jos în contul indicat. Abonamentul se activează după confirmarea plății.
             </DialogDescription>
           </DialogHeader>
 
@@ -301,9 +372,61 @@ const SellerPlans = () => {
                 <p className="text-3xl font-bold text-primary mt-1">{selectedPlan.price_ron} LEI</p>
               </div>
 
+              {/* Bank Details */}
+              <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 space-y-3">
+                <h4 className="font-semibold text-sm text-center">📋 Date Transfer Bancar</h4>
+                
+                {accountName && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Beneficiar</p>
+                      <p className="font-medium text-sm">{accountName}</p>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(accountName, 'Beneficiar')}>
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+
+                {ibanFormatted && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">IBAN</p>
+                      <p className="font-mono font-bold text-sm">{ibanFormatted}</p>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(ibanFormatted.replace(/\s/g, ''), 'IBAN')}>
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+
+                {bankName && (
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Bancă</p>
+                      <p className="font-medium text-sm">{bankName}</p>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(bankName, 'Bancă')}>
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+
+                <Separator />
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Sumă de transferat</p>
+                    <p className="font-bold text-lg text-primary">{selectedPlan.price_ron} LEI</p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(`${selectedPlan.price_ron}`, 'Suma')}>
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+
               <Alert className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/10">
                 <AlertDescription className="text-xs">
-                  ⚠️ Transferă exact <strong>{selectedPlan.price_ron} LEI</strong> și menționează adresa de email <strong>{user?.email}</strong> în descrierea transferului.
+                  ⚠️ La descrierea transferului, menționează: <strong>{user?.email}</strong> + <strong>{selectedPlan.plan_name}</strong>
                 </AlertDescription>
               </Alert>
             </div>
@@ -320,7 +443,7 @@ const SellerPlans = () => {
               ) : (
                 <CheckCircle2 className="h-4 w-4" />
               )}
-              Trimite Cererea de Plată
+              Am transferat — Trimite Cererea
             </Button>
             <Button variant="outline" className="w-full" onClick={() => setShowPayDialog(false)}>
               Anulează
