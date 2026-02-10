@@ -1636,6 +1636,7 @@ export type Database = {
           return_policy: string | null
           seller_terms_accepted_at: string | null
           seller_trial_started_at: string | null
+          seller_type: string | null
           sort_code: string | null
           sort_code_encrypted: string | null
           store_name: string | null
@@ -1714,6 +1715,7 @@ export type Database = {
           return_policy?: string | null
           seller_terms_accepted_at?: string | null
           seller_trial_started_at?: string | null
+          seller_type?: string | null
           sort_code?: string | null
           sort_code_encrypted?: string | null
           store_name?: string | null
@@ -1792,6 +1794,7 @@ export type Database = {
           return_policy?: string | null
           seller_terms_accepted_at?: string | null
           seller_trial_started_at?: string | null
+          seller_type?: string | null
           sort_code?: string | null
           sort_code_encrypted?: string | null
           store_name?: string | null

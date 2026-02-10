@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Store, Package, Shield, Globe, 
-  Save, CheckCircle2, AlertCircle, Loader2
+  Save, CheckCircle2, AlertCircle, Loader2, User, Briefcase, Info
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,6 +31,9 @@ const SellerMode = () => {
   const [sellerTermsAccepted, setSellerTermsAccepted] = useState(false);
   const [hasAcceptedTermsBefore, setHasAcceptedTermsBefore] = useState(false);
   
+  // Seller type: 'personal' (occasional) or 'business' (commercial)
+  const [sellerType, setSellerType] = useState<'personal' | 'business'>('personal');
+  
   // PayPal
   const [paypalEmail, setPaypalEmail] = useState('');
 
@@ -46,6 +50,7 @@ const SellerMode = () => {
       setStoreName(p.store_name || '');
       setHasAcceptedTermsBefore(!!p.seller_terms_accepted_at);
       setSellerTermsAccepted(!!p.seller_terms_accepted_at);
+      setSellerType(p.seller_type || 'personal');
       setPaypalEmail(p.paypal_email || '');
       setDataLoading(false);
     }
@@ -66,13 +71,22 @@ const SellerMode = () => {
       return;
     }
 
-    // PayPal is optional at activation but strongly recommended
+    // Business sellers must have PayPal Business
+    if (isSeller && sellerType === 'business' && !paypalEmail) {
+      toast({ 
+        title: 'PayPal Business obligatoriu', 
+        description: 'Ca vânzător comercial, trebuie să ai un cont PayPal Business conectat conform regulilor PayPal.', 
+        variant: 'destructive' 
+      });
+      return;
+    }
 
     setSaving(true);
     try {
       const updateData: any = {
         is_seller: isSeller,
         store_name: storeName,
+        seller_type: sellerType,
         paypal_email: paypalEmail || null,
       };
 
@@ -198,66 +212,138 @@ const SellerMode = () => {
                 </CardContent>
               </Card>
 
-              {/* PayPal - Recomandat */}
+              {/* Tip Vânzător */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Info className="h-5 w-5 text-primary" />
+                    Tip de Activitate
+                  </CardTitle>
+                  <CardDescription>
+                    Alege tipul tău de vânzare — determină ce tip de cont PayPal ai nevoie
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RadioGroup value={sellerType} onValueChange={(v) => setSellerType(v as 'personal' | 'business')} className="space-y-3">
+                    <label htmlFor="type-personal" className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${sellerType === 'personal' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/30'}`}>
+                      <RadioGroupItem value="personal" id="type-personal" className="mt-1" />
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-semibold">Vânzător Ocazional</span>
+                          <Badge variant="secondary" className="text-xs">Personal</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Vând obiecte personale ocazional (haine, electrocasnice, etc.). Nu este o activitate comercială regulată.</p>
+                        <p className="text-xs text-primary font-medium">→ PayPal Personal este suficient</p>
+                      </div>
+                    </label>
+                    
+                    <label htmlFor="type-business" className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${sellerType === 'business' ? 'border-primary bg-primary/5' : 'border-muted hover:border-muted-foreground/30'}`}>
+                      <RadioGroupItem value="business" id="type-business" className="mt-1" />
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-semibold">Vânzător Comercial / Afacere</span>
+                          <Badge variant="default" className="text-xs">Business</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">Vând produse regulat ca activitate comercială (magazin, PFA, SRL, reseller, producător).</p>
+                        <p className="text-xs text-primary font-medium">→ PayPal Business obligatoriu (conform regulilor PayPal)</p>
+                      </div>
+                    </label>
+                  </RadioGroup>
+
+                  {sellerType === 'business' && (
+                    <Alert className="mt-4 border-primary/30 bg-primary/5">
+                      <Briefcase className="h-4 w-4" />
+                      <AlertDescription className="text-sm">
+                        <strong>Conform regulilor PayPal</strong>, activitatea comercială regulată necesită un cont PayPal Business. Acesta oferă: protecție vânzător extinsă, facturi, rapoarte financiare și conformitate fiscală.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* PayPal */}
               <Card className={`border-2 ${paypalEmail ? 'border-green-500/30' : 'border-amber-500/50 bg-amber-50/50 dark:bg-amber-950/10'}`}>
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Globe className="h-5 w-5 text-primary" />
-                    Cont PayPal
+                    Cont PayPal {sellerType === 'business' ? 'Business' : ''}
                     {!paypalEmail && (
-                      <Badge variant="outline" className="text-amber-600 border-amber-400 text-xs">Recomandat</Badge>
+                      <Badge variant="outline" className="text-amber-600 border-amber-400 text-xs">
+                        {sellerType === 'business' ? 'Obligatoriu' : 'Recomandat'}
+                      </Badge>
                     )}
                   </CardTitle>
                   <CardDescription>
-                    Conectează contul tău PayPal pentru a primi plăți din vânzări și protecție automată cu tracking
+                    {sellerType === 'business' 
+                      ? 'Contul PayPal Business este obligatoriu pentru activitate comercială'
+                      : 'Conectează contul PayPal pentru a primi plăți din vânzări'
+                    }
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {!paypalEmail && (
                     <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/30">
                       <AlertCircle className="h-4 w-4 text-amber-600" />
-                      <AlertTitle className="text-amber-700 dark:text-amber-300">Configurează PayPal pentru a primi plăți</AlertTitle>
+                      <AlertTitle className="text-amber-700 dark:text-amber-300">
+                        {sellerType === 'business' 
+                          ? 'Cont PayPal Business necesar'
+                          : 'Configurează PayPal pentru a primi plăți'
+                        }
+                      </AlertTitle>
                       <AlertDescription className="space-y-3 text-amber-800 dark:text-amber-200">
-                        <p>Fără PayPal, nu vei putea primi banii din vânzări. Poți lista produse, dar configurează PayPal cât mai curând.</p>
-                        
-                        <div className="rounded-lg border border-amber-300 dark:border-amber-700 p-3 space-y-2 bg-white/50 dark:bg-background/50">
-                          <p className="font-semibold text-sm">Ce tip de cont ai nevoie?</p>
-                          <div className="space-y-1.5 text-xs">
-                            <div className="flex items-start gap-2">
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-600 mt-0.5 flex-shrink-0" />
-                              <span><strong>Planul START sau LICITAȚII</strong> (până la 10 produse) → <strong>PayPal Personal</strong> este suficient</span>
-                            </div>
-                            <div className="flex items-start gap-2">
-                              <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
-                              <span><strong>Planul SILVER, GOLD, PLATINUM, VIP</strong> (50+ produse) → <strong>PayPal Business</strong> recomandat</span>
-                            </div>
-                          </div>
-                        </div>
+                        <p>
+                          {sellerType === 'business'
+                            ? 'Ca vânzător comercial, ai nevoie de un cont PayPal Business pentru conformitate și protecție. Contul PayPal Business este gratuit.'
+                            : 'Fără PayPal, nu vei putea primi banii din vânzări. Poți lista produse, dar configurează PayPal cât mai curând.'
+                          }
+                        </p>
 
                         <div className="flex flex-wrap gap-2 pt-1">
                           <a 
-                            href="https://www.paypal.com/ro/webapps/mpp/account-selection" 
+                            href={sellerType === 'business' 
+                              ? 'https://www.paypal.com/ro/business/open-business-account'
+                              : 'https://www.paypal.com/ro/webapps/mpp/account-selection'
+                            }
                             target="_blank" 
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
                           >
                             <Globe className="h-4 w-4" />
-                            Deschide Cont PayPal Gratuit →
+                            {sellerType === 'business' 
+                              ? 'Deschide Cont PayPal Business →'
+                              : 'Deschide Cont PayPal →'
+                            }
                           </a>
                         </div>
+
                         <div className="text-xs mt-1 space-y-1">
-                          <p><strong>Pași rapizi:</strong></p>
-                          <p>1. Accesează link-ul de mai sus și alege tipul de cont</p>
-                          <p>2. Creează contul PayPal (gratuit)</p>
-                          <p>3. Verifică-ți identitatea în contul PayPal</p>
-                          <p>4. Revino aici și adaugă email-ul PayPal</p>
+                          <p><strong>Pași:</strong></p>
+                          {sellerType === 'business' ? (
+                            <>
+                              <p>1. Accesează link-ul și creează cont PayPal Business (gratuit)</p>
+                              <p>2. Adaugă datele firmei (PFA/SRL/II) sau activitate independentă</p>
+                              <p>3. Verifică identitatea și documentele în contul PayPal</p>
+                              <p>4. Revino aici și adaugă email-ul PayPal Business</p>
+                            </>
+                          ) : (
+                            <>
+                              <p>1. Accesează link-ul și creează cont PayPal Personal (gratuit)</p>
+                              <p>2. Verifică-ți identitatea (carte de identitate / pașaport)</p>
+                              <p>3. Adaugă un card bancar sau cont bancar</p>
+                              <p>4. Revino aici și adaugă email-ul PayPal</p>
+                            </>
+                          )}
                         </div>
                       </AlertDescription>
                     </Alert>
                   )}
 
                   <div className="space-y-2">
-                    <Label className="text-base">Email PayPal</Label>
+                    <Label className="text-base">
+                      Email PayPal {sellerType === 'business' ? 'Business' : ''}
+                    </Label>
                     <Input
                       type="email"
                       value={paypalEmail}
@@ -266,7 +352,7 @@ const SellerMode = () => {
                       className="h-12"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Adresa de email asociată contului tău PayPal. Tracking-ul comenzilor va fi trimis automat la PayPal.
+                      Adresa de email asociată contului tău PayPal. Tracking-ul comenzilor se trimite automat la PayPal.
                     </p>
                   </div>
 
