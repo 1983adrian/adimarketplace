@@ -91,6 +91,7 @@ import AdminControlCenter from "./pages/admin/AdminControlCenter";
 import AdminFraudAlerts from "./pages/admin/AdminFraudAlerts";
 import AdminSEODashboard from "./pages/admin/AdminSEODashboard";
 import AdminUnifiedSettings from "./pages/admin/AdminUnifiedSettings";
+import AdminSellerSubscriptions from "./pages/admin/AdminSellerSubscriptions";
 
 const queryClient = new QueryClient();
 
@@ -176,6 +177,7 @@ const adminRoutes = [
   { path: "/admin/fraud-alerts", element: <AdminFraudAlerts /> },
   { path: "/admin/seo-dashboard", element: <AdminSEODashboard /> },
   { path: "/admin/unified-settings", element: <AdminUnifiedSettings /> },
+  { path: "/admin/seller-subscriptions", element: <AdminSellerSubscriptions /> },
 ];
 
 // No language prefixes needed - using geo-based auto-detection

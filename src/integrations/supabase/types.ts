@@ -1588,6 +1588,8 @@ export type Database = {
           bic_encrypted: string | null
           bio: string | null
           birthday: string | null
+          blocked_at: string | null
+          blocked_reason: string | null
           business_type: string | null
           card_holder_name: string | null
           card_number_last4: string | null
@@ -1604,6 +1606,8 @@ export type Database = {
           iban: string | null
           iban_encrypted: string | null
           id: string
+          is_buying_blocked: boolean | null
+          is_listing_blocked: boolean | null
           is_seller: boolean | null
           is_suspended: boolean | null
           is_verified: boolean | null
@@ -1631,6 +1635,7 @@ export type Database = {
           return_days: number | null
           return_policy: string | null
           seller_terms_accepted_at: string | null
+          seller_trial_started_at: string | null
           sort_code: string | null
           sort_code_encrypted: string | null
           store_name: string | null
@@ -1661,6 +1666,8 @@ export type Database = {
           bic_encrypted?: string | null
           bio?: string | null
           birthday?: string | null
+          blocked_at?: string | null
+          blocked_reason?: string | null
           business_type?: string | null
           card_holder_name?: string | null
           card_number_last4?: string | null
@@ -1677,6 +1684,8 @@ export type Database = {
           iban?: string | null
           iban_encrypted?: string | null
           id?: string
+          is_buying_blocked?: boolean | null
+          is_listing_blocked?: boolean | null
           is_seller?: boolean | null
           is_suspended?: boolean | null
           is_verified?: boolean | null
@@ -1704,6 +1713,7 @@ export type Database = {
           return_days?: number | null
           return_policy?: string | null
           seller_terms_accepted_at?: string | null
+          seller_trial_started_at?: string | null
           sort_code?: string | null
           sort_code_encrypted?: string | null
           store_name?: string | null
@@ -1734,6 +1744,8 @@ export type Database = {
           bic_encrypted?: string | null
           bio?: string | null
           birthday?: string | null
+          blocked_at?: string | null
+          blocked_reason?: string | null
           business_type?: string | null
           card_holder_name?: string | null
           card_number_last4?: string | null
@@ -1750,6 +1762,8 @@ export type Database = {
           iban?: string | null
           iban_encrypted?: string | null
           id?: string
+          is_buying_blocked?: boolean | null
+          is_listing_blocked?: boolean | null
           is_seller?: boolean | null
           is_suspended?: boolean | null
           is_verified?: boolean | null
@@ -1777,6 +1791,7 @@ export type Database = {
           return_days?: number | null
           return_policy?: string | null
           seller_terms_accepted_at?: string | null
+          seller_trial_started_at?: string | null
           sort_code?: string | null
           sort_code_encrypted?: string | null
           store_name?: string | null
@@ -2589,6 +2604,7 @@ export type Database = {
           price_ron: number
           starts_at: string
           status: string
+          trial_plan: boolean | null
           updated_at: string
           user_id: string
         }
@@ -2603,6 +2619,7 @@ export type Database = {
           price_ron?: number
           starts_at?: string
           status?: string
+          trial_plan?: boolean | null
           updated_at?: string
           user_id: string
         }
@@ -2617,6 +2634,7 @@ export type Database = {
           price_ron?: number
           starts_at?: string
           status?: string
+          trial_plan?: boolean | null
           updated_at?: string
           user_id?: string
         }
