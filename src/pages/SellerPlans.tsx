@@ -1,27 +1,88 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
-import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, Copy, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   SELLER_PLANS,
   BIDDER_PLAN,
   useActiveSellerPlan,
   useActiveBidderPlan,
-  useSubscribeToPlan,
+  SellerPlan,
 } from '@/hooks/useUserSubscription';
+
+// Admin bank details for transfers
+const BANK_DETAILS = {
+  name: 'C-Market Romania SRL',
+  iban: 'RO49 AAAA 1B31 0075 9384 0000',
+  bank: 'Banca Transilvania',
+  description: 'Transfer bancar pentru abonament',
+};
 
 const SellerPlans = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: activePlan, isLoading: planLoading } = useActiveSellerPlan();
   const { data: bidderPlan, isLoading: bidderLoading } = useActiveBidderPlan();
-  const subscribeMutation = useSubscribeToPlan();
+  const [selectedPlan, setSelectedPlan] = useState<SellerPlan | typeof BIDDER_PLAN | null>(null);
+  const [showPayDialog, setShowPayDialog] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const createPaymentRequest = useMutation({
+    mutationFn: async (plan: SellerPlan | typeof BIDDER_PLAN) => {
+      if (!user) throw new Error('Trebuie să fii autentificat');
+
+      const { data, error } = await supabase
+        .from('subscription_payments')
+        .insert({
+          user_id: user.id,
+          plan_type: plan.plan_type,
+          plan_name: plan.plan_name,
+          amount_ron: plan.price_ron,
+          max_listings: 'max_listings' in plan ? plan.max_listings : null,
+          status: 'pending',
+          payment_method: 'bank_transfer',
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subscription-payments'] });
+      toast({
+        title: '✅ Cerere de plată trimisă!',
+        description: 'Transferă suma pe contul indicat. Abonamentul se activează după confirmarea plății de către admin.',
+      });
+      setShowPayDialog(false);
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const handleSelectPlan = (plan: SellerPlan | typeof BIDDER_PLAN) => {
+    setSelectedPlan(plan);
+    setShowPayDialog(true);
+  };
+
+  const copyIBAN = () => {
+    navigator.clipboard.writeText(BANK_DETAILS.iban.replace(/\s/g, ''));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   if (!user) {
     return (
@@ -78,11 +139,19 @@ const SellerPlans = () => {
           </Alert>
         )}
 
+        {/* Payment Info */}
+        <Alert className="mb-6 border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20">
+          <BanknoteIcon className="h-4 w-4 text-blue-600" />
+          <AlertTitle className="text-blue-800 dark:text-blue-200">Plata prin Transfer Bancar</AlertTitle>
+          <AlertDescription className="text-blue-700 dark:text-blue-300 text-sm">
+            Alege planul dorit, apoi transferă suma pe contul indicat. Abonamentul se activează automat după confirmarea plății de către admin.
+          </AlertDescription>
+        </Alert>
+
         {/* Seller Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {SELLER_PLANS.map((plan) => {
             const isActive = activePlan?.plan_type === plan.plan_type;
-            const isUpgrade = activePlan && plan.price_ron > activePlan.price_ron;
             
             return (
               <Card 
@@ -92,9 +161,7 @@ const SellerPlans = () => {
                 } ${plan.plan_type === 'vip' ? 'md:col-span-2 lg:col-span-1' : ''}`}
               >
                 {isActive && (
-                  <Badge className="absolute -top-2 right-4 bg-primary">
-                    Plan Activ
-                  </Badge>
+                  <Badge className="absolute -top-2 right-4 bg-primary">Plan Activ</Badge>
                 )}
                 {plan.plan_type === 'vip' && (
                   <Badge className="absolute -top-2 left-4 bg-amber-500">
@@ -134,13 +201,10 @@ const SellerPlans = () => {
                   <Button
                     className="w-full"
                     variant={isActive ? 'outline' : 'default'}
-                    disabled={isActive || subscribeMutation.isPending}
-                    onClick={() => subscribeMutation.mutate(plan)}
+                    disabled={isActive}
+                    onClick={() => handleSelectPlan(plan)}
                   >
-                    {subscribeMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : null}
-                    {isActive ? '✓ Plan Activ' : isUpgrade ? 'Upgrade' : 'Alege Planul'}
+                    {isActive ? '✓ Plan Activ' : 'Plătește prin Transfer'}
                   </Button>
                 </CardContent>
               </Card>
@@ -153,15 +217,10 @@ const SellerPlans = () => {
         {/* Bidder Plan */}
         <div className="max-w-md mx-auto">
           <h2 className="text-2xl font-bold text-center mb-4 flex items-center justify-center gap-2">
-            <Gavel className="h-6 w-6" />
-            Plan Cumpărător
+            <Gavel className="h-6 w-6" /> Plan Cumpărător
           </h2>
           <Card className={`border-2 ${bidderPlan ? 'border-green-500/50 bg-green-50/50 dark:bg-green-950/20' : 'border-blue-500/50 bg-blue-50/50 dark:bg-blue-950/20'}`}>
-            {bidderPlan && (
-              <Badge className="absolute -top-2 right-4 bg-green-500">
-                Activ
-              </Badge>
-            )}
+            {bidderPlan && <Badge className="absolute -top-2 right-4 bg-green-500">Activ</Badge>}
             <CardHeader>
               <div className="flex items-center gap-2">
                 <span className="text-2xl">{BIDDER_PLAN.icon}</span>
@@ -176,24 +235,16 @@ const SellerPlans = () => {
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  Licitează la orice produs listat
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" />
-                  Acces la toate licitațiile active
+                  <Check className="h-4 w-4 text-green-600" /> Licitează la orice produs listat
                 </li>
               </ul>
               <Button
                 className="w-full"
                 variant={bidderPlan ? 'outline' : 'default'}
-                disabled={!!bidderPlan || subscribeMutation.isPending}
-                onClick={() => subscribeMutation.mutate(BIDDER_PLAN)}
+                disabled={!!bidderPlan}
+                onClick={() => handleSelectPlan(BIDDER_PLAN)}
               >
-                {subscribeMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : null}
-                {bidderPlan ? '✓ Abonament Activ' : 'Activează Abonamentul'}
+                {bidderPlan ? '✓ Abonament Activ' : 'Plătește prin Transfer'}
               </Button>
             </CardContent>
           </Card>
@@ -207,11 +258,88 @@ const SellerPlans = () => {
             <h3 className="font-semibold">Bifa Albastră ✓</h3>
           </div>
           <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-            Acordată automat de sistem doar pentru <strong>TOP 10 Cei Mai Mari Vânzători</strong> 
-            (după volumul de listări/vânzări). Nu poate fi cumpărată.
+            Acordată automat doar pentru <strong>TOP 10 Cei Mai Mari Vânzători</strong>.
           </p>
         </div>
       </div>
+
+      {/* Payment Dialog */}
+      <Dialog open={showPayDialog} onOpenChange={setShowPayDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BanknoteIcon className="h-5 w-5 text-green-600" />
+              Plată prin Transfer Bancar
+            </DialogTitle>
+            <DialogDescription>
+              Transferă suma de mai jos pe contul indicat. Abonamentul se activează după confirmarea plății.
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedPlan && (
+            <div className="space-y-4">
+              {/* Plan Summary */}
+              <div className="bg-muted/50 rounded-lg p-4 text-center">
+                <p className="text-sm text-muted-foreground">Plan selectat</p>
+                <p className="text-lg font-bold">{selectedPlan.plan_name}</p>
+                <p className="text-3xl font-bold text-primary mt-1">{selectedPlan.price_ron} LEI</p>
+              </div>
+
+              {/* Bank Details */}
+              <div className="space-y-3 bg-card border rounded-lg p-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">Beneficiar</p>
+                  <p className="font-medium text-sm">{BANK_DETAILS.name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Bancă</p>
+                  <p className="font-medium text-sm">{BANK_DETAILS.bank}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">IBAN</p>
+                  <div className="flex items-center gap-2">
+                    <code className="font-mono text-sm bg-muted px-2 py-1 rounded flex-1">{BANK_DETAILS.iban}</code>
+                    <Button size="sm" variant="outline" className="gap-1 shrink-0" onClick={copyIBAN}>
+                      {copied ? <CheckCircle2 className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
+                      {copied ? 'Copiat!' : 'Copiază'}
+                    </Button>
+                  </div>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Descriere plată (obligatoriu)</p>
+                  <code className="font-mono text-sm bg-amber-50 dark:bg-amber-950/20 px-2 py-1 rounded block border border-amber-200">
+                    Abonament {selectedPlan.plan_name} - {user?.email}
+                  </code>
+                </div>
+              </div>
+
+              <Alert className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/10">
+                <AlertDescription className="text-xs">
+                  ⚠️ Menționează adresa de email în descrierea transferului pentru identificare rapidă.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+
+          <DialogFooter className="flex flex-col gap-2 sm:flex-col">
+            <Button
+              className="w-full gap-2"
+              disabled={createPaymentRequest.isPending}
+              onClick={() => selectedPlan && createPaymentRequest.mutate(selectedPlan)}
+            >
+              {createPaymentRequest.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" />
+              )}
+              Am transferat, confirmă cererea
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => setShowPayDialog(false)}>
+              Anulează
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };

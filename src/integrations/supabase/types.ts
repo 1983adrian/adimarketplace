@@ -2574,6 +2574,57 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_payments: {
+        Row: {
+          admin_notes: string | null
+          amount_ron: number
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          id: string
+          max_listings: number | null
+          payment_method: string | null
+          plan_name: string
+          plan_type: string
+          rejected_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_ron: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          max_listings?: number | null
+          payment_method?: string | null
+          plan_name: string
+          plan_type: string
+          rejected_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_ron?: number
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          max_listings?: number | null
+          payment_method?: string | null
+          plan_name?: string
+          plan_type?: string
+          rejected_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
