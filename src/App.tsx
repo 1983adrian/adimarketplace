@@ -33,6 +33,7 @@ import SellerAnalytics from "./pages/SellerAnalytics";
 import Favorites from "./pages/Favorites";
 // New dedicated pages
 import SellerMode from "./pages/SellerMode";
+import SellerPlans from "./pages/SellerPlans";
 import MyProducts from "./pages/MyProducts";
 import Wallet from "./pages/Wallet";
 import ProfileSettings from "./pages/ProfileSettings";
@@ -107,6 +108,7 @@ const publicRoutes = [
   { path: "/listing/:id/edit", element: <EditListing /> },
   { path: "/dashboard", element: <Dashboard /> },
   { path: "/seller-mode", element: <SellerMode /> },
+  { path: "/seller-plans", element: <SellerPlans /> },
   { path: "/my-products", element: <MyProducts /> },
   { path: "/wallet", element: <Wallet /> },
   { path: "/profile-settings", element: <ProfileSettings /> },

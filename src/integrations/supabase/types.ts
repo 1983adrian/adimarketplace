@@ -2577,6 +2577,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_auction_plan: boolean
+          max_listings: number | null
+          plan_name: string
+          plan_type: string
+          price_ron: number
+          starts_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_auction_plan?: boolean
+          max_listings?: number | null
+          plan_name: string
+          plan_type: string
+          price_ron?: number
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_auction_plan?: boolean
+          max_listings?: number | null
+          plan_name?: string
+          plan_type?: string
+          price_ron?: number
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       watchlist: {
         Row: {
           created_at: string

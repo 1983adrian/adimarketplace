@@ -15,7 +15,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useCategories } from '@/hooks/useCategories';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
-import { useSellerSubscription, useCreateSellerSubscription, useSubscriptionPrice } from '@/hooks/useSellerSubscription';
+import { useActiveSellerPlan } from '@/hooks/useUserSubscription';
 import { useListingLimit } from '@/hooks/useListingLimit';
 import { useCreateListing } from '@/hooks/useListings';
 import { useImageUpload } from '@/hooks/useImageUpload';
@@ -38,17 +38,15 @@ const CreateListing = () => {
   const { toast } = useToast();
   const { t } = useTranslation();
   const { data: categories } = useCategories();
-  const { data: subscription, isLoading: subscriptionLoading } = useSellerSubscription();
+  const { data: activePlan, isLoading: planLoading } = useActiveSellerPlan();
   const { data: listingLimit, isLoading: limitLoading } = useListingLimit();
-  const subscriptionPrice = useSubscriptionPrice();
-  const createSubscription = useCreateSellerSubscription();
   const createListing = useCreateListing();
   const { uploadMultipleImages, uploading } = useImageUpload();
   const { location: userLocation } = useLocation();
   const { canSell, kycStatus, message: kycMessage, isLoading: kycLoading } = useRequireKYC();
   
-  const isSubscribed = subscription?.subscribed || false;
-  const canCreateMore = listingLimit?.canCreateMore ?? true;
+  const hasActivePlan = !!activePlan;
+  const canCreateMore = listingLimit?.canCreateMore ?? false;
 
 
   const [title, setTitle] = useState('');
@@ -192,10 +190,9 @@ const CreateListing = () => {
       return;
     }
 
-    // Verificăm dacă utilizatorul este vânzător activat (nu mai necesită abonament)
-    if (!isSubscribed) {
-      toast({ title: t('createListing.sellerModeInactive'), description: t('createListing.sellerModeDesc'), variant: 'destructive' });
-      navigate('/seller-mode');
+    if (!hasActivePlan) {
+      toast({ title: t('createListing.sellerModeInactive'), description: 'Trebuie să alegi un plan de vânzător.', variant: 'destructive' });
+      navigate('/seller-plans');
       return;
     }
 
@@ -354,18 +351,18 @@ const CreateListing = () => {
     );
   }
 
-  // Show seller mode required screen (no subscription needed, just seller activation)
-  if (!subscriptionLoading && !isSubscribed) {
+  // Show plan required screen
+  if (!planLoading && !hasActivePlan) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 max-w-md text-center">
           <Store className="h-16 w-16 mx-auto mb-6 text-amber-500" />
-          <h1 className="text-2xl font-bold mb-4">{t('createListing.activateSellerMode')}</h1>
+          <h1 className="text-2xl font-bold mb-4">Plan Vânzător Necesar</h1>
           <p className="text-muted-foreground mb-6">
-            {t('createListing.activateSellerModeDesc')}
+            Pentru a lista produse, trebuie să alegi un plan de vânzător.
             <br /><br />
-            <strong>{t('createListing.noFees')}</strong><br />
-            {t('createListing.commission')}
+            <strong>Planuri de la 11 LEI</strong><br />
+            Alege planul potrivit pentru afacerea ta.
           </p>
           <div className="space-y-3">
             <Button 
@@ -373,9 +370,9 @@ const CreateListing = () => {
               className="w-full gap-2"
               asChild
             >
-              <Link to="/seller-mode">
+              <Link to="/seller-plans">
                 <Store className="h-4 w-4" />
-                {t('createListing.activateSellerMode')}
+                Vezi Planurile
               </Link>
             </Button>
             <Button variant="outline" className="w-full" asChild>
@@ -387,7 +384,7 @@ const CreateListing = () => {
     );
   }
 
-  if (subscriptionLoading || limitLoading) {
+  if (planLoading || limitLoading) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
@@ -417,6 +414,9 @@ const CreateListing = () => {
             </AlertDescription>
           </Alert>
           <div className="space-y-3">
+            <Button className="w-full" asChild>
+              <Link to="/seller-plans">Upgrade Plan</Link>
+            </Button>
             <Button variant="outline" className="w-full" asChild>
               <Link to="/dashboard">{t('createListing.manageProducts')}</Link>
             </Button>
@@ -434,8 +434,13 @@ const CreateListing = () => {
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="gap-1">
               <Package className="h-3 w-3" />
-              {listingLimit?.currentCount}/{listingLimit?.maxListings} {t('createListing.products')}
+              {listingLimit?.currentCount}/{listingLimit?.isUnlimited ? '∞' : listingLimit?.maxListings} unități
             </Badge>
+            {listingLimit?.planName && (
+              <Badge variant="secondary" className="text-xs">
+                {listingLimit.planName}
+              </Badge>
+            )}
           </div>
         </div>
 
