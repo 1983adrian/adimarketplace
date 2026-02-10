@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import logoOficial from '@/assets/logo-oficial.png';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -91,8 +92,8 @@ export default function ForgotPassword() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Mail className="h-8 w-8 text-primary" />
+          <div className="mx-auto mb-4 flex justify-center">
+            <img src={logoOficial} alt="Marketplace România" className="h-20 w-auto object-contain" />
           </div>
           <CardTitle>Resetare parolă</CardTitle>
           <CardDescription>

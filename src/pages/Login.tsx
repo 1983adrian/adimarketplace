@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
+import logoOficial from '@/assets/logo-oficial.png';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -107,8 +108,8 @@ const Login = () => {
       <Card className="w-full max-w-md relative z-10 border border-border shadow-xl bg-card">
         <CardHeader className="text-center pb-4">
           {/* Logo - Marketplace România */}
-          <div className="mb-4">
-            <MarketplaceBrand size="md" variant="default" />
+          <div className="mb-4 flex justify-center">
+            <img src={logoOficial} alt="Marketplace România" className="h-24 w-auto object-contain" />
           </div>
           
           <div className="space-y-2">

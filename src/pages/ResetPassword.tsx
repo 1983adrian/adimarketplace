@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
+import logoOficial from '@/assets/logo-oficial.png';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -189,8 +190,8 @@ export default function ResetPassword() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-muted">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-            <Lock className="h-8 w-8 text-primary" />
+          <div className="mx-auto mb-4 flex justify-center">
+            <img src={logoOficial} alt="Marketplace România" className="h-20 w-auto object-contain" />
           </div>
           <CardTitle>Setează parola nouă</CardTitle>
           <CardDescription>
