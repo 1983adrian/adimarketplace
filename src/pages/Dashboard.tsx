@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Plus, Package, ShoppingBag, GraduationCap, MessageCircle, 
   Wallet, BarChart3, Heart, Settings, Bell, LogOut, Store, User,
-  Undo2, MailOpen, Receipt, Moon, Sun, Share2
+  Undo2, MailOpen, Receipt, Moon, Sun, Share2, CreditCard
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { SubscriptionAlerts } from '@/components/subscriptions/SubscriptionAlerts';
 import { useMyListings } from '@/hooks/useListings';
 import { useUnreadMessages } from '@/hooks/useUnreadMessages';
 import { useUnreadNotifications } from '@/hooks/useUnreadNotifications';
@@ -31,6 +32,7 @@ interface MenuItem {
 const menuItemsConfig: MenuItem[] = [
   { id: 'profile', titleKey: 'dashboard.profileSettings', descriptionKey: 'dashboard.editAccount', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
   { id: 'seller-mode', titleKey: 'dashboard.sellerMode', descriptionKey: 'dashboard.activateCard', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
+  { id: 'subscriptions', titleKey: 'Abonamente', descriptionKey: 'Planuri și plăți abonament', url: '/seller-plans', icon: CreditCard, color: 'bg-gradient-to-br from-purple-500 to-purple-700' },
   { id: 'sell', titleKey: 'dashboard.sellProduct', descriptionKey: 'dashboard.publishListings', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
   { id: 'wallet', titleKey: 'dashboard.wallet', descriptionKey: 'dashboard.viewBalance', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-violet-500 to-violet-700' },
   { id: 'messages', titleKey: 'dashboard.messages', descriptionKey: 'dashboard.customerConversations', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-400 to-cyan-600', showBadge: 'messages' },
@@ -110,6 +112,10 @@ const Dashboard = () => {
     <Layout>
       <div className="container mx-auto px-4 py-6">
         
+        {/* Subscription Alerts */}
+        <div className="mb-4">
+          <SubscriptionAlerts />
+        </div>
         {/* Header: Avatar + Name + Balance + Actions */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
