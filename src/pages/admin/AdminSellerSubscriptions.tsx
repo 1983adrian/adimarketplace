@@ -646,27 +646,27 @@ export default function AdminSellerSubscriptions() {
                 <div className="space-y-3">
                   <div>
                     <label className="text-sm font-medium">Numele Beneficiarului</label>
-                    <Input 
+                     <Input 
                       value={bankName} 
                       onChange={(e) => setBankName(e.target.value)} 
-                      placeholder="ex: C-Market Romania SRL" 
+                      placeholder="ex: John Smith" 
                     />
                   </div>
                   <div>
                     <label className="text-sm font-medium">IBAN</label>
-                    <Input 
+                     <Input 
                       value={bankIban} 
                       onChange={(e) => setBankIban(e.target.value)} 
-                      placeholder="ex: RO49 XXXX 1B31 0075 9384 0000" 
+                      placeholder="ex: GB29 NWBK 6016 1331 9268 19" 
                       className="font-mono"
                     />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Bancă</label>
-                    <Input 
+                     <Input 
                       value={bankInstitution} 
                       onChange={(e) => setBankInstitution(e.target.value)} 
-                      placeholder="ex: Banca Transilvania" 
+                      placeholder="ex: NatWest / Barclays / Monzo" 
                     />
                   </div>
                 </div>

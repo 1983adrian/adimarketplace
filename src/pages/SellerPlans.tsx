@@ -7,11 +7,11 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, Copy, CheckCircle2 } from 'lucide-react';
+import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   SELLER_PLANS,
   BIDDER_PLAN,
@@ -20,34 +20,6 @@ import {
   SellerPlan,
 } from '@/hooks/useUserSubscription';
 
-// Fetch bank details from platform_settings
-const useBankDetails = () => {
-  return useQuery({
-    queryKey: ['bank-details'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('platform_settings')
-        .select('key, value')
-        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution']);
-
-      if (error) throw error;
-
-      const map: Record<string, string> = {};
-      (data || []).forEach(row => {
-        const val = row.value;
-        map[row.key] = typeof val === 'string' ? val : String(val ?? '');
-      });
-
-      return {
-        name: map['subscription_bank_name'] || 'N/A',
-        iban: map['subscription_bank_iban'] || 'N/A',
-        bank: map['subscription_bank_institution'] || 'N/A',
-      };
-    },
-    staleTime: 60000,
-  });
-};
-
 const SellerPlans = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -55,15 +27,14 @@ const SellerPlans = () => {
   const queryClient = useQueryClient();
   const { data: activePlan, isLoading: planLoading } = useActiveSellerPlan();
   const { data: bidderPlan, isLoading: bidderLoading } = useActiveBidderPlan();
-  const { data: bankDetails, isLoading: bankLoading } = useBankDetails();
   const [selectedPlan, setSelectedPlan] = useState<SellerPlan | typeof BIDDER_PLAN | null>(null);
   const [showPayDialog, setShowPayDialog] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const createPaymentRequest = useMutation({
     mutationFn: async (plan: SellerPlan | typeof BIDDER_PLAN) => {
       if (!user) throw new Error('Trebuie să fii autentificat');
 
+      // Create payment request
       const { data, error } = await supabase
         .from('subscription_payments')
         .insert({
@@ -79,13 +50,43 @@ const SellerPlans = () => {
         .single();
 
       if (error) throw error;
+
+      // Notify all admins about the new payment request
+      const { data: adminEmails } = await supabase
+        .from('admin_emails')
+        .select('email')
+        .eq('is_active', true);
+
+      if (adminEmails && adminEmails.length > 0) {
+        // Get admin user IDs from auth
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .in('user_id', 
+            // Get user IDs that have admin role
+            (await supabase.from('user_roles').select('user_id').eq('role', 'admin')).data?.map(r => r.user_id) || []
+          );
+
+        if (profiles) {
+          const notifications = profiles.map(p => ({
+            user_id: p.user_id,
+            type: 'admin_payment',
+            title: '💰 Cerere Plată Abonament',
+            message: `${user.email} a solicitat activarea planului ${plan.plan_name} (${plan.price_ron} LEI). Verifică transferul și confirmă.`,
+            data: { payment_id: data.id, plan_type: plan.plan_type } as any,
+          }));
+
+          await supabase.from('notifications').insert(notifications);
+        }
+      }
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subscription-payments'] });
       toast({
-        title: '✅ Cerere de plată trimisă!',
-        description: 'Transferă suma pe contul indicat. Abonamentul se activează după confirmarea plății de către admin.',
+        title: '✅ Cerere trimisă!',
+        description: 'Transferă suma indicată. Abonamentul se activează după confirmarea plății de către admin.',
       });
       setShowPayDialog(false);
     },
@@ -97,12 +98,6 @@ const SellerPlans = () => {
   const handleSelectPlan = (plan: SellerPlan | typeof BIDDER_PLAN) => {
     setSelectedPlan(plan);
     setShowPayDialog(true);
-  };
-
-  const copyIBAN = () => {
-    navigator.clipboard.writeText((bankDetails?.iban || '').replace(/\s/g, ''));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   if (!user) {
@@ -165,7 +160,7 @@ const SellerPlans = () => {
           <BanknoteIcon className="h-4 w-4 text-blue-600" />
           <AlertTitle className="text-blue-800 dark:text-blue-200">Plata prin Transfer Bancar</AlertTitle>
           <AlertDescription className="text-blue-700 dark:text-blue-300 text-sm">
-            Alege planul dorit, apoi transferă suma pe contul indicat. Abonamentul se activează automat după confirmarea plății de către admin.
+            Alege planul dorit și apasă butonul de plată. Vei primi instrucțiunile de transfer. Abonamentul se activează după confirmarea plății.
           </AlertDescription>
         </Alert>
 
@@ -225,7 +220,7 @@ const SellerPlans = () => {
                     disabled={isActive}
                     onClick={() => handleSelectPlan(plan)}
                   >
-                    {isActive ? '✓ Plan Activ' : 'Plătește prin Transfer'}
+                    {isActive ? '✓ Plan Activ' : 'Plătește Acum'}
                   </Button>
                 </CardContent>
               </Card>
@@ -265,7 +260,7 @@ const SellerPlans = () => {
                 disabled={!!bidderPlan}
                 onClick={() => handleSelectPlan(BIDDER_PLAN)}
               >
-                {bidderPlan ? '✓ Abonament Activ' : 'Plătește prin Transfer'}
+                {bidderPlan ? '✓ Abonament Activ' : 'Plătește Acum'}
               </Button>
             </CardContent>
           </Card>
@@ -284,16 +279,16 @@ const SellerPlans = () => {
         </div>
       </div>
 
-      {/* Payment Dialog */}
+      {/* Confirmation Dialog - NO bank details shown */}
       <Dialog open={showPayDialog} onOpenChange={setShowPayDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BanknoteIcon className="h-5 w-5 text-green-600" />
-              Plată prin Transfer Bancar
+              Confirmă Plata
             </DialogTitle>
             <DialogDescription>
-              Transferă suma de mai jos pe contul indicat. Abonamentul se activează după confirmarea plății.
+              După confirmare, vei primi instrucțiunile de plată. Abonamentul se activează după verificarea transferului.
             </DialogDescription>
           </DialogHeader>
 
@@ -306,37 +301,9 @@ const SellerPlans = () => {
                 <p className="text-3xl font-bold text-primary mt-1">{selectedPlan.price_ron} LEI</p>
               </div>
 
-              {/* Bank Details */}
-              <div className="space-y-3 bg-card border rounded-lg p-4">
-                <div>
-                  <p className="text-xs text-muted-foreground">Beneficiar</p>
-                  <p className="font-medium text-sm">{bankDetails?.name}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Bancă</p>
-                  <p className="font-medium text-sm">{bankDetails?.bank}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">IBAN</p>
-                  <div className="flex items-center gap-2">
-                    <code className="font-mono text-sm bg-muted px-2 py-1 rounded flex-1">{bankDetails?.iban}</code>
-                    <Button size="sm" variant="outline" className="gap-1 shrink-0" onClick={copyIBAN}>
-                      {copied ? <CheckCircle2 className="h-3 w-3 text-green-600" /> : <Copy className="h-3 w-3" />}
-                      {copied ? 'Copiat!' : 'Copiază'}
-                    </Button>
-                  </div>
-                </div>
-                <div>
-                  <p className="text-xs text-muted-foreground">Descriere plată (obligatoriu)</p>
-                  <code className="font-mono text-sm bg-amber-50 dark:bg-amber-950/20 px-2 py-1 rounded block border border-amber-200">
-                    Abonament {selectedPlan.plan_name} - {user?.email}
-                  </code>
-                </div>
-              </div>
-
               <Alert className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/10">
                 <AlertDescription className="text-xs">
-                  ⚠️ Menționează adresa de email în descrierea transferului pentru identificare rapidă.
+                  ⚠️ Transferă exact <strong>{selectedPlan.price_ron} LEI</strong> și menționează adresa de email <strong>{user?.email}</strong> în descrierea transferului.
                 </AlertDescription>
               </Alert>
             </div>
@@ -353,7 +320,7 @@ const SellerPlans = () => {
               ) : (
                 <CheckCircle2 className="h-4 w-4" />
               )}
-              Am transferat, confirmă cererea
+              Trimite Cererea de Plată
             </Button>
             <Button variant="outline" className="w-full" onClick={() => setShowPayDialog(false)}>
               Anulează
