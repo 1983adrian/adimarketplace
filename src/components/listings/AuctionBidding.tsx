@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gavel, Clock, Users, TrendingUp, AlertCircle, Loader2, ShoppingCart } from 'lucide-react';
+import { Gavel, Clock, Users, TrendingUp, AlertCircle, Loader2, ShoppingCart, Lock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useToast } from '@/hooks/use-toast';
 import { useListingBids, useHighestBid, usePlaceBid } from '@/hooks/useBids';
+import { useActiveBidderPlan } from '@/hooks/useUserSubscription';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AuctionBiddingProps {
@@ -41,6 +42,7 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
   const { toast } = useToast();
   const { data: bids, refetch: refetchBids } = useListingBids(listingId);
   const { data: highestBid, refetch: refetchHighest } = useHighestBid(listingId);
+  const { data: bidderPlan, isLoading: bidderPlanLoading } = useActiveBidderPlan();
   const placeBid = usePlaceBid();
 
   const [bidAmount, setBidAmount] = useState('');
@@ -229,8 +231,25 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
           </Alert>
         )}
 
-        {/* Bidding Form - hidden if user is already highest bidder */}
-        {!isEnded && !isOwner && user && !isWinning && (
+        {/* Bidder subscription required */}
+        {!isEnded && !isOwner && user && !bidderPlan && !bidderPlanLoading && (
+          <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
+            <Lock className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800 dark:text-amber-200">
+              <strong>Abonament Licitator necesar!</strong> Pentru a licita, trebuie să activezi Abonamentul Licitator (11 LEI).
+              <Button
+                variant="link"
+                className="p-0 h-auto ml-1"
+                onClick={() => navigate('/seller-plans')}
+              >
+                Activează acum →
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Bidding Form - hidden if no bidder plan or already winning */}
+        {!isEnded && !isOwner && user && !isWinning && bidderPlan && (
           <div className="space-y-3">
             <div className="flex gap-2">
               <div className="flex-1 relative">

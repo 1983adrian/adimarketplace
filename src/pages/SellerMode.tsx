@@ -310,12 +310,13 @@ const SellerMode = () => {
                     />
                   </div>
 
-                  <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800">
-                    <Package className="h-4 w-4 text-blue-600" />
-                    <AlertDescription className="text-blue-800 dark:text-blue-200">
-                      <strong>Limită:</strong> Max 10 produse active simultan. Vânzările sunt nelimitate!
-                    </AlertDescription>
-                  </Alert>
+                   <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800">
+                     <Package className="h-4 w-4 text-blue-600" />
+                     <AlertDescription className="text-blue-800 dark:text-blue-200">
+                       <strong>Planuri Vânzători:</strong> Alege un plan pentru a lista produse (de la 11 LEI).{' '}
+                       <a href="/seller-plans" className="underline font-semibold">Vezi Planurile →</a>
+                     </AlertDescription>
+                   </Alert>
 
                   {/* Termeni */}
                   {!hasAcceptedTermsBefore ? (
