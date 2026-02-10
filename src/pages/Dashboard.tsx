@@ -127,11 +127,11 @@ const Dashboard = () => {
                   ⚠️ Configurează PayPal pentru a primi plăți
                 </h3>
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                  Ai modul vânzător activ, dar nu ai conectat un cont PayPal Business. Fără PayPal, nu poți primi banii din vânzări.
+                  Ai modul vânzător activ, dar nu ai conectat un cont PayPal. Fără PayPal, nu poți primi banii din vânzări.
                 </p>
                 <div className="flex flex-wrap gap-2 pt-1">
                   <a
-                    href="https://www.paypal.com/ro/business/open-business-account"
+                    href="https://www.paypal.com/ro/webapps/mpp/account-selection"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition-colors"
