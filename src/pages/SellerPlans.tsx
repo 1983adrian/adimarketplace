@@ -37,7 +37,7 @@ const SellerPlans = () => {
       const { data } = await supabase
         .from('platform_settings')
         .select('key, value')
-        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution', 'subscription_bank_bic']);
+        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution', 'subscription_bank_bic', 'subscription_uk_sort_code', 'subscription_uk_account_number', 'subscription_uk_account_name']);
 
       const result: Record<string, string> = {};
       (data || []).forEach(row => {
@@ -170,6 +170,9 @@ const SellerPlans = () => {
   const bankName = bankDetails?.subscription_bank_institution || '';
   const accountName = bankDetails?.subscription_bank_name || '';
   const bicCode = bankDetails?.subscription_bank_bic || '';
+  const ukSortCode = bankDetails?.subscription_uk_sort_code || '';
+  const ukAccountNumber = bankDetails?.subscription_uk_account_number || '';
+  const ukAccountName = bankDetails?.subscription_uk_account_name || '';
 
   return (
     <Layout>
@@ -423,6 +426,44 @@ const SellerPlans = () => {
                       <Copy className="h-3 w-3" />
                     </Button>
                   </div>
+                )}
+
+                {/* UK Bank Details */}
+                {ukSortCode && (
+                  <>
+                    <Separator />
+                    <h4 className="font-semibold text-sm text-center">🇬🇧 Transfer din UK</h4>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Beneficiar</p>
+                        <p className="font-medium text-sm">{ukAccountName}</p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(ukAccountName, 'Beneficiar UK')}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Sort Code</p>
+                        <p className="font-mono font-bold text-sm">{ukSortCode}</p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(ukSortCode.replace(/[-\s]/g, ''), 'Sort Code')}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Account Number</p>
+                        <p className="font-mono font-bold text-sm">{ukAccountNumber}</p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(ukAccountNumber, 'Account Number')}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </>
                 )}
 
                 <Separator />
