@@ -46,6 +46,7 @@ interface PayoutSettings {
   companyRegistration: string;
   payoutBalance: number;
   pendingBalance: number;
+  paypalEmail: string;
 }
 
 export const PayoutSection: React.FC = () => {
@@ -68,6 +69,7 @@ export const PayoutSection: React.FC = () => {
     companyRegistration: '',
     payoutBalance: 0,
     pendingBalance: 0,
+    paypalEmail: '',
   });
 
   useEffect(() => {
@@ -103,6 +105,7 @@ export const PayoutSection: React.FC = () => {
           companyRegistration: profileData.company_registration || '',
           payoutBalance: profileData.payout_balance || 0,
           pendingBalance: profileData.pending_balance || 0,
+          paypalEmail: profileData.paypal_email || '',
         });
       }
     } catch (error) {
@@ -129,6 +132,7 @@ export const PayoutSection: React.FC = () => {
           business_type: settings.businessType,
           company_name: settings.companyName,
           company_registration: settings.companyRegistration,
+          paypal_email: settings.paypalEmail || null,
         } as any)
         .eq('user_id', user.id);
 
@@ -462,6 +466,39 @@ export const PayoutSection: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* PayPal Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            PayPal (Opțional)
+          </CardTitle>
+          <CardDescription>Conectează contul PayPal pentru protecție suplimentară la vânzări</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Email PayPal</Label>
+            <Input
+              type="email"
+              value={settings.paypalEmail}
+              onChange={(e) => setSettings({ ...settings, paypalEmail: e.target.value })}
+              placeholder="email@paypal.com"
+            />
+            <p className="text-xs text-muted-foreground">
+              Adaugă adresa de email asociată contului tău PayPal Business. Tracking-ul comenzilor va fi trimis automat la PayPal.
+            </p>
+          </div>
+          {settings.paypalEmail && (
+            <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
+              <div className="flex items-center gap-2 text-green-700">
+                <CheckCircle2 className="h-4 w-4" />
+                <p className="text-sm font-medium">PayPal conectat: {settings.paypalEmail}</p>
+              </div>
             </div>
           )}
         </CardContent>
