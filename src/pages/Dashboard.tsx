@@ -21,8 +21,8 @@ type BadgeType = 'messages' | 'purchases' | 'sales' | 'my-returns' | 'received-r
 
 interface MenuItem {
   id: string;
-  titleKey: string;
-  descriptionKey: string;
+  title: string;
+  description: string;
   url: string;
   icon: React.ElementType;
   color: string;
@@ -30,21 +30,21 @@ interface MenuItem {
 }
 
 const menuItemsConfig: MenuItem[] = [
-  { id: 'profile', titleKey: 'dashboard.profileSettings', descriptionKey: 'dashboard.editAccount', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
-  { id: 'seller-mode', titleKey: 'dashboard.sellerMode', descriptionKey: 'dashboard.activateCard', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
-  { id: 'subscriptions', titleKey: 'Abonamente', descriptionKey: 'Planuri și plăți abonament', url: '/seller-plans', icon: CreditCard, color: 'bg-gradient-to-br from-purple-500 to-purple-700' },
-  { id: 'sell', titleKey: 'dashboard.sellProduct', descriptionKey: 'dashboard.publishListings', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
-  { id: 'wallet', titleKey: 'dashboard.wallet', descriptionKey: 'dashboard.viewBalance', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-violet-500 to-violet-700' },
-  { id: 'messages', titleKey: 'dashboard.messages', descriptionKey: 'dashboard.customerConversations', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-400 to-cyan-600', showBadge: 'messages' },
-  { id: 'purchases', titleKey: 'dashboard.myPurchases', descriptionKey: 'dashboard.orderedProducts', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-rose-500 to-rose-700', showBadge: 'purchases' },
-  { id: 'sales', titleKey: 'dashboard.mySales', descriptionKey: 'dashboard.ordersFromCustomers', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-lime-500 to-lime-700', showBadge: 'sales' },
-  { id: 'my-returns', titleKey: 'dashboard.myReturns', descriptionKey: 'dashboard.returnedByYou', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-orange-700', showBadge: 'my-returns' },
-  { id: 'received-returns', titleKey: 'dashboard.receivedReturns', descriptionKey: 'dashboard.returnsFromCustomers', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-700', showBadge: 'received-returns' },
-  { id: 'products', titleKey: 'dashboard.myProducts', descriptionKey: 'dashboard.yourActiveListings', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
-  { id: 'analytics', titleKey: 'dashboard.statistics', descriptionKey: 'dashboard.viewsPerformance', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
-  { id: 'share', titleKey: 'dashboard.promoteStore', descriptionKey: 'dashboard.shareOnSocial', url: '/my-products?share=true', icon: Share2, color: 'bg-gradient-to-br from-pink-500 to-rose-600' },
-  { id: 'favorites', titleKey: 'dashboard.favorites', descriptionKey: 'dashboard.savedProducts', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
-  { id: 'tutorial', titleKey: 'dashboard.tutorial', descriptionKey: 'dashboard.stepByStep', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
+  { id: 'profile', title: 'Setări Profil', description: 'Editează cont', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
+  { id: 'seller-mode', title: 'Mod Vânzător', description: 'Activează card', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
+  { id: 'subscriptions', title: 'Abonamente', description: 'Planuri & plăți', url: '/seller-plans', icon: CreditCard, color: 'bg-gradient-to-br from-purple-500 to-purple-700' },
+  { id: 'sell', title: 'Vinde Produs', description: 'Publică anunț', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
+  { id: 'wallet', title: 'Portofel', description: 'Vezi sold', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-violet-500 to-violet-700' },
+  { id: 'messages', title: 'Mesaje', description: 'Conversații', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-400 to-cyan-600', showBadge: 'messages' },
+  { id: 'purchases', title: 'Cumpărături', description: 'Produse comandate', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-rose-500 to-rose-700', showBadge: 'purchases' },
+  { id: 'sales', title: 'Vânzări', description: 'Comenzi clienți', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-lime-500 to-lime-700', showBadge: 'sales' },
+  { id: 'my-returns', title: 'Retururi', description: 'Returnate de tine', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-orange-700', showBadge: 'my-returns' },
+  { id: 'received-returns', title: 'Retururi Primite', description: 'De la clienți', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-700', showBadge: 'received-returns' },
+  { id: 'products', title: 'Produsele Mele', description: 'Anunțuri active', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
+  { id: 'analytics', title: 'Statistici', description: 'Vizualizări', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
+  { id: 'share', title: 'Promovare', description: 'Distribuie magazin', url: '/my-products?share=true', icon: Share2, color: 'bg-gradient-to-br from-pink-500 to-rose-600' },
+  { id: 'favorites', title: 'Favorite', description: 'Produse salvate', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
+  { id: 'tutorial', title: 'Tutorial', description: 'Pas cu pas', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
 ];
 
 const Dashboard = () => {
@@ -239,17 +239,17 @@ const Dashboard = () => {
                   </div>
                   
                   <span className={cn(
-                    "text-[10px] font-medium text-foreground text-center leading-tight",
+                    "text-[10px] font-medium text-foreground text-center leading-tight line-clamp-2",
                     item.id === 'sell' && "text-sm font-bold text-white"
                   )}>
-                    {t(item.titleKey)}
+                    {item.title}
                   </span>
                   
                   <span className={cn(
-                    "text-[8px] text-muted-foreground text-center leading-tight opacity-70",
+                    "text-[8px] text-muted-foreground text-center leading-tight opacity-70 line-clamp-1",
                     item.id === 'sell' && "text-[9px] text-white/80"
                   )}>
-                    {t(item.descriptionKey)}
+                    {item.description}
                   </span>
                   
                   {notificationText && (
