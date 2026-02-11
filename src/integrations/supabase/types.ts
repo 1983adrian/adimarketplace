@@ -325,6 +325,13 @@ export type Database = {
             foreignKeyName: "conversations_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
+            referencedRelation: "orders_active"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
             referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
@@ -421,6 +428,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_active"
             referencedColumns: ["id"]
           },
           {
@@ -689,6 +703,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_active"
             referencedColumns: ["id"]
           },
           {
@@ -1350,6 +1371,13 @@ export type Database = {
             foreignKeyName: "payouts_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
+            referencedRelation: "orders_active"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
             referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
@@ -2003,6 +2031,13 @@ export type Database = {
             foreignKeyName: "refunds_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
+            referencedRelation: "orders_active"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
             referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
@@ -2066,6 +2101,13 @@ export type Database = {
             foreignKeyName: "returns_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
+            referencedRelation: "orders_active"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "returns_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
             referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
@@ -2105,6 +2147,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_active"
             referencedColumns: ["id"]
           },
           {
@@ -2333,6 +2382,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_active"
             referencedColumns: ["id"]
           },
           {
@@ -2822,6 +2878,13 @@ export type Database = {
             foreignKeyName: "disputes_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
+            referencedRelation: "orders_active"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
             referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
@@ -2844,6 +2907,65 @@ export type Database = {
           withdrawal_blocked: boolean | null
         }
         Relationships: []
+      }
+      orders_active: {
+        Row: {
+          amount: number | null
+          buyer_id: string | null
+          carrier: string | null
+          created_at: string | null
+          delivery_confirmed_at: string | null
+          id: string | null
+          listing_id: string | null
+          payment_processor: string | null
+          payout_status: string | null
+          seller_id: string | null
+          shipping_address: string | null
+          status: Database["public"]["Enums"]["order_status"] | null
+          tracking_number: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          buyer_id?: string | null
+          carrier?: string | null
+          created_at?: string | null
+          delivery_confirmed_at?: string | null
+          id?: string | null
+          listing_id?: string | null
+          payment_processor?: string | null
+          payout_status?: string | null
+          seller_id?: string | null
+          shipping_address?: never
+          status?: Database["public"]["Enums"]["order_status"] | null
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          buyer_id?: string | null
+          carrier?: string | null
+          created_at?: string | null
+          delivery_confirmed_at?: string | null
+          id?: string | null
+          listing_id?: string | null
+          payment_processor?: string | null
+          payout_status?: string | null
+          seller_id?: string | null
+          shipping_address?: never
+          status?: Database["public"]["Enums"]["order_status"] | null
+          tracking_number?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders_safe: {
         Row: {
@@ -2967,6 +3089,72 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profiles_safe: {
+        Row: {
+          avatar_url: string | null
+          average_rating: number | null
+          bio: string | null
+          business_type: string | null
+          country: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string | null
+          is_seller: boolean | null
+          is_verified: boolean | null
+          last_activity_at: string | null
+          location: string | null
+          preferred_language: string | null
+          seller_type: string | null
+          store_name: string | null
+          total_sales_count: number | null
+          updated_at: string | null
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          average_rating?: number | null
+          bio?: string | null
+          business_type?: string | null
+          country?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          is_seller?: boolean | null
+          is_verified?: boolean | null
+          last_activity_at?: string | null
+          location?: string | null
+          preferred_language?: string | null
+          seller_type?: string | null
+          store_name?: string | null
+          total_sales_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          average_rating?: number | null
+          bio?: string | null
+          business_type?: string | null
+          country?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          is_seller?: boolean | null
+          is_verified?: boolean | null
+          last_activity_at?: string | null
+          location?: string | null
+          preferred_language?: string | null
+          seller_type?: string | null
+          store_name?: string | null
+          total_sales_count?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: []
       }
       public_profiles_view: {
         Row: {
@@ -3122,6 +3310,13 @@ export type Database = {
             foreignKeyName: "refunds_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
+            referencedRelation: "orders_active"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refunds_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
             referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
@@ -3197,6 +3392,13 @@ export type Database = {
             foreignKeyName: "seller_payouts_order_id_fkey"
             columns: ["order_id"]
             isOneToOne: false
+            referencedRelation: "orders_active"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_payouts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
             referencedRelation: "orders_safe"
             referencedColumns: ["id"]
           },
@@ -3206,6 +3408,15 @@ export type Database = {
     Functions: {
       admin_increment_pending_balance: {
         Args: { p_amount: number; p_user_id: string }
+        Returns: undefined
+      }
+      audit_sensitive_access: {
+        Args: {
+          p_details?: Json
+          p_operation: string
+          p_table_name: string
+          p_user_id: string
+        }
         Returns: undefined
       }
       audit_sensitive_operation: {
