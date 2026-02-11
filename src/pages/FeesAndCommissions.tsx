@@ -6,12 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Percent, 
   Check, 
   X, 
   Info,
-  Calculator,
-  HelpCircle
+  HelpCircle,
+  CreditCard,
+  Crown
 } from 'lucide-react';
 import {
   Accordion,
@@ -19,64 +19,54 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useCurrency } from '@/contexts/CurrencyContext';
 
 export default function FeesAndCommissions() {
-  const { formatPriceWithRON, currency } = useCurrency();
 
   const includedFeatures = [
-    "Listare nelimitată de produse",
-    "Promovare pe homepage (opțional, plătit)",
-    "Licitații online",
     "Mesagerie integrată",
     "Protecție cumpărător",
     "Suport clienți",
-    "Wallet pentru plăți"
+    "Sistem de licitații",
+    "Promovare pe homepage (opțional, plătit)",
   ];
 
-  const competitors = [
-    { name: "Marketplace România", fee: "8%", highlight: true },
-    { name: "eBay", fee: "12-15%", highlight: false },
-    { name: "eMAG Marketplace", fee: "10-25%", highlight: false },
-    { name: "OLX (promovări)", fee: "Abonament + taxe", highlight: false },
-  ];
-
-  // All examples in RON
-  const examples = [
-    { price: 100, commission: 8, netAmount: 92 },
-    { price: 500, commission: 40, netAmount: 460 },
-    { price: 1000, commission: 80, netAmount: 920 },
-    { price: 5000, commission: 400, netAmount: 4600 },
+  const plans = [
+    { name: "START", price: "11 LEI", listings: "10 produse" },
+    { name: "LICITAȚII", price: "11 LEI", listings: "10 licitații" },
+    { name: "SILVER", price: "50 LEI", listings: "50 produse" },
+    { name: "GOLD", price: "150 LEI", listings: "150 produse" },
+    { name: "PLATINUM", price: "499 LEI", listings: "500 produse" },
+    { name: "VIP", price: "999 LEI", listings: "Nelimitat", highlight: true },
   ];
 
   const faqs = [
     {
-      question: "Când se aplică comisionul de 8%?",
-      answer: "Comisionul se aplică doar la finalizarea unei vânzări. Când cumpărătorul confirmă primirea produsului, comisionul de 8% este dedus automat, iar restul de 92% îți este transferat în wallet."
+      question: "Cum funcționează abonamentele?",
+      answer: "Alegi planul potrivit pentru tine, plătești prin transfer bancar, iar adminul confirmă plata. Abonamentul se activează automat după confirmare."
     },
     {
-      question: "Există taxe de listare?",
-      answer: "Nu! Listarea produselor este complet gratuită. Poți lista oricâte produse dorești fără nicio taxă inițială."
+      question: "Există comisioane pe vânzări?",
+      answer: "Nu! Nu există niciun comision pe vânzări. Plătești doar abonamentul lunar și tot ce vinzi rămâne al tău."
     },
     {
-      question: "Ce include comisionul de 8%?",
-      answer: "Comisionul acoperă: procesarea plăților, protecția cumpărătorului, suport clienți, infrastructura platformei și sistemul de mesagerie."
+      question: "Există taxe pentru cumpărători?",
+      answer: "Nu! Cumpărătorii nu plătesc nicio taxă suplimentară. Singurul cost este prețul produsului + livrarea."
     },
     {
-      question: "Cum funcționează promovările plătite?",
-      answer: `Promovările sunt opționale și îți cresc vizibilitatea. Produsele promovate apar pe homepage și în topul căutărilor. Prețul este ${formatPriceWithRON(25)}/săptămână.`
+      question: "Pot testa platforma gratuit?",
+      answer: "Da! Vânzătorii noi primesc 30 de zile gratuite cu maxim 10 produse."
     },
     {
-      question: "Când îmi primesc banii?",
-      answer: "Banii sunt disponibili în wallet-ul tău imediat după ce cumpărătorul confirmă primirea produsului. Poți retrage oricând în contul bancar."
+      question: "Cum îmi primesc banii din vânzări?",
+      answer: "Banii sunt transferați direct în contul tău PayPal. Tot ce vinzi rămâne 100% al tău, fără comisioane."
     }
   ];
 
   return (
     <>
       <SEOHead 
-        title="Taxe și Comisioane | Marketplace România - Comision Doar 8%"
-        description="Comision de doar 8% pe Marketplace România - cel mai mic din industrie! Listare gratuită, fără abonamente. Află toate detaliile despre taxe și comisioane."
+        title="Taxe și Abonamente | Marketplace România - Fără Comisioane!"
+        description="Fără comisioane pe vânzări! Marketplace România funcționează pe bază de abonamente simple. Alege planul potrivit și vinzi fără taxe ascunse."
         url="https://www.marketplaceromania.com/taxe-si-comisioane"
         type="article"
       />
@@ -86,30 +76,30 @@ export default function FeesAndCommissions() {
             {/* Hero */}
             <div className="text-center mb-12">
               <Badge className="mb-4 bg-green-500/10 text-green-600 hover:bg-green-500/20">
-                Cel mai mic comision din România
+                Fără comisioane pe vânzări!
               </Badge>
-              <h1 className="text-4xl font-bold mb-4">Taxe și Comisioane</h1>
+              <h1 className="text-4xl font-bold mb-4">Taxe și Abonamente</h1>
               <p className="text-xl text-muted-foreground">
-                Simplu și transparent. Plătești doar când vinzi.
+                Simplu și transparent. Plătești doar abonamentul — fără comisioane pe vânzări!
               </p>
             </div>
 
-            {/* Main Commission Card */}
+            {/* Main Card */}
             <Card className="mb-12 border-2 border-primary overflow-hidden">
               <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-8 text-center">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Percent className="h-10 w-10" />
-                  <span className="text-6xl font-bold">8</span>
-                  <span className="text-3xl">%</span>
+                  <CreditCard className="h-10 w-10" />
+                  <span className="text-4xl font-bold">0%</span>
                 </div>
-                <p className="text-xl opacity-90">Comision per vânzare</p>
+                <p className="text-xl opacity-90">Comision pe vânzări</p>
+                <p className="text-sm opacity-75 mt-2">Plătești doar abonamentul lunar</p>
               </div>
               <CardContent className="pt-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                       <Check className="h-5 w-5 text-green-500" />
-                      Ce este inclus GRATUIT
+                      Ce este inclus
                     </h3>
                     <ul className="space-y-2">
                       {includedFeatures.map((feature, index) => (
@@ -123,24 +113,24 @@ export default function FeesAndCommissions() {
                   <div>
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                       <X className="h-5 w-5 text-red-500" />
-                      NU plătești pentru
+                      NU plătești
                     </h3>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-center gap-2">
                         <X className="h-4 w-4 text-red-500 flex-shrink-0" />
-                        Taxe de listare
+                        Comisioane pe vânzări
                       </li>
                       <li className="flex items-center gap-2">
                         <X className="h-4 w-4 text-red-500 flex-shrink-0" />
-                        Abonamente lunare
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <X className="h-4 w-4 text-red-500 flex-shrink-0" />
-                        Taxe de înscriere
+                        Taxe pentru cumpărători
                       </li>
                       <li className="flex items-center gap-2">
                         <X className="h-4 w-4 text-red-500 flex-shrink-0" />
                         Taxe ascunse
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <X className="h-4 w-4 text-red-500 flex-shrink-0" />
+                        Taxe de înscriere
                       </li>
                     </ul>
                   </div>
@@ -148,64 +138,36 @@ export default function FeesAndCommissions() {
               </CardContent>
             </Card>
 
-            {/* Calculator */}
+            {/* Plans Overview */}
             <section className="mb-12">
               <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-                <Calculator className="h-6 w-6 text-primary" />
-                Calculator Câștiguri
+                <CreditCard className="h-6 w-6 text-primary" />
+                Planuri Disponibile
               </h2>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Cât primești pentru fiecare vânzare</CardTitle>
-                  <CardDescription>
-                    Exemple de calcul al comisionului de 8%
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b">
-                          <th className="text-left py-3 px-4">Preț vânzare</th>
-                          <th className="text-left py-3 px-4">Comision (8%)</th>
-                          <th className="text-left py-3 px-4 font-bold text-green-600">Tu primești</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {examples.map((example, index) => (
-                          <tr key={index} className="border-b last:border-0">
-                            <td className="py-3 px-4">{formatPriceWithRON(example.price)}</td>
-                            <td className="py-3 px-4 text-muted-foreground">-{formatPriceWithRON(example.commission)}</td>
-                            <td className="py-3 px-4 font-bold text-green-600">{formatPriceWithRON(example.netAmount)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
-            </section>
-
-            {/* Comparație */}
-            <section className="mb-12">
-              <h2 className="text-2xl font-bold mb-6">Comparație Comisioane</h2>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {competitors.map((competitor, index) => (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {plans.map((plan, index) => (
                   <Card 
                     key={index} 
-                    className={competitor.highlight ? "border-2 border-primary bg-primary/5" : ""}
+                    className={plan.highlight ? "border-2 border-amber-500 bg-amber-50/50 dark:bg-amber-950/20" : ""}
                   >
                     <CardContent className="pt-6 text-center">
-                      <p className="font-semibold mb-2">{competitor.name}</p>
-                      <p className={`text-2xl font-bold ${competitor.highlight ? "text-primary" : "text-muted-foreground"}`}>
-                        {competitor.fee}
-                      </p>
-                      {competitor.highlight && (
-                        <Badge className="mt-2 bg-green-500">Cel mai mic!</Badge>
+                      <div className="flex items-center justify-center gap-1 mb-1">
+                        {plan.highlight && <Crown className="h-4 w-4 text-amber-500" />}
+                        <p className="font-semibold">{plan.name}</p>
+                      </div>
+                      <p className="text-2xl font-bold text-primary">{plan.price}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{plan.listings}</p>
+                      {plan.highlight && (
+                        <Badge className="mt-2 bg-amber-500">Recomandat</Badge>
                       )}
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+              <div className="text-center mt-4">
+                <Button asChild>
+                  <Link to="/seller-plans">Vezi Toate Planurile →</Link>
+                </Button>
               </div>
             </section>
 
@@ -237,10 +199,10 @@ export default function FeesAndCommissions() {
                   <div>
                     <h3 className="font-semibold mb-2">Informații importante</h3>
                     <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• Comisionul se aplică la prețul produsului, nu la costul de livrare</li>
-                      <li>• Pentru licitații, comisionul se aplică la prețul final de adjudecare</li>
-                      <li>• Plata la livrare (ramburs) nu implică taxe suplimentare</li>
-                      <li>• Prețurile afișate includ TVA unde este cazul</li>
+                      <li>• Vânzătorii noi primesc 30 de zile gratuite cu max 10 produse</li>
+                      <li>• Abonamentul se plătește prin transfer bancar</li>
+                      <li>• Toate veniturile din vânzări rămân 100% ale tale</li>
+                      <li>• Cumpărătorii nu au taxe suplimentare</li>
                     </ul>
                   </div>
                 </div>
@@ -251,11 +213,11 @@ export default function FeesAndCommissions() {
             <div className="text-center bg-muted/50 rounded-2xl p-8">
               <h2 className="text-2xl font-bold mb-4">Începe să Vinzi Acum</h2>
               <p className="text-muted-foreground mb-6">
-                Fără taxe de start. Listează primul tău produs gratuit și plătești doar când vinzi.
+                30 de zile gratuite. Fără comisioane. Alege planul potrivit și începe.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg">
-                  <Link to="/sell">Listează Gratuit</Link>
+                  <Link to="/seller-plans">Vezi Planurile</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
                   <Link to="/cum-functioneaza">Cum Funcționează</Link>
