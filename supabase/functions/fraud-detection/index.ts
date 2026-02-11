@@ -34,23 +34,55 @@ serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
 
-    // Verify service role access
+    // STRICT AUTH: Only service_role OR verified admin users
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.includes(supabaseServiceKey)) {
-      // Allow authenticated user requests for their own data
-      if (authHeader) {
-        const token = authHeader.replace("Bearer ", "");
-        const { data: { user } } = await supabase.auth.getUser(token);
-        if (!user) {
-          return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 401,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
-        }
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized: No auth header" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const isServiceRole = authHeader === `Bearer ${supabaseServiceKey}`;
+    let callerUserId: string | null = null;
+
+    if (!isServiceRole) {
+      // Verify the user is an admin
+      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+      
+      if (claimsError || !claimsData?.claims?.sub) {
+        return new Response(JSON.stringify({ error: "Unauthorized: Invalid token" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      callerUserId = claimsData.claims.sub as string;
+
+      // Check admin role using service_role client
+      const adminClient = createClient(supabaseUrl, supabaseServiceKey);
+      const { data: isAdmin } = await adminClient.rpc("has_role", {
+        _user_id: callerUserId,
+        _role: "admin",
+      });
+
+      if (!isAdmin) {
+        return new Response(JSON.stringify({ error: "Forbidden: Admin access required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
     }
+
+    // Use service_role client for all fraud operations
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const body: FraudCheckRequest = await req.json();
     const alerts: FraudAlert[] = [];
@@ -88,7 +120,7 @@ serve(async (req) => {
         .from("listings")
         .select("id, created_at")
         .eq("seller_id", body.user_id)
-        .gte("created_at", new Date(Date.now() - 3600000).toISOString()) // Last hour
+        .gte("created_at", new Date(Date.now() - 3600000).toISOString())
         .order("created_at", { ascending: false });
 
       if (recentListings && recentListings.length > 10) {
@@ -128,7 +160,6 @@ serve(async (req) => {
             auto_action_taken: "listing_suspended",
           });
 
-          // Auto-suspend the listings
           for (const bid of selfBids) {
             await supabase
               .from("listings")
@@ -145,7 +176,7 @@ serve(async (req) => {
     if (body.action === "check_listing" && body.listing_id) {
       const { data: listing } = await supabase
         .from("listings")
-        .select("*, seller:profiles!seller_id(kyc_status, is_verified)")
+        .select("*")
         .eq("id", body.listing_id)
         .single();
 
@@ -174,7 +205,6 @@ serve(async (req) => {
                 listing_id: body.listing_id,
               });
 
-              // Auto-deactivate listing with prohibited content
               await supabase
                 .from("listings")
                 .update({ is_active: false })
@@ -184,7 +214,7 @@ serve(async (req) => {
           }
         }
 
-        // Check for price manipulation (drastic price changes)
+        // Check for price manipulation
         const { data: priceHistory } = await supabase
           .from("price_history")
           .select("price, recorded_at")
@@ -219,12 +249,11 @@ serve(async (req) => {
     if (body.action === "check_withdrawal" && body.user_id) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("*")
+        .select("user_id, kyc_status, payout_balance, created_at, withdrawal_blocked")
         .eq("user_id", body.user_id)
         .single();
 
       if (profile) {
-        // Check KYC status
         if (profile.kyc_status !== "approved") {
           alerts.push({
             user_id: body.user_id,
@@ -239,10 +268,10 @@ serve(async (req) => {
 
         // Check for rapid consecutive withdrawals
         const { data: recentPayouts } = await supabase
-          .from("seller_payouts")
-          .select("*")
+          .from("payouts")
+          .select("id, net_amount, created_at")
           .eq("seller_id", body.user_id)
-          .gte("created_at", new Date(Date.now() - 86400000).toISOString()) // Last 24h
+          .gte("created_at", new Date(Date.now() - 86400000).toISOString())
           .order("created_at", { ascending: false });
 
         if (recentPayouts && recentPayouts.length > 5) {
@@ -252,12 +281,11 @@ serve(async (req) => {
             alert_type: "suspicious_withdrawal",
             severity: "critical",
             title: "Pattern Extragere Suspectă",
-            description: `${recentPayouts.length} cereri de extragere în 24h, total: £${totalAmount.toFixed(2)}`,
+            description: `${recentPayouts.length} cereri de extragere în 24h, total: ${totalAmount.toFixed(2)} LEI`,
             evidence: recentPayouts.slice(0, 5),
             auto_action_taken: "withdrawal_blocked",
           });
 
-          // Auto-block withdrawals
           await supabase
             .from("profiles")
             .update({
@@ -278,7 +306,7 @@ serve(async (req) => {
             alert_type: "new_account_high_balance",
             severity: "warning",
             title: "Cont Nou cu Sold Mare",
-            description: `Cont de ${accountDays.toFixed(0)} zile cu sold de £${profile.payout_balance?.toFixed(2)}`,
+            description: `Cont de ${accountDays.toFixed(0)} zile cu sold de ${profile.payout_balance?.toFixed(2)} LEI`,
             evidence: [{ account_days: accountDays, balance: profile.payout_balance }],
             auto_action_taken: null,
           });
@@ -287,18 +315,9 @@ serve(async (req) => {
     }
 
     // ======================
-    // 4. PLATFORM SCAN
+    // 4. PLATFORM SCAN (admin-only via auth check above)
     // ======================
     if (body.action === "scan_platform") {
-      // Find sellers without KYC trying to sell
-      const { data: unverifiedSellers } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, kyc_status")
-        .eq("is_seller", true)
-        .neq("kyc_status", "approved")
-        .not("kyc_status", "is", null);
-
-      // Find orders stuck in pending for too long
       const { data: stuckOrders } = await supabase
         .from("orders")
         .select("id, seller_id, created_at")
@@ -318,12 +337,6 @@ serve(async (req) => {
           });
         }
       }
-
-      // Find potential bid manipulation
-      const { data: suspiciousBids } = await supabase
-        .rpc("get_suspicious_bidding_patterns");
-
-      // This is a placeholder - would need a custom function
     }
 
     // ======================
@@ -344,22 +357,15 @@ serve(async (req) => {
           status: "pending",
         });
 
-        // Update user fraud score
         const scoreIncrease = alert.severity === "critical" ? 25 : 10;
         await supabase.rpc("increment_fraud_score", {
           p_user_id: alert.user_id,
           p_score: scoreIncrease,
         });
 
-        // Create admin notification
-        const { data: admins } = await supabase
-          .from("admin_emails")
-          .select("email")
-          .eq("is_active", true);
-
-        // Log to audit
+        // Audit log
         await supabase.from("audit_logs").insert({
-          admin_id: body.user_id || "system",
+          admin_id: callerUserId || body.user_id || "00000000-0000-0000-0000-000000000000",
           action: "fraud_alert_created",
           entity_type: "fraud_alert",
           entity_id: alert.user_id,
