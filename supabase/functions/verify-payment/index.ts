@@ -6,9 +6,66 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface VerifyPaymentRequest {
-  orderIds: string[];
-  invoiceNumber?: string;
+// Get PayPal credentials from DB
+async function getPayPalConfig(supabase: any) {
+  const { data, error } = await supabase
+    .from("payment_processor_settings")
+    .select("*")
+    .eq("processor_name", "paypal")
+    .eq("is_active", true)
+    .single();
+
+  if (error || !data) return null;
+  if (!data.api_key_encrypted || !data.api_secret_encrypted) return null;
+
+  return {
+    clientId: data.api_key_encrypted,
+    clientSecret: data.api_secret_encrypted,
+    environment: data.environment || "sandbox",
+  };
+}
+
+// Get PayPal access token
+async function getPayPalAccessToken(config: { clientId: string; clientSecret: string; environment: string }) {
+  const baseUrl = config.environment === "live"
+    ? "https://api-m.paypal.com"
+    : "https://api-m.sandbox.paypal.com";
+
+  const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": `Basic ${btoa(`${config.clientId}:${config.clientSecret}`)}`,
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  if (!response.ok) {
+    throw new Error("PayPal authentication failed");
+  }
+
+  const data = await response.json();
+  return { accessToken: data.access_token, baseUrl };
+}
+
+// Capture PayPal order
+async function capturePayPalOrder(accessToken: string, baseUrl: string, paypalOrderId: string) {
+  const response = await fetch(`${baseUrl}/v2/checkout/orders/${paypalOrderId}/capture`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    console.error("PayPal capture failed:", result);
+    throw new Error(result.message || "PayPal capture failed");
+  }
+
+  return result;
 }
 
 serve(async (req) => {
@@ -21,7 +78,6 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get auth token
     const authHeader = req.headers.get("Authorization");
     let userId: string | null = null;
 
@@ -31,8 +87,7 @@ serve(async (req) => {
       userId = user?.id || null;
     }
 
-    const body: VerifyPaymentRequest = await req.json();
-    const { orderIds, invoiceNumber } = body;
+    const { orderIds, invoiceNumber, paypalOrderId } = await req.json();
 
     if (!orderIds || orderIds.length === 0) {
       throw new Error("No order IDs provided");
@@ -53,66 +108,154 @@ serve(async (req) => {
       throw new Error("Orders not found");
     }
 
-    // Check current order status
+    // Check if already processed
     const pendingOrders = orders.filter(o => o.status === "payment_pending");
     
     if (pendingOrders.length === 0) {
-      // All orders already processed
       const allConfirmed = orders.every(o => o.status !== "cancelled");
       return new Response(
         JSON.stringify({
           success: true,
+          paymentConfirmed: allConfirmed,
           status: allConfirmed ? "confirmed" : "failed",
-          orders: orders.map(o => ({
-            id: o.id,
-            status: o.status,
-            amount: o.amount,
-          })),
-          message: allConfirmed 
-            ? "Toate comenzile au fost deja confirmate" 
-            : "Unele comenzi au fost anulate",
+          orders: orders.map(o => ({ id: o.id, status: o.status, amount: o.amount })),
+          message: allConfirmed ? "Toate comenzile au fost deja confirmate" : "Unele comenzi au fost anulate",
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // No card payment processor is currently integrated
-    // Pending card payment orders cannot be verified
-    // Cancel them and restore stock
-    const results = [];
+    // ─── PayPal Capture ───
+    if (paypalOrderId) {
+      const paypalConfig = await getPayPalConfig(supabase);
+      if (!paypalConfig) {
+        throw new Error("PayPal nu este configurat");
+      }
 
-    for (const order of pendingOrders) {
-      const { error: cancelError } = await supabase.rpc(
-        "cancel_pending_order",
-        {
-          p_order_id: order.id,
-          p_reason: "Procesatorul de plăți cu cardul nu este disponibil",
+      const { accessToken, baseUrl } = await getPayPalAccessToken(paypalConfig);
+      
+      try {
+        const captureResult = await capturePayPalOrder(accessToken, baseUrl, paypalOrderId);
+        console.log("PayPal capture result:", JSON.stringify(captureResult));
+
+        const captureStatus = captureResult.status;
+        
+        if (captureStatus === "COMPLETED") {
+          // Get capture transaction ID
+          const capture = captureResult.purchase_units?.[0]?.payments?.captures?.[0];
+          const captureId = capture?.id || paypalOrderId;
+          const capturedAmount = capture?.amount?.value;
+
+          // Confirm all orders
+          for (const order of pendingOrders) {
+            await supabase.rpc("confirm_order_payment", {
+              p_order_id: order.id,
+              p_transaction_id: captureId,
+              p_processor_status: "paypal_captured",
+            });
+
+            // Update order with PayPal details
+            await supabase
+              .from("orders")
+              .update({
+                processor_transaction_id: captureId,
+                processor_status: "paypal_captured",
+                payment_processor: "paypal",
+              })
+              .eq("id", order.id);
+          }
+
+          // Update invoice
+          if (invoiceNumber) {
+            await supabase
+              .from("invoices")
+              .update({ status: "paid", paid_at: new Date().toISOString() })
+              .eq("invoice_number", invoiceNumber);
+          }
+
+          return new Response(
+            JSON.stringify({
+              success: true,
+              paymentConfirmed: true,
+              status: "confirmed",
+              paypalOrderId,
+              captureId,
+              amount: capturedAmount,
+              results: pendingOrders.map(o => ({
+                orderId: o.id,
+                success: true,
+                status: "confirmed",
+                amount: o.amount,
+              })),
+              message: "Plata PayPal a fost confirmată cu succes!",
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        } else {
+          // Payment not completed - cancel orders
+          for (const order of pendingOrders) {
+            await supabase.rpc("cancel_pending_order", {
+              p_order_id: order.id,
+              p_reason: `PayPal status: ${captureStatus}`,
+            });
+          }
+
+          if (invoiceNumber) {
+            await supabase.from("invoices").update({ status: "cancelled" }).eq("invoice_number", invoiceNumber);
+          }
+
+          return new Response(
+            JSON.stringify({
+              success: false,
+              paymentConfirmed: false,
+              status: "failed",
+              message: `Plata PayPal nu a fost finalizată (status: ${captureStatus}).`,
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
         }
-      );
+      } catch (captureError: any) {
+        console.error("PayPal capture error:", captureError);
 
-      if (cancelError) {
-        console.error("Error cancelling order:", cancelError);
-        results.push({
-          orderId: order.id,
-          success: false,
-          error: cancelError.message,
-        });
-      } else {
-        results.push({
-          orderId: order.id,
-          success: true,
-          status: "cancelled",
-          stockRestored: true,
-        });
+        // Check if already captured (duplicate capture attempt)
+        if (captureError.message?.includes("ORDER_ALREADY_CAPTURED")) {
+          // Already captured - mark as confirmed
+          for (const order of pendingOrders) {
+            await supabase.rpc("confirm_order_payment", {
+              p_order_id: order.id,
+              p_transaction_id: paypalOrderId,
+              p_processor_status: "paypal_captured",
+            });
+          }
+          if (invoiceNumber) {
+            await supabase.from("invoices").update({ status: "paid", paid_at: new Date().toISOString() }).eq("invoice_number", invoiceNumber);
+          }
+
+          return new Response(
+            JSON.stringify({
+              success: true,
+              paymentConfirmed: true,
+              status: "confirmed",
+              message: "Plata a fost deja confirmată.",
+            }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        throw captureError;
       }
     }
 
-    // Update invoice status
+    // ─── No PayPal order ID - cancel pending orders ───
+    for (const order of pendingOrders) {
+      await supabase.rpc("cancel_pending_order", {
+        p_order_id: order.id,
+        p_reason: "Plata nu a fost finalizată",
+      });
+    }
+
     if (invoiceNumber) {
-      await supabase
-        .from("invoices")
-        .update({ status: "cancelled" })
-        .eq("invoice_number", invoiceNumber);
+      await supabase.from("invoices").update({ status: "cancelled" }).eq("invoice_number", invoiceNumber);
     }
 
     return new Response(
@@ -120,8 +263,7 @@ serve(async (req) => {
         success: false,
         paymentConfirmed: false,
         status: "failed",
-        results,
-        message: "Plata cu cardul nu este disponibilă momentan. Folosește Ramburs (COD).",
+        message: "Plata nu a fost finalizată. Folosește Ramburs (COD) sau încearcă din nou.",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
