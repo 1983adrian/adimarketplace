@@ -11,11 +11,10 @@ export default function TermsOfService() {
           <div className="text-center mb-12">
             <FileText className="h-16 w-16 mx-auto mb-4 text-primary" />
             <h1 className="text-4xl font-bold mb-4">Termeni și Condiții</h1>
-            <p className="text-muted-foreground">MarketPlaceRomania.com</p>
+            <p className="text-muted-foreground">Market Place România — marketplaceromania.lovable.app</p>
           </div>
 
           <div className="space-y-8">
-            {/* 1. Despre platformă */}
             <Card>
               <CardContent className="py-6">
                 <div className="flex items-start gap-4">
@@ -23,29 +22,27 @@ export default function TermsOfService() {
                   <div>
                     <h2 className="text-xl font-semibold mb-3">1.1. Despre platformă</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      MarketPlaceRomania.com este o platformă online de tip marketplace care facilitează contactul dintre vânzători și cumpărători. Platforma nu este parte în tranzacțiile dintre utilizatori și nu vinde produse în nume propriu.
+                      Market Place România este o platformă online de tip marketplace care facilitează contactul dintre vânzători și cumpărători din România și din întreaga lume. Platforma nu este parte în tranzacțiile dintre utilizatori și nu vinde produse în nume propriu.
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 1.2. Rolul MarketPlaceRomania */}
             <Card>
               <CardContent className="py-6">
                 <div className="flex items-start gap-4">
                   <Scale className="h-6 w-6 text-primary mt-1 shrink-0" />
                   <div>
-                    <h2 className="text-xl font-semibold mb-3">1.2. Rolul MarketPlaceRomania</h2>
+                    <h2 className="text-xl font-semibold mb-3">1.2. Rolul Market Place România</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      MarketPlaceRomania acționează exclusiv ca intermediar tehnic. Toate produsele, descrierile, prețurile, livrarea și garanțiile sunt responsabilitatea vânzătorilor.
+                      Market Place România acționează exclusiv ca intermediar tehnic. Toate produsele, descrierile, prețurile, livrarea și garanțiile sunt responsabilitatea exclusivă a vânzătorilor.
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 1.3. Conturi de utilizator */}
             <Card>
               <CardContent className="py-6">
                 <div className="flex items-start gap-4">
@@ -60,7 +57,6 @@ export default function TermsOfService() {
               </CardContent>
             </Card>
 
-            {/* 1.4. Vânzători */}
             <Card>
               <CardContent className="py-6">
                 <div className="flex items-start gap-4">
@@ -75,22 +71,20 @@ export default function TermsOfService() {
               </CardContent>
             </Card>
 
-            {/* 1.5. Comision */}
             <Card className="border-primary/50 bg-primary/5">
               <CardContent className="py-6">
                 <div className="flex items-start gap-4">
                   <Percent className="h-6 w-6 text-primary mt-1 shrink-0" />
                   <div>
-                    <h2 className="text-xl font-semibold mb-3">1.5. Abonamente</h2>
+                    <h2 className="text-xl font-semibold mb-3">1.5. Taxe și Abonamente</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      Platforma funcționează pe bază de <strong className="text-foreground">abonamente lunare</strong>. Nu există comisioane pe vânzări (0%). Vânzătorii noi beneficiază de 30 de zile gratuite. Planuri disponibile: START (11 LEI), SILVER (50 LEI), GOLD (150 LEI), PLATINUM (499 LEI), VIP (999 LEI).
+                      Market Place România funcționează pe bază de <strong className="text-foreground">abonamente lunare fixe</strong> cu <strong className="text-foreground">0% comision pe vânzări</strong>. Nu există taxe pentru cumpărători. Vânzătorii noi beneficiază de 30 de zile gratuite. Planuri disponibile: START (11 LEI/lună), LICITAȚII (11 LEI/lună), SILVER (50 LEI/lună), GOLD (150 LEI/lună), PLATINUM (499 LEI/lună), VIP (999 LEI/lună — produse nelimitate).
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 1.6. Produse interzise */}
             <Card className="border-destructive/50 bg-destructive/5">
               <CardContent className="py-6">
                 <div className="flex items-start gap-4">
@@ -98,14 +92,13 @@ export default function TermsOfService() {
                   <div>
                     <h2 className="text-xl font-semibold mb-3">1.6. Produse interzise</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      Este strict interzisă listarea de produse ilegale, contrafăcute sau care încalcă drepturile terților.
+                      Este strict interzisă listarea de arme, substanțe ilegale, contrabandă, produse contrafăcute sau orice obiect care încalcă legislația în vigoare. Încălcarea duce la suspendarea imediată a contului.
                     </p>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* 1.7. Limitarea răspunderii */}
             <Card>
               <CardContent className="py-6">
                 <div className="flex items-start gap-4">
@@ -113,7 +106,7 @@ export default function TermsOfService() {
                   <div>
                     <h2 className="text-xl font-semibold mb-3">1.7. Limitarea răspunderii</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      MarketPlaceRomania nu răspunde pentru calitatea produselor, livrare, retururi sau conflicte apărute între utilizatori.
+                      Market Place România nu răspunde pentru calitatea produselor, livrare, retururi sau conflicte apărute între utilizatori. Platforma oferă un sistem de dispute pentru rezolvarea problemelor.
                     </p>
                   </div>
                 </div>
@@ -121,7 +114,6 @@ export default function TermsOfService() {
             </Card>
           </div>
 
-          {/* Last updated */}
           <p className="text-center text-sm text-muted-foreground mt-8">
             Ultima actualizare: {new Date().toLocaleDateString('ro-RO')}
           </p>
