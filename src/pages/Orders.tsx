@@ -389,8 +389,8 @@ const BuyerPurchaseCard = ({
                 </ReviewDialog>
               )}
 
-              {/* Return Button - for delivered orders */}
-              {canReview && user && (
+              {/* Return Button - for shipped/delivered orders */}
+              {['shipped', 'delivered'].includes(order.status) && user && (
                 <ReturnRequestDialog
                   orderId={order.id}
                   buyerId={user.id}
