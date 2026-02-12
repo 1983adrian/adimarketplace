@@ -798,14 +798,16 @@ const CreateListing = () => {
                     <div>
                       <Label htmlFor="startingBid">Preț de Pornire *</Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          {priceCurrency === 'RON' ? 'lei' : priceCurrency === 'EUR' ? '€' : priceCurrency === 'USD' ? '$' : '£'}
+                        </span>
                         <Input 
                           id="startingBid" 
                           type="number" 
                           placeholder="1.00" 
                           value={startingBid} 
                           onChange={(e) => setStartingBid(e.target.value)} 
-                          className="pl-8" 
+                          className="pl-10" 
                           min="0.01" 
                           step="0.01" 
                         />
@@ -814,14 +816,16 @@ const CreateListing = () => {
                     <div>
                       <Label htmlFor="bidIncrement">Pas Licitare</Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          {priceCurrency === 'RON' ? 'lei' : priceCurrency === 'EUR' ? '€' : priceCurrency === 'USD' ? '$' : '£'}
+                        </span>
                         <Input 
                           id="bidIncrement" 
                           type="number" 
                           placeholder="1.00" 
                           value={bidIncrement} 
                           onChange={(e) => setBidIncrement(e.target.value)} 
-                          className="pl-8" 
+                          className="pl-10" 
                           min="0.01" 
                           step="0.01" 
                         />
@@ -832,14 +836,16 @@ const CreateListing = () => {
                     <div>
                       <Label htmlFor="reservePrice">Preț de Rezervă (opțional)</Label>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">£</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          {priceCurrency === 'RON' ? 'lei' : priceCurrency === 'EUR' ? '€' : priceCurrency === 'USD' ? '$' : '£'}
+                        </span>
                         <Input 
                           id="reservePrice" 
                           type="number" 
                           placeholder="Minim acceptat" 
                           value={reservePrice} 
                           onChange={(e) => setReservePrice(e.target.value)} 
-                          className="pl-8" 
+                          className="pl-10" 
                           min="0" 
                           step="0.01" 
                         />
