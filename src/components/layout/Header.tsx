@@ -263,20 +263,7 @@ export const Header: React.FC = () => {
                     <AppDownloadButton />
                   </div>
                   
-                  <div className="p-4">
-                    <form onSubmit={handleSearch}>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="search"
-                          placeholder={t('header.search')}
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                    </form>
-                  </div>
+
 
                   <div className="flex-1 overflow-auto p-4 space-y-2">
                     {user ? (
