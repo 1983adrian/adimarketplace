@@ -108,8 +108,6 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
           <span className="text-[#FCD116]" style={{ textShadow: '0 0 1px rgba(0,0,0,0.3)' }}>{t('brand.buy')}</span>
           <span className="mx-1.5 text-muted-foreground/50">•</span>
           <span className="text-[#CE1126]">{t('brand.bid')}</span>
-          <span className="mx-2 text-muted-foreground">—</span>
-          <span className="text-muted-foreground">{t('brand.tagline')}</span>
         </p>
       )}
 
