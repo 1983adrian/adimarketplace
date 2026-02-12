@@ -66,18 +66,32 @@ export const useMyOrders = (type: 'buying' | 'selling') => {
 
       if (error) throw error;
       
-      // Fetch seller profiles for buyer orders using secure public view
-      if (type === 'buying' && data && data.length > 0) {
-        const sellerIds = [...new Set(data.map(o => o.seller_id))];
-        const { data: profiles } = await supabase
-          .from('public_seller_profiles')
-          .select('user_id, display_name, username')
-          .in('user_id', sellerIds);
-        
-        return data.map(order => ({
-          ...order,
-          seller_profile: profiles?.find(p => p.user_id === order.seller_id),
-        })) as Order[];
+      // Fetch profiles for the other party
+      if (data && data.length > 0) {
+        if (type === 'buying') {
+          const sellerIds = [...new Set(data.map(o => o.seller_id))];
+          const { data: profiles } = await supabase
+            .from('public_seller_profiles')
+            .select('user_id, display_name, username')
+            .in('user_id', sellerIds);
+          
+          return data.map(order => ({
+            ...order,
+            seller_profile: profiles?.find(p => p.user_id === order.seller_id),
+          })) as Order[];
+        } else {
+          // For selling orders, fetch buyer profiles
+          const buyerIds = [...new Set(data.map(o => o.buyer_id))];
+          const { data: profiles } = await supabase
+            .from('profiles')
+            .select('user_id, display_name, username')
+            .in('user_id', buyerIds);
+          
+          return data.map(order => ({
+            ...order,
+            buyer_profile: profiles?.find(p => p.user_id === order.buyer_id),
+          })) as Order[];
+        }
       }
       
       return data as Order[];

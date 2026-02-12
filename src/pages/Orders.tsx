@@ -24,7 +24,8 @@ import {
   Inbox,
   LucideIcon,
   XCircle,
-  Loader2
+  Loader2,
+  MapPin
 } from 'lucide-react';
 import { useMyOrders, useUpdateTracking, useConfirmDelivery, Order } from '@/hooks/useOrders';
 import { useCancelOrder } from '@/hooks/useCancelOrder';
@@ -71,6 +72,7 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { id: 'buying', title: 'Cumpărăturile Mele', icon: ShoppingBag, description: 'Produsele cumpărate de tine', color: 'bg-gradient-to-br from-sky-400 to-blue-500' },
+  { id: 'selling', title: 'Vânzările Mele', icon: Store, description: 'Comenzi de la clienți', color: 'bg-gradient-to-br from-lime-500 to-lime-700' },
   { id: 'my-returns', title: 'Returnările Mele', icon: Undo2, description: 'Retururi solicitate de tine', color: 'bg-gradient-to-br from-orange-400 to-red-500' },
 ];
 
@@ -482,10 +484,28 @@ const BuyerPurchaseCard = ({
 const SoldProductCard = ({ order }: { order: Order }) => {
   const { formatPrice } = useCurrency();
   const navigate = useNavigate();
+  const updateTracking = useUpdateTracking();
+  const [showTrackingDialog, setShowTrackingDialog] = useState(false);
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [carrier, setCarrier] = useState('');
 
   const status = statusConfig[order.status] || statusConfig.pending;
   const primaryImage = order.listings?.listing_images?.find(img => img.is_primary)?.image_url
     || order.listings?.listing_images?.[0]?.image_url;
+
+  const canAddTracking = ['pending', 'paid'].includes(order.status) && !order.tracking_number;
+
+  const handleAddTracking = () => {
+    if (!trackingNumber || !carrier) return;
+    updateTracking.mutate(
+      { orderId: order.id, trackingNumber, carrier },
+      { onSuccess: () => {
+        setShowTrackingDialog(false);
+        setTrackingNumber('');
+        setCarrier('');
+      }}
+    );
+  };
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
@@ -537,6 +557,14 @@ const SoldProductCard = ({ order }: { order: Order }) => {
                   {format(new Date(order.created_at), 'dd MMM yyyy')}
                 </span>
               </div>
+
+              {/* Shipping Address */}
+              {order.shipping_address && (
+                <div className="mt-2 p-2 bg-muted/50 rounded-lg text-xs text-muted-foreground">
+                  <MapPin className="h-3 w-3 inline mr-1" />
+                  Adresa: {order.shipping_address}
+                </div>
+              )}
             </div>
 
             {/* Payout info */}
@@ -553,7 +581,88 @@ const SoldProductCard = ({ order }: { order: Order }) => {
               <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground bg-muted/50 rounded-lg px-2 py-1">
                 <Truck className="h-3.5 w-3.5" />
                 <span>AWB: {order.tracking_number}</span>
+                {order.carrier && (
+                  <span className="text-primary font-medium">
+                    ({CARRIERS.find(c => c.value === order.carrier)?.label || order.carrier})
+                  </span>
+                )}
               </div>
+            )}
+
+            {/* Add Tracking Button */}
+            {canAddTracking && (
+              <Dialog open={showTrackingDialog} onOpenChange={setShowTrackingDialog}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="mt-3 gap-1">
+                    <Truck className="h-4 w-4" />
+                    Adaugă AWB & Expediază
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Adaugă Număr de Urmărire</DialogTitle>
+                    <DialogDescription>
+                      Introdu AWB-ul coletului pentru a marca comanda ca expediată. Clientul va fi notificat automat.
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  {/* Product preview */}
+                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    {primaryImage && (
+                      <img src={primaryImage} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                    )}
+                    <div>
+                      <p className="font-medium text-sm">{order.listings?.title}</p>
+                      <p className="text-xs text-muted-foreground">{formatPrice(Number(order.amount))}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 py-2">
+                    <div className="space-y-2">
+                      <Label>Curier *</Label>
+                      <Select value={carrier} onValueChange={setCarrier}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selectează curierul" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {CARRIERS.map((c) => (
+                            <SelectItem key={c.value} value={c.value}>
+                              {c.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Număr AWB *</Label>
+                      <Input
+                        placeholder="Introdu numărul de urmărire"
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setShowTrackingDialog(false)}>
+                      Anulează
+                    </Button>
+                    <Button 
+                      onClick={handleAddTracking} 
+                      disabled={!trackingNumber || !carrier || updateTracking.isPending}
+                    >
+                      {updateTracking.isPending ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Se trimite...
+                        </>
+                      ) : (
+                        'Confirmă Expedierea'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             )}
           </div>
         </div>
