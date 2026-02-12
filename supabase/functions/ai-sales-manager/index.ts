@@ -130,7 +130,7 @@ serve(async (req) => {
       if (count >= 3) {
         suspiciousActivity.push({
           userId,
-          reason: `${count} comenzi anulate de acest cumpărător`,
+      reason: `${count} comenzi anulate de acest cumpărător`,
           severity: count >= 5 ? "high" : "medium"
         });
       }
@@ -144,7 +144,7 @@ serve(async (req) => {
     oldPendingOrders.forEach(o => {
       suspiciousActivity.push({
         userId: o.buyer_id,
-        reason: `Comandă de £${o.amount} în așteptare de peste 3 zile`,
+        reason: `Comandă de ${o.amount} LEI în așteptare de peste 3 zile`,
         severity: "medium"
       });
     });
@@ -187,16 +187,16 @@ Date:
 - Comenzi în așteptare: ${salesData.pendingOrders}
 - Comenzi livrate: ${salesData.deliveredOrders}
 - Comenzi anulate: ${salesData.cancelledOrders}
-- Venituri totale: £${salesData.totalRevenue.toFixed(2)}
-- Câștiguri platformă: £${salesData.platformEarnings.toFixed(2)}
-- Valoare medie comandă: £${salesData.averageOrderValue.toFixed(2)}
+- Venituri totale: ${salesData.totalRevenue.toFixed(2)} LEI
+- Câștiguri platformă: ${salesData.platformEarnings.toFixed(2)} LEI
+- Valoare medie comandă: ${salesData.averageOrderValue.toFixed(2)} LEI
 - Comenzi astăzi: ${salesData.todayOrders}
-- Venituri astăzi: £${salesData.todayRevenue.toFixed(2)}
-- Plăți în așteptare către vânzători: £${salesData.pendingPayouts.toFixed(2)}
+- Venituri astăzi: ${salesData.todayRevenue.toFixed(2)} LEI
+- Plăți în așteptare către vânzători: ${salesData.pendingPayouts.toFixed(2)} LEI
 - Activități suspecte: ${salesData.recentSuspiciousActivity.length}
 
 Top vânzători:
-${salesData.topSellers.map((s, i) => `${i+1}. ${s.name}: ${s.sales} vânzări, £${s.revenue.toFixed(2)}`).join('\n')}
+${salesData.topSellers.map((s, i) => `${i+1}. ${s.name}: ${s.sales} vânzări, ${s.revenue.toFixed(2)} LEI`).join('\n')}
 
 Răspunde în limba română, structurat și concis.`;
 

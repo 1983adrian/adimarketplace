@@ -112,7 +112,9 @@ serve(async (req) => {
     const startsAt = new Date();
     const endsAt = new Date(startsAt.getTime() + promotionDuration * 24 * 60 * 60 * 1000);
 
-    // Create the promotion record
+    // NOTE: Promoția este creată ca INACTIVĂ până când adminul confirmă plata.
+    // Nu există un procesor de plăți automat — plata se face prin Revolut, 
+    // iar adminul activează manual promoția din panoul de administrare.
     const { data: promotion, error: promoError } = await supabaseAdmin
       .from('listing_promotions')
       .insert({
@@ -121,7 +123,7 @@ serve(async (req) => {
         promotion_type: 'paid',
         starts_at: startsAt.toISOString(),
         ends_at: endsAt.toISOString(),
-        is_active: true,
+        is_active: false, // Activată de admin după confirmarea plății
         amount_paid: promotionAmount
       })
       .select()
@@ -151,17 +153,18 @@ serve(async (req) => {
         }
       });
 
-    // Send notification to seller
+    // Send notification to seller - cerere în așteptare
     await supabaseAdmin
       .from('notifications')
       .insert({
         user_id: user.id,
         type: 'promotion',
-        title: '🚀 Produs promovat!',
-        message: `Produsul "${listing.title}" va apărea pe homepage timp de ${promotionDuration} zile.`,
+        title: '⏳ Cerere promovare trimisă',
+        message: `Cererea de promovare pentru "${listing.title}" (${promotionAmount} LEI) așteaptă confirmarea plății de către admin.`,
         data: { 
           listing_id: listingId,
           promotion_id: promotion.id,
+          status: 'pending_payment',
           ends_at: endsAt.toISOString()
         }
       });
@@ -170,8 +173,9 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         promotion,
-        message: `Produsul tău va fi promovat timp de ${promotionDuration} zile!`,
+        message: `Cererea de promovare a fost trimisă. Plătește ${promotionAmount} LEI prin Revolut, iar adminul va activa promoția.`,
         amountPaid: promotionAmount,
+        status: 'pending_payment',
         endsAt: endsAt.toISOString()
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

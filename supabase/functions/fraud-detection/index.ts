@@ -55,16 +55,16 @@ serve(async (req) => {
       });
       
       const token = authHeader.replace("Bearer ", "");
-      const { data: claimsData, error: claimsError } = await userClient.auth.getClaims(token);
+      const { data: { user: callerUser }, error: userError } = await userClient.auth.getUser(token);
       
-      if (claimsError || !claimsData?.claims?.sub) {
+      if (userError || !callerUser) {
         return new Response(JSON.stringify({ error: "Unauthorized: Invalid token" }), {
           status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
 
-      callerUserId = claimsData.claims.sub as string;
+      callerUserId = callerUser.id;
 
       // Check admin role using service_role client
       const adminClient = createClient(supabaseUrl, supabaseServiceKey);
