@@ -67,6 +67,18 @@ type TranslationKeys = {
   'listing.cod': string;
   'listing.bid': string;
   'listing.addToCart': string;
+  'listing.addedToCart': string;
+  'listing.loginToFavorite': string;
+  'listing.loginToFavoriteDesc': string;
+  'listing.removedFromFavorites': string;
+  'listing.removedFromFavoritesDesc': string;
+  'listing.addedToFavorites': string;
+  'listing.addedToFavoritesDesc': string;
+  'listing.errorSaving': string;
+  'listing.errorSavingDesc': string;
+  
+  // Common extra
+  'common.viewAll': string;
   
   // Conditions
   'condition.new': string;
@@ -219,6 +231,16 @@ export const translations: Translations = {
     'listing.cod': 'Plată la livrare',
     'listing.bid': 'Licitează',
     'listing.addToCart': 'Adaugă în Coș',
+    'listing.addedToCart': 'Adăugat în coș',
+    'listing.loginToFavorite': 'Autentificare necesară',
+    'listing.loginToFavoriteDesc': 'Trebuie să fii autentificat pentru a salva favorite',
+    'listing.removedFromFavorites': 'Eliminat din favorite',
+    'listing.removedFromFavoritesDesc': 'Produsul a fost eliminat din lista ta de favorite.',
+    'listing.addedToFavorites': '❤️ Adăugat la favorite',
+    'listing.addedToFavoritesDesc': 'Produsul a fost salvat în favorite.',
+    'listing.errorSaving': 'Eroare',
+    'listing.errorSavingDesc': 'Nu am putut salva produsul în favorite.',
+    'common.viewAll': 'Vezi Tot',
     
     // Conditions
     'condition.new': 'Nou',
@@ -368,6 +390,16 @@ export const translations: Translations = {
     'listing.cod': 'Cash on Delivery',
     'listing.bid': 'Bid',
     'listing.addToCart': 'Add to Cart',
+    'listing.addedToCart': 'Added to cart',
+    'listing.loginToFavorite': 'Login required',
+    'listing.loginToFavoriteDesc': 'You need to be logged in to save favorites',
+    'listing.removedFromFavorites': 'Removed from favorites',
+    'listing.removedFromFavoritesDesc': 'Product removed from your favorites.',
+    'listing.addedToFavorites': '❤️ Added to favorites',
+    'listing.addedToFavoritesDesc': 'Product saved to favorites.',
+    'listing.errorSaving': 'Error',
+    'listing.errorSavingDesc': 'Could not save product to favorites.',
+    'common.viewAll': 'View All',
 
     // Conditions
     'condition.new': 'New',
@@ -517,6 +549,16 @@ export const translations: Translations = {
     'listing.cod': 'Nachnahme',
     'listing.bid': 'Bieten',
     'listing.addToCart': 'In den Warenkorb',
+    'listing.addedToCart': 'In den Warenkorb gelegt',
+    'listing.loginToFavorite': 'Anmeldung erforderlich',
+    'listing.loginToFavoriteDesc': 'Du musst angemeldet sein, um Favoriten zu speichern',
+    'listing.removedFromFavorites': 'Aus Favoriten entfernt',
+    'listing.removedFromFavoritesDesc': 'Produkt aus deinen Favoriten entfernt.',
+    'listing.addedToFavorites': '❤️ Zu Favoriten hinzugefügt',
+    'listing.addedToFavoritesDesc': 'Produkt in Favoriten gespeichert.',
+    'listing.errorSaving': 'Fehler',
+    'listing.errorSavingDesc': 'Produkt konnte nicht in Favoriten gespeichert werden.',
+    'common.viewAll': 'Alle anzeigen',
 
     // Conditions
     'condition.new': 'Neu',
@@ -666,6 +708,16 @@ export const translations: Translations = {
     'listing.cod': 'Contra reembolso',
     'listing.bid': 'Pujar',
     'listing.addToCart': 'Añadir al Carrito',
+    'listing.addedToCart': 'Añadido al carrito',
+    'listing.loginToFavorite': 'Inicio de sesión requerido',
+    'listing.loginToFavoriteDesc': 'Debes iniciar sesión para guardar favoritos',
+    'listing.removedFromFavorites': 'Eliminado de favoritos',
+    'listing.removedFromFavoritesDesc': 'Producto eliminado de tus favoritos.',
+    'listing.addedToFavorites': '❤️ Añadido a favoritos',
+    'listing.addedToFavoritesDesc': 'Producto guardado en favoritos.',
+    'listing.errorSaving': 'Error',
+    'listing.errorSavingDesc': 'No se pudo guardar el producto en favoritos.',
+    'common.viewAll': 'Ver Todo',
 
     // Conditions
     'condition.new': 'Nuevo',
@@ -815,6 +867,16 @@ export const translations: Translations = {
     'listing.cod': '货到付款',
     'listing.bid': '出价',
     'listing.addToCart': '加入购物车',
+    'listing.addedToCart': '已加入购物车',
+    'listing.loginToFavorite': '需要登录',
+    'listing.loginToFavoriteDesc': '您需要登录才能保存收藏',
+    'listing.removedFromFavorites': '已从收藏中移除',
+    'listing.removedFromFavoritesDesc': '产品已从您的收藏中移除。',
+    'listing.addedToFavorites': '❤️ 已添加到收藏',
+    'listing.addedToFavoritesDesc': '产品已保存到收藏。',
+    'listing.errorSaving': '错误',
+    'listing.errorSavingDesc': '无法将产品保存到收藏。',
+    'common.viewAll': '查看全部',
 
     // Conditions
     'condition.new': '全新',
@@ -956,6 +1018,16 @@ export const translations: Translations = {
     'listing.cod': 'Paiement à la livraison',
     'listing.bid': 'Enchérir',
     'listing.addToCart': 'Ajouter au Panier',
+    'listing.addedToCart': 'Ajouté au panier',
+    'listing.loginToFavorite': 'Connexion requise',
+    'listing.loginToFavoriteDesc': 'Vous devez être connecté pour sauvegarder des favoris',
+    'listing.removedFromFavorites': 'Retiré des favoris',
+    'listing.removedFromFavoritesDesc': 'Produit retiré de vos favoris.',
+    'listing.addedToFavorites': '❤️ Ajouté aux favoris',
+    'listing.addedToFavoritesDesc': 'Produit sauvegardé dans les favoris.',
+    'listing.errorSaving': 'Erreur',
+    'listing.errorSavingDesc': 'Impossible de sauvegarder le produit dans les favoris.',
+    'common.viewAll': 'Voir Tout',
     'condition.new': 'Neuf',
     'condition.like_new': 'Comme Neuf',
     'condition.good': 'Bon',
@@ -1077,6 +1149,16 @@ export const translations: Translations = {
     'listing.cod': 'Pagamento alla consegna',
     'listing.bid': 'Offri',
     'listing.addToCart': 'Aggiungi al Carrello',
+    'listing.addedToCart': 'Aggiunto al carrello',
+    'listing.loginToFavorite': 'Accesso richiesto',
+    'listing.loginToFavoriteDesc': 'Devi essere connesso per salvare i preferiti',
+    'listing.removedFromFavorites': 'Rimosso dai preferiti',
+    'listing.removedFromFavoritesDesc': 'Prodotto rimosso dai tuoi preferiti.',
+    'listing.addedToFavorites': '❤️ Aggiunto ai preferiti',
+    'listing.addedToFavoritesDesc': 'Prodotto salvato nei preferiti.',
+    'listing.errorSaving': 'Errore',
+    'listing.errorSavingDesc': 'Impossibile salvare il prodotto nei preferiti.',
+    'common.viewAll': 'Vedi Tutto',
     'condition.new': 'Nuovo',
     'condition.like_new': 'Come Nuovo',
     'condition.good': 'Buono',
@@ -1198,6 +1280,16 @@ export const translations: Translations = {
     'listing.cod': 'Pagamento na entrega',
     'listing.bid': 'Licitar',
     'listing.addToCart': 'Adicionar ao Carrinho',
+    'listing.addedToCart': 'Adicionado ao carrinho',
+    'listing.loginToFavorite': 'Login necessário',
+    'listing.loginToFavoriteDesc': 'Você precisa estar conectado para salvar favoritos',
+    'listing.removedFromFavorites': 'Removido dos favoritos',
+    'listing.removedFromFavoritesDesc': 'Produto removido dos seus favoritos.',
+    'listing.addedToFavorites': '❤️ Adicionado aos favoritos',
+    'listing.addedToFavoritesDesc': 'Produto salvo nos favoritos.',
+    'listing.errorSaving': 'Erro',
+    'listing.errorSavingDesc': 'Não foi possível salvar o produto nos favoritos.',
+    'common.viewAll': 'Ver Tudo',
     'condition.new': 'Novo',
     'condition.like_new': 'Como Novo',
     'condition.good': 'Bom',
@@ -1319,6 +1411,16 @@ export const translations: Translations = {
     'listing.cod': 'Rembours',
     'listing.bid': 'Bieden',
     'listing.addToCart': 'Toevoegen aan Winkelwagen',
+    'listing.addedToCart': 'Toegevoegd aan winkelwagen',
+    'listing.loginToFavorite': 'Inloggen vereist',
+    'listing.loginToFavoriteDesc': 'Je moet ingelogd zijn om favorieten op te slaan',
+    'listing.removedFromFavorites': 'Verwijderd uit favorieten',
+    'listing.removedFromFavoritesDesc': 'Product verwijderd uit je favorieten.',
+    'listing.addedToFavorites': '❤️ Toegevoegd aan favorieten',
+    'listing.addedToFavoritesDesc': 'Product opgeslagen in favorieten.',
+    'listing.errorSaving': 'Fout',
+    'listing.errorSavingDesc': 'Kon product niet opslaan in favorieten.',
+    'common.viewAll': 'Alles Bekijken',
     'condition.new': 'Nieuw',
     'condition.like_new': 'Als Nieuw',
     'condition.good': 'Goed',
@@ -1440,6 +1542,16 @@ export const translations: Translations = {
     'listing.cod': 'Płatność za pobraniem',
     'listing.bid': 'Licytuj',
     'listing.addToCart': 'Dodaj do Koszyka',
+    'listing.addedToCart': 'Dodano do koszyka',
+    'listing.loginToFavorite': 'Wymagane logowanie',
+    'listing.loginToFavoriteDesc': 'Musisz się zalogować, aby zapisać ulubione',
+    'listing.removedFromFavorites': 'Usunięto z ulubionych',
+    'listing.removedFromFavoritesDesc': 'Produkt usunięto z ulubionych.',
+    'listing.addedToFavorites': '❤️ Dodano do ulubionych',
+    'listing.addedToFavoritesDesc': 'Produkt zapisano w ulubionych.',
+    'listing.errorSaving': 'Błąd',
+    'listing.errorSavingDesc': 'Nie udało się zapisać produktu w ulubionych.',
+    'common.viewAll': 'Zobacz Wszystko',
     'condition.new': 'Nowy',
     'condition.like_new': 'Jak Nowy',
     'condition.good': 'Dobry',
