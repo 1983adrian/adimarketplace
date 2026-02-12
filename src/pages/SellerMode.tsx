@@ -346,18 +346,18 @@ const SellerMode = () => {
                   )}
 
                   <div className="space-y-2">
-                    <Label className="text-base">
-                      Email PayPal {sellerType === 'business' ? 'Business' : ''}
+                    <Label className="text-lg font-bold">
+                      📧 Email PayPal {sellerType === 'business' ? 'Business' : ''}
                     </Label>
                     <Input
                       type="email"
                       value={paypalEmail}
                       onChange={(e) => setPaypalEmail(e.target.value)}
                       placeholder="email@paypal.com"
-                      className="h-12"
+                      className="h-14 text-lg border-2 border-primary/40 focus:border-primary bg-primary/5 font-medium shadow-sm"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Adresa de email asociată contului tău PayPal. Tracking-ul comenzilor se trimite automat la PayPal.
+                    <p className="text-sm text-muted-foreground font-medium">
+                      ⚡ Adresa de email asociată contului tău PayPal. Tracking-ul comenzilor se trimite automat la PayPal.
                     </p>
                   </div>
 
