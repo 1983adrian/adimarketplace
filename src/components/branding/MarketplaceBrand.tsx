@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import heroLogo from '@/assets/marketplace-logo-hero.png';
+import heroLogo from '@/assets/marketplace-logo-hero.jpeg';
 
 interface MarketplaceBrandProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -82,16 +82,16 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
       {/* Hero Logo with circular frame */}
       <div className="flex items-center justify-center">
         <div className={cn(
-          'rounded-full border-4 border-primary/30 shadow-lg overflow-hidden bg-background flex items-center justify-center',
-          size === 'sm' && 'w-16 h-16 sm:w-18 sm:h-18',
-          size === 'md' && 'w-22 h-22 sm:w-26 sm:h-26',
-          size === 'lg' && 'w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40',
-          size === 'xl' && 'w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56',
+          'rounded-full border-[3px] border-primary/25 shadow-lg overflow-hidden bg-white flex items-center justify-center p-2',
+          size === 'sm' && 'w-20 h-20',
+          size === 'md' && 'w-28 h-28 sm:w-32 sm:h-32',
+          size === 'lg' && 'w-36 h-36 sm:w-44 sm:h-44 md:w-48 md:h-48',
+          size === 'xl' && 'w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64',
         )}>
           <img 
             src={heroLogo} 
             alt="MarketPlace România - Vinde Cumpără Licitează" 
-            className="object-cover w-full h-full rounded-full"
+            className="object-contain w-full h-full"
           />
         </div>
       </div>
