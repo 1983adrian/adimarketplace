@@ -122,6 +122,14 @@ const ProfileSettings = () => {
               <p className="text-xs text-muted-foreground mt-2">
                 JPG, PNG sau GIF. Max 5MB.
               </p>
+              {(profile as any)?.short_id && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">ID Utilizator:</span>
+                  <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-sm font-mono font-bold">
+                    #{(profile as any).short_id}
+                  </span>
+                </div>
+              )}
             </div>
             
             {/* Name Fields */}

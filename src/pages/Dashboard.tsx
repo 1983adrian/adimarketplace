@@ -153,7 +153,14 @@ const Dashboard = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-lg font-bold">{profile?.display_name || 'Bine ai venit'}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-bold">{profile?.display_name || 'Bine ai venit'}</h1>
+                {(profile as any)?.short_id && (
+                  <span className="px-1.5 py-0.5 rounded bg-primary/10 text-primary text-xs font-mono font-bold">
+                    #{(profile as any).short_id}
+                  </span>
+                )}
+              </div>
               <p className="text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
                 Marketplace România
               </p>

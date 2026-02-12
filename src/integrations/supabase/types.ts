@@ -1639,6 +1639,7 @@ export type Database = {
           seller_terms_accepted_at: string | null
           seller_trial_started_at: string | null
           seller_type: string | null
+          short_id: string
           store_name: string | null
           suspended_at: string | null
           suspended_by: string | null
@@ -1682,6 +1683,7 @@ export type Database = {
           seller_terms_accepted_at?: string | null
           seller_trial_started_at?: string | null
           seller_type?: string | null
+          short_id?: string
           store_name?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
@@ -1725,6 +1727,7 @@ export type Database = {
           seller_terms_accepted_at?: string | null
           seller_trial_started_at?: string | null
           seller_type?: string | null
+          short_id?: string
           store_name?: string | null
           suspended_at?: string | null
           suspended_by?: string | null
@@ -3452,6 +3455,7 @@ export type Database = {
         Args: { p_token: string; p_user_id: string }
         Returns: boolean
       }
+      generate_short_id: { Args: never; Returns: string }
       get_generalized_location: { Args: { loc: string }; Returns: string }
       get_public_seller_profile: {
         Args: { seller_user_id: string }

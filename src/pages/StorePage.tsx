@@ -190,6 +190,11 @@ const StorePage = () => {
           <CardContent className="pt-14 pb-6 px-6">
             <div className="flex items-center gap-2.5 mb-1 flex-wrap">
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{displayName}</h1>
+              {(seller as any).short_id && (
+                <span className="px-2 py-0.5 rounded bg-white/10 text-white/80 text-xs font-mono font-bold">
+                  #{(seller as any).short_id}
+                </span>
+              )}
               <VerifiedBadge userId={id!} size="lg" />
               <TopSellerBadge userId={id!} size="md" showLabel />
             </div>
