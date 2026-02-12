@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { usePlatformStats, usePlatformFees, useAllOrders, useAllUsers, useAllListings } from '@/hooks/useAdmin';
+import { usePlatformStats, useAllOrders, useAllUsers, useAllListings } from '@/hooks/useAdmin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,25 +51,15 @@ export default function OwnerDashboard() {
   const queryClient = useQueryClient();
   const { formatPriceWithRON } = useCurrency();
   const { data: stats, isLoading: statsLoading } = usePlatformStats();
-  const { data: fees } = usePlatformFees();
+  
   const { data: orders, isLoading: ordersLoading } = useAllOrders();
   const { data: users, isLoading: usersLoading } = useAllUsers();
   const { data: listings } = useAllListings();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const buyerFee = fees?.find(f => f.fee_type === 'buyer_fee');
-  const sellerCommission = fees?.find(f => f.fee_type === 'seller_commission');
-  const weeklyPromotion = fees?.find(f => f.fee_type === 'weekly_promotion');
-
-  // Calculate real data
+  // Calculate real data - no fees/commissions, revenue from subscriptions only
   const totalGMV = orders?.reduce((sum, o) => sum + Number(o.amount || 0), 0) || 0;
   const paidOrders = orders?.filter(o => ['paid', 'shipped', 'delivered'].includes(o.status)) || [];
-  const totalPaidAmount = paidOrders.reduce((sum, o) => sum + Number(o.amount || 0), 0);
-  
-  // Platform earnings from real orders
-  const buyerFeeTotal = paidOrders.reduce((sum, o) => sum + Number(o.buyer_fee || 0), 0);
-  const sellerCommissionTotal = paidOrders.reduce((sum, o) => sum + Number(o.seller_commission || 0), 0);
-  const platformEarnings = buyerFeeTotal + sellerCommissionTotal;
 
   // Today's stats
   const today = new Date().toDateString();
@@ -190,60 +180,12 @@ export default function OwnerDashboard() {
 
           <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/10">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Câștiguri Platformă</CardTitle>
+              <CardTitle className="text-sm font-medium">Venituri Abonamente</CardTitle>
               <Wallet className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{formatPriceWithRON(platformEarnings)}</div>
-              <p className="text-xs text-muted-foreground">Taxe + Comisioane reale</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Revenue Breakdown */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/20">
-                  <CreditCard className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Taxe Cumpărători</p>
-                  <p className="text-xl font-bold">{formatPriceWithRON(buyerFeeTotal)}</p>
-                  <p className="text-xs text-muted-foreground">Din {paidOrders.length} comenzi plătite</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/20">
-                  <Banknote className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Comisioane Vânzători</p>
-                  <p className="text-xl font-bold">{formatPriceWithRON(sellerCommissionTotal)}</p>
-                  <p className="text-xs text-muted-foreground">{sellerCommission?.amount || 8}% din vânzări</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-orange-100 dark:bg-orange-900/20">
-                  <Crown className="h-6 w-6 text-orange-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Promovări Plătite</p>
-                  <p className="text-xl font-bold">{formatPriceWithRON(weeklyPromotion?.amount || 25)}/săptămână</p>
-                  <p className="text-xs text-muted-foreground">Taxă promovare produs</p>
-                </div>
-              </div>
+              <div className="text-2xl font-bold text-green-600">Abonamente</div>
+              <p className="text-xs text-muted-foreground">0% comision, doar abonamente</p>
             </CardContent>
           </Card>
         </div>
@@ -368,8 +310,6 @@ export default function OwnerDashboard() {
                         <TableHead>ID Comandă</TableHead>
                         <TableHead>Produs</TableHead>
                         <TableHead>Sumă</TableHead>
-                        <TableHead>Taxă Cumpărător</TableHead>
-                        <TableHead>Comision Vânzător</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Dată</TableHead>
                       </TableRow>
@@ -380,8 +320,6 @@ export default function OwnerDashboard() {
                           <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
                           <TableCell>{order.listings?.title || 'N/A'}</TableCell>
                           <TableCell className="font-bold">{formatPriceWithRON(Number(order.amount || 0))}</TableCell>
-                          <TableCell className="text-blue-600">{formatPriceWithRON(Number(order.buyer_fee || 0))}</TableCell>
-                          <TableCell className="text-purple-600">{formatPriceWithRON(Number(order.seller_commission || 0))}</TableCell>
                           <TableCell>
                             <Badge className={
                               order.status === 'paid' ? 'bg-green-100 text-green-700' :

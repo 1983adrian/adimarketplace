@@ -29,7 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { CODSettings } from '@/components/listings/CODSettings';
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 import { ShippingCostSelector } from '@/components/listings/ShippingCostSelector';
-import { InlinePromotionOption } from '@/components/listings/InlinePromotionOption';
+
 import { useRequireKYC } from '@/hooks/useKYCEnforcement';
 
 
@@ -92,10 +92,6 @@ const CreateListing = () => {
   const [bidIncrement, setBidIncrement] = useState('1');
   const [auctionDuration, setAuctionDuration] = useState('7');
 
-  // Promotion settings
-  const [promoteProduct, setPromoteProduct] = useState(false);
-  const PROMOTION_PRICE = 5; // RON
-  const PROMOTION_DURATION = 7; // days
   
   // Seller currency selection - default to RON for Romanian sellers
   const [priceCurrency, setPriceCurrency] = useState<'RON' | 'GBP' | 'EUR' | 'USD'>('RON');
@@ -295,42 +291,10 @@ const CreateListing = () => {
         }
       }
 
-      // 4. Create promotion if enabled
-      if (promoteProduct && isActive) {
-        const promotionEndsAt = addDays(new Date(), PROMOTION_DURATION).toISOString();
-        
-        const { error: promotionError } = await supabase
-          .from('listing_promotions' as any)
-          .insert({
-            listing_id: newListing.id,
-            seller_id: user.id,
-            promotion_type: 'paid',
-            starts_at: new Date().toISOString(),
-            ends_at: promotionEndsAt,
-            is_active: true,
-            amount_paid: PROMOTION_PRICE,
-          });
-
-        if (promotionError) {
-          console.error('Error creating promotion:', promotionError);
-          // Don't fail the whole operation, just notify
-          toast({ 
-            title: t('createListing.success'), 
-            description: t('createListing.successDesc'),
-            variant: 'destructive'
-          });
-        } else {
-          toast({ 
-            title: t('createListing.successPromo'), 
-            description: t('createListing.successPromoDesc').replace('{days}', PROMOTION_DURATION.toString())
-          });
-        }
-      } else {
-        toast({ 
+      toast({ 
           title: t('createListing.success'), 
           description: isActive ? t('createListing.successDesc') : t('createListing.draftDesc')
         });
-      }
       
       navigate('/dashboard');
     } catch (error: any) {
@@ -984,13 +948,6 @@ const CreateListing = () => {
             sellerCountry={sellerCountry || sellerCountryInput}
           />
 
-          {/* Promotion Option */}
-          <InlinePromotionOption
-            enabled={promoteProduct}
-            onEnabledChange={setPromoteProduct}
-            price={PROMOTION_PRICE}
-            duration={PROMOTION_DURATION}
-          />
 
           {/* Publish Settings */}
           <Card>
@@ -1013,15 +970,6 @@ const CreateListing = () => {
             </CardContent>
           </Card>
 
-          {/* Total Summary when promotion is enabled */}
-          {promoteProduct && (
-            <div className="p-4 rounded-lg bg-primary/10 border border-primary/30">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Taxă promovare ({PROMOTION_DURATION} zile):</span>
-                <span className="font-bold text-primary">{PROMOTION_PRICE} RON</span>
-              </div>
-            </div>
-          )}
 
           <Button type="submit" size="lg" className="w-full" disabled={loading || uploading}>
             {loading || uploading ? (
@@ -1031,11 +979,7 @@ const CreateListing = () => {
               </>
             ) : (
               <>
-                {promoteProduct && <Crown className="h-4 w-4 mr-2" />}
-                {isActive 
-                  ? (promoteProduct ? `Publică + Promovează (${PROMOTION_PRICE} RON)` : 'Publică Produsul')
-                  : 'Salvează ca Draft'
-                }
+                {isActive ? 'Publică Produsul' : 'Salvează ca Draft'}
               </>
             )}
           </Button>

@@ -89,14 +89,8 @@ serve(async (req) => {
     const processorEnv = mangopaySettings?.environment || "sandbox";
     const hasLiveKeys = !!mangopaySettings?.api_key_encrypted;
 
-    // Get platform fees
-    const { data: fees } = await supabase
-      .from("platform_fees")
-      .select("*")
-      .eq("is_active", true);
-
-    const sellerCommissionFee = fees?.find(f => f.fee_type === "seller_commission");
-    const commissionPercent = sellerCommissionFee?.amount || 8; // Default to 8% commission
+    // No platform fees - revenue from subscriptions only
+    const commissionPercent = 0;
 
     // Process each item - create PENDING orders
     const orders: OrderResult[] = [];
