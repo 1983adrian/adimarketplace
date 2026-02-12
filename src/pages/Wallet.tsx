@@ -114,15 +114,49 @@ const Wallet = () => {
 
     setWithdrawing(true);
     try {
-      // NOTE: Retragerea automată PayPal NU este implementată încă.
-      // Această acțiune creează o cerere de retragere pe care adminul o procesează manual.
+      // Create a real withdrawal request in DB
+      const { error } = await supabase
+        .from('withdrawal_requests')
+        .insert({
+          user_id: user!.id,
+          amount,
+          paypal_email: paypalEmail,
+          status: 'pending',
+        });
+
+      if (error) throw error;
+
+      // Notify admin via edge function
+      try {
+        await supabase.functions.invoke('send-notification', {
+          body: {
+            type: 'email',
+            to: 'adrianchirita01@gmail.com',
+            subject: `💸 Cerere Retragere: ${amount.toFixed(2)} RON → ${paypalEmail}`,
+            message: `
+              <div style="font-family: Arial, sans-serif; max-width: 600px;">
+                <h2>💸 Cerere Nouă de Retragere</h2>
+                <p><strong>Suma:</strong> ${amount.toFixed(2)} RON</p>
+                <p><strong>PayPal:</strong> ${paypalEmail}</p>
+                <p><strong>User ID:</strong> ${user!.id}</p>
+                <p><strong>Data:</strong> ${new Date().toLocaleString('ro-RO')}</p>
+                <hr/>
+                <p>Procesează transferul manual din panoul admin.</p>
+              </div>
+            `,
+          },
+        });
+      } catch (emailErr) {
+        console.warn('Admin email failed:', emailErr);
+      }
+
       toast({ 
-        title: '⚠️ Funcție în dezvoltare', 
-        description: 'Retragerea automată PayPal nu este încă disponibilă. Contactează administratorul platformei pentru a solicita transferul manual.',
-        variant: 'destructive',
+        title: '✅ Cerere trimisă!', 
+        description: `Cererea de retragere de ${amount.toFixed(2)} RON a fost înregistrată. Administratorul o va procesa manual.`,
       });
       setWithdrawOpen(false);
       setWithdrawAmount('');
+      fetchWalletData(); // Refresh data
     } catch (error: any) {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     } finally {

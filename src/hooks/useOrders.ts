@@ -160,7 +160,7 @@ export const useConfirmDelivery = () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast({
         title: 'Livrare confirmată!',
-        description: `Vânzătorul va primi £${data.payout?.net_amount?.toFixed(2) || '0.00'} după deducerea comisioanelor`,
+        description: `Vânzătorul va primi ${data.payout?.net_amount?.toFixed(2) || '0.00'} RON.`,
       });
     },
     onError: (error: Error) => {
