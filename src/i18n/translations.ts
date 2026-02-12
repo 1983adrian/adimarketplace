@@ -166,6 +166,28 @@ type TranslationKeys = {
   'footer.terms': string;
   'footer.privacy': string;
   'footer.cookies': string;
+  
+  // Browse
+  'browse.search': string;
+  'browse.newest': string;
+  'browse.priceLow': string;
+  'browse.priceHigh': string;
+  'browse.filters': string;
+  'browse.itemsFound': string;
+  'browse.category': string;
+  'browse.allCategories': string;
+  'browse.priceRange': string;
+  'browse.condition': string;
+  'browse.anyCondition': string;
+  'browse.clearFilters': string;
+  'browse.noListings': string;
+  'browse.products': string;
+  'browse.sellers': string;
+  'browse.verified': string;
+  'browse.noSellersFound': string;
+  'browse.store': string;
+  'listing.buyNow': string;
+  'common.search': string;
 };
 
 type Translations = Record<SupportedLanguage, TranslationKeys>;
@@ -328,6 +350,27 @@ export const translations: Translations = {
     'footer.terms': 'Termeni și Condiții',
     'footer.privacy': 'Confidențialitate',
     'footer.cookies': 'Politica Cookie',
+    // Browse
+    'browse.search': 'Caută produse...',
+    'browse.newest': 'Cele mai noi',
+    'browse.priceLow': 'Preț crescător',
+    'browse.priceHigh': 'Preț descrescător',
+    'browse.filters': 'Filtre',
+    'browse.itemsFound': 'produse găsite',
+    'browse.category': 'Categorie',
+    'browse.allCategories': 'Toate categoriile',
+    'browse.priceRange': 'Interval de preț',
+    'browse.condition': 'Stare',
+    'browse.anyCondition': 'Orice stare',
+    'browse.clearFilters': 'Șterge filtrele',
+    'browse.noListings': 'Nu s-au găsit produse',
+    'browse.products': 'Produse',
+    'browse.sellers': 'Vânzători',
+    'browse.verified': 'Verificat',
+    'browse.noSellersFound': 'Nu s-au găsit vânzători pentru',
+    'browse.store': 'Magazin',
+    'listing.buyNow': 'Cumpără Acum',
+    'common.search': 'Caută',
   },
   
   en: {
@@ -487,6 +530,27 @@ export const translations: Translations = {
     'footer.terms': 'Terms of Service',
     'footer.privacy': 'Privacy Policy',
     'footer.cookies': 'Cookie Policy',
+    // Browse
+    'browse.search': 'Search products...',
+    'browse.newest': 'Newest',
+    'browse.priceLow': 'Price: Low to High',
+    'browse.priceHigh': 'Price: High to Low',
+    'browse.filters': 'Filters',
+    'browse.itemsFound': 'items found',
+    'browse.category': 'Category',
+    'browse.allCategories': 'All categories',
+    'browse.priceRange': 'Price range',
+    'browse.condition': 'Condition',
+    'browse.anyCondition': 'Any condition',
+    'browse.clearFilters': 'Clear filters',
+    'browse.noListings': 'No products found',
+    'browse.products': 'Products',
+    'browse.sellers': 'Sellers',
+    'browse.verified': 'Verified',
+    'browse.noSellersFound': 'No sellers found for',
+    'browse.store': 'Store',
+    'listing.buyNow': 'Buy Now',
+    'common.search': 'Search',
   },
   
   de: {
@@ -646,6 +710,7 @@ export const translations: Translations = {
     'footer.terms': 'Nutzungsbedingungen',
     'footer.privacy': 'Datenschutz',
     'footer.cookies': 'Cookie-Richtlinie',
+    'browse.search': 'Produkte suchen...', 'browse.newest': 'Neueste', 'browse.priceLow': 'Preis aufsteigend', 'browse.priceHigh': 'Preis absteigend', 'browse.filters': 'Filter', 'browse.itemsFound': 'Produkte gefunden', 'browse.category': 'Kategorie', 'browse.allCategories': 'Alle Kategorien', 'browse.priceRange': 'Preisbereich', 'browse.condition': 'Zustand', 'browse.anyCondition': 'Beliebig', 'browse.clearFilters': 'Filter löschen', 'browse.noListings': 'Keine Produkte gefunden', 'browse.products': 'Produkte', 'browse.sellers': 'Verkäufer', 'browse.verified': 'Verifiziert', 'browse.noSellersFound': 'Keine Verkäufer gefunden für', 'browse.store': 'Shop', 'listing.buyNow': 'Jetzt kaufen', 'common.search': 'Suchen',
   },
   
   es: {
@@ -805,6 +870,7 @@ export const translations: Translations = {
     'footer.terms': 'Términos de Servicio',
     'footer.privacy': 'Política de Privacidad',
     'footer.cookies': 'Política de Cookies',
+    'browse.search': 'Buscar productos...', 'browse.newest': 'Más recientes', 'browse.priceLow': 'Precio ascendente', 'browse.priceHigh': 'Precio descendente', 'browse.filters': 'Filtros', 'browse.itemsFound': 'productos encontrados', 'browse.category': 'Categoría', 'browse.allCategories': 'Todas las categorías', 'browse.priceRange': 'Rango de precio', 'browse.condition': 'Condición', 'browse.anyCondition': 'Cualquiera', 'browse.clearFilters': 'Borrar filtros', 'browse.noListings': 'No se encontraron productos', 'browse.products': 'Productos', 'browse.sellers': 'Vendedores', 'browse.verified': 'Verificado', 'browse.noSellersFound': 'No se encontraron vendedores para', 'browse.store': 'Tienda', 'listing.buyNow': 'Comprar Ahora', 'common.search': 'Buscar',
   },
   
   zh: {
@@ -964,6 +1030,7 @@ export const translations: Translations = {
     'footer.terms': '服务条款',
     'footer.privacy': '隐私政策',
     'footer.cookies': 'Cookie政策',
+    'browse.search': '搜索产品...', 'browse.newest': '最新', 'browse.priceLow': '价格从低到高', 'browse.priceHigh': '价格从高到低', 'browse.filters': '筛选', 'browse.itemsFound': '个产品', 'browse.category': '类别', 'browse.allCategories': '所有类别', 'browse.priceRange': '价格范围', 'browse.condition': '状况', 'browse.anyCondition': '任意', 'browse.clearFilters': '清除筛选', 'browse.noListings': '未找到产品', 'browse.products': '产品', 'browse.sellers': '卖家', 'browse.verified': '已认证', 'browse.noSellersFound': '未找到卖家', 'browse.store': '店铺', 'listing.buyNow': '立即购买', 'common.search': '搜索',
   },
   
   fr: {
@@ -1095,6 +1162,7 @@ export const translations: Translations = {
     'footer.terms': "Conditions d'Utilisation",
     'footer.privacy': 'Confidentialité',
     'footer.cookies': 'Politique des Cookies',
+    'browse.search': 'Rechercher des produits...', 'browse.newest': 'Plus récents', 'browse.priceLow': 'Prix croissant', 'browse.priceHigh': 'Prix décroissant', 'browse.filters': 'Filtres', 'browse.itemsFound': 'produits trouvés', 'browse.category': 'Catégorie', 'browse.allCategories': 'Toutes les catégories', 'browse.priceRange': 'Fourchette de prix', 'browse.condition': 'État', 'browse.anyCondition': 'Tout état', 'browse.clearFilters': 'Effacer les filtres', 'browse.noListings': 'Aucun produit trouvé', 'browse.products': 'Produits', 'browse.sellers': 'Vendeurs', 'browse.verified': 'Vérifié', 'browse.noSellersFound': 'Aucun vendeur trouvé pour', 'browse.store': 'Boutique', 'listing.buyNow': 'Acheter', 'common.search': 'Rechercher',
   },
   
   it: {
@@ -1226,6 +1294,7 @@ export const translations: Translations = {
     'footer.terms': 'Termini di Servizio',
     'footer.privacy': 'Privacy',
     'footer.cookies': 'Cookie Policy',
+    'browse.search': 'Cerca prodotti...', 'browse.newest': 'Più recenti', 'browse.priceLow': 'Prezzo crescente', 'browse.priceHigh': 'Prezzo decrescente', 'browse.filters': 'Filtri', 'browse.itemsFound': 'prodotti trovati', 'browse.category': 'Categoria', 'browse.allCategories': 'Tutte le categorie', 'browse.priceRange': 'Fascia di prezzo', 'browse.condition': 'Condizione', 'browse.anyCondition': 'Qualsiasi', 'browse.clearFilters': 'Cancella filtri', 'browse.noListings': 'Nessun prodotto trovato', 'browse.products': 'Prodotti', 'browse.sellers': 'Venditori', 'browse.verified': 'Verificato', 'browse.noSellersFound': 'Nessun venditore trovato per', 'browse.store': 'Negozio', 'listing.buyNow': 'Acquista Ora', 'common.search': 'Cerca',
   },
   
   pt: {
@@ -1357,6 +1426,7 @@ export const translations: Translations = {
     'footer.terms': 'Termos de Serviço',
     'footer.privacy': 'Privacidade',
     'footer.cookies': 'Política de Cookies',
+    'browse.search': 'Pesquisar produtos...', 'browse.newest': 'Mais recentes', 'browse.priceLow': 'Preço crescente', 'browse.priceHigh': 'Preço decrescente', 'browse.filters': 'Filtros', 'browse.itemsFound': 'produtos encontrados', 'browse.category': 'Categoria', 'browse.allCategories': 'Todas as categorias', 'browse.priceRange': 'Faixa de preço', 'browse.condition': 'Condição', 'browse.anyCondition': 'Qualquer', 'browse.clearFilters': 'Limpar filtros', 'browse.noListings': 'Nenhum produto encontrado', 'browse.products': 'Produtos', 'browse.sellers': 'Vendedores', 'browse.verified': 'Verificado', 'browse.noSellersFound': 'Nenhum vendedor encontrado para', 'browse.store': 'Loja', 'listing.buyNow': 'Comprar Agora', 'common.search': 'Pesquisar',
   },
   
   nl: {
@@ -1488,6 +1558,7 @@ export const translations: Translations = {
     'footer.terms': 'Servicevoorwaarden',
     'footer.privacy': 'Privacy',
     'footer.cookies': 'Cookiebeleid',
+    'browse.search': 'Producten zoeken...', 'browse.newest': 'Nieuwste', 'browse.priceLow': 'Prijs oplopend', 'browse.priceHigh': 'Prijs aflopend', 'browse.filters': 'Filters', 'browse.itemsFound': 'producten gevonden', 'browse.category': 'Categorie', 'browse.allCategories': 'Alle categorieën', 'browse.priceRange': 'Prijsklasse', 'browse.condition': 'Conditie', 'browse.anyCondition': 'Elke conditie', 'browse.clearFilters': 'Filters wissen', 'browse.noListings': 'Geen producten gevonden', 'browse.products': 'Producten', 'browse.sellers': 'Verkopers', 'browse.verified': 'Geverifieerd', 'browse.noSellersFound': 'Geen verkopers gevonden voor', 'browse.store': 'Winkel', 'listing.buyNow': 'Nu Kopen', 'common.search': 'Zoeken',
   },
   
   pl: {
@@ -1619,6 +1690,7 @@ export const translations: Translations = {
     'footer.terms': 'Regulamin',
     'footer.privacy': 'Prywatność',
     'footer.cookies': 'Polityka Cookies',
+    'browse.search': 'Szukaj produktów...', 'browse.newest': 'Najnowsze', 'browse.priceLow': 'Cena rosnąco', 'browse.priceHigh': 'Cena malejąco', 'browse.filters': 'Filtry', 'browse.itemsFound': 'produktów znaleziono', 'browse.category': 'Kategoria', 'browse.allCategories': 'Wszystkie kategorie', 'browse.priceRange': 'Zakres cen', 'browse.condition': 'Stan', 'browse.anyCondition': 'Dowolny', 'browse.clearFilters': 'Wyczyść filtry', 'browse.noListings': 'Nie znaleziono produktów', 'browse.products': 'Produkty', 'browse.sellers': 'Sprzedawcy', 'browse.verified': 'Zweryfikowany', 'browse.noSellersFound': 'Nie znaleziono sprzedawców dla', 'browse.store': 'Sklep', 'listing.buyNow': 'Kup Teraz', 'common.search': 'Szukaj',
   },
 };
 

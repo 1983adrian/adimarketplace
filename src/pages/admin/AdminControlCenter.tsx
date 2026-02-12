@@ -38,7 +38,7 @@ const controlSections: ControlSection[] = [
     title: 'Setări Platformă', 
     description: 'Modifică numele, descrierea, limba și moneda platformei',
     icon: Settings, 
-    href: '/admin/platform-settings',
+    href: '/admin/settings',
     color: 'text-blue-600 bg-blue-500/10',
     actions: ['view', 'edit'],
     category: 'platform'
@@ -48,7 +48,7 @@ const controlSections: ControlSection[] = [
     title: 'Securitate', 
     description: 'Controlează autentificarea, sesiunile și protecția conturilor',
     icon: Shield, 
-    href: '/admin/security-settings',
+    href: '/admin/security',
     color: 'text-red-600 bg-red-500/10',
     actions: ['view', 'edit'],
     category: 'platform'
@@ -58,7 +58,7 @@ const controlSections: ControlSection[] = [
     title: 'Procesator Plăți', 
     description: 'Configurează PayPal pentru plăți',
     icon: CreditCard, 
-    href: '/admin/payment-processors',
+    href: '/admin/payments',
     color: 'text-indigo-600 bg-indigo-500/10',
     actions: ['view', 'edit'],
     category: 'platform'
