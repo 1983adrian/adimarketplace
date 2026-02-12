@@ -79,21 +79,21 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
   const BrandContent = () => (
     <div className={cn('flex flex-col items-center', className)} style={{ gap: 0 }}>
-      {/* Hero Logo - seamless, no borders */}
+      {/* Hero Logo - seamless, no borders, no margins */}
       <div className="w-full flex items-center justify-center">
         <img 
           src={heroLogo} 
           alt="MarketPlace România" 
           className={cn(
-            'object-contain',
+            'object-contain m-0 p-0 block',
             size === 'sm' && 'h-36 sm:h-40',
             size === 'md' && 'h-48 sm:h-56',
             size === 'lg' && 'h-60 sm:h-72 md:h-80',
             size === 'xl' && 'h-52 sm:h-64 md:h-[22rem] lg:h-[26rem]',
           )}
           style={{ 
-            filter: 'brightness(1.06) contrast(1.03)',
             mixBlendMode: 'multiply',
+            background: 'transparent',
           }}
         />
       </div>
