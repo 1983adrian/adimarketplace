@@ -79,19 +79,21 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
   const BrandContent = () => (
     <div className={cn('flex flex-col items-center gap-1', className)}>
-      {/* Hero Logo - seamless integration */}
+      {/* Hero Logo with circular frame */}
       <div className="flex items-center justify-center">
-        <img 
-          src={heroLogo} 
-          alt="MarketPlace România - Vinde Cumpără Licitează" 
-          className={cn(
-            'object-contain',
-            size === 'sm' && 'h-12 sm:h-14',
-            size === 'md' && 'h-16 sm:h-20',
-            size === 'lg' && 'h-20 sm:h-28 md:h-32',
-            size === 'xl' && 'h-24 sm:h-32 md:h-40 lg:h-48',
-          )}
-        />
+        <div className={cn(
+          'rounded-full border-4 border-primary/30 shadow-lg overflow-hidden bg-background flex items-center justify-center',
+          size === 'sm' && 'w-16 h-16 sm:w-18 sm:h-18',
+          size === 'md' && 'w-22 h-22 sm:w-26 sm:h-26',
+          size === 'lg' && 'w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40',
+          size === 'xl' && 'w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 lg:w-56 lg:h-56',
+        )}>
+          <img 
+            src={heroLogo} 
+            alt="MarketPlace România - Vinde Cumpără Licitează" 
+            className="object-cover w-full h-full rounded-full"
+          />
+        </div>
       </div>
 
       {/* Tagline - Romanian Tricolor: Albastru, Galben, Roșu */}
