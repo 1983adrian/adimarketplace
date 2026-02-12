@@ -1258,13 +1258,6 @@ export type Database = {
             referencedRelation: "saved_addresses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "orders_saved_address_id_fkey"
-            columns: ["saved_address_id"]
-            isOneToOne: false
-            referencedRelation: "saved_addresses_return_info"
-            referencedColumns: ["id"]
-          },
         ]
       }
       password_reset_attempts: {
@@ -3155,13 +3148,6 @@ export type Database = {
             referencedRelation: "saved_addresses"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "orders_saved_address_id_fkey"
-            columns: ["saved_address_id"]
-            isOneToOne: false
-            referencedRelation: "saved_addresses_return_info"
-            referencedColumns: ["id"]
-          },
         ]
       }
       payment_processor_settings_safe: {
@@ -3437,42 +3423,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      saved_addresses_return_info: {
-        Row: {
-          city: string | null
-          country: string | null
-          first_name_masked: string | null
-          id: string | null
-          last_name_masked: string | null
-          phone_masked: string | null
-          postal_code: string | null
-          state: string | null
-          user_id: string | null
-        }
-        Insert: {
-          city?: string | null
-          country?: string | null
-          first_name_masked?: never
-          id?: string | null
-          last_name_masked?: never
-          phone_masked?: never
-          postal_code?: string | null
-          state?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          city?: string | null
-          country?: string | null
-          first_name_masked?: never
-          id?: string | null
-          last_name_masked?: never
-          phone_masked?: never
-          postal_code?: string | null
-          state?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
       }
       seller_payouts_safe: {
         Row: {
