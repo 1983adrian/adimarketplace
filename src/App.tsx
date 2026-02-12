@@ -77,10 +77,8 @@ import AdminSellerVerifications from "./pages/admin/AdminSellerVerifications";
 import AdminAuctions from "./pages/admin/AdminAuctions";
 import AdminBroadcast from "./pages/admin/AdminBroadcast";
 
-import AdminSecuritySettings from "./pages/admin/AdminSecuritySettings";
 import AdminPaymentProcessors from "./pages/admin/AdminPaymentProcessors";
 import AdminSellerPayouts from "./pages/admin/AdminSellerPayouts";
-import AdminCouriers from "./pages/admin/AdminCouriers";
 import AdminFraudAlerts from "./pages/admin/AdminFraudAlerts";
 
 import AdminSellerSubscriptions from "./pages/admin/AdminSellerSubscriptions";
@@ -153,9 +151,7 @@ const adminRoutes = [
   { path: "/admin/returns", element: <AdminReturns /> },
   { path: "/admin/seller-verifications", element: <AdminSellerVerifications /> },
   { path: "/admin/auctions", element: <AdminAuctions /> },
-  { path: "/admin/security", element: <AdminSecuritySettings /> },
   { path: "/admin/seller-payouts", element: <AdminSellerPayouts /> },
-  { path: "/admin/couriers", element: <AdminCouriers /> },
   { path: "/admin/broadcast", element: <AdminBroadcast /> },
   { path: "/admin/fraud-alerts", element: <AdminFraudAlerts /> },
   { path: "/admin/seller-subscriptions", element: <AdminSellerSubscriptions /> },
