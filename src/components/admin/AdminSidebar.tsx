@@ -43,34 +43,46 @@ interface MenuItem {
   icon: LucideIcon;
 }
 
-const mainItems: MenuItem[] = [
+// 📊 Monitorizare — Comenzi, Livrări, Retururi, Dispute, AWB
+const monitoringItems: MenuItem[] = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
-  { title: 'Utilizatori', url: '/admin/users', icon: Users },
-  { title: 'Produse', url: '/admin/listings', icon: Package },
   { title: 'Comenzi', url: '/admin/orders', icon: ShoppingCart },
   { title: 'Livrări', url: '/admin/deliveries', icon: Truck },
   { title: 'Retururi', url: '/admin/returns', icon: RotateCcw },
-  { title: 'Licitații', url: '/admin/auctions', icon: Gavel },
   { title: 'Dispute', url: '/admin/disputes', icon: AlertTriangle },
+  { title: 'Licitații', url: '/admin/auctions', icon: Gavel },
 ];
 
-const sellersItems: MenuItem[] = [
+// 👥 Abonamente & Vânzători
+const subscriptionItems: MenuItem[] = [
+  { title: 'Abonamente', url: '/admin/seller-subscriptions', icon: Crown },
   { title: 'Verificări', url: '/admin/seller-verifications', icon: Shield },
   { title: 'Plăți Vânzători', url: '/admin/seller-payouts', icon: Wallet },
-  { title: 'Abonamente', url: '/admin/seller-subscriptions', icon: Crown },
   { title: 'Alerte Fraudă', url: '/admin/fraud-alerts', icon: AlertTriangle },
+  { title: 'Utilizatori', url: '/admin/users', icon: Users },
 ];
 
-const contentItems: MenuItem[] = [
-  { title: 'Setări Platformă', url: '/admin/settings', icon: Settings },
-  { title: '🔑 Chei API', url: '/admin/payments', icon: KeyRound },
+// 🔑 Chei API — PayPal, Stripe, etc.
+const apiKeysItems: MenuItem[] = [
+  { title: 'Chei API (PayPal)', url: '/admin/payments', icon: KeyRound },
+];
+
+// ⚙️ Setări Platformă
+const settingsItems: MenuItem[] = [
+  { title: 'Setări Generale', url: '/admin/settings', icon: Settings },
+  { title: 'Politici & Legal', url: '/admin/policies', icon: FileText },
+];
+
+// 🎨 Interfață — Pagina principală, Categorii, SEO, Produse
+const interfaceItems: MenuItem[] = [
   { title: 'Pagina Principală', url: '/admin/homepage', icon: LayoutDashboard },
   { title: 'Categorii', url: '/admin/categories', icon: FolderTree },
-  { title: 'Politici & Legal', url: '/admin/policies', icon: FileText },
+  { title: 'Produse', url: '/admin/listings', icon: Package },
   { title: 'SEO', url: '/admin/seo', icon: Globe },
 ];
 
-const communicationItems: MenuItem[] = [
+// 💬 Comunicare & Sistem
+const systemItems: MenuItem[] = [
   { title: 'Mesaje', url: '/admin/messages', icon: MessageSquare },
   { title: 'Email Templates', url: '/admin/email-templates', icon: Mail },
   { title: 'Broadcast', url: '/admin/broadcast', icon: Megaphone },
@@ -125,10 +137,12 @@ export function AdminSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="px-2 py-3 space-y-4">
-        {renderGroup('Operațional', mainItems)}
-        {renderGroup('Vânzători', sellersItems)}
-        {renderGroup('Configurare', contentItems)}
-        {renderGroup('Sistem', communicationItems)}
+        {renderGroup('📊 Monitorizare', monitoringItems)}
+        {renderGroup('👥 Abonamente & Vânzători', subscriptionItems)}
+        {renderGroup('🔑 Chei API', apiKeysItems)}
+        {renderGroup('⚙️ Setări', settingsItems)}
+        {renderGroup('🎨 Interfață', interfaceItems)}
+        {renderGroup('💬 Comunicare & Sistem', systemItems)}
       </SidebarContent>
     </Sidebar>
   );
