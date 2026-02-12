@@ -144,17 +144,18 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* PayPal Connected Confirmation for sellers */}
+        {/* PayPal Email Status for sellers */}
         {(profile as any)?.is_seller && (profile as any)?.paypal_email && (
-          <div className="mb-4 p-3 rounded-xl border border-green-500/30 bg-green-50 dark:bg-green-950/20 flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-500/15">
-              <Wallet className="h-4 w-4 text-green-600" />
+          <div className="mb-4 p-3 rounded-xl border border-amber-500/30 bg-amber-50 dark:bg-amber-950/20 flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-amber-500/15">
+              <Wallet className="h-4 w-4 text-amber-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-green-700 dark:text-green-300">PayPal conectat ✅</p>
-              <p className="text-xs text-green-600 dark:text-green-400 truncate">{(profile as any).paypal_email}</p>
+              <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">Email PayPal salvat</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 truncate">{(profile as any).paypal_email}</p>
+              <p className="text-[10px] text-amber-500 dark:text-amber-500 mt-0.5">⚠️ Neverificat — asigură-te că email-ul corespunde contului tău PayPal real.</p>
             </div>
-            <Link to="/seller-mode" className="text-xs text-green-600 hover:text-green-700 font-medium whitespace-nowrap">
+            <Link to="/seller-mode" className="text-xs text-amber-600 hover:text-amber-700 font-medium whitespace-nowrap">
               Modifică →
             </Link>
           </div>
