@@ -86,11 +86,11 @@ export const HeroSection: React.FC = () => {
   return (
     <section className="relative bg-white dark:bg-gray-950">
       {/* Hero Banner - Clean white background */}
-      <div className="relative overflow-hidden">
+      <div className="relative">
         <div className="container mx-auto px-0 sm:px-4 py-1 md:py-2 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* Compact Brand Title - Unified Component */}
-            <div className="-mb-6">
+            <div className="-mb-2">
               <MarketplaceBrand size="xl" showTagline linkTo={null} />
             </div>
           </div>

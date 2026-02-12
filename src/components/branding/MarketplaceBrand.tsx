@@ -80,7 +80,13 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
   const BrandContent = () => (
     <div className={cn('flex flex-col items-center', className)} style={{ gap: 0 }}>
       {/* Hero Logo - seamless, no borders */}
-      <div className="w-full flex items-center justify-center overflow-hidden">
+      <div className={cn(
+        "w-full flex items-center justify-center overflow-hidden",
+        size === 'sm' && 'max-h-28 sm:max-h-32',
+        size === 'md' && 'max-h-40 sm:max-h-48',
+        size === 'lg' && 'max-h-52 sm:max-h-64 md:max-h-72',
+        size === 'xl' && 'max-h-40 sm:max-h-48 md:max-h-[16rem] lg:max-h-[20rem]',
+      )}>
         <img 
           src={heroLogo} 
           alt="MarketPlace România" 
@@ -89,7 +95,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
             size === 'sm' && 'h-36 sm:h-40',
             size === 'md' && 'h-48 sm:h-56',
             size === 'lg' && 'h-60 sm:h-72 md:h-80',
-            size === 'xl' && 'h-80 sm:h-[22rem] md:h-[26rem] lg:h-[30rem]',
+            size === 'xl' && 'h-52 sm:h-64 md:h-[22rem] lg:h-[26rem]',
           )}
           style={{ 
             filter: 'brightness(1.06) contrast(1.03)',
@@ -100,7 +106,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
       {showTagline && (
         <p className={cn(
-          'font-semibold tracking-wide -mt-10 text-center',
+          'font-semibold tracking-wide text-center mt-1',
           taglineSizes[size]
         )}>
           <span className="text-[#002B7F]">{t('brand.sell')}</span>
