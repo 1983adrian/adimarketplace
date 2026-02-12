@@ -80,12 +80,12 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
   const BrandContent = () => (
     <div className={cn('flex flex-col items-center gap-1', className)}>
       {/* Hero Logo - seamless, no borders */}
-      <div className="w-full flex items-center justify-center">
+      <div className="w-full flex items-center justify-center overflow-hidden">
         <img 
           src={heroLogo} 
-          alt="MarketPlace România - Vinde Cumpără Licitează" 
+          alt="MarketPlace România" 
           className={cn(
-            'object-contain',
+            'object-contain object-top',
             size === 'sm' && 'h-32 sm:h-36',
             size === 'md' && 'h-40 sm:h-48',
             size === 'lg' && 'h-52 sm:h-64 md:h-72',
@@ -94,6 +94,8 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
           style={{ 
             filter: 'brightness(1.06) contrast(1.03)',
             mixBlendMode: 'multiply',
+            clipPath: 'inset(0 0 12% 0)',
+            marginBottom: '-12%',
           }}
         />
       </div>
