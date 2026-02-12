@@ -175,11 +175,15 @@ serve(async (req) => {
 
     // Create notification for seller(s) - CRITICAL: must be server-side so offline sellers get it
     const sellerIds = [...new Set(orders.map(o => o.sellerId))];
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Marketplace România <onboarding@resend.dev>";
+
     for (const sellerId of sellerIds) {
       const sellerOrders = orders.filter(o => o.sellerId === sellerId);
       const sellerTotal = sellerOrders.reduce((sum, o) => sum + o.amount, 0);
       const itemTitles = sellerOrders.map(o => o.listingTitle).join(", ");
 
+      // In-app notification
       await supabase.from("notifications").insert({
         user_id: sellerId,
         type: "order",
@@ -191,6 +195,60 @@ serve(async (req) => {
           buyer_id: userId,
         },
       });
+
+      // EMAIL to seller (so they get notified even when offline/phone in pocket)
+      if (resendApiKey) {
+        try {
+          const { data: sellerAuth } = await supabase.auth.admin.getUserById(sellerId);
+          if (sellerAuth?.user?.email) {
+            await fetch("https://api.resend.com/emails", {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${resendApiKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                from: fromEmail,
+                to: [sellerAuth.user.email],
+                subject: `🎉 Comandă nouă: ${itemTitles}`,
+                html: `
+                  <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 30px; text-align: center;">
+                      <h1 style="color: #fff; margin: 0; font-size: 24px;">🎉 Comandă Nouă!</h1>
+                      <p style="color: #a0aec0; margin: 8px 0 0 0;">Marketplace România</p>
+                    </div>
+                    <div style="padding: 30px;">
+                      <p style="font-size: 16px; color: #333;">Ai primit o comandă nouă!</p>
+                      <div style="background: #f7f8fc; padding: 20px; border-radius: 12px; margin: 16px 0; border-left: 4px solid #48bb78;">
+                        <p style="margin: 0 0 8px 0;"><strong>Produs:</strong> ${itemTitles}</p>
+                        <p style="margin: 0 0 8px 0;"><strong>Sumă:</strong> ${sellerTotal.toFixed(2)} RON</p>
+                        <p style="margin: 0;"><strong>Adresă livrare:</strong> ${shippingAddress}</p>
+                      </div>
+                      <div style="background: #fff8f0; padding: 16px; border-radius: 8px; border: 1px solid #ffe0c4; margin: 16px 0;">
+                        <p style="margin: 0; color: #c05621; font-size: 14px;">
+                          ⚠️ <strong>Important:</strong> Adaugă numărul de urmărire (AWB) cât mai curând pentru a proteja tranzacția.
+                        </p>
+                      </div>
+                      <div style="text-align: center; margin: 24px 0;">
+                        <a href="https://marketplaceromania.lovable.app/orders" 
+                           style="display: inline-block; background: #FF6B35; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+                          📦 Vezi Comanda & Adaugă AWB
+                        </a>
+                      </div>
+                    </div>
+                    <div style="padding: 16px; background: #f5f5f5; text-align: center; font-size: 12px; color: #999;">
+                      © 2025 Marketplace România
+                    </div>
+                  </div>
+                `,
+              }),
+            });
+            console.log("Seller email notification sent to:", sellerAuth.user.email);
+          }
+        } catch (emailErr) {
+          console.error("Seller email failed (non-blocking):", emailErr);
+        }
+      }
     }
 
     // Create invoice with PENDING status

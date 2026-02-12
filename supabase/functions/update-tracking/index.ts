@@ -178,6 +178,16 @@ serve(async (req) => {
           },
         });
         logStep("Tracking email sent to buyer");
+
+        // Also send via dedicated tracking email function for better formatting
+        try {
+          await supabaseClient.functions.invoke("send-tracking-email", {
+            body: { order_id, tracking_number, carrier },
+          });
+          logStep("Dedicated tracking email also sent");
+        } catch (dedicatedErr) {
+          logStep("Dedicated tracking email failed (non-blocking)", dedicatedErr);
+        }
       } catch (emailError) {
         logStep("Buyer tracking email failed", emailError);
       }

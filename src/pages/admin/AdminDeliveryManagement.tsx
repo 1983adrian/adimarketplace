@@ -259,6 +259,15 @@ export default function AdminDeliveryManagement() {
           message: `Adminul a adăugat tracking ${trackingNumber} (${carrierLabel}) pentru "${title}".`,
           data: { orderId, trackingNumber, carrier },
         });
+
+        // Send email with AWB to buyer
+        try {
+          await supabase.functions.invoke('send-tracking-email', {
+            body: { order_id: orderId, tracking_number: trackingNumber, carrier },
+          });
+        } catch (emailErr) {
+          console.error('Tracking email failed (non-blocking):', emailErr);
+        }
       }
       
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
