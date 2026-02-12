@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   User, Save, Loader2, Globe
 } from 'lucide-react';
-import marketplaceLogo from '@/assets/marketplace-logo-new.png';
+
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -233,19 +233,6 @@ const ProfileSettings = () => {
           </CardContent>
         </Card>
 
-        {/* Brand Logo */}
-        <div className="mt-8 flex flex-col items-center gap-3 pb-4">
-          <img 
-            src={marketplaceLogo} 
-            alt="MarketPlace Romania" 
-            className="w-20 h-20 object-contain"
-            loading="lazy"
-          />
-          <div className="text-center">
-            <p className="text-sm font-semibold text-foreground">MarketPlace România</p>
-            <p className="text-xs text-muted-foreground">Vinde • Cumpără • Licitează</p>
-          </div>
-        </div>
       </div>
     </Layout>
   );
