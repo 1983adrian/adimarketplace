@@ -48,18 +48,29 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Send notification to each seller
+    // Send notification + email to each seller
     let notified = 0;
     for (const [sellerId, data] of Object.entries(sellerOrders)) {
       const productList = data.titles.slice(0, 3).join(', ');
       const extra = data.titles.length > 3 ? ` și alte ${data.titles.length - 3}` : '';
 
+      // In-app notification
       await supabase.from('notifications').insert({
         user_id: sellerId,
         type: 'tracking_reminder',
         title: `⚠️ ${data.count} comenzi fără AWB`,
         message: `Ai ${data.count} comenzi care așteaptă numărul de urmărire: ${productList}${extra}. Adaugă AWB-ul pentru a evita întârzierile și protecția PayPal.`,
       });
+
+      // Email notification
+      try {
+        await supabase.functions.invoke('send-seller-email', {
+          body: { type: 'tracking_reminder', seller_id: sellerId }
+        });
+      } catch (e) {
+        console.error('Failed to send tracking email to', sellerId, e);
+      }
+
       notified++;
     }
 

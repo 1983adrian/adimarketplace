@@ -101,8 +101,13 @@ const SellerMode = () => {
 
       if (error) throw error;
       
+      // Send welcome email when first activating seller mode
       if (isSeller && !hasAcceptedTermsBefore && sellerTermsAccepted) {
         setHasAcceptedTermsBefore(true);
+        // Send welcome email via edge function (fire and forget)
+        supabase.functions.invoke('send-seller-email', {
+          body: { type: 'welcome_seller', seller_id: user.id, store_name: storeName }
+        }).catch(console.error);
       }
       
       toast({ title: 'Setări salvate cu succes!' });

@@ -49,6 +49,7 @@ import CookiePolicy from "./pages/CookiePolicy";
 import SellerRules from "./pages/SellerRules";
 import InstallApp from "./pages/InstallApp";
 import SellerTutorial from "./pages/SellerTutorial";
+import StorePage from "./pages/StorePage";
 import Feedback from "./pages/Feedback";
 import Notifications from "./pages/Notifications";
 import HowItWorks from "./pages/HowItWorks";
@@ -116,6 +117,7 @@ const publicRoutes = [
   { path: "/messages", element: <Messages /> },
   { path: "/favorites", element: <Favorites /> },
   { path: "/seller/:id", element: <SellerProfile /> },
+  { path: "/store/:id", element: <StorePage /> },
   { path: "/about", element: <AboutUs /> },
   { path: "/contact", element: <Contact /> },
   { path: "/faq", element: <FAQ /> },
