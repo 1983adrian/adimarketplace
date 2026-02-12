@@ -61,8 +61,8 @@ import AdminOrders from "./pages/admin/AdminOrders";
 
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminDisputes from "./pages/admin/AdminDisputes";
-import OwnerDashboard from "./pages/admin/OwnerDashboard";
-import AdminAnalytics from "./pages/admin/AdminAnalytics";
+
+
 import AdminPlatformSettings from "./pages/admin/AdminPlatformSettings";
 import AdminPolicies from "./pages/admin/AdminPolicies";
 import AdminHomepageEditor from "./pages/admin/AdminHomepageEditor";
@@ -81,10 +81,8 @@ import AdminSecuritySettings from "./pages/admin/AdminSecuritySettings";
 import AdminPaymentProcessors from "./pages/admin/AdminPaymentProcessors";
 import AdminSellerPayouts from "./pages/admin/AdminSellerPayouts";
 import AdminCouriers from "./pages/admin/AdminCouriers";
-import AdminControlCenter from "./pages/admin/AdminControlCenter";
 import AdminFraudAlerts from "./pages/admin/AdminFraudAlerts";
 
-import AdminUnifiedSettings from "./pages/admin/AdminUnifiedSettings";
 import AdminSellerSubscriptions from "./pages/admin/AdminSellerSubscriptions";
 
 const queryClient = new QueryClient();
@@ -137,16 +135,13 @@ const publicRoutes = [
 // Admin routes (no language prefix needed)
 const adminRoutes = [
   { path: "/admin", element: <AdminDashboard /> },
-  { path: "/admin/owner", element: <OwnerDashboard /> },
   { path: "/admin/users", element: <AdminUsers /> },
   { path: "/admin/listings", element: <AdminListings /> },
   { path: "/admin/orders", element: <AdminOrders /> },
   { path: "/admin/deliveries", element: <AdminDeliveryManagement /> },
-  
   { path: "/admin/payments", element: <AdminPaymentProcessors /> },
   { path: "/admin/messages", element: <AdminMessages /> },
   { path: "/admin/disputes", element: <AdminDisputes /> },
-  { path: "/admin/analytics", element: <AdminAnalytics /> },
   { path: "/admin/settings", element: <AdminPlatformSettings /> },
   { path: "/admin/policies", element: <AdminPolicies /> },
   { path: "/admin/homepage", element: <AdminHomepageEditor /> },
@@ -162,9 +157,7 @@ const adminRoutes = [
   { path: "/admin/seller-payouts", element: <AdminSellerPayouts /> },
   { path: "/admin/couriers", element: <AdminCouriers /> },
   { path: "/admin/broadcast", element: <AdminBroadcast /> },
-  { path: "/admin/control-center", element: <AdminControlCenter /> },
   { path: "/admin/fraud-alerts", element: <AdminFraudAlerts /> },
-  { path: "/admin/unified-settings", element: <AdminUnifiedSettings /> },
   { path: "/admin/seller-subscriptions", element: <AdminSellerSubscriptions /> },
 ];
 
