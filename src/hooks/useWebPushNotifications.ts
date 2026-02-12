@@ -52,7 +52,7 @@ export const useWebPushNotifications = () => {
 
       if (!subscription) {
         subscription = await pushManager.subscribe({
-          userVisuallyOnly: true,
+          userVisibleOnly: true,
           applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
         });
       }
