@@ -366,14 +366,14 @@ const SellerPlans = () => {
               </div>
 
               {/* Revolut Payment Button */}
-              <div className="rounded-lg border-2 border-blue-500/40 bg-blue-50/50 dark:bg-blue-950/20 p-4 text-center space-y-2">
+              <div className="rounded-lg border-2 border-blue-500/40 bg-blue-50/50 dark:bg-blue-950/20 p-4 text-center space-y-3">
                 <h4 className="font-semibold text-sm">⚡ Plată Rapidă prin Revolut</h4>
-                <p className="text-xs text-muted-foreground">Plătește instant prin link-ul Revolut — cel mai rapid mod!</p>
+                <p className="text-sm text-muted-foreground">Salut! Urmează acest link pentru a-mi trimite bani pe Revolut:</p>
                 <a
                   href="https://revolut.me/adrian000"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors"
+                  className="inline-flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-3 text-sm font-medium transition-colors"
                   onClick={() => setRevolutClicked(true)}
                 >
                   <ExternalLink className="h-4 w-4" />
