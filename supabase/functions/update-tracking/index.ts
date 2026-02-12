@@ -111,13 +111,14 @@ serve(async (req) => {
 
     // Get carrier label
     const carrierLabels: Record<string, string> = {
-      royal_mail: "Royal Mail",
+      fan_courier: "FAN Courier",
+      sameday: "Sameday",
+      cargus: "Cargus",
+      dpd: "DPD",
+      gls: "GLS",
       dhl: "DHL",
       ups: "UPS",
       fedex: "FedEx",
-      hermes: "Evri (Hermes)",
-      dpd: "DPD",
-      yodel: "Yodel",
       other: "Curier",
     };
     const carrierLabel = carrierLabels[carrier] || carrier;

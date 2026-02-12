@@ -115,10 +115,24 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
             </div>
           </div>
           {!codAvailable && (
-            <Badge variant="secondary" className="text-xs">Indisponibil</Badge>
+            <div className="flex flex-col items-end gap-1">
+              <Badge variant="secondary" className="text-xs">Indisponibil</Badge>
+              <span className="text-[10px] text-muted-foreground">Vânzătorul nu a activat COD</span>
+            </div>
           )}
         </div>
       </RadioGroup>
+
+      {/* Warning when NO payment method is available */}
+      {!codAvailable && (
+        <Alert className="border-destructive/50 bg-destructive/10">
+          <AlertTriangle className="h-4 w-4 text-destructive" />
+          <AlertDescription className="text-sm text-destructive">
+            <strong>Nicio metodă de plată disponibilă.</strong> Vânzătorul nu a activat plata la livrare (Ramburs), iar plata cu cardul nu este încă integrată. 
+            Contactează vânzătorul pentru a activa opțiunea COD.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {selected === 'cod' && codAvailable && (
         <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/30">

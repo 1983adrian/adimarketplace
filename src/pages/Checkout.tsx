@@ -56,7 +56,7 @@ const Checkout = () => {
   const [saveAddress, setSaveAddress] = useState(!!user);
   
   // Payment method state
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
   const [selectedCourier, setSelectedCourier] = useState('fan_courier');
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('home');
   const [selectedLocker, setSelectedLocker] = useState<LockerLocation | null>(null);
@@ -294,20 +294,14 @@ const Checkout = () => {
       return codFees.transport;
     }
     
+    // Romanian courier-based shipping
     const baseRates: Record<string, number> = {
-      standard: 5.99,
-      express: 14.99,
-      overnight: 29.99,
+      standard: 15.99,
+      express: 24.99,
+      overnight: 39.99,
     };
     
-    const isInternational = shipping.state && !['England', 'Scotland', 'Wales', 'Northern Ireland', 'UK', 'United Kingdom'].some(
-      region => shipping.state.toLowerCase().includes(region.toLowerCase())
-    );
-    
-    const baseCost = baseRates[shippingMethod] || 5.99;
-    const internationalSurcharge = isInternational ? 10.00 : 0;
-    
-    return baseCost + internationalSurcharge;
+    return baseRates[shippingMethod] || 15.99;
   };
   
   const shippingCost = getShippingCost();

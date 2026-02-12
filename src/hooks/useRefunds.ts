@@ -69,7 +69,7 @@ export function useRequestRefund() {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       toast({
         title: 'Rambursare Inițiată',
-        description: `Suma de £${data.refund?.amount?.toFixed(2)} va fi rambursată.`,
+        description: `Suma de ${data.refund?.amount?.toFixed(2)} RON va fi rambursată.`,
       });
     },
     onError: (error: Error) => {
