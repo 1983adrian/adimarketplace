@@ -94,8 +94,6 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
           style={{ 
             filter: 'brightness(1.06) contrast(1.03)',
             mixBlendMode: 'multiply',
-            clipPath: 'inset(0 0 12% 0)',
-            marginBottom: '-12%',
           }}
         />
       </div>
