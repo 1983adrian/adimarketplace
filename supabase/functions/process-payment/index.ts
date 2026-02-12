@@ -324,6 +324,25 @@ serve(async (req) => {
       }
     }
 
+    // Audit log for financial operations
+    for (const order of orders) {
+      await supabase.from("financial_audit_log").insert({
+        user_id: userId,
+        action: "order_created",
+        entity_type: "order",
+        entity_id: order.id,
+        amount: order.amount,
+        new_value: {
+          listing_title: order.listingTitle,
+          seller_id: order.sellerId,
+          payment_method: paymentMethod || "card",
+          transaction_id: order.transactionId,
+        },
+        ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
+        user_agent: req.headers.get("user-agent"),
+      });
+    }
+
     // Create invoice
     const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
     await supabase.from("invoices").insert({

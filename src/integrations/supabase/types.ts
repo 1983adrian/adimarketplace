@@ -80,6 +80,39 @@ export type Database = {
         }
         Relationships: []
       }
+      auth_audit_log: {
+        Row: {
+          action: string
+          created_at: string | null
+          email: string | null
+          id: string
+          ip_address: string | null
+          success: boolean | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          success?: boolean | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       bids: {
         Row: {
           amount: number
@@ -513,6 +546,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      financial_audit_log: {
+        Row: {
+          action: string
+          amount: number | null
+          created_at: string | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          new_value: Json | null
+          old_value: Json | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          amount?: number | null
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          amount?: number | null
+          created_at?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       fraud_alerts: {
         Row: {
@@ -3152,8 +3227,6 @@ export type Database = {
       }
       payment_processor_settings_safe: {
         Row: {
-          api_key_masked: string | null
-          api_secret_masked: string | null
           created_at: string | null
           environment: string | null
           id: string | null
@@ -3164,8 +3237,6 @@ export type Database = {
           webhook_url: string | null
         }
         Insert: {
-          api_key_masked?: never
-          api_secret_masked?: never
           created_at?: string | null
           environment?: string | null
           id?: string | null
@@ -3176,8 +3247,6 @@ export type Database = {
           webhook_url?: string | null
         }
         Update: {
-          api_key_masked?: never
-          api_secret_masked?: never
           created_at?: string | null
           environment?: string | null
           id?: string | null
