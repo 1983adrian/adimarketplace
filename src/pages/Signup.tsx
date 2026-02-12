@@ -9,7 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
-import logoOficial from '@/assets/logo-oficial.png';
+import heroLogo from '@/assets/marketplace-logo-hero-clear.png';
 import { PasswordStrengthIndicator } from '@/components/auth/PasswordStrengthIndicator';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 
@@ -174,7 +174,7 @@ const Signup = () => {
         <CardHeader className="text-center pb-4">
           {/* Logo - Marketplace România */}
           <div className="mb-4 flex justify-center">
-            <img src={logoOficial} alt="Marketplace România" className="h-24 w-auto object-contain" />
+            <img src={heroLogo} alt="Marketplace România" className="h-32 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
           </div>
           
           <div className="space-y-2">
