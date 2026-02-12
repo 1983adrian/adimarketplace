@@ -154,6 +154,19 @@ const SellerPlans = () => {
     }
   };
 
+  const getPlanBenefits = (planType: string): string[] => {
+    const common = ['0% comision la vânzare', 'Max 3 poze per listare', 'Suport prin chat & email'];
+    switch (planType) {
+      case 'start': return [...common, 'Max 10 produse active', 'Ideal pentru vânzări ocazionale', 'PayPal Personal suficient', 'Vizibilitate în căutări'];
+      case 'licitatii': return [...common, 'Max 10 licitații active', 'Sistem licitații complet', 'PayPal Personal suficient', 'Notificări automate la licitare'];
+      case 'silver': return [...common, 'Max 50 produse active', 'Potrivit pentru reselleri', 'PayPal Business obligatoriu', 'Statistici de bază', 'Vizibilitate crescută'];
+      case 'gold': return [...common, 'Max 150 produse active', 'Ideal pentru magazine mici-medii', 'PayPal Business obligatoriu', 'Statistici avansate', 'Prioritate în căutări'];
+      case 'platinum': return [...common, 'Max 500 produse active', 'Magazine medii-mari', 'PayPal Business obligatoriu', 'Statistici complete', 'Prioritate maximă în căutări', 'Promovare preferențială'];
+      case 'vip': return [...common, 'Produse NELIMITATE', 'Pentru afaceri mari & branduri', 'PayPal Business obligatoriu', 'Dashboard complet statistici', 'TOP prioritate în căutări', 'Promovare premium pe platformă', 'Suport prioritar dedicat'];
+      default: return common;
+    }
+  };
+
 
   return (
     <Layout>
@@ -241,33 +254,19 @@ const SellerPlans = () => {
                   <CardDescription>{plan.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="text-center">
-                    <span className="text-3xl font-bold">{plan.price_ron}</span>
-                    <span className="text-muted-foreground ml-1">LEI</span>
+                  <div className="text-center py-2">
+                    <span className="text-4xl font-bold">{plan.price_ron}</span>
+                    <span className="text-muted-foreground ml-1 text-lg">LEI</span>
+                    <p className="text-xs text-muted-foreground mt-1">plată unică / lunar</p>
                   </div>
 
-                  <ul className="space-y-2 text-sm">
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      {plan.max_listings ? `Max ${plan.max_listings} listări/unități` : 'Listări NELIMITATE'}
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-600 flex-shrink-0" />
-                      Max 3 poze per listare
-                    </li>
-                    {plan.is_auction_plan && (
-                      <li className="flex items-center gap-2">
-                        <Gavel className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                        Plan special pentru licitații
+                  <ul className="space-y-1.5 text-sm">
+                    {getPlanBenefits(plan.plan_type).map((benefit, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                        <span>{benefit}</span>
                       </li>
-                    )}
-                    <li className="flex items-center gap-2 text-xs text-muted-foreground">
-                      {isCommercial ? (
-                        <><Briefcase className="h-3 w-3 flex-shrink-0" /> PayPal Business obligatoriu</>
-                      ) : (
-                        <><User className="h-3 w-3 flex-shrink-0" /> PayPal Personal suficient</>
-                      )}
-                    </li>
+                    ))}
                   </ul>
 
                   <Button
@@ -305,9 +304,18 @@ const SellerPlans = () => {
                 <span className="text-3xl font-bold">{BIDDER_PLAN.price_ron}</span>
                 <span className="text-muted-foreground ml-1">LEI</span>
               </div>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-green-600" /> Licitează la orice produs listat
+              <ul className="space-y-1.5 text-sm">
+                <li className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-green-600 mt-0.5" /> Licitează la orice produs listat pe platformă
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-green-600 mt-0.5" /> Primești notificări în timp real la supralicitare
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-green-600 mt-0.5" /> Acces la toate licitațiile active
+                </li>
+                <li className="flex items-start gap-2">
+                  <Check className="h-4 w-4 text-green-600 mt-0.5" /> Istoric complet al licitațiilor tale
                 </li>
               </ul>
               <Button

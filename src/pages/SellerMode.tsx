@@ -362,11 +362,12 @@ const SellerMode = () => {
                   </div>
 
                   {paypalEmail && (
-                    <Alert className="border-green-500/50 bg-green-500/10">
+                    <Alert className="border-green-500/50 bg-green-500/10 shadow-md">
                       <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      <AlertTitle className="text-green-700">PayPal conectat ✅</AlertTitle>
-                      <AlertDescription>
-                        Contul tău PayPal ({paypalEmail}) este legat. Vei primi plăți și tracking automat pentru comenzi.
+                      <AlertTitle className="text-green-700 text-base">PayPal conectat ✅</AlertTitle>
+                      <AlertDescription className="text-green-800 dark:text-green-200">
+                        <span className="font-semibold text-base block mt-1">📧 {paypalEmail}</span>
+                        <span className="text-sm">Vei primi plăți și tracking automat pentru comenzi.</span>
                       </AlertDescription>
                     </Alert>
                   )}
