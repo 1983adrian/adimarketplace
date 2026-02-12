@@ -127,12 +127,44 @@ export default function AdminOrders() {
 
   const handleUpdateStatus = async (orderId: string, status: string) => {
     try {
+      const updateData: any = { status: status as any, updated_at: new Date().toISOString() };
+      if (status === 'delivered') {
+        updateData.delivery_confirmed_at = new Date().toISOString();
+      }
+
       const { error } = await supabase
         .from('orders')
-        .update({ status: status as any })
+        .update(updateData)
         .eq('id', orderId);
 
       if (error) throw error;
+
+      // Notify buyer and seller
+      const order = filteredOrders?.find(o => o.id === orderId);
+      if (order) {
+        const statusLabels: Record<string, string> = {
+          paid: 'plătită', shipped: 'expediată', delivered: 'livrată',
+          cancelled: 'anulată', refunded: 'rambursată',
+        };
+        const label = statusLabels[status] || status;
+        const title = order.listings?.title || 'Comandă';
+
+        await supabase.from('notifications').insert({
+          user_id: order.buyer_id,
+          type: 'order_update',
+          title: `Comandă ${label}`,
+          message: `Comanda ta pentru "${title}" a fost marcată ca ${label} de către admin.`,
+          data: { orderId },
+        });
+
+        await supabase.from('notifications').insert({
+          user_id: order.seller_id,
+          type: 'order_update',
+          title: `Comandă ${label}`,
+          message: `Comanda pentru "${title}" a fost marcată ca ${label} de către admin.`,
+          data: { orderId },
+        });
+      }
       
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       toast({ title: 'Status comandă actualizat' });
