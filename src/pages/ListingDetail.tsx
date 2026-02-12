@@ -232,11 +232,11 @@ const ListingDetail = () => {
           {/* Image Gallery - eBay-style compact on mobile */}
           <div className="space-y-3">
             {/* Main Image - Compact on mobile, full on desktop */}
-            <div className="relative rounded-lg overflow-hidden bg-muted max-h-[28vh] sm:max-h-[35vh] md:max-h-none md:aspect-square">
+            <div className="relative rounded-lg overflow-hidden bg-muted md:aspect-square">
               <img 
                 src={images[selectedImage]?.image_url || primaryImage || '/placeholder.svg'} 
                 alt={listing.title} 
-                className="w-full h-full object-contain md:object-cover" 
+                className="w-full object-contain md:object-cover max-h-[25vh] sm:max-h-[30vh] md:max-h-none" 
               />
             </div>
             {/* Thumbnail Gallery - Smaller on mobile */}
