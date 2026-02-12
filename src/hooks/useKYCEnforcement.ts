@@ -35,20 +35,10 @@ export function useKYCEnforcement() {
       const { data: profile, error } = await supabase
         .from('profiles')
         .select(`
-          kyc_status,
-          kyc_documents_submitted,
-          kyc_verified_at,
-          address_line1,
-          city,
-          postal_code,
-          country_of_residence,
-          iban,
-          account_number,
-          sort_code,
-          payout_method,
-          mangopay_user_id,
-          mangopay_wallet_id,
+          paypal_email,
+          is_seller,
           is_suspended,
+          is_verified,
           withdrawal_blocked
         `)
         .eq('user_id', user.id)
@@ -69,57 +59,35 @@ export function useKYCEnforcement() {
 
       const missingFields: string[] = [];
 
-      // Check address
-      const hasAddress = !!(profile.address_line1 && profile.city && profile.postal_code);
-      if (!hasAddress) {
-        missingFields.push('adresa');
+      // PayPal is the only payment method - check if configured
+      const hasPayPal = !!profile.paypal_email;
+      if (!hasPayPal) {
+        missingFields.push('email PayPal');
       }
 
-      // Check bank details
-      const hasBankDetails = !!(
-        (profile.iban) || 
-        (profile.account_number && profile.sort_code)
-      );
-      if (!hasBankDetails) {
-        missingFields.push('cont bancar');
-      }
-
-      // Check KYC status
-      const kycStatus = (profile.kyc_status as any) || 'not_started';
-      const isVerified = kycStatus === 'approved' && !!profile.kyc_verified_at;
-
-      if (!profile.kyc_documents_submitted) {
-        missingFields.push('documente KYC');
-      }
-
-      // Determine if user can sell (must have at least submitted KYC)
-      const canSell = profile.kyc_documents_submitted === true && !profile.is_suspended;
-
-      // Can withdraw only if fully verified
-      const canWithdraw = isVerified && hasBankDetails && !profile.withdrawal_blocked && !profile.is_suspended;
+      // With PayPal model, KYC is handled by PayPal directly
+      const isVerified = profile.is_verified || false;
+      const canSell = profile.is_seller === true && !profile.is_suspended;
+      const canWithdraw = hasPayPal && !profile.withdrawal_blocked && !profile.is_suspended;
 
       let message = '';
       if (profile.is_suspended) {
         message = 'Contul tău este suspendat. Contactează suportul.';
       } else if (profile.withdrawal_blocked) {
         message = 'Extragerea fondurilor este temporar blocată.';
-      } else if (!profile.kyc_documents_submitted) {
-        message = 'Completează verificarea KYC pentru a putea vinde.';
-      } else if (kycStatus === 'pending') {
-        message = 'Verificarea KYC este în curs de procesare.';
-      } else if (kycStatus === 'rejected') {
-        message = 'Verificarea KYC a fost respinsă. Te rugăm să retrimiti documentele.';
-      } else if (!hasBankDetails) {
-        message = 'Adaugă un cont bancar pentru a primi plăți.';
+      } else if (!hasPayPal) {
+        message = 'Adaugă email-ul PayPal pentru a primi plăți.';
       } else if (isVerified) {
         message = 'Contul tău este verificat complet.';
+      } else {
+        message = 'Contul PayPal este configurat.';
       }
 
       return {
         isVerified,
-        kycStatus,
-        hasBankDetails,
-        hasAddress,
+        kycStatus: isVerified ? 'approved' : hasPayPal ? 'pending' : 'not_started',
+        hasBankDetails: hasPayPal,
+        hasAddress: true, // Addresses managed in saved_addresses table
         canSell,
         canWithdraw,
         missingFields,
@@ -127,7 +95,7 @@ export function useKYCEnforcement() {
       };
     },
     enabled: !!user,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 }
 

@@ -43,9 +43,9 @@ const CardBrands = () => (
         <div className="w-3 h-3 rounded-full bg-yellow-500 opacity-80"></div>
       </div>
     </div>
-    {/* MangoPay badge */}
-    <div className="w-16 h-6 bg-gradient-to-r from-orange-500 to-red-500 rounded flex items-center justify-center">
-      <span className="text-[7px] font-bold text-white">MangoPay</span>
+    {/* PayPal badge */}
+    <div className="w-16 h-6 bg-gradient-to-r from-blue-500 to-blue-700 rounded flex items-center justify-center">
+      <span className="text-[7px] font-bold text-white">PayPal</span>
     </div>
   </div>
 );
@@ -110,7 +110,7 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       </h4>
 
       <RadioGroup value={selected} onValueChange={(v) => onSelect(v as PaymentMethod)} className="space-y-3">
-        {/* Card Payment via MangoPay */}
+        {/* Card Payment via PayPal */}
         <div
           className={cn(
             "rounded-xl border-2 transition-all overflow-hidden",
@@ -195,7 +195,7 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
               <Alert className="border-green-500/50 bg-green-50 dark:bg-green-950/30">
                 <ShieldCheck className="h-4 w-4 text-green-600" />
                 <AlertDescription className="text-sm text-green-800 dark:text-green-200">
-                  Plățile sunt procesate securizat prin MangoPay. Nu stocăm informațiile cardului tău.
+                  Plățile sunt procesate securizat prin PayPal. Nu stocăm informațiile cardului tău.
                 </AlertDescription>
               </Alert>
             </div>

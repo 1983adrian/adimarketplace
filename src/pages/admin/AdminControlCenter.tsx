@@ -76,7 +76,7 @@ const controlSections: ControlSection[] = [
   { 
     id: 'payment-processors', 
     title: 'Procesator Plăți', 
-    description: 'Configurează MangoPay pentru plăți cu cardul',
+    description: 'Configurează PayPal pentru plăți',
     icon: CreditCard, 
     href: '/admin/payment-processors',
     color: 'text-indigo-600 bg-indigo-500/10',

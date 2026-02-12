@@ -70,11 +70,10 @@ const SellerTutorial: React.FC = () => {
       bgColor: "bg-sky-50",
       borderColor: "border-sky-200",
       details: [
-        "Verificarea este procesată de MangoPay",
-        "Încarcă un act de identitate valid (CI/Pașaport)",
-        "Adaugă o poză selfie pentru confirmare",
-        "Procesul durează 1-3 zile lucrătoare",
-        "Primești notificare când ești aprobat"
+        "Configurează contul PayPal în setări",
+        "PayPal gestionează verificarea identității",
+        "Procesul este instant după configurare",
+        "Primești plăți direct în contul PayPal"
       ]
     },
     {
