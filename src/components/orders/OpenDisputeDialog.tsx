@@ -114,13 +114,31 @@ export const OpenDisputeDialog = ({ orderId, sellerId, buyerId, children }: Open
         .eq('id', orderId);
 
       // Create notification for seller
+      const disputeReasonLabel = DISPUTE_REASONS.find(r => r.value === reason)?.label || reason;
       await supabase.from('notifications').insert({
         user_id: sellerId,
         type: 'dispute_opened',
         title: '⚠️ Dispută Deschisă',
-        message: `Un cumpărător a deschis o dispută pentru comanda ta: ${DISPUTE_REASONS.find(r => r.value === reason)?.label}`,
+        message: `Un cumpărător a deschis o dispută pentru comanda ta: ${disputeReasonLabel}`,
         data: { order_id: orderId },
       });
+
+      // Notify ALL admins about the dispute
+      const { data: adminRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+
+      if (adminRoles && adminRoles.length > 0) {
+        const adminNotifications = adminRoles.map(admin => ({
+          user_id: admin.user_id,
+          type: 'dispute_alert',
+          title: '🔴 Dispută Nouă - Acțiune Necesară',
+          message: `Dispută deschisă: ${disputeReasonLabel}. Comanda: ${orderId.slice(0, 8)}...`,
+          data: { order_id: orderId, reporter_id: buyerId, reported_user_id: sellerId },
+        }));
+        await supabase.from('notifications').insert(adminNotifications);
+      }
 
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['disputes'] });

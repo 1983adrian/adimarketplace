@@ -78,17 +78,45 @@ export const ReportListingDialog: React.FC<ReportListingDialogProps> = ({
     setIsSubmitting(true);
 
     try {
+      const reasonLabel = REPORT_REASONS.find(r => r.value === reason)?.label || reason;
+      
       const { error } = await supabase
         .from('listing_reports')
         .insert({
           listing_id: listingId,
           reporter_id: user.id,
-          reason: REPORT_REASONS.find(r => r.value === reason)?.label || reason,
+          reason: reasonLabel,
           description: description || null,
           status: 'pending',
         });
 
       if (error) throw error;
+
+      // Notify all admins about the report
+      const { data: adminEmails } = await supabase
+        .from('admin_emails')
+        .select('email')
+        .eq('is_active', true);
+
+      if (adminEmails && adminEmails.length > 0) {
+        // Get admin user IDs from user_roles
+        const { data: adminRoles } = await supabase
+          .from('user_roles')
+          .select('user_id')
+          .eq('role', 'admin');
+
+        if (adminRoles) {
+          const adminNotifications = adminRoles.map(admin => ({
+            user_id: admin.user_id,
+            type: 'listing_report',
+            title: '🚩 Anunț Raportat',
+            message: `Anunțul "${listingTitle}" a fost raportat: ${reasonLabel}`,
+            data: { listing_id: listingId, reason: reasonLabel },
+          }));
+
+          await supabase.from('notifications').insert(adminNotifications);
+        }
+      }
 
       toast({
         title: 'Raport trimis!',
