@@ -19,11 +19,14 @@ const notificationIcons: Record<string, React.ReactNode> = {
   order: <Package className="h-5 w-5 text-blue-500" />,
   new_order: <Package className="h-5 w-5 text-green-500" />,
   order_confirmed: <Package className="h-5 w-5 text-emerald-500" />,
+  order_pending: <Package className="h-5 w-5 text-amber-500" />,
+  payment_failed: <CreditCard className="h-5 w-5 text-red-500" />,
   message: <MessageCircle className="h-5 w-5 text-green-500" />,
   review: <Star className="h-5 w-5 text-yellow-500" />,
   payout: <CreditCard className="h-5 w-5 text-purple-500" />,
   shipping: <Truck className="h-5 w-5 text-orange-500" />,
   info: <Bell className="h-5 w-5 text-blue-400" />,
+  tracking_reminder: <Truck className="h-5 w-5 text-red-500" />,
   verification_submitted: <Check className="h-5 w-5 text-cyan-500" />,
 };
 

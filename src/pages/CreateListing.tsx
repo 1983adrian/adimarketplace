@@ -291,6 +291,17 @@ const CreateListing = () => {
         }
       }
 
+      // 4. Create "listing live" notification for the seller
+      if (isActive) {
+        await supabase.from('notifications').insert({
+          user_id: user.id,
+          type: 'info',
+          title: '🟢 Produs Live!',
+          message: `Produsul tău "${title}" este acum activ pe platformă și vizibil pentru cumpărători.`,
+          data: { listing_id: newListing.id },
+        });
+      }
+
       toast({ 
           title: t('createListing.success'), 
           description: isActive ? t('createListing.successDesc') : t('createListing.draftDesc')
