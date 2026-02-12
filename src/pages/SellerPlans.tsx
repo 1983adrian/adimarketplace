@@ -379,7 +379,7 @@ const SellerPlans = () => {
                   Plătește abonamentul
                 </a>
                 <p className="text-[10px] text-muted-foreground">
-                  La mesajul plății, scrie: <strong>{user?.email}</strong> + <strong>{selectedPlan.plan_name}</strong>
+                  La mesajul plății, scrie: <strong>market@placeromania.com</strong> + <strong>{selectedPlan.plan_name}</strong>
                 </p>
               </div>
             </div>
