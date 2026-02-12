@@ -20,7 +20,8 @@ import {
   Crown,
   Wrench,
   ClipboardList,
-  CreditCard
+  CreditCard,
+  KeyRound
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -62,7 +63,7 @@ const sellersItems: MenuItem[] = [
 
 const contentItems: MenuItem[] = [
   { title: 'Setări Platformă', url: '/admin/settings', icon: Settings },
-  { title: 'Procesator Plăți', url: '/admin/payments', icon: CreditCard },
+  { title: '🔑 Chei API', url: '/admin/payments', icon: KeyRound },
   { title: 'Pagina Principală', url: '/admin/homepage', icon: LayoutDashboard },
   { title: 'Categorii', url: '/admin/categories', icon: FolderTree },
   { title: 'Politici & Legal', url: '/admin/policies', icon: FileText },
