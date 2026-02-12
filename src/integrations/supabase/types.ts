@@ -3200,6 +3200,7 @@ export type Database = {
           is_seller: boolean | null
           is_verified: boolean | null
           location: string | null
+          short_id: string | null
           store_name: string | null
           total_sales_count: number | null
           updated_at: string | null
@@ -3216,6 +3217,7 @@ export type Database = {
           is_seller?: boolean | null
           is_verified?: boolean | null
           location?: never
+          short_id?: string | null
           store_name?: string | null
           total_sales_count?: number | null
           updated_at?: string | null
@@ -3232,6 +3234,7 @@ export type Database = {
           is_seller?: boolean | null
           is_verified?: boolean | null
           location?: never
+          short_id?: string | null
           store_name?: string | null
           total_sales_count?: number | null
           updated_at?: string | null

@@ -15,6 +15,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { ReviewCard } from '@/components/reviews/ReviewCard';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 import { TopSellerBadge } from '@/components/TopSellerBadge';
+import { useIsTopSeller } from '@/hooks/useTopSellers';
 import { 
   Calendar, ShoppingBag, Star, MessageCircle, Store, Settings, 
   Package, BarChart3, TrendingUp, Globe, CheckCircle2, AlertCircle,
@@ -34,6 +35,7 @@ const StorePage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isOwner = user?.id === id;
+  const { data: isTopSeller } = useIsTopSeller(id);
 
   // For owner: PayPal editing
   const [paypalEmail, setPaypalEmail] = useState('');
@@ -61,7 +63,7 @@ const StorePage = () => {
       } else {
         const { data, error } = await supabase
           .from('profiles')
-          .select('user_id, display_name, username, store_name, avatar_url, bio, is_verified, is_seller, created_at, average_rating')
+          .select('user_id, store_name, avatar_url, bio, is_verified, is_seller, created_at, average_rating, short_id')
           .eq('user_id', id)
           .eq('is_seller', true)
           .maybeSingle();
@@ -141,7 +143,12 @@ const StorePage = () => {
     );
   }
 
-  const displayName = (seller as any).store_name || (seller as any).display_name || (seller as any).username || 'Magazin';
+  const shortId = (seller as any).short_id ? `#${(seller as any).short_id}` : '';
+  // Store name visible publicly ONLY for top sellers with blue badge
+  const publicStoreName = isTopSeller ? ((seller as any).store_name || null) : null;
+  const displayName = isOwner 
+    ? ((seller as any).store_name || (seller as any).display_name || shortId || 'Magazin')
+    : (publicStoreName || shortId || 'Magazin');
 
   return (
     <Layout>
@@ -190,9 +197,10 @@ const StorePage = () => {
           <CardContent className="pt-14 pb-6 px-6">
             <div className="flex items-center gap-2.5 mb-1 flex-wrap">
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{displayName}</h1>
-              {(seller as any).short_id && (
+              {/* Show short_id separately only when store name is displayed (top sellers) */}
+              {publicStoreName && shortId && (
                 <span className="px-2 py-0.5 rounded bg-white/10 text-white/80 text-xs font-mono font-bold">
-                  #{(seller as any).short_id}
+                  {shortId}
                 </span>
               )}
               <VerifiedBadge userId={id!} size="lg" />
