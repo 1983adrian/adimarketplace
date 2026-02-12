@@ -19,7 +19,8 @@ import {
   Megaphone,
   Crown,
   Wrench,
-  ClipboardList
+  ClipboardList,
+  CreditCard
 } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import {
@@ -61,12 +62,11 @@ const sellersItems: MenuItem[] = [
 
 const contentItems: MenuItem[] = [
   { title: 'Setări Platformă', url: '/admin/settings', icon: Settings },
+  { title: 'Procesator Plăți', url: '/admin/payments', icon: CreditCard },
   { title: 'Pagina Principală', url: '/admin/homepage', icon: LayoutDashboard },
   { title: 'Categorii', url: '/admin/categories', icon: FolderTree },
   { title: 'Politici & Legal', url: '/admin/policies', icon: FileText },
   { title: 'SEO', url: '/admin/seo', icon: Globe },
-  { title: 'Securitate', url: '/admin/security', icon: Shield },
-  { title: 'Curieri', url: '/admin/couriers', icon: Truck },
 ];
 
 const communicationItems: MenuItem[] = [
