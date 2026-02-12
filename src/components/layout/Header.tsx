@@ -1,6 +1,6 @@
 import React, { useState, forwardRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, CreditCard, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight, GraduationCap, Wallet, Store } from 'lucide-react';
+import { Menu, Bell, MessageCircle, User, Plus, LogOut, Settings, Package, Search, Shield, Crown, ShoppingBag, Sparkles, UserPlus, LogIn, BadgeCheck, ArrowLeft, ArrowRight, GraduationCap, Wallet, Store } from 'lucide-react';
 import { MarketplaceBrand } from '@/components/branding/MarketplaceBrand';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -198,21 +198,9 @@ export const Header: React.FC = () => {
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild className="cursor-pointer bg-gradient-to-r from-amber-500/10 to-orange-500/10">
-                          <Link to="/admin/owner" className="flex items-center">
+                          <Link to="/admin" className="flex items-center">
                             <Crown className="mr-2 h-4 w-4 text-amber-500" />
-                            <span className="text-amber-600 font-medium">{t('nav.ownerDashboard')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link to="/admin">
-                            <Shield className="mr-2 h-4 w-4 text-primary" />
-                            {t('nav.adminPanel')}
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="cursor-pointer">
-                          <Link to="/admin/fees">
-                            <CreditCard className="mr-2 h-4 w-4" />
-                            {t('nav.paymentsFees')}
+                            <span className="text-amber-600 font-medium">{t('nav.adminPanel')}</span>
                           </Link>
                         </DropdownMenuItem>
                       </>
@@ -310,24 +298,12 @@ export const Header: React.FC = () => {
                           <div className="pt-4 border-t border-border mt-4 space-y-1">
                             <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide px-3 py-1 flex items-center gap-2">
                               <Crown className="h-3 w-3" />
-                              Admin / Proprietar
+                              Admin
                             </p>
                             <Button variant="ghost" className="w-full justify-start bg-gradient-to-r from-amber-500/10 to-orange-500/10" asChild onClick={() => setMobileMenuOpen(false)}>
-                              <Link to="/admin/owner">
-                                <Crown className="mr-3 h-4 w-4 text-amber-500" />
-                                <span className="text-amber-600 font-medium">{t('nav.ownerDashboard')}</span>
-                              </Link>
-                            </Button>
-                            <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
                               <Link to="/admin">
-                                <Shield className="mr-3 h-4 w-4 text-primary" />
-                                {t('nav.adminPanel')}
-                              </Link>
-                            </Button>
-                            <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setMobileMenuOpen(false)}>
-                              <Link to="/admin/fees">
-                                <CreditCard className="mr-3 h-4 w-4" />
-                                Plăți & Taxe
+                                <Crown className="mr-3 h-4 w-4 text-amber-500" />
+                                <span className="text-amber-600 font-medium">{t('nav.adminPanel')}</span>
                               </Link>
                             </Button>
                           </div>
