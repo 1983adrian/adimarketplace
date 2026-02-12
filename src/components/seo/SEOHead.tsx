@@ -19,8 +19,8 @@ interface SEOHeadProps {
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
-  title = 'Marketplace România | Market România - Cumpără și Vinde Online',
-  description = 'Marketplace România - cel mai mare market online din România. Place România pentru licitații și vânzări directe cu taxe mici (8%). Cumpără și vinde la cel mai bun preț!',
+  title = 'Market Place România® | Marketplace România - Cumpără și Vinde Online',
+  description = 'Market Place România® - Primul Market Place din România construit cu AI. Marketplace România pentru vânzări online, licitații și cumpărături sigure. 0% comision!',
   image = 'https://www.marketplaceromania.com/og-image.png',
   url,
   type = 'website',
@@ -52,18 +52,21 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
     schemas.push({
       "@context": "https://schema.org",
       "@type": "Organization",
-      "name": "Marketplace România®",
+      "name": "Market Place România®",
       "alternateName": [
+        "Market Place România",
+        "Marketplace România",
         "Market România", 
         "Place România", 
-        "Market Place România", 
-        "MarketplaceRomania", 
-        "Marketplace RO", 
-        "Market RO", 
-        "Market Place RO",
+        "Market Place Romania",
         "Marketplace Romania",
         "Market Romania",
-        "Market Place Romania",
+        "MarketPlaceRomania",
+        "MarketplaceRomania", 
+        "Market Place RO",
+        "Marketplace RO", 
+        "Market RO", 
+        "Market Place",
         "www.marketplaceromania.com"
       ],
       "url": "https://www.marketplaceromania.com",
@@ -74,8 +77,8 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
         "height": "512",
         "caption": "Marketplace România® - Logo Oficial Marcă Înregistrată"
       },
-      "description": "Marketplace România® - Primul Market Place din România construit cu AI. Cel mai mare market online pentru cumpărături și vânzări sigure. Marcă Înregistrată.",
-      "slogan": "Marketplace România® - Primul Market Place construit cu AI! Cumpără și Vinde Online cu Comision Doar 8%",
+      "description": "Market Place România® - Primul Market Place din România construit cu AI. Cel mai mare market place online românesc. 0% comision, abonamente de la 11 LEI/lună. Marcă Înregistrată.",
+      "slogan": "Market Place România® - Primul Market Place construit cu AI! Cumpără și Vinde Online cu 0% Comision",
       "sameAs": [
         "https://www.facebook.com/marketplaceromania",
         "https://www.instagram.com/marketplaceromania",
@@ -87,8 +90,13 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
         "availableLanguage": ["Romanian", "English"]
       },
       "knowsAbout": [
-        "Market place România",
+        "Market Place România",
+        "Market Place Romania",
+        "Market Place",
+        "Marketplace România",
         "Market România",
+        "Market Place online",
+        "Market Place online România",
         "Vânzări România",
         "Cumpără online",
         "Vânzare online",
@@ -102,7 +110,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       ],
       "brand": {
         "@type": "Brand",
-        "name": "Marketplace România®",
+        "name": "Market Place România®",
         "logo": "https://www.marketplaceromania.com/logo-oficial.png"
       }
     });

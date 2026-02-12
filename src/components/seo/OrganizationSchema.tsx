@@ -11,18 +11,23 @@ export const OrganizationSchema: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": "https://www.marketplaceromania.com/#organization",
-    "name": "Marketplace România",
-    "legalName": "Marketplace România SRL",
+    "name": "Market Place România",
+    "legalName": "Market Place România SRL",
     "alternateName": [
+      "Market Place România",
+      "Marketplace România",
       "Market România",
       "Place România",
-      "Market Place România",
-      "MarketPlaceRomania",
+      "Market Place Romania",
       "Marketplace Romania",
       "Market Romania",
-      "Market Place Romania",
+      "MarketPlaceRomania",
+      "MarketplaceRomania",
+      "Market Place RO",
       "Marketplace RO",
-      "Market RO"
+      "Market RO",
+      "Market Place",
+      "Market Place Online România"
     ],
     "url": "https://www.marketplaceromania.com",
     "logo": {
@@ -38,13 +43,13 @@ export const OrganizationSchema: React.FC = () => {
       "license": "https://www.marketplaceromania.com/terms-of-service"
     },
     "image": "https://www.marketplaceromania.com/logo-oficial.png",
-    "description": "Marketplace România® - Primul Market Place din România construit cu AI. Platformă sigură pentru cumpărături și vânzări online cu 0% comision. Abonamente de la 11 LEI/lună. Marcă Înregistrată.",
+    "description": "Market Place România® - Primul Market Place din România construit cu AI. Market Place România - cel mai mare market place online românesc. 0% comision, abonamente de la 11 LEI/lună. Marcă Înregistrată.",
     "foundingDate": "2024",
     "foundingLocation": {
       "@type": "Place",
       "name": "București, România"
     },
-    "slogan": "Marketplace România® - Primul Market Place construit cu AI! Cumpără, Vinde, Licitează!",
+    "slogan": "Market Place România® - Primul Market Place construit cu AI! Cumpără, Vinde, Licitează!",
     "email": "Adrianchirita01@gmail.com",
     "telephone": "+40 7949 421640",
     "contactPoint": {
@@ -71,7 +76,12 @@ export const OrganizationSchema: React.FC = () => {
       "https://www.instagram.com/MarketPlaceRomania"
     ],
     "knowsAbout": [
-      "Market place România",
+      "Market Place România",
+      "Market Place Romania",
+      "Market Place",
+      "Market Place online",
+      "Market Place online România",
+      "Marketplace România",
       "Market România",
       "Vânzări România",
       "Cumpără online",
@@ -83,6 +93,8 @@ export const OrganizationSchema: React.FC = () => {
       "Vreau să vând online",
       "Unde să vând pe net",
       "Primul Market Place construit cu AI",
+      "cel mai mare market place din România",
+      "market place românesc",
       "e-commerce România",
       "marketplace online România",
       "cumpărături online România",
@@ -94,10 +106,10 @@ export const OrganizationSchema: React.FC = () => {
     ],
     "brand": {
       "@type": "Brand",
-      "name": "Marketplace România®",
+      "name": "Market Place România®",
       "logo": "https://www.marketplaceromania.com/logo-oficial.png",
       "slogan": "Primul Market Place din România construit cu AI",
-      "description": "Marketplace România® este marca înregistrată oficială pentru cel mai mare market place online din România."
+      "description": "Market Place România® este marca înregistrată oficială pentru cel mai mare market place online din România."
     }
   };
 
@@ -106,10 +118,10 @@ export const OrganizationSchema: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "@id": "https://www.marketplaceromania.com/#website",
-    "name": "Marketplace România",
-    "alternateName": ["Market România", "Place România"],
+    "name": "Market Place România",
+    "alternateName": ["Market Place România", "Marketplace România", "Market România", "Place România"],
     "url": "https://www.marketplaceromania.com",
-    "description": "Marketplace România - platformă online pentru cumpărarea și vânzarea de produse în România. 0% comision, abonamente accesibile.",
+    "description": "Market Place România - primul market place online din România construit cu AI. 0% comision, abonamente accesibile.",
     "publisher": {
       "@id": "https://www.marketplaceromania.com/#organization"
     },
@@ -130,8 +142,8 @@ export const OrganizationSchema: React.FC = () => {
     "@type": "WebPage",
     "@id": "https://www.marketplaceromania.com/#webpage",
     "url": "https://www.marketplaceromania.com",
-    "name": "Marketplace România | Market România - Cumpără și Vinde Online",
-    "description": "Marketplace România - cel mai mare market online din România. Place România pentru licitații, produse noi și second-hand. 0% comision pe vânzări!",
+    "name": "Market Place România® | Marketplace România - Cumpără și Vinde Online",
+    "description": "Market Place România - cel mai mare market place online din România. Marketplace România pentru licitații, produse noi și second-hand. 0% comision pe vânzări!",
     "isPartOf": {
       "@id": "https://www.marketplaceromania.com/#website"
     },

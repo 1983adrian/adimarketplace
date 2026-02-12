@@ -11,19 +11,23 @@ export const MarketplaceSchema: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "OnlineStore",
     "@id": "https://www.marketplaceromania.com/#store",
-    "name": "Marketplace România®",
+    "name": "Market Place România®",
     "alternateName": [
+      "Market Place România",
+      "Marketplace România",
       "Market România",
       "Place România", 
-      "Market Place România",
+      "Market Place Romania",
       "Marketplace Romania",
       "Market Romania",
-      "Market Place Romania",
+      "Market Place",
+      "Market Place Online",
+      "Market Place Online România",
       "Vânzări România",
       "Cumpără Online România",
       "Licitații Online România"
     ],
-    "description": "Marketplace România® - Primul Market Place din România construit cu AI. Cel mai mare market online 100% românesc. Platformă pentru cumpărături și vânzări online cu licitații integrate și comision de doar 8%. Marcă Înregistrată.",
+    "description": "Market Place România® - Primul Market Place din România construit cu AI. Cel mai mare market place online 100% românesc. Marketplace România pentru cumpărături și vânzări online cu licitații integrate. 0% comision! Marcă Înregistrată.",
     "url": "https://www.marketplaceromania.com",
     "logo": {
       "@type": "ImageObject",
@@ -80,11 +84,16 @@ export const MarketplaceSchema: React.FC = () => {
       "highPrice": "100000",
       "priceCurrency": "RON",
       "offerCount": "10000",
-      "description": "Comision de doar 8% pentru vânzători - cel mai mic din România"
+      "description": "Market Place România - 0% comision pe vânzări. Abonamente de la 11 LEI/lună"
     },
     "keywords": [
-      "Market place România",
+      "Market Place România",
+      "Market Place Romania",
+      "Market Place",
+      "Marketplace România",
       "Market România", 
+      "Market Place online",
+      "Market Place online România",
       "Vânzări România",
       "Cumpără online",
       "Vânzare online",
@@ -94,11 +103,13 @@ export const MarketplaceSchema: React.FC = () => {
       "Vinde la licitații",
       "Vreau să vând online",
       "Unde să vând pe net",
-      "Primul Market Place construit cu AI"
+      "Primul Market Place construit cu AI",
+      "market place românesc",
+      "cel mai mare market place din România"
     ],
     "brand": {
       "@type": "Brand",
-      "name": "Marketplace România®",
+      "name": "Market Place România®",
       "logo": "https://www.marketplaceromania.com/logo-oficial.png"
     }
   };
@@ -108,9 +119,9 @@ export const MarketplaceSchema: React.FC = () => {
     "@context": "https://schema.org",
     "@type": "Service",
     "@id": "https://www.marketplaceromania.com/#service",
-    "name": "Serviciu Marketplace România",
-    "alternateName": "Market România - Platformă de Vânzări Online",
-    "description": "Serviciu de marketplace online pentru cumpărarea și vânzarea de produse în România. Include licitații online, plată la livrare, protecție cumpărător și comision de doar 8%.",
+    "name": "Serviciu Market Place România",
+    "alternateName": "Market Place România - Platformă de Vânzări Online",
+    "description": "Market Place România - serviciu de marketplace online pentru cumpărarea și vânzarea de produse în România. Include licitații online, plată la livrare, protecție cumpărător. 0% comision!",
     "provider": {
       "@id": "https://www.marketplaceromania.com/#organization"
     },
@@ -121,15 +132,15 @@ export const MarketplaceSchema: React.FC = () => {
     },
     "offers": {
       "@type": "Offer",
-      "name": "Comision Vânzător",
-      "description": "Comision de doar 8% din fiecare vânzare - cel mai mic din România",
-      "price": "8",
+      "name": "Abonament Market Place România",
+      "description": "Market Place România - 0% comision pe vânzări. Abonamente de la 11 LEI/lună",
+      "price": "11",
       "priceCurrency": "RON",
       "priceSpecification": {
         "@type": "UnitPriceSpecification",
-        "price": "8",
+        "price": "11",
         "priceCurrency": "RON",
-        "unitText": "procent din valoarea vânzării"
+        "unitText": "lună"
       }
     },
     "hasOfferCatalog": {
