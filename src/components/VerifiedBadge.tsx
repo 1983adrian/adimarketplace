@@ -33,33 +33,26 @@ const useIsSpecialUser = (userId: string) => {
         return { isSpecial: true, type: 'Moderator ✓' };
       }
 
-      // Check if user is verified seller first (faster check)
-      if (status?.is_verified) {
-        return { isSpecial: true, type: 'Vânzător Verificat' };
-      }
-
-      // Top seller check is now cached more aggressively
-      // This uses a separate query with longer staleTime to reduce DB load
+      // is_verified no longer grants blue badge — only top sellers get it
       return { isSpecial: false, type: null };
     },
     enabled: !!userId,
-    staleTime: 10 * 60 * 1000, // 10 minutes - increased for scalability
-    gcTime: 30 * 60 * 1000, // 30 minutes garbage collection
-    refetchOnWindowFocus: false, // Reduce unnecessary refetches
+    staleTime: 10 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
-// Separate hook for top seller check - runs less frequently
+// Top seller check — this is what grants the blue checkmark
 const useTopSellerStatus = (userId: string, isAlreadySpecial: boolean) => {
   return useQuery({
     queryKey: ['top-seller-badge', userId],
     queryFn: async () => {
-      // Only fetch top 10 sellers once per session
       const { data: orders } = await supabase
         .from('orders')
         .select('seller_id')
         .eq('status', 'delivered')
-        .limit(1000); // Limit for performance
+        .limit(1000);
 
       if (orders && orders.length > 0) {
         const salesCount: Record<string, number> = {};
@@ -80,9 +73,9 @@ const useTopSellerStatus = (userId: string, isAlreadySpecial: boolean) => {
 
       return { isTopSeller: false, rank: null };
     },
-    enabled: !!userId && !isAlreadySpecial, // Only run if not already special
-    staleTime: 30 * 60 * 1000, // 30 minutes - top sellers don't change often
-    gcTime: 60 * 60 * 1000, // 1 hour
+    enabled: !!userId && !isAlreadySpecial,
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 };

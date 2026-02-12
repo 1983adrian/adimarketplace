@@ -193,7 +193,7 @@ const ListingDetail = () => {
   const images = listing.listing_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
   const primaryImage = images.find((img: any) => img.is_primary)?.image_url || images[0]?.image_url;
   const sellerProfile = listing.seller_profile;
-  const sellerName = sellerProfile?.display_name || sellerProfile?.username || 'Vânzător';
+  const sellerName = (sellerProfile as any)?.short_id ? `#${(sellerProfile as any).short_id}` : 'Vânzător';
   const isAuction = listing.listing_type === 'auction' || listing.listing_type === 'both';
   const isBuyNow = listing.listing_type === 'buy_now' || listing.listing_type === 'both';
   const isVerifiedSeller = sellerProfile?.is_verified;
@@ -424,16 +424,10 @@ const ListingDetail = () => {
                       {sellerName[0]?.toUpperCase() || 'V'}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
+                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold text-lg">{sellerName}</p>
+                      <p className="font-semibold text-lg font-mono">{sellerName}</p>
                       <VerifiedBadge userId={listing.seller_id} size="md" />
-                      {isVerifiedSeller && (
-                        <Badge className="gap-1 bg-green-500 hover:bg-green-600">
-                          <CheckCircle className="h-3 w-3" />
-                          Verificat
-                        </Badge>
-                      )}
                     </div>
                     {sellerStats && (
                       <div className="flex items-center gap-2 text-sm">
