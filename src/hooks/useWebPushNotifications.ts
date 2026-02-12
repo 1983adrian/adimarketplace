@@ -104,13 +104,22 @@ export const useWebPushNotifications = () => {
     checkExisting();
   }, [isSupported, user, saveSubscription]);
 
-  // Auto-subscribe when user is logged in and permission is granted
+  // Auto-prompt for permission when user is logged in
   useEffect(() => {
     if (!isSupported || !user || isSubscribed) return;
 
-    if ('Notification' in window && Notification.permission === 'granted') {
+    const permission = Notification.permission;
+    if (permission === 'granted') {
+      // Already granted, just subscribe silently
       subscribe();
+    } else if (permission === 'default') {
+      // Not yet asked - show browser prompt after short delay
+      const timer = setTimeout(() => {
+        subscribe();
+      }, 2000);
+      return () => clearTimeout(timer);
     }
+    // If 'denied', do nothing - user blocked it
   }, [isSupported, user, isSubscribed, subscribe]);
 
   // Remove subscription on logout
