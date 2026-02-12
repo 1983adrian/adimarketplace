@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2, User, Briefcase, Info, ExternalLink } from 'lucide-react';
+import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2, User, Briefcase, Info, ExternalLink, Copy } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -394,11 +394,25 @@ const SellerPlans = () => {
 
           {selectedPlan && (
             <div className="space-y-4">
-              {/* Plan Summary */}
+              {/* Plan Summary with Copy Button */}
               <div className="bg-muted/50 rounded-lg p-4 text-center">
                 <p className="text-sm text-muted-foreground">Plan selectat</p>
                 <p className="text-lg font-bold">{selectedPlan.plan_name}</p>
-                <p className="text-3xl font-bold text-primary mt-1">{selectedPlan.price_ron} LEI</p>
+                <div className="flex items-center justify-center gap-2 mt-1">
+                  <p className="text-3xl font-bold text-primary">{selectedPlan.price_ron} LEI</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2 gap-1 text-xs"
+                    onClick={() => {
+                      navigator.clipboard.writeText(String(selectedPlan.price_ron));
+                      toast({ title: '📋 Suma copiată!', description: `${selectedPlan.price_ron} LEI — lipește în Revolut` });
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                    Copiază
+                  </Button>
+                </div>
               </div>
 
               {/* Revolut Payment Button */}
