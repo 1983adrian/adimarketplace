@@ -103,17 +103,81 @@ serve(async (req: Request) => {
       console.error("❌ Database notification failed:", dbError);
     }
 
-    // 2. Send Push Notification (if enabled and tokens exist)
+    // 2. Send Web Push Notification (browser push - works even with browser closed!)
     if (send_push) {
-      const { data: tokens } = await supabase
-        .from("push_tokens")
-        .select("token, platform")
-        .eq("user_id", user_id);
+      try {
+        // Get web push subscriptions for this user
+        const { data: webSubs } = await supabase
+          .from("web_push_subscriptions")
+          .select("endpoint, p256dh, auth")
+          .eq("user_id", user_id);
 
-      if (tokens && tokens.length > 0) {
-        // In production, call FCM or APNS here
-        console.log(`📱 Push: Would send to ${tokens.length} devices`);
-        results.push = true;
+        if (webSubs && webSubs.length > 0) {
+          // Determine URL based on notification type
+          let notifUrl = "/";
+          switch (type) {
+            case 'order': notifUrl = "/orders"; break;
+            case 'message': notifUrl = "/messages"; break;
+            case 'shipping': notifUrl = "/orders"; break;
+            case 'payout': notifUrl = "/dashboard"; break;
+            case 'bid': notifUrl = data?.listing_id ? `/listing/${data.listing_id}` : "/"; break;
+            case 'review': notifUrl = "/dashboard"; break;
+          }
+
+          const payload = JSON.stringify({
+            title,
+            body: message,
+            icon: "/icons/icon-192x192.png",
+            badge: "/icons/icon-72x72.png",
+            url: notifUrl,
+            data: { type, ...data },
+          });
+
+          // Send to each subscription endpoint
+          const pushResults = await Promise.allSettled(
+            webSubs.map(async (sub) => {
+              const response = await fetch(sub.endpoint, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  TTL: "86400",
+                },
+                body: payload,
+              });
+
+              if (!response.ok) {
+                const status = response.status;
+                // 404 or 410 = subscription expired
+                if (status === 404 || status === 410) {
+                  await supabase
+                    .from("web_push_subscriptions")
+                    .delete()
+                    .eq("endpoint", sub.endpoint);
+                  console.log("🗑️ Removed expired web push subscription");
+                }
+                throw new Error(`Web push failed: ${status}`);
+              }
+              return { success: true };
+            })
+          );
+
+          const sent = pushResults.filter(r => r.status === "fulfilled").length;
+          console.log(`📱 Web Push: Sent to ${sent}/${webSubs.length} browser subscriptions`);
+          results.push = sent > 0;
+        }
+
+        // Also check native push tokens (Capacitor/FCM)
+        const { data: tokens } = await supabase
+          .from("push_tokens")
+          .select("token, platform")
+          .eq("user_id", user_id)
+          .eq("is_valid", true);
+
+        if (tokens && tokens.length > 0) {
+          console.log(`📱 Native Push: Would send to ${tokens.length} devices`);
+        }
+      } catch (pushError) {
+        console.error("❌ Push notification error:", pushError);
       }
     }
 
