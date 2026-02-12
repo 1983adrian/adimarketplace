@@ -168,21 +168,19 @@ export default function AdminOrders() {
         // Send email for important status changes
         if (['shipped', 'delivered', 'cancelled', 'refunded'].includes(status)) {
           try {
-            const { data: buyerAuth } = await supabase.auth.admin.getUserById(order.buyer_id);
-            if (buyerAuth?.user?.email) {
-              await supabase.functions.invoke('send-notification', {
-                body: {
-                  type: 'email',
-                  to: buyerAuth.user.email,
-                  subject: `Comandă ${label} - ${title}`,
-                  message: `<div style="font-family: Arial; max-width: 600px; margin: 0 auto;">
+            // Use edge function which handles user lookup server-side (no admin API needed)
+            await supabase.functions.invoke('send-notification', {
+              body: {
+                userId: order.buyer_id,
+                type: 'email',
+                subject: `Comandă ${label} - ${title}`,
+                message: `<div style="font-family: Arial; max-width: 600px; margin: 0 auto;">
                     <h2>Comanda ta a fost ${label}</h2>
                     <p>Produsul <strong>"${title}"</strong> - comanda a fost marcată ca <strong>${label}</strong>.</p>
                     <a href="https://marketplaceromania.lovable.app/orders" style="display:inline-block;background:#FF6B35;color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;margin-top:16px;">Vezi Comenzile</a>
                   </div>`,
-                },
-              });
-            }
+              },
+            });
           } catch (emailErr) {
             console.error('Status email failed (non-blocking):', emailErr);
           }
