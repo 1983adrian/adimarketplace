@@ -373,10 +373,7 @@ const SellerPlans = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-3 text-base font-semibold transition-colors shadow-md"
-                  onClick={() => {
-                    setRevolutClicked(true);
-                    selectedPlan && createPaymentRequest.mutate(selectedPlan);
-                  }}
+                  onClick={() => setRevolutClicked(true)}
                 >
                   <ExternalLink className="h-5 w-5" />
                   Plătește abonamentul
