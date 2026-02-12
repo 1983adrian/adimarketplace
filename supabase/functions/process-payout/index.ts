@@ -120,6 +120,23 @@ serve(async (req) => {
       },
     });
 
+    // Audit log for payout
+    await supabase.from("financial_audit_log").insert({
+      user_id: user.id,
+      action: "delivery_confirmed_payout_ready",
+      entity_type: "order",
+      entity_id: order_id,
+      amount: payoutAmount,
+      new_value: {
+        seller_id: order.seller_id,
+        payout_status: "ready_for_withdrawal",
+        tracking_number: order.tracking_number,
+        carrier: order.carrier,
+      },
+      ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
+      user_agent: req.headers.get("user-agent"),
+    });
+
     // NOTE: Actual PayPal payout is NOT automated yet.
     // Seller must request withdrawal manually from Wallet page.
     // Admin processes the payout manually via PayPal.

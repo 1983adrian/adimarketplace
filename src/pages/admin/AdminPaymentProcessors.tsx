@@ -27,8 +27,6 @@ interface ProcessorSettings {
   id: string;
   processor_name: string;
   is_active: boolean;
-  api_key_masked: string | null;
-  api_secret_masked: string | null;
   api_key_encrypted?: string | null;
   api_secret_encrypted?: string | null;
   merchant_id: string | null;
@@ -96,7 +94,7 @@ export default function AdminPaymentProcessors() {
     setEdited(prev => ({ ...prev, [field]: value }));
   };
 
-  const isConfigured = paypal?.api_key_masked === '••••••••';
+  const isConfigured = !!paypal?.id;
   const isActive = getValue('is_active') as boolean || false;
 
   if (isLoading) {
