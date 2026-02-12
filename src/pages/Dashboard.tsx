@@ -153,9 +153,9 @@ const Dashboard = () => {
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-lg font-bold">{profile?.display_name || t('dashboard.welcome')}</h1>
+              <h1 className="text-lg font-bold">{profile?.display_name || 'Bine ai venit'}</h1>
               <p className="text-sm font-medium bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">
-                {t('dashboard.sellerMarketplace')}
+                Marketplace România
               </p>
             </div>
           </div>
@@ -176,7 +176,7 @@ const Dashboard = () => {
         <div className="bg-card border-2 border-border rounded-3xl p-4 shadow-lg max-w-md mx-auto">
           {/* Header with Meniu title and Dark Mode toggle */}
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold">{t('dashboard.menu')}</h2>
+            <h2 className="text-lg font-bold">Meniu</h2>
             
             {/* Dark Mode Toggle */}
             <div className="flex items-center gap-2">
@@ -202,9 +202,9 @@ const Dashboard = () => {
               
               // Format notification text
               const notificationText = badgeCount === 1 
-                ? `1 ${t('dashboard.notification')}` 
+                ? '1 notificare' 
                 : badgeCount > 1 
-                  ? `${badgeCount > 99 ? '99+' : badgeCount} ${t('dashboard.notifications')}`
+                  ? `${badgeCount > 99 ? '99+' : badgeCount} notificări`
                   : null;
               
               return (
