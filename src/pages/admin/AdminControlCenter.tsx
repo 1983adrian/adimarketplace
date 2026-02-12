@@ -4,7 +4,7 @@ import {
   Settings, Users, Package, ShoppingCart, FileText, CreditCard, 
   Shield, Bell, Globe, Truck, MessageSquare, BarChart3, 
   Palette, Mail, Megaphone, Gavel, AlertTriangle, RefreshCcw,
-  Smartphone, Home, Tag, ChevronRight, Search, Layout,
+  Home, Tag, ChevronRight, Search,
   Database, Lock, DollarSign, FileCheck, Eye, Pencil, Trash2,
   Plus, CheckCircle2, XCircle, MoreHorizontal
 } from 'lucide-react';
@@ -64,16 +64,6 @@ const controlSections: ControlSection[] = [
     category: 'platform'
   },
   { 
-    id: 'api-settings', 
-    title: 'Setări API', 
-    description: 'Configurează cheile pentru plăți, email și SMS',
-    icon: Database, 
-    href: '/admin/api-settings',
-    color: 'text-purple-600 bg-purple-500/10',
-    actions: ['view', 'edit'],
-    category: 'platform'
-  },
-  { 
     id: 'payment-processors', 
     title: 'Procesator Plăți', 
     description: 'Configurează PayPal pentru plăți',
@@ -93,16 +83,6 @@ const controlSections: ControlSection[] = [
     href: '/admin/homepage',
     color: 'text-pink-600 bg-pink-500/10',
     actions: ['view', 'edit', 'add', 'delete'],
-    category: 'content'
-  },
-  { 
-    id: 'interface', 
-    title: 'Editor Interfață', 
-    description: 'Schimbă textele butoanelor și mesajele din aplicație',
-    icon: Layout, 
-    href: '/admin/interface-editor',
-    color: 'text-cyan-600 bg-cyan-500/10',
-    actions: ['view', 'edit'],
     category: 'content'
   },
   { 
@@ -132,16 +112,6 @@ const controlSections: ControlSection[] = [
     icon: Globe, 
     href: '/admin/seo',
     color: 'text-teal-600 bg-teal-500/10',
-    actions: ['view', 'edit'],
-    category: 'content'
-  },
-  { 
-    id: 'seo-dashboard', 
-    title: 'SEO Dashboard & Indexare Google', 
-    description: 'Monitorizează indexarea Google, cuvintele cheie și activitatea platformei',
-    icon: Search, 
-    href: '/admin/seo-dashboard',
-    color: 'text-green-600 bg-green-500/10',
     actions: ['view', 'edit'],
     category: 'content'
   },
@@ -280,16 +250,6 @@ const controlSections: ControlSection[] = [
     color: 'text-purple-600 bg-purple-500/10',
     actions: ['view', 'add'],
     category: 'communication'
-  },
-  { 
-    id: 'mobile-app', 
-    title: 'Aplicație Mobilă', 
-    description: 'Setări pentru aplicația iOS și Android (push notifications)',
-    icon: Smartphone, 
-    href: '/admin/mobile-app',
-    color: 'text-emerald-600 bg-emerald-500/10',
-    actions: ['view', 'edit'],
-    category: 'platform'
   },
 ];
 
@@ -543,9 +503,6 @@ const AdminControlCenter = () => {
               </Button>
               <Button asChild variant="ghost" size="sm">
                 <Link to="/admin/maintenance">🔧 Mentenanță</Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm">
-                <Link to="/admin/button-audit">🔘 Audit Butoane</Link>
               </Button>
             </div>
           </CardContent>

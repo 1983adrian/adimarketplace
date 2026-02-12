@@ -62,7 +62,6 @@ import AdminFees from "./pages/admin/AdminFees";
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminDisputes from "./pages/admin/AdminDisputes";
 import OwnerDashboard from "./pages/admin/OwnerDashboard";
-import AdminApiSettings from "./pages/admin/AdminApiSettings";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminPlatformSettings from "./pages/admin/AdminPlatformSettings";
 import AdminPolicies from "./pages/admin/AdminPolicies";
@@ -72,8 +71,6 @@ import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminSEO from "./pages/admin/AdminSEO";
 import AdminMaintenance from "./pages/admin/AdminMaintenance";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
-import AdminAISales from "./pages/admin/AdminAISales";
-import AdminAIMaintenance from "./pages/admin/AdminAIMaintenance";
 import AdminDeliveryManagement from "./pages/admin/AdminDeliveryManagement";
 import AdminReturns from "./pages/admin/AdminReturns";
 import AdminSellerVerifications from "./pages/admin/AdminSellerVerifications";
@@ -84,12 +81,9 @@ import AdminSecuritySettings from "./pages/admin/AdminSecuritySettings";
 import AdminPaymentProcessors from "./pages/admin/AdminPaymentProcessors";
 import AdminSellerPayouts from "./pages/admin/AdminSellerPayouts";
 import AdminCouriers from "./pages/admin/AdminCouriers";
-import AdminMobileApp from "./pages/admin/AdminMobileApp";
-import AdminInterfaceEditor from "./pages/admin/AdminInterfaceEditor";
-import AdminButtonAudit from "./pages/admin/AdminButtonAudit";
 import AdminControlCenter from "./pages/admin/AdminControlCenter";
 import AdminFraudAlerts from "./pages/admin/AdminFraudAlerts";
-import AdminSEODashboard from "./pages/admin/AdminSEODashboard";
+
 import AdminUnifiedSettings from "./pages/admin/AdminUnifiedSettings";
 import AdminSellerSubscriptions from "./pages/admin/AdminSellerSubscriptions";
 
@@ -143,7 +137,6 @@ const publicRoutes = [
 const adminRoutes = [
   { path: "/admin", element: <AdminDashboard /> },
   { path: "/admin/owner", element: <OwnerDashboard /> },
-  { path: "/admin/ai-sales", element: <AdminAISales /> },
   { path: "/admin/users", element: <AdminUsers /> },
   { path: "/admin/listings", element: <AdminListings /> },
   { path: "/admin/orders", element: <AdminOrders /> },
@@ -151,7 +144,6 @@ const adminRoutes = [
   { path: "/admin/fees", element: <AdminFees /> },
   { path: "/admin/payments", element: <AdminPaymentProcessors /> },
   { path: "/admin/messages", element: <AdminMessages /> },
-  { path: "/admin/api-settings", element: <AdminApiSettings /> },
   { path: "/admin/disputes", element: <AdminDisputes /> },
   { path: "/admin/analytics", element: <AdminAnalytics /> },
   { path: "/admin/settings", element: <AdminPlatformSettings /> },
@@ -161,7 +153,6 @@ const adminRoutes = [
   { path: "/admin/email-templates", element: <AdminEmailTemplates /> },
   { path: "/admin/seo", element: <AdminSEO /> },
   { path: "/admin/maintenance", element: <AdminMaintenance /> },
-  { path: "/admin/ai-maintenance", element: <AdminAIMaintenance /> },
   { path: "/admin/audit-log", element: <AdminAuditLog /> },
   { path: "/admin/returns", element: <AdminReturns /> },
   { path: "/admin/seller-verifications", element: <AdminSellerVerifications /> },
@@ -169,13 +160,9 @@ const adminRoutes = [
   { path: "/admin/security", element: <AdminSecuritySettings /> },
   { path: "/admin/seller-payouts", element: <AdminSellerPayouts /> },
   { path: "/admin/couriers", element: <AdminCouriers /> },
-  { path: "/admin/mobile-app", element: <AdminMobileApp /> },
   { path: "/admin/broadcast", element: <AdminBroadcast /> },
-  { path: "/admin/interface-editor", element: <AdminInterfaceEditor /> },
-  { path: "/admin/button-audit", element: <AdminButtonAudit /> },
   { path: "/admin/control-center", element: <AdminControlCenter /> },
   { path: "/admin/fraud-alerts", element: <AdminFraudAlerts /> },
-  { path: "/admin/seo-dashboard", element: <AdminSEODashboard /> },
   { path: "/admin/unified-settings", element: <AdminUnifiedSettings /> },
   { path: "/admin/seller-subscriptions", element: <AdminSellerSubscriptions /> },
 ];

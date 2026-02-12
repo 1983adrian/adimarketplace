@@ -562,9 +562,9 @@ const LinksSettingsSection = () => {
           <AccordionContent>
             <div className="p-4">
               <Button variant="outline" size="sm" asChild className="gap-2">
-                <a href="/admin/seo-dashboard">
+                <a href="/admin/seo">
                   <ExternalLink className="h-4 w-4" />
-                  Deschide SEO Dashboard
+                  Deschide Setări SEO
                 </a>
               </Button>
             </div>
