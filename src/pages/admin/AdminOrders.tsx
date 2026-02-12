@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Ban, Bomb, Leaf, Image } from 'lucide-react';
+import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Ban, Bomb, Leaf, Image, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,12 +28,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useAllOrders } from '@/hooks/useAdmin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { useCurrency } from '@/contexts/CurrencyContext';
 
 const statusOptions = [
   { value: 'all', label: 'Toate Comenzile' },
@@ -45,7 +47,6 @@ const statusOptions = [
   { value: 'refunded', label: 'Rambursate' },
 ];
 
-// Platform forbidden items rules
 const PLATFORM_RULES = [
   { icon: Ban, label: 'Armament', description: 'Arme de foc, arme albe, muniție, explozibili' },
   { icon: Leaf, label: 'Substanțe Interzise', description: 'Droguri, medicamente fără rețetă, substanțe controlate' },
@@ -55,9 +56,33 @@ const PLATFORM_RULES = [
 export default function AdminOrders() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState('all');
   const { data: orders, isLoading } = useAllOrders();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { formatPriceWithRON } = useCurrency();
+
+  // Orders missing tracking: paid but no tracking number
+  const missingTracking = orders?.filter(o => 
+    ['paid', 'pending'].includes(o.status) && !o.tracking_number
+  ) || [];
+
+  // Group sales by seller
+  const sellerSales = orders?.reduce((acc, order) => {
+    const sellerId = order.seller_id;
+    const sellerName = order.seller_profile?.display_name || order.seller_profile?.username || 'Necunoscut';
+    if (!acc[sellerId]) {
+      acc[sellerId] = { name: sellerName, totalSales: 0, totalAmount: 0, orders: [] };
+    }
+    acc[sellerId].totalSales += 1;
+    acc[sellerId].totalAmount += Number(order.amount || 0);
+    acc[sellerId].orders.push(order);
+    return acc;
+  }, {} as Record<string, { name: string; totalSales: number; totalAmount: number; orders: any[] }>) || {};
+
+  const sellerSalesArray = Object.entries(sellerSales)
+    .map(([id, data]) => ({ id, ...data }))
+    .sort((a, b) => b.totalSales - a.totalSales);
 
   const filteredOrders = orders?.filter(order => {
     const matchesSearch = order.listings?.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -86,20 +111,13 @@ export default function AdminOrders() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending':
-        return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">În Așteptare</Badge>;
-      case 'paid':
-        return <Badge className="bg-green-500">Plătit</Badge>;
-      case 'shipped':
-        return <Badge className="bg-blue-500">Expediat</Badge>;
-      case 'delivered':
-        return <Badge className="bg-purple-500">Livrat</Badge>;
-      case 'cancelled':
-        return <Badge variant="destructive">Anulat</Badge>;
-      case 'refunded':
-        return <Badge variant="outline">Rambursat</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
+      case 'pending': return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">În Așteptare</Badge>;
+      case 'paid': return <Badge className="bg-green-500">Plătit</Badge>;
+      case 'shipped': return <Badge className="bg-blue-500">Expediat</Badge>;
+      case 'delivered': return <Badge className="bg-purple-500">Livrat</Badge>;
+      case 'cancelled': return <Badge variant="destructive">Anulat</Badge>;
+      case 'refunded': return <Badge variant="outline">Rambursat</Badge>;
+      default: return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
@@ -113,7 +131,69 @@ export default function AdminOrders() {
     pending: orders?.filter(o => o.status === 'pending').length || 0,
     paid: orders?.filter(o => o.status === 'paid').length || 0,
     shipped: orders?.filter(o => o.status === 'shipped').length || 0,
-    totalRevenue: orders?.filter(o => o.status === 'delivered').reduce((acc, o) => acc + Number(o.seller_commission || 0) + Number(o.buyer_fee || 0), 0) || 0,
+    missingTracking: missingTracking.length,
+  };
+
+  const renderOrderRow = (order: any) => {
+    const orderImage = getOrderImage(order);
+    return (
+      <TableRow key={order.id}>
+        <TableCell>
+          <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden">
+            {orderImage ? (
+              <img src={orderImage} alt={order.listings?.title || 'Produs'} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Image className="h-5 w-5 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+        </TableCell>
+        <TableCell>
+          <p className="font-medium truncate max-w-[150px]">{order.listings?.title || 'Produs Necunoscut'}</p>
+          <p className="text-xs text-muted-foreground font-mono">{order.id.slice(0, 8)}...</p>
+        </TableCell>
+        <TableCell className="text-sm">{order.buyer_profile?.display_name || 'Cumpărător'}</TableCell>
+        <TableCell className="text-sm">{order.seller_profile?.display_name || 'Vânzător'}</TableCell>
+        <TableCell className="font-medium">{formatPriceWithRON(Number(order.amount))}</TableCell>
+        <TableCell>
+          {order.tracking_number ? (
+            <Badge variant="outline" className="text-xs font-mono">{order.tracking_number}</Badge>
+          ) : (
+            <Badge variant="destructive" className="text-[10px]">Lipsă AWB</Badge>
+          )}
+        </TableCell>
+        <TableCell>{getStatusBadge(order.status)}</TableCell>
+        <TableCell className="text-sm">{new Date(order.created_at).toLocaleDateString('ro-RO')}</TableCell>
+        <TableCell className="text-right">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actualizează Status</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'paid')}>
+                <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> Plătit
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'shipped')}>
+                <Truck className="h-4 w-4 mr-2 text-blue-500" /> Expediat
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'delivered')}>
+                <Package className="h-4 w-4 mr-2 text-purple-500" /> Livrat
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'cancelled')}>
+                <XCircle className="h-4 w-4 mr-2 text-red-500" /> Anulează
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'refunded')}>
+                <RefreshCw className="h-4 w-4 mr-2" /> Rambursat
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </TableCell>
+      </TableRow>
+    );
   };
 
   return (
@@ -129,7 +209,7 @@ export default function AdminOrders() {
           <AlertTriangle className="h-4 w-4 text-red-600 flex-shrink-0" />
           <AlertTitle className="text-red-800 text-sm">Reguli Platformă - Produse Interzise</AlertTitle>
           <AlertDescription className="mt-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
               {PLATFORM_RULES.map((rule, index) => (
                 <div key={index} className="flex items-start gap-2 p-2 bg-white rounded-lg border border-red-100">
                   <rule.icon className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
@@ -148,7 +228,7 @@ export default function AdminOrders() {
           <Card className="p-0">
             <CardContent className="p-3">
               <div className="text-lg sm:text-xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">Total</p>
+              <p className="text-xs text-muted-foreground">Total Comenzi</p>
             </CardContent>
           </Card>
           <Card className="p-0">
@@ -169,163 +249,177 @@ export default function AdminOrders() {
               <p className="text-xs text-muted-foreground">Expediate</p>
             </CardContent>
           </Card>
-          <Card className="p-0 bg-gradient-to-r from-green-500 to-emerald-600 text-white col-span-2 sm:col-span-1">
+          <Card className="p-0 border-red-200 bg-red-50/50">
             <CardContent className="p-3">
-              <div className="text-lg sm:text-xl font-bold">£{stats.totalRevenue.toFixed(2)}</div>
-              <p className="text-xs text-white/80">Venit</p>
+              <div className="text-lg sm:text-xl font-bold text-red-600">{stats.missingTracking}</div>
+              <p className="text-xs text-red-600">Fără AWB</p>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="overflow-hidden">
-          <CardHeader className="p-3 sm:p-4">
-            <div className="flex flex-col gap-3">
-              <div>
-                <CardTitle className="text-base sm:text-lg">Toate Comenzile</CardTitle>
-                <CardDescription className="text-xs">{filteredOrders?.length || 0} comenzi găsite</CardDescription>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <div className="relative flex-1 min-w-0">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input 
-                    placeholder="Caută comenzi..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 text-sm"
-                  />
+        {/* Tabs: All Orders / Missing Tracking / Sales by Seller */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3 h-auto p-0.5">
+            <TabsTrigger value="all" className="text-xs py-2 gap-1">
+              <Package className="h-3 w-3" /> Toate Comenzile
+            </TabsTrigger>
+            <TabsTrigger value="missing" className="text-xs py-2 gap-1">
+              <AlertTriangle className="h-3 w-3" /> Fără AWB ({stats.missingTracking})
+            </TabsTrigger>
+            <TabsTrigger value="sellers" className="text-xs py-2 gap-1">
+              <Truck className="h-3 w-3" /> Vânzări / Vânzător
+            </TabsTrigger>
+          </TabsList>
+
+          {/* All Orders Tab */}
+          <TabsContent value="all">
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3 sm:p-4">
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <CardTitle className="text-base sm:text-lg">Toate Comenzile</CardTitle>
+                    <CardDescription className="text-xs">{filteredOrders?.length || 0} comenzi găsite</CardDescription>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="relative flex-1 min-w-0">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Caută comenzi..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 text-sm" />
+                    </div>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-full sm:w-[140px] text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {statusOptions.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-[140px] text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0 sm:p-2">
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(5)].map((_, i) => (
-                  <Skeleton key={i} className="h-20 w-full" />
-                ))}
-              </div>
-            ) : filteredOrders && filteredOrders.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-20">Poza</TableHead>
-                    <TableHead>Produs</TableHead>
-                    <TableHead>Cumpărător</TableHead>
-                    <TableHead>Vânzător</TableHead>
-                    <TableHead>Sumă</TableHead>
-                    <TableHead>Comisioane</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead className="text-right">Acțiuni</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredOrders.map((order) => {
-                    const orderImage = getOrderImage(order);
-                    return (
-                      <TableRow key={order.id}>
-                        <TableCell>
-                          <div className="w-14 h-14 rounded-lg bg-muted overflow-hidden">
-                            {orderImage ? (
-                              <img 
-                                src={orderImage} 
-                                alt={order.listings?.title || 'Produs'} 
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Image className="h-6 w-6 text-muted-foreground" />
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium truncate max-w-[150px]">{order.listings?.title || 'Produs Necunoscut'}</p>
-                            <p className="text-xs text-muted-foreground font-mono">{order.id.slice(0, 8)}...</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm">
-                            {order.buyer_profile?.display_name || order.buyer_profile?.username || 'Cumpărător'}
-                          </span>
-                        </TableCell>
-                        <TableCell>
-                          <span className="text-sm">
-                            {order.seller_profile?.display_name || order.seller_profile?.username || 'Vânzător'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-medium">
-                          £{Number(order.amount).toFixed(2)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs space-y-1">
-                            <p className="text-green-600">+£{Number(order.seller_commission || 0).toFixed(2)} vânz.</p>
-                            <p className="text-blue-600">+£{Number(order.buyer_fee || 0).toFixed(2)} cump.</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {getStatusBadge(order.status)}
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {new Date(order.created_at).toLocaleDateString('ro-RO')}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actualizează Status</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'paid')}>
-                                <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
-                                Marchează Plătit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'shipped')}>
-                                <Truck className="h-4 w-4 mr-2 text-blue-500" />
-                                Marchează Expediat
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'delivered')}>
-                                <Package className="h-4 w-4 mr-2 text-purple-500" />
-                                Marchează Livrat
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'cancelled')}>
-                                <XCircle className="h-4 w-4 mr-2 text-red-500" />
-                                Anulează Comandă
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'refunded')}>
-                                <RefreshCw className="h-4 w-4 mr-2" />
-                                Marchează Rambursat
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                Nu s-au găsit comenzi
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              </CardHeader>
+              <CardContent className="p-0 sm:p-2">
+                {isLoading ? (
+                  <div className="space-y-4">{[...Array(5)].map((_, i) => <Skeleton key={i} className="h-20 w-full" />)}</div>
+                ) : filteredOrders && filteredOrders.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-14">Poza</TableHead>
+                          <TableHead>Produs</TableHead>
+                          <TableHead>Cumpărător</TableHead>
+                          <TableHead>Vânzător</TableHead>
+                          <TableHead>Sumă</TableHead>
+                          <TableHead>AWB</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Data</TableHead>
+                          <TableHead className="text-right">Acțiuni</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>{filteredOrders.map(renderOrderRow)}</TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">Nu s-au găsit comenzi</div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Missing Tracking Tab */}
+          <TabsContent value="missing">
+            <Card className="overflow-hidden border-red-200">
+              <CardHeader className="p-3 bg-red-50/50">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                  Comenzi Fără Număr de Urmărire (AWB)
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Vânzători care au vândut dar nu au adăugat încă numărul de tracking
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0 sm:p-2">
+                {missingTracking.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-14">Poza</TableHead>
+                          <TableHead>Produs</TableHead>
+                          <TableHead>Cumpărător</TableHead>
+                          <TableHead>Vânzător</TableHead>
+                          <TableHead>Sumă</TableHead>
+                          <TableHead>AWB</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Data</TableHead>
+                          <TableHead className="text-right">Acțiuni</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>{missingTracking.map(renderOrderRow)}</TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
+                    <p>Toate comenzile au număr de urmărire!</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Sales by Seller Tab */}
+          <TabsContent value="sellers">
+            <Card className="overflow-hidden">
+              <CardHeader className="p-3">
+                <CardTitle className="text-base">Vânzări per Vânzător</CardTitle>
+                <CardDescription className="text-xs">{sellerSalesArray.length} vânzători cu comenzi</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0 sm:p-2">
+                {sellerSalesArray.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>#</TableHead>
+                          <TableHead>Vânzător</TableHead>
+                          <TableHead>Nr. Comenzi</TableHead>
+                          <TableHead>Total Vânzări</TableHead>
+                          <TableHead>Fără AWB</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {sellerSalesArray.map((seller, idx) => {
+                          const noTracking = seller.orders.filter(o => 
+                            ['paid', 'pending'].includes(o.status) && !o.tracking_number
+                          ).length;
+                          return (
+                            <TableRow key={seller.id}>
+                              <TableCell className="font-bold text-muted-foreground">{idx + 1}</TableCell>
+                              <TableCell className="font-medium">{seller.name}</TableCell>
+                              <TableCell>
+                                <Badge variant="secondary">{seller.totalSales}</Badge>
+                              </TableCell>
+                              <TableCell className="font-medium">{formatPriceWithRON(seller.totalAmount)}</TableCell>
+                              <TableCell>
+                                {noTracking > 0 ? (
+                                  <Badge variant="destructive" className="text-xs">{noTracking} lipsă</Badge>
+                                ) : (
+                                  <Badge variant="outline" className="text-green-600 border-green-300 text-xs">✓ OK</Badge>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">Nicio vânzare înregistrată</div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   );
