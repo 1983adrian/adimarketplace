@@ -58,7 +58,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminListings from "./pages/admin/AdminListings";
 import AdminOrders from "./pages/admin/AdminOrders";
-import AdminFees from "./pages/admin/AdminFees";
+
 import AdminMessages from "./pages/admin/AdminMessages";
 import AdminDisputes from "./pages/admin/AdminDisputes";
 import OwnerDashboard from "./pages/admin/OwnerDashboard";
@@ -141,7 +141,7 @@ const adminRoutes = [
   { path: "/admin/listings", element: <AdminListings /> },
   { path: "/admin/orders", element: <AdminOrders /> },
   { path: "/admin/deliveries", element: <AdminDeliveryManagement /> },
-  { path: "/admin/fees", element: <AdminFees /> },
+  
   { path: "/admin/payments", element: <AdminPaymentProcessors /> },
   { path: "/admin/messages", element: <AdminMessages /> },
   { path: "/admin/disputes", element: <AdminDisputes /> },

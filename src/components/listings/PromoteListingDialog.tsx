@@ -15,13 +15,11 @@ import {
   Facebook, 
   Instagram, 
   Twitter,
-  Clock,
   Sparkles,
   ExternalLink
 } from 'lucide-react';
-import { useCreateSocialPromotion, useCreatePaidPromotion, usePromotionFee, useListingPromotion } from '@/hooks/usePromotions';
+import { useCreateSocialPromotion, useListingPromotion } from '@/hooks/usePromotions';
 import { toast } from 'sonner';
-import { useCurrency } from '@/contexts/CurrencyContext';
 
 interface PromoteListingDialogProps {
   open: boolean;
@@ -44,15 +42,9 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
   listingTitle
 }) => {
   const [sharingPlatform, setSharingPlatform] = useState<string | null>(null);
-  const { formatPriceWithRON } = useCurrency();
   
   const { data: activePromotion } = useListingPromotion(listingId);
-  const { data: promotionFee } = usePromotionFee();
   const createSocialPromotion = useCreateSocialPromotion();
-  const createPaidPromotion = useCreatePaidPromotion();
-  
-  // Promotion fee is 25 RON (stored as 5 in old GBP format, now use 25 RON)
-  const promotionFeeRON = promotionFee?.amount ? promotionFee.amount * 5 : 25;
 
   const handleSocialShare = async (platform: string) => {
     setSharingPlatform(platform);
@@ -60,7 +52,6 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
     try {
       const result = await createSocialPromotion.mutateAsync({ listingId, platform });
       
-      // Generate share URL based on platform
       const listingUrl = `${window.location.origin}/listing/${listingId}`;
       const shareText = encodeURIComponent(`Check out ${listingTitle} on our marketplace!`);
       
@@ -73,13 +64,12 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
           shareUrl = `https://twitter.com/intent/tweet?text=${shareText}&url=${encodeURIComponent(listingUrl)}`;
           break;
         case 'instagram':
-          // Instagram doesn't have direct share URL, copy link instead
           navigator.clipboard.writeText(listingUrl);
-          toast.success('Link copied! Share it on Instagram');
+          toast.success('Link copiat! Distribuie pe Instagram');
           break;
         case 'tiktok':
           navigator.clipboard.writeText(listingUrl);
-          toast.success('Link copied! Share it on TikTok');
+          toast.success('Link copiat! Distribuie pe TikTok');
           break;
       }
       
@@ -87,20 +77,12 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
         window.open(shareUrl, '_blank', 'width=600,height=400');
       }
       
-      toast.success(result.message || 'Promotion activated for 12 hours!');
+      toast.success(result.message || 'Promovare activată pentru 12 ore!');
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to activate promotion');
+      toast.error(error.message || 'Eroare la activarea promovării');
     } finally {
       setSharingPlatform(null);
-    }
-  };
-
-  const handlePaidPromotion = async () => {
-    try {
-      await createPaidPromotion.mutateAsync({ listingId });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to start checkout');
     }
   };
 
@@ -112,10 +94,8 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(hours / 24);
     
-    if (days > 0) {
-      return `${days}d ${hours % 24}h remaining`;
-    }
-    return `${hours}h remaining`;
+    if (days > 0) return `${days}z ${hours % 24}h rămase`;
+    return `${hours}h rămase`;
   };
 
   return (
@@ -124,10 +104,10 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Promote Your Listing
+            Promovează Produsul
           </DialogTitle>
           <DialogDescription>
-            Get more visibility and sell faster
+            Distribuie pe social media pentru vizibilitate gratuită
           </DialogDescription>
         </DialogHeader>
 
@@ -135,29 +115,28 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
           <div className="mb-4 p-3 rounded-lg bg-primary/10 border border-primary/20">
             <div className="flex items-center gap-2 text-primary">
               <Crown className="h-4 w-4" />
-              <span className="font-medium">Currently Promoted</span>
+              <span className="font-medium">Activ acum</span>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {formatTimeRemaining(activePromotion.ends_at)} • {activePromotion.promotion_type === 'paid' ? 'Paid' : 'Social Share'}
+              {formatTimeRemaining(activePromotion.ends_at)}
             </p>
           </div>
         )}
 
         <div className="space-y-4">
-          {/* Free Social Share Option */}
           <Card className="border-2 border-dashed">
             <CardContent className="pt-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Share2 className="h-5 w-5 text-green-600" />
-                  <span className="font-semibold">Share & Get Featured</span>
+                  <span className="font-semibold">Distribuie & Promovează</span>
                 </div>
                 <Badge variant="secondary" className="bg-green-100 text-green-800">
-                  FREE
+                  GRATUIT
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
-                Share on social media and get <strong>12 hours</strong> of homepage visibility
+                Distribuie pe social media și primești <strong>12 ore</strong> de vizibilitate pe pagina principală
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {socialPlatforms.map((platform) => (
@@ -174,42 +153,6 @@ export const PromoteListingDialog: React.FC<PromoteListingDialogProps> = ({
                   </Button>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Paid Promotion Option */}
-          <Card className="border-2 border-primary/50 bg-primary/5">
-            <CardContent className="pt-4">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Crown className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">Premium Boost</span>
-                </div>
-                <Badge className="bg-primary text-primary-foreground">
-                  {formatPriceWithRON(promotionFeeRON)}/săpt
-                </Badge>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Featured on homepage for <strong>7 full days</strong> with priority placement
-              </p>
-              <ul className="text-sm text-muted-foreground space-y-1 mb-4">
-                <li className="flex items-center gap-2">
-                  <Clock className="h-3 w-3 text-primary" />
-                  24/7 visibility for a full week
-                </li>
-                <li className="flex items-center gap-2">
-                  <Sparkles className="h-3 w-3 text-primary" />
-                  Priority in search results
-                </li>
-              </ul>
-              <Button 
-                className="w-full" 
-                onClick={handlePaidPromotion}
-                disabled={createPaidPromotion.isPending}
-              >
-                <Crown className="h-4 w-4 mr-2" />
-                {createPaidPromotion.isPending ? 'Processing...' : 'Get Premium Boost'}
-              </Button>
             </CardContent>
           </Card>
         </div>

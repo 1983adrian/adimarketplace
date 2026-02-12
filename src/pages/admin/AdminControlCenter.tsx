@@ -54,16 +54,6 @@ const controlSections: ControlSection[] = [
     category: 'platform'
   },
   { 
-    id: 'fees', 
-    title: 'Comisioane & Taxe', 
-    description: 'Setează procentul luat de platformă din fiecare vânzare',
-    icon: DollarSign, 
-    href: '/admin/fees',
-    color: 'text-emerald-600 bg-emerald-500/10',
-    actions: ['view', 'edit', 'add', 'delete'],
-    category: 'platform'
-  },
-  { 
     id: 'payment-processors', 
     title: 'Procesator Plăți', 
     description: 'Configurează PayPal pentru plăți',

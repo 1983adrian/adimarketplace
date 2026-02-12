@@ -312,7 +312,7 @@ const Checkout = () => {
   
   const shippingCost = getShippingCost();
   const subtotal = checkoutItems.reduce((sum, item) => sum + item.price, 0);
-  const buyerFee = paymentMethod === 'cod' ? 0 : 2; // No platform fee for COD
+  const buyerFee = 0; // No buyer fees - revenue from subscriptions only
 
   // Calculate COD extra fees
   const getCODExtraFees = () => {
