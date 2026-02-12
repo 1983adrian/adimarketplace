@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
+import heroLogo from '@/assets/marketplace-logo-hero.jpeg';
 
 interface MarketplaceBrandProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -78,42 +79,33 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
   const BrandContent = () => (
     <div className={cn('flex flex-col items-center gap-1', className)}>
-      {/* Main brand text with colored letters */}
-      <h1 className={cn(
-        'font-black tracking-tight drop-shadow-lg',
-        sizeClasses[size]
-      )}>
-        {/* "Market" - Blue gradient */}
-        <span className="bg-gradient-to-r from-[#4285F4] via-[#5A9CF4] to-[#4285F4] bg-clip-text text-transparent">
-          Market
-        </span>
-        {/* "place" - Orange/Amber gradient */}
-        <span className="bg-gradient-to-r from-[#FBBC04] via-[#F59E0B] to-[#EA580C] bg-clip-text text-transparent">
-          place
-        </span>
-        {/* " România" - Green with colored R */}
-        <span className="ml-1">
-          <span className="text-[#34A853]">R</span>
-          <span className="text-[#34A853]">o</span>
-          <span className="text-[#34A853]">m</span>
-          <span className="text-[#34A853]">â</span>
-          <span className="text-[#34A853]">n</span>
-          <span className="text-[#34A853]">i</span>
-          <span className="text-[#34A853]">a</span>
-        </span>
-      </h1>
+      {/* Hero Logo - seamless integration */}
+      <div className="flex items-center justify-center">
+        <img 
+          src={heroLogo} 
+          alt="MarketPlace România - Vinde Cumpără Licitează" 
+          className={cn(
+            'object-contain mix-blend-multiply dark:mix-blend-screen dark:invert',
+            size === 'sm' && 'h-12 sm:h-14',
+            size === 'md' && 'h-16 sm:h-20',
+            size === 'lg' && 'h-20 sm:h-28 md:h-32',
+            size === 'xl' && 'h-24 sm:h-32 md:h-40 lg:h-48',
+          )}
+          style={{ background: 'transparent' }}
+        />
+      </div>
 
-      {/* Tagline - SEO optimized with translations */}
+      {/* Tagline - Romanian Tricolor: Albastru, Galben, Roșu */}
       {showTagline && (
         <p className={cn(
-          'text-muted-foreground font-medium',
+          'font-semibold tracking-wide',
           taglineSizes[size]
         )}>
-          <span className="text-[#4285F4]">{t('brand.buy')}</span>
+          <span className="text-[#002B7F]">{t('brand.sell')}</span>
           <span className="mx-1.5 text-muted-foreground/50">•</span>
-          <span className="text-[#FBBC04]">{t('brand.sell')}</span>
+          <span className="text-[#FCD116]" style={{ textShadow: '0 0 1px rgba(0,0,0,0.3)' }}>{t('brand.buy')}</span>
           <span className="mx-1.5 text-muted-foreground/50">•</span>
-          <span className="text-[#EA4335]">{t('brand.bid')}</span>
+          <span className="text-[#CE1126]">{t('brand.bid')}</span>
           <span className="mx-2 text-muted-foreground">—</span>
           <span className="text-muted-foreground">{t('brand.tagline')}</span>
         </p>
