@@ -79,9 +79,9 @@ const SellerPlans = () => {
         const notifications = adminRoles.map(r => ({
           user_id: r.user_id,
           type: 'admin_payment',
-          title: '💰 Cerere Plată Abonament',
-          message: `${user.email} a solicitat activarea planului ${plan.plan_name} (${plan.price_ron} LEI). Verifică transferul bancar și confirmă.`,
-          data: { payment_id: data.id, plan_type: plan.plan_type } as any,
+          title: '💰 Confirmare Plată Abonament',
+          message: `Utilizatorul #${userProfile?.short_id || 'N/A'} (${user.email}) confirmă plata pentru ${plan.plan_name} (${plan.price_ron} LEI). Activează contul #${userProfile?.short_id || 'N/A'}.`,
+          data: { payment_id: data.id, plan_type: plan.plan_type, short_id: userProfile?.short_id } as any,
         }));
         await supabase.from('notifications').insert(notifications);
       }
@@ -92,21 +92,22 @@ const SellerPlans = () => {
           body: {
             type: 'email',
             to: 'adrianchirita01@gmail.com',
-            subject: `💰 Cerere Plată: ${plan.plan_name} - ${plan.price_ron} LEI`,
+            subject: `💰 Confirmare Plată: ${plan.plan_name} - ${plan.price_ron} LEI | #${userProfile?.short_id || 'N/A'}`,
             message: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 12px 12px 0 0; text-align: center;">
                   <img src="https://marketplaceromania.lovable.app/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
-                  <h2 style="color: white; margin: 0;">💰 Cerere Nouă de Plată Abonament</h2>
+                  <h2 style="color: white; margin: 0;">💰 Confirmare Plată Abonament</h2>
                 </div>
                 <div style="background: #ffffff; padding: 24px; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px;">
+                  <p><strong>ID Cont:</strong> <span style="font-size: 24px; color: #2563eb; font-weight: bold;">#${userProfile?.short_id || 'N/A'}</span></p>
                   <p><strong>Utilizator:</strong> ${user.email}</p>
                   <p><strong>Plan solicitat:</strong> ${plan.plan_name}</p>
                   <p><strong>Suma:</strong> ${plan.price_ron} LEI</p>
                   <p><strong>Metoda:</strong> Transfer Revolut</p>
                   <p><strong>Data:</strong> ${new Date().toLocaleString('ro-RO')}</p>
                   <hr/>
-                  <p>Verifică transferul bancar și confirmă activarea din panoul de administrare.</p>
+                  <p style="font-size: 16px; font-weight: bold;">➡️ Activează contul <span style="color: #2563eb;">#${userProfile?.short_id || 'N/A'}</span> din panoul de administrare.</p>
                 </div>
               </div>
             `,
@@ -143,25 +144,8 @@ const SellerPlans = () => {
     const shortId = userProfile?.short_id || 'N/A';
     
     try {
-      // Create payment request
+      // Create payment request + sends admin notification via edge function
       await createPaymentRequest.mutateAsync(selectedPlan);
-      
-      // Send additional notification with short_id
-      const { data: adminRoles } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', 'admin');
-
-      if (adminRoles && adminRoles.length > 0) {
-        const notifications = adminRoles.map(r => ({
-          user_id: r.user_id,
-          type: 'admin_payment',
-          title: '💰 Confirmare Plată Abonament',
-          message: `Utilizatorul #${shortId} (${user.email}) confirmă plata pentru ${selectedPlan.plan_name} (${selectedPlan.price_ron} LEI). Activează contul #${shortId}.`,
-          data: { short_id: shortId, plan_type: selectedPlan.plan_type } as any,
-        }));
-        await supabase.from('notifications').insert(notifications);
-      }
 
       setPaymentConfirmed(true);
       toast({
