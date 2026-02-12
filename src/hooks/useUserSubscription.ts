@@ -82,7 +82,9 @@ export const BIDDER_PLAN = {
   plan_type: 'bidder',
   plan_name: 'Abonament LICITATOR',
   price_ron: 11,
-  description: 'Obligatoriu pentru a putea licita la orice produs listat',
+  max_listings: 10,
+  is_auction_plan: false,
+  description: '10 listări incluse + acces la licitații',
   icon: '🎯',
 };
 
@@ -225,8 +227,8 @@ export const useSubscribeToPlan = () => {
 
       if (error) throw error;
 
-      // Update max_listings in profiles if seller plan
-      if (!isBidder && 'max_listings' in plan) {
+      // Update max_listings in profiles if plan has listings
+      if ('max_listings' in plan && plan.max_listings) {
         await supabase
           .from('profiles')
           .update({ max_listings: plan.max_listings })

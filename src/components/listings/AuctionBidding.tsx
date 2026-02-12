@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { useToast } from '@/hooks/use-toast';
 import { useListingBids, useHighestBid, usePlaceBid } from '@/hooks/useBids';
-import { useActiveBidderPlan } from '@/hooks/useUserSubscription';
+import { useActiveSellerPlan, useActiveBidderPlan } from '@/hooks/useUserSubscription';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AuctionBiddingProps {
@@ -43,6 +43,9 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
   const { data: bids, refetch: refetchBids } = useListingBids(listingId);
   const { data: highestBid, refetch: refetchHighest } = useHighestBid(listingId);
   const { data: bidderPlan, isLoading: bidderPlanLoading } = useActiveBidderPlan();
+  const { data: sellerPlan, isLoading: sellerPlanLoading } = useActiveSellerPlan();
+  const hasActiveSubscription = !!bidderPlan || !!sellerPlan;
+  const subscriptionLoading = bidderPlanLoading || sellerPlanLoading;
   const placeBid = usePlaceBid();
 
   const [bidAmount, setBidAmount] = useState('');
@@ -232,11 +235,11 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
         )}
 
         {/* Bidder subscription required */}
-        {!isEnded && !isOwner && user && !bidderPlan && !bidderPlanLoading && (
+        {!isEnded && !isOwner && user && !hasActiveSubscription && !subscriptionLoading && (
           <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
             <Lock className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-amber-800 dark:text-amber-200">
-              <strong>Abonament Licitator necesar!</strong> Pentru a licita, trebuie să activezi Abonamentul Licitator (11 LEI).
+              <strong>Abonament activ necesar!</strong> Pentru a licita, trebuie să ai un abonament activ (orice plan de vânzător sau Abonament Licitator).
               <Button
                 variant="link"
                 className="p-0 h-auto ml-1"
@@ -249,7 +252,7 @@ export const AuctionBidding: React.FC<AuctionBiddingProps> = ({
         )}
 
         {/* Bidding Form - hidden if no bidder plan or already winning */}
-        {!isEnded && !isOwner && user && !isWinning && bidderPlan && (
+        {!isEnded && !isOwner && user && !isWinning && hasActiveSubscription && (
           <div className="space-y-3">
             <div className="flex gap-2">
               <div className="flex-1 relative">

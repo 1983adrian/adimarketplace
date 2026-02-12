@@ -110,6 +110,19 @@ export const usePlaceBid = () => {
     }) => {
       if (!user) throw new Error('Trebuie să fii autentificat');
 
+      // Check for any active subscription (seller plan OR bidder plan)
+      const { data: activeSub } = await supabase
+        .from('user_subscriptions')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .limit(1)
+        .maybeSingle();
+
+      if (!activeSub) {
+        throw new Error('Ai nevoie de un abonament activ pentru a licita. Mergi la Planuri Vânzător pentru activare.');
+      }
+
       // Check if bid is higher than current highest
       const { data: highestBid } = await supabase
         .from('bids')
