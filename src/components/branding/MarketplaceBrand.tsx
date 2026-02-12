@@ -78,7 +78,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
   };
 
   const BrandContent = () => (
-    <div className={cn('flex flex-col items-center -space-y-4', className)}>
+    <div className={cn('flex flex-col items-center', className)} style={{ gap: 0 }}>
       {/* Hero Logo - seamless, no borders */}
       <div className="w-full flex items-center justify-center overflow-hidden">
         <img 
@@ -100,7 +100,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
       {showTagline && (
         <p className={cn(
-          'font-semibold tracking-wide',
+          'font-semibold tracking-wide -mt-8',
           taglineSizes[size]
         )}>
           <span className="text-[#002B7F]">{t('brand.sell')}</span>
