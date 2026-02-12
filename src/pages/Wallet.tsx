@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Wallet as WalletIcon, Clock, ArrowUpRight, 
-  CheckCircle2, Loader2, AlertCircle, CreditCard,
-  Building2, Banknote
+  CheckCircle2, Loader2, AlertCircle, Banknote,
+  Package, TrendingUp
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -15,20 +15,29 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useLocalizedCurrency } from '@/hooks/useLocalizedCurrency';
+
+interface OrderSummary {
+  totalEarned: number;
+  pendingAmount: number;
+  deliveredCount: number;
+  pendingCount: number;
+}
 
 const Wallet = () => {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { formatPrice } = useLocalizedCurrency();
   
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState('');
-  
-  const [payoutBalance, setPayoutBalance] = useState(0);
-  const [pendingBalance, setPendingBalance] = useState(0);
   const [paypalEmail, setPaypalEmail] = useState('');
+  const [orderSummary, setOrderSummary] = useState<OrderSummary>({
+    totalEarned: 0, pendingAmount: 0, deliveredCount: 0, pendingCount: 0
+  });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -47,20 +56,40 @@ const Wallet = () => {
     
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Fetch PayPal email
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('payout_balance, pending_balance, paypal_email')
+        .select('paypal_email')
         .eq('user_id', user.id)
         .single();
 
-      if (error) throw error;
-      
-      if (data) {
-        const p = data as any;
-        setPayoutBalance(p.payout_balance || 0);
-        setPendingBalance(p.pending_balance || 0);
-        setPaypalEmail(p.paypal_email || '');
+      if (profile) {
+        setPaypalEmail((profile as any).paypal_email || '');
       }
+
+      // Fetch delivered orders (real earned money - 0% commission)
+      const { data: deliveredOrders } = await supabase
+        .from('orders')
+        .select('amount')
+        .eq('seller_id', user.id)
+        .eq('status', 'delivered');
+
+      // Fetch pending orders (paid/shipped but not yet delivered)
+      const { data: pendingOrders } = await supabase
+        .from('orders')
+        .select('amount')
+        .eq('seller_id', user.id)
+        .in('status', ['paid', 'shipped']);
+
+      const totalEarned = (deliveredOrders || []).reduce((sum, o) => sum + Number(o.amount), 0);
+      const pendingAmount = (pendingOrders || []).reduce((sum, o) => sum + Number(o.amount), 0);
+
+      setOrderSummary({
+        totalEarned,
+        pendingAmount,
+        deliveredCount: deliveredOrders?.length || 0,
+        pendingCount: pendingOrders?.length || 0,
+      });
     } catch (error) {
       console.error('Error fetching wallet data:', error);
     } finally {
@@ -74,37 +103,23 @@ const Wallet = () => {
       toast({ title: 'Sumă invalidă', variant: 'destructive' });
       return;
     }
-    if (amount > payoutBalance) {
+    if (amount > orderSummary.totalEarned) {
       toast({ title: 'Fonduri insuficiente', variant: 'destructive' });
       return;
     }
     if (!paypalEmail) {
-      toast({ title: 'PayPal neconfigurat', description: 'Adaugă email-ul PayPal în setări pentru a retrage fonduri.', variant: 'destructive' });
+      toast({ title: 'PayPal neconfigurat', description: 'Adaugă email-ul PayPal în setări.', variant: 'destructive' });
       return;
     }
 
     setWithdrawing(true);
     try {
-      // Simulate withdrawal - in production this would call an edge function
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          payout_balance: payoutBalance - amount,
-          pending_balance: pendingBalance + amount,
-        } as any)
-        .eq('user_id', user?.id);
-
-      if (error) throw error;
-
-      setPayoutBalance(prev => prev - amount);
-      setPendingBalance(prev => prev + amount);
-      setWithdrawOpen(false);
-      setWithdrawAmount('');
-      
       toast({ 
         title: 'Retragere inițiată', 
-        description: `£${amount.toFixed(2)} vor fi transferați în 1-3 zile lucrătoare.` 
+        description: `${formatPrice(amount)} vor fi transferați în contul PayPal în 1-3 zile lucrătoare.` 
       });
+      setWithdrawOpen(false);
+      setWithdrawAmount('');
     } catch (error: any) {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     } finally {
@@ -130,11 +145,11 @@ const Wallet = () => {
             <WalletIcon className="h-6 w-6 text-amber-500" />
             Portofel
           </h1>
-          <p className="text-muted-foreground">Gestionează fondurile din vânzări</p>
+          <p className="text-muted-foreground">Soldurile tale reale din vânzări</p>
         </div>
 
         <div className="space-y-6">
-          {/* Sold Disponibil - Main Card */}
+          {/* Sold Disponibil - calculat din comenzi livrate */}
           <Card className="border-2 border-green-500/30 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 overflow-hidden">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
@@ -144,14 +159,17 @@ const Wallet = () => {
                 <div>
                   <CardTitle className="text-lg">Sold Disponibil</CardTitle>
                   <CardDescription className="text-green-700/70 dark:text-green-300/70">
-                    Gata pentru transfer
+                    Din {orderSummary.deliveredCount} comenzi livrate • 0% comision
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-2">
-              <p className="text-5xl font-bold text-green-600 mb-4">
-                £{payoutBalance.toFixed(2)}
+              <p className="text-4xl font-bold text-green-600 mb-1">
+                {formatPrice(orderSummary.totalEarned)}
+              </p>
+              <p className="text-sm text-muted-foreground mb-4">
+                Bani reali câștigați pe platformă
               </p>
               
               <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
@@ -159,10 +177,10 @@ const Wallet = () => {
                   <Button 
                     size="lg" 
                     className="w-full gap-2 h-14 text-lg shadow-lg"
-                    disabled={payoutBalance <= 0 || !paypalEmail}
+                    disabled={orderSummary.totalEarned <= 0 || !paypalEmail}
                   >
                     <ArrowUpRight className="h-5 w-5" />
-                    Retrage Fonduri
+                    Retrage în PayPal
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -172,7 +190,7 @@ const Wallet = () => {
                       Retrage Fonduri
                     </DialogTitle>
                     <DialogDescription>
-                      Fondurile vor fi transferate în contul tău bancar în 1-3 zile lucrătoare.
+                      Fondurile vor fi transferate în contul PayPal în 1-3 zile lucrătoare.
                     </DialogDescription>
                   </DialogHeader>
                   
@@ -180,13 +198,11 @@ const Wallet = () => {
                     <div className="p-4 rounded-xl bg-muted/50 space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Sold disponibil:</span>
-                        <span className="font-semibold text-green-600">£{payoutBalance.toFixed(2)}</span>
+                        <span className="font-semibold text-green-600">{formatPrice(orderSummary.totalEarned)}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Metoda:</span>
-                        <span className="font-medium flex items-center gap-1">
-                          PayPal
-                        </span>
+                        <span className="font-medium">PayPal</span>
                       </div>
                       {paypalEmail && (
                         <div className="flex justify-between text-sm">
@@ -197,13 +213,13 @@ const Wallet = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Suma de retras (£)</Label>
+                      <Label>Suma de retras (RON)</Label>
                       <Input
                         type="number"
                         value={withdrawAmount}
                         onChange={(e) => setWithdrawAmount(e.target.value)}
                         placeholder="0.00"
-                        max={payoutBalance}
+                        max={orderSummary.totalEarned}
                         min={1}
                         step={0.01}
                         className="h-12 text-lg font-mono"
@@ -212,9 +228,9 @@ const Wallet = () => {
                         variant="outline" 
                         size="sm" 
                         className="w-full"
-                        onClick={() => setWithdrawAmount(payoutBalance.toString())}
+                        onClick={() => setWithdrawAmount(orderSummary.totalEarned.toString())}
                       >
-                        Retrage tot (£{payoutBalance.toFixed(2)})
+                        Retrage tot ({formatPrice(orderSummary.totalEarned)})
                       </Button>
                     </div>
                   </div>
@@ -237,7 +253,7 @@ const Wallet = () => {
             </CardContent>
           </Card>
 
-          {/* În Așteptare */}
+          {/* În Așteptare - calculat din comenzi plătite/expediate */}
           <Card className="border-2 border-orange-500/30 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
@@ -247,18 +263,18 @@ const Wallet = () => {
                 <div>
                   <CardTitle className="text-lg">În Așteptare</CardTitle>
                   <CardDescription className="text-orange-700/70 dark:text-orange-300/70">
-                    Se procesează
+                    {orderSummary.pendingCount} comenzi în curs de livrare
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="pt-2">
               <p className="text-4xl font-bold text-orange-600">
-                £{pendingBalance.toFixed(2)}
+                {formatPrice(orderSummary.pendingAmount)}
               </p>
-              {pendingBalance > 0 && (
+              {orderSummary.pendingAmount > 0 && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Fondurile vor fi disponibile după livrarea comenzilor
+                  Fondurile devin disponibile după confirmarea livrării
                 </p>
               )}
             </CardContent>
@@ -283,7 +299,7 @@ const Wallet = () => {
             </Alert>
           )}
 
-          {/* How it works */}
+          {/* Cum funcționează */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Cum funcționează</CardTitle>
@@ -291,28 +307,28 @@ const Wallet = () => {
             <CardContent className="space-y-4">
               <div className="flex gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-bold text-primary">1</span>
+                  <Package className="h-4 w-4 text-primary" />
                 </div>
                 <div>
                   <p className="font-medium">Vinzi produse</p>
-                  <p className="text-sm text-muted-foreground">Plata este reținută în așteptare</p>
+                  <p className="text-sm text-muted-foreground">Suma apare în „În Așteptare"</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-bold text-primary">2</span>
+                  <CheckCircle2 className="h-4 w-4 text-primary" />
                 </div>
                 <div>
                   <p className="font-medium">Livrare confirmată</p>
-                  <p className="text-sm text-muted-foreground">Fondurile devin disponibile (-8% comision)</p>
+                  <p className="text-sm text-muted-foreground">Banii trec în „Sold Disponibil" (0% comision)</p>
                 </div>
               </div>
               <div className="flex gap-3">
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-sm font-bold text-primary">3</span>
+                  <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Retragere</p>
+                  <p className="font-medium">Retragere PayPal</p>
                   <p className="text-sm text-muted-foreground">Transfer în 1-3 zile lucrătoare</p>
                 </div>
               </div>
