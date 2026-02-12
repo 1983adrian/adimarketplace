@@ -145,11 +145,11 @@ export const PayoutSection: React.FC = () => {
             </p>
           </div>
           {paypalEmail ? (
-            <Alert className="border-green-500/50 bg-green-500/10">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-700">PayPal conectat ✅</AlertTitle>
+            <Alert className="border-amber-500/50 bg-amber-500/10">
+              <AlertCircle className="h-4 w-4 text-amber-600" />
+              <AlertTitle className="text-amber-700">Email PayPal salvat</AlertTitle>
               <AlertDescription>
-                Contul PayPal ({paypalEmail}) este activ.
+                📧 {paypalEmail} — ⚠️ Neverificat. Responsabilitatea corectitudinii email-ului îți aparține.
               </AlertDescription>
             </Alert>
           ) : (

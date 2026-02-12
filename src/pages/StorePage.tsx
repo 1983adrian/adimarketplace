@@ -325,11 +325,11 @@ const StorePage = () => {
               </div>
 
               {paypalEmail ? (
-                <Alert className="border-green-500/50 bg-green-500/10">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <AlertTitle className="text-green-700 dark:text-green-400">PayPal conectat ✅</AlertTitle>
+                <Alert className="border-amber-500/50 bg-amber-500/10">
+                  <AlertCircle className="h-4 w-4 text-amber-600" />
+                  <AlertTitle className="text-amber-700 dark:text-amber-400">Email PayPal salvat</AlertTitle>
                   <AlertDescription>
-                    Contul PayPal ({paypalEmail}) este activ. Vei primi plățile automat.
+                    📧 {paypalEmail} — ⚠️ Neverificat. Asigură-te că acest email aparține contului tău PayPal real.
                   </AlertDescription>
                 </Alert>
               ) : (
