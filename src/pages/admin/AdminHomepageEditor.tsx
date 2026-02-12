@@ -64,9 +64,9 @@ const defaultConfig: HomepageConfig = {
     showPromotedListings: true,
     showFeaturedListings: true,
     showHowItWorks: true,
-    categoriesTitle: 'Shop by Category',
-    promotedTitle: 'Featured Listings',
-    featuredTitle: 'Latest Items',
+    categoriesTitle: 'Cumpără pe Categorii',
+    promotedTitle: 'Anunțuri Promovate',
+    featuredTitle: 'Produse Populare',
   },
 };
 
