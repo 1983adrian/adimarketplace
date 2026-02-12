@@ -427,7 +427,6 @@ export default function OwnerDashboard() {
                       <TableRow>
                         <TableHead>Nume</TableHead>
                         <TableHead>Username</TableHead>
-                        <TableHead>Telefon</TableHead>
                         <TableHead>Locație</TableHead>
                         <TableHead>Anunțuri</TableHead>
                         <TableHead>Rol</TableHead>
@@ -443,7 +442,6 @@ export default function OwnerDashboard() {
                           <TableRow key={user.id}>
                             <TableCell className="font-medium">{user.display_name || 'N/A'}</TableCell>
                             <TableCell>@{user.username || 'n/a'}</TableCell>
-                            <TableCell>{user.phone || '-'}</TableCell>
                             <TableCell>{user.location || '-'}</TableCell>
                             <TableCell>{userListings.length}</TableCell>
                             <TableCell>
@@ -486,7 +484,7 @@ export default function OwnerDashboard() {
                       <TableRow>
                         <TableHead>Nume</TableHead>
                         <TableHead>Username</TableHead>
-                        <TableHead>Telefon</TableHead>
+                        
                         <TableHead>Locație</TableHead>
                         <TableHead>Comenzi</TableHead>
                         <TableHead>Total Cheltuit</TableHead>
@@ -502,7 +500,6 @@ export default function OwnerDashboard() {
                           <TableRow key={user.id}>
                             <TableCell className="font-medium">{user.display_name || 'N/A'}</TableCell>
                             <TableCell>@{user.username || 'n/a'}</TableCell>
-                            <TableCell>{user.phone || '-'}</TableCell>
                             <TableCell>{user.location || '-'}</TableCell>
                             <TableCell>{userOrders.length}</TableCell>
                             <TableCell className="font-bold">£{totalSpent.toFixed(2)}</TableCell>

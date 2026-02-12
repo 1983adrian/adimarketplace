@@ -10,7 +10,6 @@ export interface Profile {
   avatar_url: string | null;
   bio: string | null;
   location: string | null;
-  phone: string | null;
   store_name: string | null;
   is_seller: boolean;
   max_listings: number;
