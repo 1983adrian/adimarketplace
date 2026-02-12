@@ -10,8 +10,6 @@ import {
   Truck, 
   Shield, 
   MessageCircle,
-  FileText,
-  Settings,
   AlertTriangle
 } from 'lucide-react';
 
@@ -23,7 +21,7 @@ const helpCategories = [
     links: [
       { label: 'Creează un cont', href: '/signup' },
       { label: 'Configurează profilul', href: '/settings' },
-      { label: 'Navighează produsele', href: '/browse' },
+      { label: 'Explorează produsele', href: '/browse' },
     ],
   },
   {
@@ -38,12 +36,12 @@ const helpCategories = [
   },
   {
     title: 'Vânzare',
-    description: 'Ghid pentru vânzători',
+    description: 'Ghid complet pentru vânzători',
     icon: CreditCard,
     links: [
       { label: 'Cum listez un produs', href: '/sell' },
-      { label: 'Gestionează listările', href: '/dashboard' },
-      { label: 'Analize vânzări', href: '/seller-analytics' },
+      { label: 'Gestionează produsele', href: '/dashboard' },
+      { label: 'Statistici vânzări', href: '/seller-analytics' },
     ],
   },
   {
@@ -57,25 +55,25 @@ const helpCategories = [
     ],
   },
   {
-    title: 'Plăți',
-    description: 'Metode de plată și facturare',
+    title: 'Plăți și Abonamente',
+    description: '0% comision, abonamente fixe',
     icon: CreditCard,
     links: [
-      { label: 'Metode acceptate', href: '/faq' },
+      { label: 'Metode de plată acceptate', href: '/faq' },
       { label: 'Securitate plăți', href: '/safety' },
-      { label: 'Rambursări', href: '/faq' },
+      { label: 'Taxe și abonamente', href: '/taxe-si-comisioane' },
     ],
   },
   {
-    title: 'Securitate & Legal',
+    title: 'Securitate și Legal',
     description: 'Protecție și documente legale',
     icon: Shield,
     links: [
-      { label: 'Sfaturi siguranță', href: '/safety' },
+      { label: 'Sfaturi de siguranță', href: '/safety' },
       { label: 'Termeni și Condiții', href: '/terms' },
       { label: 'Politica de Confidențialitate', href: '/privacy' },
       { label: 'Regulament Vânzători', href: '/seller-rules' },
-      { label: 'Taxe și Comisioane', href: '/fees' },
+      { label: 'Politica Cookie', href: '/cookies' },
     ],
   },
 ];
@@ -89,7 +87,7 @@ export default function HelpCenter() {
             <HelpCircle className="h-16 w-16 mx-auto mb-4 text-primary" />
             <h1 className="text-4xl font-bold mb-4">Centru de Ajutor</h1>
             <p className="text-xl text-muted-foreground">
-              Găsește informații și asistență pentru toate nevoile tale
+              Găsește informații și asistență pentru toate nevoile tale pe Market Place România
             </p>
           </div>
 
@@ -117,8 +115,8 @@ export default function HelpCenter() {
               <Card className="hover:border-primary transition-colors cursor-pointer h-full">
                 <CardContent className="pt-6 text-center">
                   <AlertTriangle className="h-8 w-8 mx-auto mb-3 text-primary" />
-                  <h3 className="font-semibold">Raportează</h3>
-                  <p className="text-sm text-muted-foreground">Semnalează o problemă</p>
+                  <h3 className="font-semibold">Raportează o problemă</h3>
+                  <p className="text-sm text-muted-foreground">Semnalează activitate suspectă</p>
                 </CardContent>
               </Card>
             </Link>
@@ -158,7 +156,7 @@ export default function HelpCenter() {
             <CardContent className="py-8 text-center">
               <h3 className="text-xl font-semibold mb-2">Încă ai nevoie de ajutor?</h3>
               <p className="text-muted-foreground mb-4">
-                Echipa noastră de suport este disponibilă să te ajute.
+                Echipa noastră de suport este disponibilă să te ajute cu orice întrebare.
               </p>
               <Link 
                 to="/contact" 
