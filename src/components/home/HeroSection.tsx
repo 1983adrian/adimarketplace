@@ -96,13 +96,6 @@ export const HeroSection: React.FC = () => {
             
             {/* All Actions in One Compact Row */}
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mt-2">
-              {/* CTA Buttons - Uses Admin settings */}
-              <Link to={ctaLink}>
-                <Button size="sm" className="h-9 px-4 gap-1.5 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-primary-foreground font-semibold shadow-md text-xs md:text-sm">
-                  {ctaText}
-                   <ArrowRight className="h-3.5 w-3.5" />
-                </Button>
-              </Link>
               <Link to="/sell">
                 <Button size="sm" variant="outline" className="h-9 px-4 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold text-xs md:text-sm">
                   {t('header.sell')}
