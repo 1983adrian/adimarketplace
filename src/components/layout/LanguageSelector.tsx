@@ -38,7 +38,7 @@ export const LanguageSelector: React.FC = () => {
     // Clean up any existing Google Translate instance
     const existingElement = document.getElementById('google_translate_element');
     if (existingElement) {
-      existingElement.innerHTML = '';
+      existingElement.textContent = '';
     }
     
     // Define the callback before loading the script

@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export type BadgeType = 'owner' | 'admin' | 'moderator' | 'top_seller' | 'verified' | null;
 
-const OWNER_EMAIL = 'adrianchirita01@gmail.com';
+
 
 export const useVerifiedBadge = (userId: string | undefined) => {
   return useQuery({
@@ -11,9 +11,6 @@ export const useVerifiedBadge = (userId: string | undefined) => {
     queryFn: async (): Promise<BadgeType> => {
       if (!userId) return null;
 
-      // Check if user is owner (by email)
-      const { data: authData } = await supabase.auth.admin.listUsers?.() || { data: null };
-      
       // Check user roles (admin/moderator)
       const { data: roleData } = await supabase
         .from('user_roles')
