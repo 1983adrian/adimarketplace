@@ -81,9 +81,9 @@ export default function TermsOfService() {
                 <div className="flex items-start gap-4">
                   <Percent className="h-6 w-6 text-primary mt-1 shrink-0" />
                   <div>
-                    <h2 className="text-xl font-semibold mb-3">1.5. Comision</h2>
+                    <h2 className="text-xl font-semibold mb-3">1.5. Abonamente</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      Platforma percepe un <strong className="text-foreground">comision de 8%</strong> exclusiv din valoarea produsului vândut. Nu există taxe de listare sau abonamente.
+                      Platforma funcționează pe bază de <strong className="text-foreground">abonamente lunare</strong>. Nu există comisioane pe vânzări (0%). Vânzătorii noi beneficiază de 30 de zile gratuite. Planuri disponibile: START (11 LEI), SILVER (50 LEI), GOLD (150 LEI), PLATINUM (499 LEI), VIP (999 LEI).
                     </p>
                   </div>
                 </div>

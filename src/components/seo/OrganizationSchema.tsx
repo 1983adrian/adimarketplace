@@ -38,7 +38,7 @@ export const OrganizationSchema: React.FC = () => {
       "license": "https://www.marketplaceromania.com/terms-of-service"
     },
     "image": "https://www.marketplaceromania.com/logo-oficial.png",
-    "description": "Marketplace România® - Primul Market Place din România construit cu AI. Platformă sigură pentru cumpărături și vânzări online cu comision de doar 8%. Marcă Înregistrată.",
+    "description": "Marketplace România® - Primul Market Place din România construit cu AI. Platformă sigură pentru cumpărături și vânzări online cu 0% comision. Abonamente de la 11 LEI/lună. Marcă Înregistrată.",
     "foundingDate": "2024",
     "foundingLocation": {
       "@type": "Place",
@@ -109,7 +109,7 @@ export const OrganizationSchema: React.FC = () => {
     "name": "Marketplace România",
     "alternateName": ["Market România", "Place România"],
     "url": "https://www.marketplaceromania.com",
-    "description": "Marketplace România - platformă online pentru cumpărarea și vânzarea de produse în România. Comision doar 8%.",
+    "description": "Marketplace România - platformă online pentru cumpărarea și vânzarea de produse în România. 0% comision, abonamente accesibile.",
     "publisher": {
       "@id": "https://www.marketplaceromania.com/#organization"
     },
@@ -131,7 +131,7 @@ export const OrganizationSchema: React.FC = () => {
     "@id": "https://www.marketplaceromania.com/#webpage",
     "url": "https://www.marketplaceromania.com",
     "name": "Marketplace România | Market România - Cumpără și Vinde Online",
-    "description": "Marketplace România - cel mai mare market online din România. Place România pentru licitații, produse noi și second-hand. Comision doar 8%!",
+    "description": "Marketplace România - cel mai mare market online din România. Place România pentru licitații, produse noi și second-hand. 0% comision pe vânzări!",
     "isPartOf": {
       "@id": "https://www.marketplaceromania.com/#website"
     },
