@@ -1,6 +1,6 @@
 # Marketplace România | Market România | Place România - Robots.txt
 # SEO Keywords: marketplace romania, market romania, place romania
-# Updated: 2026-01-31 - SEO Optimized for Fast Indexing
+# Updated: 2026-02-12 - SEO Optimized for Fast Indexing
 
 # Google - Priority crawler, no delay
 User-agent: Googlebot
@@ -9,7 +9,7 @@ Allow: /browse
 Allow: /listing/
 Allow: /seller/
 Allow: /faq
-Allow: /about-us
+Allow: /about
 Allow: /fonts/
 Allow: /icons/
 Allow: /images/
@@ -54,15 +54,22 @@ Allow: /
 Allow: /browse
 Allow: /listing/
 Allow: /seller/
+Allow: /store/
 Allow: /faq
-Allow: /about-us
+Allow: /about
 Allow: /help
 Allow: /contact
-Allow: /safety-tips
+Allow: /safety
 Allow: /seller-tutorial
 Allow: /login
 Allow: /signup
-Allow: /install-app
+Allow: /install
+Allow: /cum-functioneaza
+Allow: /taxe-si-comisioane
+Allow: /seller-rules
+Allow: /terms
+Allow: /privacy
+Allow: /cookies
 
 # Allow access to static assets for crawlers
 Allow: /fonts/
@@ -89,10 +96,12 @@ Disallow: /settings
 Disallow: /profile-settings
 Disallow: /wallet
 Disallow: /checkout
-Disallow: /checkout-success
+Disallow: /checkout/success
+Disallow: /checkout/cancel
 Disallow: /my-products
 Disallow: /seller-analytics
 Disallow: /seller-mode
+Disallow: /seller-plans
 Disallow: /favorites
 Disallow: /feedback
 Disallow: /forgot-password

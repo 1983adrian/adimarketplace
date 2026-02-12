@@ -43,11 +43,10 @@ serve(async (req) => {
       .not('store_name', 'is', null)
       .limit(500);
 
-    // Build sitemap
+    // Build sitemap - ALL routes must match App.tsx router exactly
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   
   <!-- Homepage - Highest Priority -->
   <url>
@@ -65,7 +64,15 @@ serve(async (req) => {
     <priority>0.95</priority>
   </url>
 
-  <!-- Static pages -->
+  <!-- Sell -->
+  <url>
+    <loc>${baseUrl}/sell</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Auth pages -->
   <url>
     <loc>${baseUrl}/login</loc>
     <lastmod>${today}</lastmod>
@@ -78,6 +85,8 @@ serve(async (req) => {
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+  <!-- Informational pages - MUST match App.tsx routes -->
   <url>
     <loc>${baseUrl}/seller-tutorial</loc>
     <lastmod>${today}</lastmod>
@@ -85,7 +94,19 @@ serve(async (req) => {
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>${baseUrl}/about-us</loc>
+    <loc>${baseUrl}/cum-functioneaza</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/taxe-si-comisioane</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/about</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -109,25 +130,37 @@ serve(async (req) => {
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>${baseUrl}/safety-tips</loc>
+    <loc>${baseUrl}/safety</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>${baseUrl}/privacy-policy</loc>
+    <loc>${baseUrl}/seller-rules</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/privacy</loc>
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>${baseUrl}/terms-of-service</loc>
+    <loc>${baseUrl}/terms</loc>
     <lastmod>${today}</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>${baseUrl}/install-app</loc>
+    <loc>${baseUrl}/cookies</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>${baseUrl}/install</loc>
     <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
