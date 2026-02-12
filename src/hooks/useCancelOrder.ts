@@ -29,6 +29,11 @@ export const useCancelOrder = () => {
         throw new Error('Această comandă nu poate fi anulată');
       }
 
+      // Block cancellation if AWB/tracking number has been added
+      if (order.tracking_number) {
+        throw new Error('Comanda nu mai poate fi anulată deoarece a fost deja expediată (AWB adăugat).');
+      }
+
       const hoursSinceOrder = (Date.now() - new Date(order.created_at).getTime()) / (1000 * 60 * 60);
       if (hoursSinceOrder > 24) {
         throw new Error('Comanda poate fi anulată doar în primele 24 de ore de la plasare.');
