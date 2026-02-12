@@ -1,13 +1,9 @@
 import { useState } from 'react';
 import { 
   CreditCard, 
-  DollarSign, 
-  Settings,
   CheckCircle,
   AlertTriangle,
-  RefreshCw,
   Loader2,
-  Shield,
   Wallet,
   Key,
   Eye,
@@ -46,19 +42,19 @@ export default function AdminPaymentProcessors() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
-  const [showApiKey, setShowApiKey] = useState(false);
-  const [showApiSecret, setShowApiSecret] = useState(false);
-  const [editedSettings, setEditedSettings] = useState<Partial<ProcessorSettings>>({});
+  const [showPaypalKey, setShowPaypalKey] = useState(false);
+  const [showPaypalSecret, setShowPaypalSecret] = useState(false);
+  const [paypalEdited, setPaypalEdited] = useState<Partial<ProcessorSettings>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch MangoPay settings only
-  const { data: mangopay, isLoading } = useQuery({
-    queryKey: ['mangopay-settings'],
+  // Fetch PayPal settings
+  const { data: paypal, isLoading } = useQuery({
+    queryKey: ['paypal-settings'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('payment_processor_settings')
         .select('*')
-        .eq('processor_name', 'mangopay')
+        .eq('processor_name', 'paypal')
         .single();
       
       if (error && error.code !== 'PGRST116') throw error;
@@ -80,37 +76,42 @@ export default function AdminPaymentProcessors() {
     },
   });
 
-  const updateProcessor = useMutation({
-    mutationFn: async (settings: Partial<ProcessorSettings> & { id: string }) => {
-      const { id, ...updateData } = settings;
-      const { error } = await supabase
-        .from('payment_processor_settings')
-        .update(updateData)
-        .eq('id', id);
-      
-      if (error) throw error;
+  const savePaypal = useMutation({
+    mutationFn: async (settings: Partial<ProcessorSettings>) => {
+      if (paypal?.id) {
+        const { error } = await supabase
+          .from('payment_processor_settings')
+          .update({ ...settings, updated_at: new Date().toISOString() })
+          .eq('id', paypal.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('payment_processor_settings')
+          .insert({ processor_name: 'paypal', ...settings });
+        if (error) throw error;
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mangopay-settings'] });
-      toast({ title: 'Setări salvate', description: 'Configurația MangoPay a fost actualizată.' });
-      setEditedSettings({});
+      queryClient.invalidateQueries({ queryKey: ['paypal-settings'] });
+      toast({ title: '✅ Setări PayPal salvate', description: 'Configurația PayPal a fost actualizată cu succes.' });
+      setPaypalEdited({});
     },
     onError: (error: any) => {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     },
   });
 
-  const handleSave = async () => {
-    if (!mangopay?.id || Object.keys(editedSettings).length === 0) return;
-    await updateProcessor.mutateAsync({ id: mangopay.id, ...editedSettings });
+  const handleSavePaypal = () => {
+    if (Object.keys(paypalEdited).length === 0) return;
+    savePaypal.mutate(paypalEdited);
   };
 
-  const updateField = (field: keyof ProcessorSettings, value: any) => {
-    setEditedSettings(prev => ({ ...prev, [field]: value }));
+  const getPaypalValue = (field: keyof ProcessorSettings) => {
+    return paypalEdited[field] ?? paypal?.[field];
   };
 
-  const getValue = (field: keyof ProcessorSettings) => {
-    return editedSettings[field] ?? mangopay?.[field];
+  const updatePaypalField = (field: keyof ProcessorSettings, value: any) => {
+    setPaypalEdited(prev => ({ ...prev, [field]: value }));
   };
 
   const sellerCommission = fees?.find(f => f.fee_type === 'seller_commission');
@@ -131,23 +132,21 @@ export default function AdminPaymentProcessors() {
     <AdminLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <CreditCard className="h-8 w-8 text-primary" />
-              Procesator de Plăți
-            </h1>
-            <p className="text-muted-foreground">Configurează MangoPay pentru procesarea plăților</p>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <CreditCard className="h-8 w-8 text-primary" />
+            Procesator de Plăți — PayPal
+          </h1>
+          <p className="text-muted-foreground">Configurează PayPal pentru procesarea plăților pe platformă</p>
         </div>
 
-        {/* Alert - MangoPay Only */}
-        <Alert className="border-green-500/50 bg-green-500/5">
-          <Wallet className="h-4 w-4 text-green-600" />
-          <AlertTitle>Exclusiv MangoPay</AlertTitle>
+        {/* Alert */}
+        <Alert className="border-blue-500/50 bg-blue-500/5">
+          <Wallet className="h-4 w-4 text-blue-600" />
+          <AlertTitle>PayPal Developer (Standard)</AlertTitle>
           <AlertDescription>
-            Platforma folosește exclusiv MangoPay pentru procesarea plăților. 
-            MangoPay oferă verificare automată KYC a vânzătorilor, wallet-uri electronice și transfer direct către conturile bancare (IBAN) sau carduri (UK Sort Code + Account Number).
+            Folosește un cont PayPal Developer standard pentru a primi plăți. 
+            Obține Client ID și Secret Key din <a href="https://developer.paypal.com/dashboard/applications" target="_blank" rel="noopener noreferrer" className="text-primary underline font-medium">PayPal Developer Dashboard</a> → My Apps & Credentials.
           </AlertDescription>
         </Alert>
 
@@ -158,72 +157,68 @@ export default function AdminPaymentProcessors() {
               <Percent className="h-5 w-5" />
               Comisioane Platformă
             </CardTitle>
-            <CardDescription>Comisioanele sunt aplicate automat la fiecare tranzacție</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
                 <p className="text-sm text-muted-foreground">Comision Vânzător</p>
                 <p className="text-2xl font-bold text-green-600">{sellerCommission?.amount || 10}%</p>
-                <p className="text-xs text-muted-foreground mt-1">Reținut din fiecare vânzare</p>
               </div>
               <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
                 <p className="text-sm text-muted-foreground">Taxă Cumpărător</p>
                 <p className="text-2xl font-bold text-blue-600">£{buyerFee?.amount?.toFixed(2) || '2.00'}</p>
-                <p className="text-xs text-muted-foreground mt-1">Adăugată la comandă</p>
               </div>
               <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
                 <p className="text-sm text-muted-foreground">Abonament Vânzător</p>
                 <p className="text-2xl font-bold text-purple-600">£1.00/lună</p>
-                <p className="text-xs text-muted-foreground mt-1">După 3 luni gratuite</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* MangoPay Settings */}
-        <Card className={`border-2 ${getValue('is_active') ? 'border-green-500/30 bg-green-50/50 dark:bg-green-900/10' : 'border-muted'}`}>
+        {/* PayPal Status */}
+        <Card className={`border-2 ${getPaypalValue('is_active') ? 'border-blue-500/30 bg-blue-50/50 dark:bg-blue-900/10' : 'border-muted'}`}>
           <CardContent className="py-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className={`p-4 rounded-full ${getValue('is_active') ? 'bg-green-500/20' : 'bg-muted'}`}>
-                  {getValue('is_active') ? (
-                    <CheckCircle className="h-8 w-8 text-green-600" />
+                <div className={`p-4 rounded-full ${getPaypalValue('is_active') ? 'bg-blue-500/20' : 'bg-muted'}`}>
+                  {getPaypalValue('is_active') ? (
+                    <CheckCircle className="h-8 w-8 text-blue-600" />
                   ) : (
                     <AlertTriangle className="h-8 w-8 text-muted-foreground" />
                   )}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold">MangoPay</h3>
+                  <h3 className="text-xl font-bold">PayPal</h3>
                   <p className="text-muted-foreground">
-                    {getValue('is_active') 
-                      ? `Activ - ${getValue('environment') === 'live' ? 'Producție' : 'Sandbox'}` 
-                      : 'Dezactivat'}
+                    {getPaypalValue('is_active') 
+                      ? `Activ — ${getPaypalValue('environment') === 'live' ? 'Producție (LIVE)' : 'Sandbox (TEST)'}` 
+                      : 'Dezactivat — adaugă cheile pentru a activa'}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <Badge variant={getValue('environment') === 'live' ? 'default' : 'secondary'}>
-                  {getValue('environment') === 'live' ? '🔴 LIVE' : '🟡 SANDBOX'}
+                <Badge variant={getPaypalValue('environment') === 'live' ? 'default' : 'secondary'}>
+                  {getPaypalValue('environment') === 'live' ? '🔴 LIVE' : '🟡 SANDBOX'}
                 </Badge>
                 <Switch
-                  checked={getValue('is_active') as boolean || false}
-                  onCheckedChange={(checked) => updateField('is_active', checked)}
+                  checked={getPaypalValue('is_active') as boolean || false}
+                  onCheckedChange={(checked) => updatePaypalField('is_active', checked)}
                 />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* API Keys */}
+        {/* PayPal API Keys */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Key className="h-5 w-5" />
-              Chei API MangoPay
+              Chei API PayPal
             </CardTitle>
             <CardDescription>
-              Configurează cheile API pentru MangoPay. Obține-le din dashboard-ul MangoPay.
+              Introdu Client ID și Secret Key din contul tău PayPal Developer.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -231,8 +226,8 @@ export default function AdminPaymentProcessors() {
               <div className="space-y-2">
                 <Label>Mediu</Label>
                 <Select
-                  value={getValue('environment') as string || 'sandbox'}
-                  onValueChange={(v) => updateField('environment', v)}
+                  value={getPaypalValue('environment') as string || 'sandbox'}
+                  onValueChange={(v) => updatePaypalField('environment', v)}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -245,11 +240,11 @@ export default function AdminPaymentProcessors() {
               </div>
 
               <div className="space-y-2">
-                <Label>Client ID (Merchant ID)</Label>
+                <Label>Merchant ID (opțional)</Label>
                 <Input
-                  value={(getValue('merchant_id') as string) || ''}
-                  onChange={(e) => updateField('merchant_id', e.target.value)}
-                  placeholder="MangoPay Client ID"
+                  value={(getPaypalValue('merchant_id') as string) || ''}
+                  onChange={(e) => updatePaypalField('merchant_id', e.target.value)}
+                  placeholder="PayPal Merchant ID"
                 />
               </div>
             </div>
@@ -258,43 +253,43 @@ export default function AdminPaymentProcessors() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>API Key</Label>
+                <Label>Client ID</Label>
                 <div className="relative">
                   <Input
-                    type={showApiKey ? 'text' : 'password'}
-                    value={(getValue('api_key_encrypted') as string) || ''}
-                    onChange={(e) => updateField('api_key_encrypted', e.target.value)}
-                    placeholder="Introdu API Key"
+                    type={showPaypalKey ? 'text' : 'password'}
+                    value={(getPaypalValue('api_key_encrypted') as string) || ''}
+                    onChange={(e) => updatePaypalField('api_key_encrypted', e.target.value)}
+                    placeholder="PayPal Client ID (ex: AXx...)"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     className="absolute right-2 top-1/2 -translate-y-1/2"
-                    onClick={() => setShowApiKey(!showApiKey)}
+                    onClick={() => setShowPaypalKey(!showPaypalKey)}
                   >
-                    {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPaypalKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>API Secret (Passphrase)</Label>
+                <Label>Secret Key</Label>
                 <div className="relative">
                   <Input
-                    type={showApiSecret ? 'text' : 'password'}
-                    value={(getValue('api_secret_encrypted') as string) || ''}
-                    onChange={(e) => updateField('api_secret_encrypted', e.target.value)}
-                    placeholder="Introdu API Secret"
+                    type={showPaypalSecret ? 'text' : 'password'}
+                    value={(getPaypalValue('api_secret_encrypted') as string) || ''}
+                    onChange={(e) => updatePaypalField('api_secret_encrypted', e.target.value)}
+                    placeholder="PayPal Secret Key (ex: ELx...)"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     className="absolute right-2 top-1/2 -translate-y-1/2"
-                    onClick={() => setShowApiSecret(!showApiSecret)}
+                    onClick={() => setShowPaypalSecret(!showPaypalSecret)}
                   >
-                    {showApiSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPaypalSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
@@ -303,53 +298,51 @@ export default function AdminPaymentProcessors() {
             <Separator />
 
             <div className="space-y-2">
-              <Label>Webhook URL</Label>
+              <Label>Webhook URL (opțional)</Label>
               <Input
-                value={(getValue('webhook_url') as string) || ''}
-                onChange={(e) => updateField('webhook_url', e.target.value)}
-                placeholder="https://your-project.supabase.co/functions/v1/mangopay-webhook"
+                value={(getPaypalValue('webhook_url') as string) || ''}
+                onChange={(e) => updatePaypalField('webhook_url', e.target.value)}
+                placeholder="https://..."
               />
               <p className="text-xs text-muted-foreground">
-                URL-ul unde MangoPay va trimite notificări despre plăți. Configurează-l în dashboard-ul MangoPay.
+                URL-ul unde PayPal va trimite notificări IPN/Webhook. Se configurează automat la activare.
               </p>
             </div>
 
             <Button 
-              onClick={handleSave} 
-              disabled={Object.keys(editedSettings).length === 0 || updateProcessor.isPending}
+              onClick={handleSavePaypal} 
+              disabled={Object.keys(paypalEdited).length === 0 || savePaypal.isPending}
               className="w-full gap-2"
             >
-              {updateProcessor.isPending ? (
+              {savePaypal.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <Save className="h-4 w-4" />
               )}
-              Salvează Setările MangoPay
+              Salvează Setările PayPal
             </Button>
           </CardContent>
         </Card>
 
-        {/* Info Card */}
+        {/* Info */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Despre MangoPay
+              <Globe className="h-5 w-5" />
+              Cum funcționează PayPal pe platformă
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 text-sm">
-              <p><strong>MangoPay</strong> este specializat în marketplace-uri și platforme P2P.</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li>Soluție nativă pentru marketplace-uri</li>
-                <li>Wallet-uri electronice pentru utilizatori</li>
-                <li>KYC și AML integrate</li>
-                <li>Escrow (fonduri în custodie) inclus</li>
-                <li>Suport pentru IBAN (UE) și Sort Code + Account Number (UK)</li>
-                <li>Conformitate PSD2 și SCA</li>
+                <li><strong>Cont Developer Standard</strong> — nu necesită cont Business</li>
+                <li>Cumpărătorii plătesc prin PayPal sau card</li>
+                <li>AWB-urile se sincronizează automat cu PayPal pentru protecția vânzătorului</li>
+                <li>Fondurile sunt eliberate după confirmarea livrării</li>
+                <li>Comisionul platformei se reține automat din fiecare tranzacție</li>
               </ul>
-              <a href="https://www.mangopay.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                Accesează MangoPay Dashboard →
+              <a href="https://developer.paypal.com/dashboard/applications" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                Accesează PayPal Developer Dashboard →
               </a>
             </div>
           </CardContent>
