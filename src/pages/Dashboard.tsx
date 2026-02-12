@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Plus, Package, ShoppingBag, GraduationCap, MessageCircle, 
-  Wallet, BarChart3, Heart, Settings, Bell, Store, User,
-  Undo2, MailOpen, Receipt, Moon, Sun, Share2, CreditCard
+  Wallet, BarChart3, Heart, Bell, Store, User,
+  Undo2, Receipt, Moon, Sun, CreditCard
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,7 +17,7 @@ import { useDashboardBadges } from '@/hooks/useDashboardBadges';
 import { cn } from '@/lib/utils';
 import { Switch } from '@/components/ui/switch';
 
-type BadgeType = 'messages' | 'purchases' | 'sales' | 'my-returns' | 'received-returns' | null;
+type BadgeType = 'messages' | 'purchases' | 'sales' | 'my-returns' | null;
 
 interface MenuItem {
   id: string;
@@ -38,11 +38,9 @@ const menuItemsConfig: MenuItem[] = [
   { id: 'messages', title: 'Mesaje', description: 'Conversații', url: '/messages', icon: MessageCircle, color: 'bg-gradient-to-br from-cyan-400 to-cyan-600', showBadge: 'messages' },
   { id: 'purchases', title: 'Cumpărături', description: 'Produse comandate', url: '/orders?section=buying', icon: ShoppingBag, color: 'bg-gradient-to-br from-rose-500 to-rose-700', showBadge: 'purchases' },
   { id: 'sales', title: 'Vânzări', description: 'Comenzi clienți', url: '/orders?section=selling', icon: Receipt, color: 'bg-gradient-to-br from-lime-500 to-lime-700', showBadge: 'sales' },
-  { id: 'my-returns', title: 'Retururi', description: 'Returnate de tine', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-orange-700', showBadge: 'my-returns' },
-  { id: 'received-returns', title: 'Retururi Primite', description: 'De la clienți', url: '/orders?section=received-returns', icon: MailOpen, color: 'bg-gradient-to-br from-fuchsia-500 to-fuchsia-700', showBadge: 'received-returns' },
+  { id: 'returns', title: 'Retururi', description: 'Toate returnările', url: '/orders?section=my-returns', icon: Undo2, color: 'bg-gradient-to-br from-orange-500 to-orange-700', showBadge: 'my-returns' },
   { id: 'products', title: 'Produsele Mele', description: 'Anunțuri active', url: '/my-products', icon: Package, color: 'bg-gradient-to-br from-teal-500 to-teal-700' },
   { id: 'analytics', title: 'Statistici', description: 'Vizualizări', url: '/seller-analytics', icon: BarChart3, color: 'bg-gradient-to-br from-indigo-500 to-indigo-700' },
-  { id: 'share', title: 'Promovare', description: 'Distribuie magazin', url: '/my-products?share=true', icon: Share2, color: 'bg-gradient-to-br from-pink-500 to-rose-600' },
   { id: 'favorites', title: 'Favorite', description: 'Produse salvate', url: '/favorites', icon: Heart, color: 'bg-gradient-to-br from-red-500 to-red-700' },
   { id: 'tutorial', title: 'Tutorial', description: 'Pas cu pas', url: '/seller-tutorial', icon: GraduationCap, color: 'bg-gradient-to-br from-yellow-600 to-yellow-800' },
 ];
@@ -61,7 +59,7 @@ const Dashboard = () => {
   const { data: myListings } = useMyListings(user?.id);
   const { data: unreadMessages = 0 } = useUnreadMessages();
   const { data: unreadNotifications = 0 } = useUnreadNotifications();
-  const { pendingPurchases, pendingSales, myPendingReturns, receivedPendingReturns } = useDashboardBadges();
+  const { pendingPurchases, pendingSales, myPendingReturns } = useDashboardBadges();
 
   // Handle dark mode toggle
   const toggleDarkMode = (checked: boolean) => {
@@ -201,7 +199,6 @@ const Dashboard = () => {
               else if (item.showBadge === 'purchases') badgeCount = pendingPurchases;
               else if (item.showBadge === 'sales') badgeCount = pendingSales;
               else if (item.showBadge === 'my-returns') badgeCount = myPendingReturns;
-              else if (item.showBadge === 'received-returns') badgeCount = receivedPendingReturns;
               
               // Format notification text
               const notificationText = badgeCount === 1 
