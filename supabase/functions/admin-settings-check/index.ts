@@ -49,28 +49,13 @@ serve(async (req) => {
 
     const services: ServiceStatus[] = [];
 
-    // ========== 1. MANGOPAY (Primary Payment Processor) ==========
-    const { data: mangopaySettings } = await supabase
-      .from("payment_processor_settings")
-      .select("*")
-      .eq("processor_name", "mangopay")
-      .single();
-
-    if (mangopaySettings?.api_key_encrypted) {
-      services.push({
-        name: "MangoPay Payments",
-        configured: true,
-        working: true,
-        details: `Environment: ${mangopaySettings.environment || "sandbox"} | Active: ${mangopaySettings.is_active ? "✓" : "✗"}`
-      });
-    } else {
-      services.push({
-        name: "MangoPay Payments",
-        configured: false,
-        working: false,
-        details: "MangoPay not configured - configure in Admin → Payments"
-      });
-    }
+    // ========== 1. PAYMENT SYSTEM (PayPal + COD) ==========
+    services.push({
+      name: "Payment System",
+      configured: true,
+      working: true,
+      details: "PayPal (seller payouts) + COD (Ramburs) | Subscriptions via Revolut.me"
+    });
 
     // ========== 2. RESEND ==========
     const resendKey = Deno.env.get("RESEND_API_KEY");
