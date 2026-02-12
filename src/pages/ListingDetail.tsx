@@ -223,12 +223,12 @@ const ListingDetail = () => {
         auctionEndDate={listing.auction_end_date}
         startingBid={listing.starting_bid}
       />
-      <div className="container mx-auto px-3 md:px-4 py-4 md:py-8">
-        <Button variant="ghost" className="mb-3 md:mb-6 h-8 md:h-10 text-sm" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4 mr-1.5" /> Înapoi
+      <div className="container mx-auto px-3 md:px-4 py-2 md:py-8">
+        <Button variant="ghost" className="mb-1 md:mb-6 h-7 md:h-10 text-xs md:text-sm" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Înapoi
         </Button>
 
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+        <div className="grid lg:grid-cols-2 gap-3 lg:gap-8">
           {/* Image Gallery - eBay-style compact on mobile */}
           <div className="space-y-1.5 md:space-y-3">
             {/* Main Image - Compact on mobile, full on desktop */}
@@ -236,17 +236,17 @@ const ListingDetail = () => {
               <img 
                 src={images[selectedImage]?.image_url || primaryImage || '/placeholder.svg'} 
                 alt={listing.title} 
-                className="w-full object-contain md:object-cover h-[150px] sm:h-[200px] md:h-full" 
+                className="w-full object-contain md:object-cover h-[180px] sm:h-[220px] md:h-full" 
               />
             </div>
             {/* Thumbnail Gallery - Smaller on mobile */}
             {images.length > 1 && (
-              <div className="flex gap-1.5 md:gap-2 overflow-x-auto pb-2 px-1">
+              <div className="flex gap-1 md:gap-2 overflow-x-auto pb-1 px-1">
                 {images.map((img: any, index: number) => (
                   <button
                     key={img.id}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-14 h-14 md:w-20 md:h-20 rounded-md md:rounded-lg overflow-hidden border-2 transition-colors ${
+                    className={`flex-shrink-0 w-10 h-10 md:w-20 md:h-20 rounded-md md:rounded-lg overflow-hidden border-2 transition-colors ${
                       index === selectedImage ? 'border-primary' : 'border-transparent hover:border-primary/50'
                     }`}
                   >
@@ -342,10 +342,10 @@ const ListingDetail = () => {
 
             {/* Buy Now Button - for buy_now or both listings */}
             {isBuyNow && (
-              <div className="space-y-3 mb-4">
+              <div className="space-y-2 md:space-y-3 mb-2 md:mb-4">
                 <Button 
                   className="w-full gradient-primary text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all" 
-                  size="lg"
+                  size="default"
                   onClick={() => {
                     if (!canBuy) {
                       toast({ 
@@ -369,7 +369,7 @@ const ListingDetail = () => {
                 <Button 
                   variant="outline"
                   className="w-full gap-2 font-medium" 
-                  size="lg"
+                  size="default"
                   onClick={handleAddToCart}
                   disabled={listing.is_sold || isInCart || !canBuy}
                 >
@@ -379,13 +379,13 @@ const ListingDetail = () => {
               </div>
             )}
 
-            <div className="flex gap-3">
-              <Button variant="outline" className="flex-1" size="lg" onClick={handleContact}>
+            <div className="flex gap-2 md:gap-3">
+              <Button variant="outline" className="flex-1 text-xs md:text-sm" size="sm" onClick={handleContact}>
                 Contactează Vânzătorul
               </Button>
               <Button 
                 variant="outline" 
-                size="lg" 
+                size="sm" 
                 onClick={handleFavoriteToggle}
                 disabled={toggleFavorite.isPending}
               >
@@ -397,8 +397,8 @@ const ListingDetail = () => {
                 listingPrice={listing.buy_now_price || listing.price}
                 listingImage={primaryImage}
               >
-                <Button variant="outline" size="lg" className="gap-2 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/20">
-                  <TrendingUp className="h-5 w-5 text-emerald-600" />
+                <Button variant="outline" size="sm" className="gap-1.5 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/20">
+                  <TrendingUp className="h-4 w-4 text-emerald-600" />
                 </Button>
               </ShareListingDialog>
             </div>
