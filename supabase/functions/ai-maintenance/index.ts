@@ -1488,7 +1488,7 @@ STACK TEHNOLOGIC:
 - Backend: Supabase (PostgreSQL + Auth + Storage + Edge Functions)
 - AI: Lovable AI Gateway (Gemini 3 Flash Preview)
 - Mobile: Capacitor pentru iOS/Android
-- Plăți: MangoPay (exclusiv) + COD (Ramburs)
+- Plăți: PayPal (seller payouts) + COD (Ramburs) + Revolut.me (abonamente)
 
 ═══════════════════════════════════════════════════════════════════════════════
 📊 SCHEMA COMPLETĂ A BAZEI DE DATE (34 TABELE)
@@ -1497,7 +1497,7 @@ STACK TEHNOLOGIC:
 1. UTILIZATORI & AUTENTIFICARE:
    - profiles: user_id, display_name, username, avatar_url, bio, store_name, 
                is_seller, is_verified, iban, phone, pending_balance, payout_balance,
-               kyc_status (pending/verified/rejected), mangopay_user_id, mangopay_wallet_id
+               kyc_status (pending/verified/rejected), paypal_email
    - user_roles: user_id → role (admin/moderator/user) - NICIODATĂ pe profiles!
    - admin_emails: email, is_active - verificare dinamică admin
    - push_tokens: token, platform (ios/android/web)
@@ -1608,20 +1608,19 @@ VULNERABILITĂȚI DE MONITORIZAT:
 
 FUNCȚII CRITICE:
 1. process-payment: Crează ordere, actualizează listing ca sold, trimite notificări
-2. process-payout: Transferă bani către vânzători (MangoPay/Adyen)
+2. process-payout: Transferă bani către vânzători (PayPal / manual admin)
 3. process-refund: Procesează refund către cumpărător
 4. send-notification: Trimite notificări push/email
 5. ai-maintenance: EU - reparare automată platformă
 6. ai-sales-manager: Analizează vânzări și recomandă strategii
-7. kyc-onboarding: Verificare identitate vânzător (MangoPay KYC)
-8. courier-lockers: API pentru lockere Sameday/FanCourier
+7. courier-lockers: API pentru lockere Sameday/FanCourier
 
 SECRETELE NECESARE:
 - SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto)
 - LOVABLE_API_KEY (auto - pentru AI)
 - RESEND_API_KEY (email-uri)
 - TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN (SMS)
-- MANGOPAY_CLIENT_ID, MANGOPAY_API_KEY (plăți)
+- STRIPE_SECRET_KEY (rezervat pentru viitor)
 
 ═══════════════════════════════════════════════════════════════════════════════
 🐛 PROBLEME COMUNE & SOLUȚII AUTOMATE
