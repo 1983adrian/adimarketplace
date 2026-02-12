@@ -29,6 +29,7 @@ const SellerPlans = () => {
   const { data: bidderPlan, isLoading: bidderLoading } = useActiveBidderPlan();
   const [selectedPlan, setSelectedPlan] = useState<SellerPlan | typeof BIDDER_PLAN | null>(null);
   const [showPayDialog, setShowPayDialog] = useState(false);
+  const [wiseClicked, setWiseClicked] = useState(false);
 
 
   const createPaymentRequest = useMutation({
@@ -109,6 +110,7 @@ const SellerPlans = () => {
 
   const handleSelectPlan = (plan: SellerPlan | typeof BIDDER_PLAN) => {
     setSelectedPlan(plan);
+    setWiseClicked(false);
     setShowPayDialog(true);
   };
 
@@ -357,6 +359,7 @@ const SellerPlans = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center w-full gap-2 bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors"
+                  onClick={() => setWiseClicked(true)}
                 >
                   <ExternalLink className="h-4 w-4" />
                   Plătește {selectedPlan.price_ron} LEI prin Wise
@@ -377,7 +380,7 @@ const SellerPlans = () => {
           <DialogFooter className="flex flex-col gap-2 sm:flex-col">
             <Button
               className="w-full gap-2"
-              disabled={createPaymentRequest.isPending}
+              disabled={createPaymentRequest.isPending || !wiseClicked}
               onClick={() => selectedPlan && createPaymentRequest.mutate(selectedPlan)}
             >
               {createPaymentRequest.isPending ? (
