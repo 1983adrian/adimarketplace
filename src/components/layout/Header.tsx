@@ -286,18 +286,21 @@ export const Header: React.FC = () => {
                           <Link 
                             to="/dashboard" 
                             onClick={() => setMobileMenuOpen(false)}
-                            className="group flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 hover:from-primary/25 hover:via-primary/15 hover:to-primary/10 transition-all duration-300 shadow-lg shadow-primary/5 hover:shadow-primary/15"
+                            className="group relative flex items-center gap-4 p-4 rounded-2xl overflow-hidden bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 border border-primary/25 hover:border-primary/50 transition-all duration-500 shadow-md hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-0.5"
                           >
-                            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform duration-300">
-                              <User className="h-6 w-6 text-white" />
+                            {/* Animated background glow */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-pulse" />
+                            
+                            <div className="relative flex items-center justify-center w-13 h-13 rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 shadow-lg shadow-primary/40 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                              <User className="h-6 w-6 text-primary-foreground drop-shadow-sm" />
                             </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-foreground text-lg group-hover:text-primary transition-colors duration-300">{t('nav.menuAccount')}</p>
-                              <p className="text-sm text-muted-foreground">{t('settings.title')}, {t('orders.myPurchases').toLowerCase()}</p>
+                            <div className="relative flex-1">
+                              <p className="font-extrabold text-foreground text-lg tracking-tight group-hover:text-primary transition-colors duration-300">{t('nav.menuAccount')}</p>
+                              <p className="text-xs text-muted-foreground font-medium">{t('settings.title')}, {t('orders.myPurchases').toLowerCase()}</p>
                             </div>
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors duration-300">
-                              <svg className="w-4 h-4 text-primary group-hover:translate-x-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            <div className="relative w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-400">
+                              <svg className="w-4 h-4 text-primary group-hover:text-primary-foreground group-hover:translate-x-1 transition-all duration-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
                               </svg>
                             </div>
                           </Link>
