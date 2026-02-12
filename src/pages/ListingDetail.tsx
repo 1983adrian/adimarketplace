@@ -232,7 +232,7 @@ const ListingDetail = () => {
           {/* Image Gallery - eBay-style compact on mobile */}
           <div className="space-y-3">
             {/* Main Image - Compact on mobile, full on desktop */}
-            <div className="relative rounded-lg overflow-hidden bg-muted max-h-[35vh] md:max-h-none md:aspect-square">
+            <div className="relative rounded-lg overflow-hidden bg-muted max-h-[28vh] sm:max-h-[35vh] md:max-h-none md:aspect-square">
               <img 
                 src={images[selectedImage]?.image_url || primaryImage || '/placeholder.svg'} 
                 alt={listing.title} 
@@ -258,7 +258,7 @@ const ListingDetail = () => {
           </div>
 
           {/* Listing Info */}
-          <div className="space-y-6">
+          <div className="space-y-3 md:space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Badge>{conditionLabels[listing.condition]}</Badge>
@@ -272,10 +272,10 @@ const ListingDetail = () => {
                   </Badge>
                 )}
               </div>
-              <h1 className="text-3xl font-bold mb-2">{listing.title}</h1>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 md:mb-2">{listing.title}</h1>
             {isBuyNow && (
               <div className="space-y-1">
-                <p className="text-4xl font-bold text-primary">
+                <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
                   {formatPrice(listing.buy_now_price || listing.price)}
                 </p>
                 {listing.shipping_cost > 0 && (
