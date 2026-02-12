@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, Ban, Leaf, Bomb, Store } from 'lucide-react';
+import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, Ban, Leaf, Bomb, Store, Sparkles } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +42,7 @@ const CreateListing = () => {
   const { data: activePlan, isLoading: planLoading } = useActiveSellerPlan();
   const { data: listingLimit, isLoading: limitLoading } = useListingLimit();
   const createListing = useCreateListing();
-  const { uploadMultipleImages, uploading } = useImageUpload();
+  const { uploadMultipleImages, uploading, enhanceImage, enhancing } = useImageUpload();
   const { location: userLocation } = useLocation();
   const { canSell, kycStatus, message: kycMessage, isLoading: kycLoading } = useRequireKYC();
   
@@ -62,6 +62,7 @@ const CreateListing = () => {
   
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [enhancingIndex, setEnhancingIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [isActive, setIsActive] = useState(true);
   
@@ -169,6 +170,30 @@ const CreateListing = () => {
   const removeImage = (index: number) => {
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEnhanceImage = async (index: number) => {
+    const preview = imagePreviews[index];
+    if (!preview) return;
+    
+    setEnhancingIndex(index);
+    const result = await enhanceImage(preview);
+    
+    if (result.success && result.enhancedUrl) {
+      // Replace the preview with enhanced version
+      setImagePreviews(prev => prev.map((p, i) => i === index ? result.enhancedUrl! : p));
+      
+      // Convert enhanced URL to File and replace in imageFiles
+      try {
+        const resp = await fetch(result.enhancedUrl);
+        const blob = await resp.blob();
+        const enhancedFile = new File([blob], `enhanced-${Date.now()}.png`, { type: 'image/png' });
+        setImageFiles(prev => prev.map((f, i) => i === index ? enhancedFile : f));
+      } catch (e) {
+        console.error('Failed to convert enhanced image to file:', e);
+      }
+    }
+    setEnhancingIndex(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -530,15 +555,34 @@ const CreateListing = () => {
                 {imagePreviews.map((img, index) => (
                   <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
                     <img src={img} alt="" className="w-full h-full object-cover" />
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-1 right-1 h-6 w-6"
-                      onClick={() => removeImage(index)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    {enhancingIndex === index && (
+                      <div className="absolute inset-0 bg-background/80 flex flex-col items-center justify-center gap-2">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        <span className="text-xs font-medium text-foreground">Se îmbunătățește...</span>
+                      </div>
+                    )}
+                    <div className="absolute top-1 right-1 flex gap-1">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => handleEnhanceImage(index)}
+                        disabled={enhancingIndex !== null}
+                        title="Îmbunătățește - fundal alb profesionist"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => removeImage(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                     {index === 0 && (
                       <Badge className="absolute bottom-1 left-1 text-xs">Principal</Badge>
                     )}
@@ -553,6 +597,9 @@ const CreateListing = () => {
                   </label>
                 )}
               </div>
+              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                <Sparkles className="h-3 w-3" /> Apasă ✨ pe orice imagine pentru a o transforma profesionist cu fundal alb
+              </p>
             </CardContent>
           </Card>
 

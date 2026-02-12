@@ -10,6 +10,12 @@ interface VerificationResult {
   reason: string;
 }
 
+interface EnhanceResult {
+  success: boolean;
+  enhancedUrl?: string;
+  error?: string;
+}
+
 export function useImageUpload() {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
@@ -107,11 +113,54 @@ export function useImageUpload() {
     }
   };
 
+  const [enhancing, setEnhancing] = useState(false);
+
+  const enhanceImage = async (imageUrl: string): Promise<EnhanceResult> => {
+    setEnhancing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('enhance-product-image', {
+        body: { imageUrl }
+      });
+
+      if (error) {
+        console.error('Enhance error:', error);
+        toast({
+          title: 'Eroare la îmbunătățire',
+          description: 'Nu s-a putut procesa imaginea. Încearcă din nou.',
+          variant: 'destructive'
+        });
+        return { success: false, error: error.message };
+      }
+
+      if (data?.success && data?.enhancedUrl) {
+        toast({
+          title: '✨ Imagine îmbunătățită!',
+          description: 'Fundalul a fost eliminat și produsul este acum pe fundal alb profesionist.',
+        });
+        return { success: true, enhancedUrl: data.enhancedUrl };
+      }
+
+      return { success: false, error: data?.error || 'Enhancement failed' };
+    } catch (error: any) {
+      console.error('Enhancement failed:', error);
+      toast({
+        title: 'Eroare',
+        description: 'Serviciul de îmbunătățire nu este disponibil.',
+        variant: 'destructive'
+      });
+      return { success: false, error: error.message };
+    } finally {
+      setEnhancing(false);
+    }
+  };
+
   return {
     uploadImage,
     uploadMultipleImages,
     deleteImage,
     verifyImage,
-    uploading
+    enhanceImage,
+    uploading,
+    enhancing
   };
 }
