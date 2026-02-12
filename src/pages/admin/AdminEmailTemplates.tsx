@@ -39,7 +39,7 @@ export default function AdminEmailTemplates() {
         template_key: selectedTemplate.template_key,
         name: selectedTemplate.name,
         subject: editSubject,
-        body_html: editBody,
+        body_html: sanitizeHtml(editBody),
         variables: selectedTemplate.variables,
         is_active: selectedTemplate.is_active,
       });
@@ -61,10 +61,27 @@ export default function AdminEmailTemplates() {
     });
   };
 
+  // Sanitize HTML to prevent XSS in email templates
+  const sanitizeHtml = (html: string): string => {
+    const allowedTags = ['p', 'div', 'span', 'a', 'img', 'table', 'tr', 'td', 'th', 'thead', 'tbody', 
+      'br', 'strong', 'em', 'b', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li',
+      'blockquote', 'pre', 'code', 'hr', 'style', 'head', 'body', 'html', 'meta', 'title', 'center'];
+    const allowedAttrs = ['href', 'src', 'alt', 'style', 'class', 'width', 'height', 'border', 
+      'cellpadding', 'cellspacing', 'align', 'valign', 'bgcolor', 'color', 'target', 'rel', 'type'];
+    
+    // Remove script tags and event handlers
+    let clean = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    clean = clean.replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]*)/gi, '');
+    clean = clean.replace(/javascript\s*:/gi, '');
+    
+    return clean;
+  };
+
   const getPreviewHtml = () => {
-    let html = editBody;
+    let html = sanitizeHtml(editBody);
     selectedTemplate?.variables?.forEach((v: string) => {
-      html = html.replace(new RegExp(`{{${v}}}`, 'g'), `[${v}]`);
+      const escapedVar = v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      html = html.replace(new RegExp(`{{${escapedVar}}}`, 'g'), `[${v}]`);
     });
     return html;
   };
