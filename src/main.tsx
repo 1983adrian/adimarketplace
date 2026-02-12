@@ -26,6 +26,9 @@ if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
   }, 1000);
 }
 
+// Mark body as app-loaded for mobile CSS (hidden from Googlebot)
+document.body.classList.add('app-loaded');
+
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />

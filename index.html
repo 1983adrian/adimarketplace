@@ -117,32 +117,84 @@
         text-size-adjust: 100%;
       }
       
-      /* Universal mobile layout fix */
+      /* Mobile layout - uses class to avoid blocking crawlers */
       body {
-        position: fixed;
         width: 100%;
-        height: 100%;
-        height: 100dvh; /* Dynamic viewport height for mobile browsers */
-        overflow: hidden;
         margin: 0;
         padding: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+      }
+      
+      /* Applied via JS - Googlebot won't execute this, so it sees normal scrollable body */
+      body.app-loaded {
+        position: fixed;
+        height: 100%;
+        height: 100dvh;
+        overflow: hidden;
       }
       
       #root {
         width: 100%;
-        height: 100%;
-        height: 100dvh;
+        min-height: 100vh;
+        min-height: 100dvh;
         overflow-y: auto;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
         overscroll-behavior-y: contain;
       }
       
+      body.app-loaded #root {
+        height: 100%;
+        height: 100dvh;
+      }
+      
       /* Ensure content doesn't get cut off on any device */
       * {
         box-sizing: border-box;
       }
+      
+      /* Hide noscript content when JS is enabled */
+      .noscript-seo { display: none; }
     </style>
+    
+    <!-- Static JSON-LD visible to all crawlers without JS -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Market Place România®",
+      "alternateName": ["Marketplace România", "Market România", "Market Place Romania"],
+      "url": "https://www.marketplaceromania.com",
+      "description": "Primul Market Place din România construit cu AI. 0% comision! Cumpără și vinde online.",
+      "inLanguage": "ro",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://www.marketplaceromania.com/browse?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Market Place România®",
+      "url": "https://www.marketplaceromania.com",
+      "logo": "https://www.marketplaceromania.com/logo-oficial.png",
+      "description": "Market Place România® - Primul Market Place din România construit cu AI. 0% comision, abonamente de la 11 LEI/lună.",
+      "sameAs": [
+        "https://www.facebook.com/marketplaceromania",
+        "https://www.instagram.com/marketplaceromania",
+        "https://www.tiktok.com/@marketplaceromania"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "availableLanguage": ["Romanian", "English"]
+      }
+    }
+    </script>
     <meta property="og:title" content="Market Place România® | Marketplace România - Cumpără și Vinde Online">
   <meta name="twitter:title" content="Market Place România® | Marketplace România - Cumpără și Vinde Online">
   <meta property="og:description" content="Market Place România® - Primul Market Place din România construit cu AI. Marketplace România pentru vânzări, licitații și cumpărături online. 0% comision!">
@@ -151,6 +203,53 @@
 
   <body>
     <div id="root"></div>
+    
+    <!-- SEO Fallback: Content visible to crawlers that don't fully render JS -->
+    <noscript>
+      <div class="noscript-seo">
+        <h1>Market Place România® - Primul Market Place din România construit cu AI</h1>
+        <p>Marketplace România pentru vânzări online, licitații online și cumpărături sigure. 0% comision! Abonamente de la 11 LEI/lună.</p>
+        
+        <h2>Categorii populare</h2>
+        <nav>
+          <ul>
+            <li><a href="https://www.marketplaceromania.com/browse">Toate produsele</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=electronice">Electronice</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=haine">Haine și Modă</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=casa-gradina">Casă și Grădină</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=auto">Auto și Moto</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=sport">Sport și Fitness</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=carti-filme">Cărți și Filme</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=jucarii">Jucării și Copii</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=animale">Animale de Companie</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=servicii">Servicii</a></li>
+            <li><a href="https://www.marketplaceromania.com/browse?category=altele">Altele</a></li>
+          </ul>
+        </nav>
+        
+        <h2>Pagini utile</h2>
+        <nav>
+          <ul>
+            <li><a href="https://www.marketplaceromania.com/cum-functioneaza">Cum funcționează</a></li>
+            <li><a href="https://www.marketplaceromania.com/taxe-si-comisioane">Taxe și comisioane</a></li>
+            <li><a href="https://www.marketplaceromania.com/seller-tutorial">Tutorial vânzător</a></li>
+            <li><a href="https://www.marketplaceromania.com/faq">Întrebări frecvente</a></li>
+            <li><a href="https://www.marketplaceromania.com/about">Despre noi</a></li>
+            <li><a href="https://www.marketplaceromania.com/contact">Contact</a></li>
+            <li><a href="https://www.marketplaceromania.com/safety">Siguranță</a></li>
+            <li><a href="https://www.marketplaceromania.com/seller-rules">Reguli vânzători</a></li>
+            <li><a href="https://www.marketplaceromania.com/help">Centru de ajutor</a></li>
+            <li><a href="https://www.marketplaceromania.com/login">Autentificare</a></li>
+            <li><a href="https://www.marketplaceromania.com/signup">Înregistrare</a></li>
+            <li><a href="https://www.marketplaceromania.com/privacy">Confidențialitate</a></li>
+            <li><a href="https://www.marketplaceromania.com/terms">Termeni și condiții</a></li>
+          </ul>
+        </nav>
+        
+        <p>Market Place România® - Cumpără și vinde online cu 0% comision. Alternativa românească la OLX, Facebook Marketplace și eMAG. Marcă Înregistrată.</p>
+      </div>
+    </noscript>
+    
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
