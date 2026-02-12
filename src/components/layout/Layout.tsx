@@ -5,6 +5,7 @@ import { InstallBanner } from './InstallBanner';
 import { AppDownloadBar } from './AppDownloadBar';
 import { GrandOpeningBanner } from '@/components/announcements/GrandOpeningBanner';
 import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids, useGlobalMessageNotifications, useRealTimeFriendRequests, useRealTimeReturns, useRealTimeDisputes, useTrackingReminder } from '@/hooks/useRealTimeNotifications';
+import { useAdminRealTimeNotifications } from '@/hooks/useAdminRealTimeNotifications';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAppBadge } from '@/hooks/useAppBadge';
 
@@ -23,6 +24,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideFooter = false }) 
   useRealTimeReturns();
   useRealTimeDisputes();
   useTrackingReminder();
+  
+  // Admin-only: listen to ALL platform events (orders, disputes, returns, reports, fraud)
+  useAdminRealTimeNotifications();
   
   // Initialize native push notifications (only active on iOS/Android)
   usePushNotifications();
