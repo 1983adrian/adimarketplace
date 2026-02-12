@@ -1065,6 +1065,13 @@ export type Database = {
             referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations_safe"
+            referencedColumns: ["id"]
+          },
         ]
       }
       newsletter_subscribers: {
@@ -2826,6 +2833,92 @@ export type Database = {
       }
     }
     Views: {
+      conversations_safe: {
+        Row: {
+          admin_id: string | null
+          admin_joined_at: string | null
+          admin_notes: string | null
+          blocked_at: string | null
+          blocked_by: string | null
+          buyer_id: string | null
+          closed_at: string | null
+          context_type: string | null
+          created_at: string | null
+          id: string | null
+          is_blocked: boolean | null
+          listing_id: string | null
+          order_id: string | null
+          seller_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_id?: never
+          admin_joined_at?: never
+          admin_notes?: never
+          blocked_at?: never
+          blocked_by?: never
+          buyer_id?: string | null
+          closed_at?: never
+          context_type?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_blocked?: never
+          listing_id?: string | null
+          order_id?: string | null
+          seller_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_id?: never
+          admin_joined_at?: never
+          admin_notes?: never
+          blocked_at?: never
+          blocked_by?: never
+          buyer_id?: string | null
+          closed_at?: never
+          context_type?: string | null
+          created_at?: string | null
+          id?: string | null
+          is_blocked?: never
+          listing_id?: string | null
+          order_id?: string | null
+          seller_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_active"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       disputes_safe: {
         Row: {
           admin_notes: string | null
