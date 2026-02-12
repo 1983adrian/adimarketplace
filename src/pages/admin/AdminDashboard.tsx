@@ -50,7 +50,7 @@ export default function AdminDashboard() {
               Actualizează
             </Button>
             <Button asChild size="sm" variant="outline" className="gap-1.5">
-              <Link to="/admin/security">
+              <Link to="/admin/settings">
                 <Shield className="h-3.5 w-3.5" />
                 Securitate
                 {isSecurityMaximum ? (
@@ -79,7 +79,7 @@ export default function AdminDashboard() {
                   <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Securitate incompletă — activează toate opțiunile</p>
                 </div>
                 <Button asChild size="sm" variant="outline" className="h-7 text-xs border-amber-500/50">
-                  <Link to="/admin/security">Configurează</Link>
+                  <Link to="/admin/settings">Configurează</Link>
                 </Button>
               </div>
             </CardContent>
