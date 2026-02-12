@@ -258,10 +258,10 @@ export const Header: React.FC = () => {
               </SheetTrigger>
               <SheetContent side="right" className="w-80 p-0">
                 <div className="flex flex-col h-full">
-                  <div className="p-4 border-b border-border flex items-center justify-between">
-                    <MarketplaceBrand size="sm" showTagline={false} linkTo="/" />
-                    <AppDownloadButton />
-                  </div>
+                    <div className="p-4 border-b border-border flex flex-col items-center gap-2">
+                     <MarketplaceBrand size="sm" showTagline={false} linkTo="/" />
+                     <AppDownloadButton />
+                   </div>
                   
 
 
