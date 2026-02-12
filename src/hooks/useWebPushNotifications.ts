@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
-// Extend ServiceWorkerRegistration to include pushManager
+// Extend ServiceWorkerRegistration for pushManager
 declare global {
   interface ServiceWorkerRegistration {
     pushManager: PushManager;
@@ -31,6 +32,7 @@ export const useWebPushNotifications = () => {
   useEffect(() => {
     const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
     setIsSupported(supported);
+    console.log('[WebPush] Supported:', supported);
   }, []);
 
   // Save subscription to database
@@ -40,7 +42,7 @@ export const useWebPushNotifications = () => {
     if (!keys?.p256dh || !keys?.auth) return;
 
     try {
-      await supabase.from('web_push_subscriptions').upsert({
+      await (supabase as any).from('web_push_subscriptions').upsert({
         user_id: user.id,
         endpoint: subscription.endpoint,
         p256dh: keys.p256dh,
@@ -48,23 +50,56 @@ export const useWebPushNotifications = () => {
         user_agent: navigator.userAgent,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id,endpoint' });
+      console.log('[WebPush] Subscription saved to DB');
     } catch (err) {
-      console.error('Failed to save web push subscription:', err);
+      console.error('[WebPush] Failed to save subscription:', err);
     }
   }, [user]);
 
+  // Get or register service worker
+  const getServiceWorkerRegistration = useCallback(async (): Promise<ServiceWorkerRegistration | null> => {
+    try {
+      // First check for any existing registration
+      let registration = await navigator.serviceWorker.getRegistration('/');
+      
+      if (!registration) {
+        // Try to register our sw.js
+        registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        console.log('[WebPush] Registered new SW');
+      }
+      
+      // Wait for it to be ready
+      await navigator.serviceWorker.ready;
+      console.log('[WebPush] SW is ready');
+      return registration;
+    } catch (err) {
+      console.error('[WebPush] SW registration error:', err);
+      return null;
+    }
+  }, []);
+
   // Subscribe to push notifications
   const subscribe = useCallback(async () => {
-    if (!isSupported || !user) return false;
+    if (!isSupported || !user) {
+      console.log('[WebPush] Cannot subscribe - supported:', isSupported, 'user:', !!user);
+      return false;
+    }
 
     try {
-      // Request notification permission
+      console.log('[WebPush] Requesting permission...');
       const permission = await Notification.requestPermission();
-      if (permission !== 'granted') return false;
+      console.log('[WebPush] Permission result:', permission);
+      
+      if (permission !== 'granted') {
+        toast.error('Notificările au fost blocate. Activează-le din setările browserului.');
+        return false;
+      }
 
-      // Register service worker
-      const registration = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-      await navigator.serviceWorker.ready;
+      const registration = await getServiceWorkerRegistration();
+      if (!registration) {
+        console.error('[WebPush] No SW registration available');
+        return false;
+      }
 
       // Subscribe to push
       const subscription = await registration.pushManager.subscribe({
@@ -72,14 +107,16 @@ export const useWebPushNotifications = () => {
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY).buffer as ArrayBuffer,
       });
 
+      console.log('[WebPush] Subscribed successfully!');
       await saveSubscription(subscription);
       setIsSubscribed(true);
+      toast.success('🔔 Notificările sunt activate! Vei primi alerte chiar și când browserul e închis.');
       return true;
     } catch (err) {
-      console.error('Web push subscription failed:', err);
+      console.error('[WebPush] Subscription failed:', err);
       return false;
     }
-  }, [isSupported, user, saveSubscription]);
+  }, [isSupported, user, saveSubscription, getServiceWorkerRegistration]);
 
   // Check existing subscription on mount
   useEffect(() => {
@@ -88,16 +125,21 @@ export const useWebPushNotifications = () => {
     const checkExisting = async () => {
       try {
         const registration = await navigator.serviceWorker.getRegistration('/');
-        if (!registration) return;
+        if (!registration) {
+          console.log('[WebPush] No existing SW registration');
+          return;
+        }
 
-        const subscription = await registration.pushManager.getSubscription();
+        const subscription = await registration.pushManager?.getSubscription();
         if (subscription) {
+          console.log('[WebPush] Found existing subscription');
           setIsSubscribed(true);
-          // Refresh subscription in DB
           await saveSubscription(subscription);
+        } else {
+          console.log('[WebPush] No existing subscription');
         }
       } catch (err) {
-        console.log('Could not check existing subscription:', err);
+        console.log('[WebPush] Could not check existing subscription:', err);
       }
     };
 
@@ -109,17 +151,24 @@ export const useWebPushNotifications = () => {
     if (!isSupported || !user || isSubscribed) return;
 
     const permission = Notification.permission;
+    console.log('[WebPush] Current permission:', permission, 'User:', user.email);
+    
     if (permission === 'granted') {
-      // Already granted, just subscribe silently
       subscribe();
     } else if (permission === 'default') {
-      // Not yet asked - show browser prompt after short delay
+      // Show a toast prompt after short delay
       const timer = setTimeout(() => {
-        subscribe();
-      }, 2000);
+        toast('🔔 Activează notificările', {
+          description: 'Primești alerte instant pe telefon și PC, chiar și cu browserul închis.',
+          action: {
+            label: 'Activează',
+            onClick: () => subscribe(),
+          },
+          duration: 15000,
+        });
+      }, 3000);
       return () => clearTimeout(timer);
     }
-    // If 'denied', do nothing - user blocked it
   }, [isSupported, user, isSubscribed, subscribe]);
 
   // Remove subscription on logout
