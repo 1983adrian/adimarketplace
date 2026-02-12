@@ -85,6 +85,22 @@ const Notifications: React.FC = () => {
     // For other types (info, verification_submitted), stay on page
   };
 
+  const handleDeleteAll = async () => {
+    if (!user) return;
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('user_id', user.id);
+
+    if (error) {
+      toast({ title: "Eroare", description: "Nu s-au putut șterge notificările", variant: "destructive" });
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-count'] });
+      toast({ title: "Șters", description: "Toate notificările au fost șterse" });
+    }
+  };
+
   const handleDeleteNotification = async (e: React.MouseEvent, notificationId: string) => {
     e.stopPropagation();
     
@@ -137,17 +153,29 @@ const Notifications: React.FC = () => {
             )}
           </div>
           
-          {unreadCount > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => markAllRead.mutate()}
-              disabled={markAllRead.isPending}
-            >
-              <Check className="h-4 w-4 mr-2" />
-              Marchează toate citite
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {unreadCount > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => markAllRead.mutate()}
+                disabled={markAllRead.isPending}
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Marchează citite
+              </Button>
+            )}
+            {notifications && notifications.length > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDeleteAll}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Șterge toate
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Notifications List */}

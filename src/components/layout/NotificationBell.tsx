@@ -112,12 +112,12 @@ export const NotificationBell: React.FC = () => {
                 <div className="mt-0.5">
                   {notificationIcons[notification.type] || <Bell className="h-4 w-4" />}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm ${!notification.is_read ? 'font-medium' : ''}`}>
-                    {notification.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {notification.message}
+                 <div className="flex-1 min-w-0 overflow-hidden">
+                    <p className={`text-sm truncate ${!notification.is_read ? 'font-medium' : ''}`}>
+                      {notification.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground line-clamp-2 break-words">
+                      {notification.message}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
