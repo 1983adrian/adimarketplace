@@ -11,25 +11,36 @@ const logStep = (step: string, details?: any) => {
   console.log(`[PAYPAL-TRACKING] ${step}${detailsStr}`);
 };
 
-// Get PayPal access token
-async function getPayPalAccessToken(): Promise<string> {
-  const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
-  const clientSecret = Deno.env.get("PAYPAL_SECRET");
-  
-  if (!clientId || !clientSecret) {
-    throw new Error("PayPal credentials not configured");
-  }
+// Get PayPal credentials from DB (same pattern as process-payment & verify-payment)
+async function getPayPalConfig(supabase: any) {
+  const { data, error } = await supabase
+    .from("payment_processor_settings")
+    .select("*")
+    .eq("processor_name", "paypal")
+    .eq("is_active", true)
+    .single();
 
-  const isLive = Deno.env.get("PAYPAL_ENVIRONMENT") === "live";
-  const baseUrl = isLive 
-    ? "https://api-m.paypal.com" 
+  if (error || !data) return null;
+  if (!data.api_key_encrypted || !data.api_secret_encrypted) return null;
+
+  return {
+    clientId: data.api_key_encrypted,
+    clientSecret: data.api_secret_encrypted,
+    environment: data.environment || "sandbox",
+  };
+}
+
+// Get PayPal access token using DB config
+async function getPayPalAccessToken(config: { clientId: string; clientSecret: string; environment: string }): Promise<{ accessToken: string; baseUrl: string }> {
+  const baseUrl = config.environment === "live"
+    ? "https://api-m.paypal.com"
     : "https://api-m.sandbox.paypal.com";
 
   const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
-      "Authorization": `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+      "Authorization": `Basic ${btoa(`${config.clientId}:${config.clientSecret}`)}`,
     },
     body: "grant_type=client_credentials",
   });
@@ -40,7 +51,7 @@ async function getPayPalAccessToken(): Promise<string> {
   }
 
   const data = await response.json();
-  return data.access_token;
+  return { accessToken: data.access_token, baseUrl };
 }
 
 // Map carrier names to PayPal carrier enum
@@ -109,14 +120,19 @@ serve(async (req) => {
 
     logStep("Seller PayPal found", { email: sellerProfile.paypal_email });
 
-    // Get PayPal access token
-    const accessToken = await getPayPalAccessToken();
-    logStep("PayPal access token obtained");
+    // Get PayPal config from DB (consistent with process-payment & verify-payment)
+    const paypalConfig = await getPayPalConfig(supabase);
+    if (!paypalConfig) {
+      logStep("PayPal not configured in admin panel, skipping");
+      return new Response(
+        JSON.stringify({ success: false, message: "PayPal not configured by admin" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
-    const isLive = Deno.env.get("PAYPAL_ENVIRONMENT") === "live";
-    const baseUrl = isLive 
-      ? "https://api-m.paypal.com" 
-      : "https://api-m.sandbox.paypal.com";
+    // Get PayPal access token
+    const { accessToken, baseUrl } = await getPayPalAccessToken(paypalConfig);
+    logStep("PayPal access token obtained");
 
     const trackingData = {
       trackers: [
