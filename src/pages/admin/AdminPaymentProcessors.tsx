@@ -31,8 +31,10 @@ interface ProcessorSettings {
   id: string;
   processor_name: string;
   is_active: boolean;
-  api_key_encrypted: string | null;
-  api_secret_encrypted: string | null;
+  api_key_masked: string | null;
+  api_secret_masked: string | null;
+  api_key_encrypted?: string | null;
+  api_secret_encrypted?: string | null;
   merchant_id: string | null;
   environment: string;
   webhook_url: string | null;
@@ -52,13 +54,13 @@ export default function AdminPaymentProcessors() {
     queryKey: ['paypal-settings'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('payment_processor_settings')
+        .from('payment_processor_settings_safe' as any)
         .select('*')
         .eq('processor_name', 'paypal')
         .single();
       
       if (error && error.code !== 'PGRST116') throw error;
-      return data as ProcessorSettings | null;
+      return data as unknown as ProcessorSettings | null;
     },
   });
 
@@ -260,9 +262,9 @@ export default function AdminPaymentProcessors() {
                 <div className="relative">
                   <Input
                     type={showPaypalKey ? 'text' : 'password'}
-                    value={(getPaypalValue('api_key_encrypted') as string) || ''}
+                    value={paypalEdited.api_key_encrypted ?? ''}
                     onChange={(e) => updatePaypalField('api_key_encrypted', e.target.value)}
-                    placeholder="PayPal Client ID (ex: AXx...)"
+                    placeholder={paypal?.api_key_masked === '••••••••' ? '••••••••  (configurat - introdu valoare nouă pentru a schimba)' : 'PayPal Client ID (ex: AXx...)'}
                   />
                   <Button
                     type="button"
@@ -281,9 +283,9 @@ export default function AdminPaymentProcessors() {
                 <div className="relative">
                   <Input
                     type={showPaypalSecret ? 'text' : 'password'}
-                    value={(getPaypalValue('api_secret_encrypted') as string) || ''}
+                    value={paypalEdited.api_secret_encrypted ?? ''}
                     onChange={(e) => updatePaypalField('api_secret_encrypted', e.target.value)}
-                    placeholder="PayPal Secret Key (ex: ELx...)"
+                    placeholder={paypal?.api_secret_masked === '••••••••' ? '••••••••  (configurat - introdu valoare nouă pentru a schimba)' : 'PayPal Secret Key (ex: ELx...)'}
                   />
                   <Button
                     type="button"
