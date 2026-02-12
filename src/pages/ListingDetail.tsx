@@ -461,7 +461,7 @@ const ListingDetail = () => {
                     </p>
                   </div>
                   <Button variant="outline" size="sm" asChild>
-                    <Link to={`/seller/${listing.seller_id}`}>Vezi Profil</Link>
+                    <Link to={`/store/${listing.seller_id}`}>Vezi Produse</Link>
                   </Button>
                 </div>
               </CardContent>
