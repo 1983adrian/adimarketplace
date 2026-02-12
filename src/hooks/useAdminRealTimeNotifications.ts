@@ -209,6 +209,34 @@ export const useAdminRealTimeNotifications = () => {
           queryClient.invalidateQueries({ queryKey: ['admin-fraud-alerts'] });
         }
       )
+      // ⏰ Listen for tracking reminder notifications (orders without AWB)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const notif = payload.new as any;
+          if (notif.type !== 'tracking_reminder') return;
+          const eventKey = `tracking-reminder-${notif.id}`;
+          if (processedEvents.current.has(eventKey)) return;
+          processedEvents.current.add(eventKey);
+
+          playSound('bell');
+
+          toast({
+            title: notif.title || '⚠️ Comenzi fără AWB',
+            description: notif.message || 'Sunt comenzi neexpediate pe platformă.',
+            variant: 'destructive',
+          });
+
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+        }
+      )
       .subscribe();
 
     // Cleanup old processed events periodically

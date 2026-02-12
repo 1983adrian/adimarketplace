@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
       const productList = data.titles.slice(0, 3).join(', ');
       const extra = data.titles.length > 3 ? ` și alte ${data.titles.length - 3}` : '';
 
-      // In-app notification
+      // In-app notification for seller
       await supabase.from('notifications').insert({
         user_id: sellerId,
         type: 'tracking_reminder',
@@ -74,8 +74,42 @@ Deno.serve(async (req) => {
       notified++;
     }
 
+    // 🔔 Notify ALL admins about orders missing tracking
+    const { data: adminEmails } = await supabase
+      .from('admin_emails')
+      .select('email')
+      .eq('is_active', true);
+
+    if (adminEmails && adminEmails.length > 0) {
+      // Get admin user IDs from auth
+      for (const adminEntry of adminEmails) {
+        const { data: adminUsers } = await supabase.auth.admin.listUsers();
+        const adminUser = adminUsers?.users?.find(
+          (u: any) => u.email?.toLowerCase() === adminEntry.email.toLowerCase()
+        );
+
+        if (adminUser) {
+          // Build summary for admin
+          const sellerCount = Object.keys(sellerOrders).length;
+          const totalOrders = orders.length;
+
+          await supabase.from('notifications').insert({
+            user_id: adminUser.id,
+            type: 'tracking_reminder',
+            title: `🚨 ${totalOrders} comenzi fără AWB`,
+            message: `${sellerCount} vânzători au ${totalOrders} comenzi neexpediate de peste 48h. Verifică panoul de control.`,
+            data: {
+              admin_notification: true,
+              sellers_affected: sellerCount,
+              orders_affected: totalOrders,
+            },
+          });
+        }
+      }
+    }
+
     return new Response(JSON.stringify({ 
-      message: `Notified ${notified} sellers about ${orders.length} orders missing tracking`,
+      message: `Notified ${notified} sellers and admins about ${orders.length} orders missing tracking`,
       notified,
       ordersAffected: orders.length,
     }), {
