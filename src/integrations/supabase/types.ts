@@ -1663,7 +1663,6 @@ export type Database = {
           paypal_email: string | null
           paypal_email_encrypted: string | null
           pending_balance: number | null
-          phone: string | null
           postal_code: string | null
           preferred_language: string | null
           region: string | null
@@ -1742,7 +1741,6 @@ export type Database = {
           paypal_email?: string | null
           paypal_email_encrypted?: string | null
           pending_balance?: number | null
-          phone?: string | null
           postal_code?: string | null
           preferred_language?: string | null
           region?: string | null
@@ -1821,7 +1819,6 @@ export type Database = {
           paypal_email?: string | null
           paypal_email_encrypted?: string | null
           pending_balance?: number | null
-          phone?: string | null
           postal_code?: string | null
           preferred_language?: string | null
           region?: string | null

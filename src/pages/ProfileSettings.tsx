@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  User, Save, EyeOff, Loader2, Globe
+  User, Save, Loader2, Globe
 } from 'lucide-react';
 import marketplaceLogo from '@/assets/marketplace-logo-new.png';
 import { Layout } from '@/components/layout/Layout';
@@ -30,7 +30,6 @@ const ProfileSettings = () => {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   
-  const [phone, setPhone] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
 
   useEffect(() => {
@@ -41,8 +40,6 @@ const ProfileSettings = () => {
       setDisplayName(profile.display_name || '');
       setUsername(profile.username || '');
       setBio(profile.bio || '');
-      
-      setPhone(profile.phone || '');
     }
   }, [user, profile, loading, navigate]);
 
@@ -70,7 +67,6 @@ const ProfileSettings = () => {
       display_name: displayName,
       username: username.trim() || null,
       bio,
-      phone,
     } as any);
     setSaving(false);
     if (error) {
@@ -167,23 +163,6 @@ const ProfileSettings = () => {
               />
             </div>
 
-            {/* Phone */}
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="flex items-center gap-2 text-base font-medium">
-                Telefon
-                <Badge variant="outline" className="text-xs gap-1 font-normal">
-                  <EyeOff className="h-3 w-3" />
-                  Privat
-                </Badge>
-              </Label>
-              <Input 
-                id="phone" 
-                value={phone} 
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="0712 345 678"
-                className="h-12"
-              />
-            </div>
 
             {/* Bio */}
             <div className="space-y-2">

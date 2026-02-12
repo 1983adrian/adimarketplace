@@ -96,7 +96,7 @@ export default function AdminUsers() {
       user.display_name?.toLowerCase().includes(search.toLowerCase()) ||
       user.username?.toLowerCase().includes(search.toLowerCase()) ||
       user.user_id?.toLowerCase().includes(search.toLowerCase()) ||
-      user.phone?.toLowerCase().includes(search.toLowerCase()) ||
+      
       user.store_name?.toLowerCase().includes(search.toLowerCase());
     
     // Role filter

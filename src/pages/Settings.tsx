@@ -27,7 +27,7 @@ const Settings = () => {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   
-  const [phone, setPhone] = useState('');
+  
   // Seller status (read-only, just for display)
   const [isSeller, setIsSeller] = useState(false);
   // Setări notificări - real state saved to localStorage
@@ -64,7 +64,7 @@ const Settings = () => {
       setUsername(profile.username || '');
       setBio(profile.bio || '');
       
-      setPhone(profile.phone || '');
+      
       setIsSeller((profile as any).is_seller || false);
     }
   }, [user, profile, loading, navigate]);
@@ -75,7 +75,6 @@ const Settings = () => {
       display_name: displayName,
       username,
       bio,
-      phone,
     } as any);
     setSaving(false);
     if (error) {
@@ -163,22 +162,6 @@ const Settings = () => {
                     <Input id="email" value={user?.email || ''} disabled className="bg-muted" />
                   </div>
 
-                  {/* Phone */}
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="flex items-center gap-2">
-                      Telefon
-                      <Badge variant="outline" className="text-xs gap-1">
-                        <EyeOff className="h-3 w-3" />
-                        Privat
-                      </Badge>
-                    </Label>
-                    <Input 
-                      id="phone" 
-                      value={phone} 
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="0712 345 678"
-                    />
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="bio">Descriere Profil / Magazin</Label>

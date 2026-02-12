@@ -138,7 +138,7 @@ export default function AdminDeliveryManagement() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username, phone, location');
+        .select('user_id, display_name, username, location');
       if (error) throw error;
       return data;
     },
@@ -475,9 +475,6 @@ export default function AdminDeliveryManagement() {
                                     </h4>
                                     <div className="p-3 bg-card rounded-lg">
                                       <p className="font-medium">{buyerProfile?.display_name || buyerProfile?.username || 'N/A'}</p>
-                                      {buyerProfile?.phone && (
-                                        <p className="text-sm text-muted-foreground">{buyerProfile.phone}</p>
-                                      )}
                                       {order.shipping_address && (
                                         <p className="text-sm text-muted-foreground mt-1 flex items-start gap-1">
                                           <MapPin className="h-3 w-3 mt-1 shrink-0" />
@@ -494,10 +491,7 @@ export default function AdminDeliveryManagement() {
                                       Vânzător
                                     </h4>
                                     <div className="p-3 bg-card rounded-lg">
-                                      <p className="font-medium">{sellerProfile?.display_name || sellerProfile?.username || 'N/A'}</p>
-                                      {sellerProfile?.phone && (
-                                        <p className="text-sm text-muted-foreground">{sellerProfile.phone}</p>
-                                      )}
+                                       <p className="font-medium">{sellerProfile?.display_name || sellerProfile?.username || 'N/A'}</p>
                                       {sellerProfile?.location && (
                                         <p className="text-sm text-muted-foreground flex items-center gap-1">
                                           <MapPin className="h-3 w-3" />
