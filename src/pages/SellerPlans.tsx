@@ -30,6 +30,22 @@ const SellerPlans = () => {
   const [selectedPlan, setSelectedPlan] = useState<SellerPlan | typeof BIDDER_PLAN | null>(null);
   const [showPayDialog, setShowPayDialog] = useState(false);
   const [revolutClicked, setRevolutClicked] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
+
+  // Fetch user's short_id from profile
+  const { data: userProfile } = useQuery({
+    queryKey: ['user-profile-short-id', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from('profiles')
+        .select('short_id, display_name')
+        .eq('user_id', user.id)
+        .single();
+      return data;
+    },
+    enabled: !!user,
+  });
 
 
   const createPaymentRequest = useMutation({
@@ -118,7 +134,43 @@ const SellerPlans = () => {
   const handleSelectPlan = (plan: SellerPlan | typeof BIDDER_PLAN) => {
     setSelectedPlan(plan);
     setRevolutClicked(false);
+    setPaymentConfirmed(false);
     setShowPayDialog(true);
+  };
+
+  const handlePaymentConfirm = async () => {
+    if (!user || !selectedPlan) return;
+    const shortId = userProfile?.short_id || 'N/A';
+    
+    try {
+      // Create payment request
+      await createPaymentRequest.mutateAsync(selectedPlan);
+      
+      // Send additional notification with short_id
+      const { data: adminRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+
+      if (adminRoles && adminRoles.length > 0) {
+        const notifications = adminRoles.map(r => ({
+          user_id: r.user_id,
+          type: 'admin_payment',
+          title: '💰 Confirmare Plată Abonament',
+          message: `Utilizatorul #${shortId} (${user.email}) confirmă plata pentru ${selectedPlan.plan_name} (${selectedPlan.price_ron} LEI). Activează contul #${shortId}.`,
+          data: { short_id: shortId, plan_type: selectedPlan.plan_type } as any,
+        }));
+        await supabase.from('notifications').insert(notifications);
+      }
+
+      setPaymentConfirmed(true);
+      toast({
+        title: '✅ Confirmare trimisă!',
+        description: `Adminul a primit notificarea. ID-ul tău: #${shortId}. Abonamentul se activează în curând.`,
+      });
+    } catch (err: any) {
+      toast({ title: 'Eroare', description: err.message, variant: 'destructive' });
+    }
   };
 
   if (!user) {
@@ -382,12 +434,43 @@ const SellerPlans = () => {
                   La mesajul plății, scrie: <strong>market@placeromania.com</strong> + <strong>{selectedPlan.plan_name}</strong>
                 </p>
               </div>
+
+              {/* Am plătit button - appears after clicking Revolut link */}
+              {revolutClicked && !paymentConfirmed && (
+                <div className="rounded-lg border-2 border-green-500/40 bg-green-50/50 dark:bg-green-950/20 p-4 text-center space-y-2">
+                  <p className="text-sm font-medium">Ai efectuat plata? Confirmă mai jos:</p>
+                  <p className="text-xs text-muted-foreground">
+                    ID-ul tău de cont: <strong className="text-primary text-base">#{userProfile?.short_id || '...'}</strong>
+                  </p>
+                  <Button
+                    className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white"
+                    disabled={createPaymentRequest.isPending}
+                    onClick={handlePaymentConfirm}
+                  >
+                    {createPaymentRequest.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="h-4 w-4" />
+                    )}
+                    ✅ Am plătit — Confirmă
+                  </Button>
+                </div>
+              )}
+
+              {paymentConfirmed && (
+                <Alert className="border-green-500/50 bg-green-50 dark:bg-green-950/20">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800 dark:text-green-200">
+                    Confirmare trimisă! ID-ul tău: <strong>#{userProfile?.short_id}</strong>. Abonamentul se activează după verificarea plății.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           )}
 
           <DialogFooter>
             <Button variant="outline" className="w-full" onClick={() => setShowPayDialog(false)}>
-              Anulează
+              {paymentConfirmed ? 'Închide' : 'Anulează'}
             </Button>
           </DialogFooter>
         </DialogContent>
