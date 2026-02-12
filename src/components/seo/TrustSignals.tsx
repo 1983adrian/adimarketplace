@@ -34,10 +34,10 @@ export const TrustSignals: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            De Ce Să Alegi Marketplace România?
+            De Ce Să Alegi Market Place România?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Platformă 100% românească — 0% comision pe vânzări, doar abonament lunar
+            Market Place România — primul market place online din România cu 0% comision pe vânzări. Doar abonamente fixe de la 11 LEI/lună.
           </p>
         </div>
 
@@ -68,7 +68,7 @@ export const TrustSignals: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Award className="h-5 w-5 text-amber-600" />
-            <span>0% comision pe vânzări</span>
+            <span>0% comision — abonamente fixe</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Shield className="h-5 w-5 text-blue-600" />
@@ -80,15 +80,16 @@ export const TrustSignals: React.FC = () => {
         <div className="mt-10 p-6 rounded-xl bg-primary/5 border border-primary/10">
           <h3 className="font-semibold mb-3 flex items-center gap-2">
             <Award className="h-5 w-5 text-primary" />
-            Despre Marketplace România
+            Despre Market Place România — Cel Mai Mare Market Place Online din România
           </h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            <strong>Marketplace România</strong> este prima platformă românească de cumpărături și vânzări online 
-            cu sistem de licitații integrate. Fondată în 2024, oferim o alternativă locală la platformele 
-            internaționale precum OLX, eBay sau Amazon. Cu <strong>0% comision pe vânzări</strong> și abonamente accesibile de la 11 LEI/lună, 
-            <strong>protecție cumpărător garantată</strong>, și suport pentru <strong>plata la livrare (ramburs)</strong>, 
-            suntem alegerea ideală pentru românii care vor să vândă sau să cumpere online în siguranță. 
-            Acceptăm plăți prin PayPal. Livrare în toată România și UK.
+            <strong>Market Place România</strong> este primul market place din România construit cu inteligență artificială. 
+            Pe <strong>Market Place România</strong> vinzi și cumperi cu <strong>0% comision pe vânzări</strong> — plătești doar un abonament fix lunar 
+            de la 11 LEI/lună. <strong>Market Place România</strong> oferă licitații online integrate, 
+            <strong>protecție cumpărător garantată</strong> cu returnare în 14 zile, și <strong>plată la livrare (ramburs)</strong>. 
+            Fondată în 2024, <strong>Market Place România</strong> este alternativa superioară la OLX, Facebook Marketplace, eBay și eMAG. 
+            Vinde și cumpără pe <strong>Market Place România</strong> — cel mai mare market place online 100% românesc. 
+            Livrare rapidă în toată România cu FAN Courier, Sameday și Cargus. Vizitează <strong>www.marketplaceromania.com</strong>.
           </p>
         </div>
       </div>

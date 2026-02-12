@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
           <div className="col-span-2 md:col-span-1 space-y-4">
             <MarketplaceBrand size="sm" showTagline linkTo="/" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Marketplace România — cel mai mare market online din România. Cumpără și vinde în siguranță.
+              Market Place România — primul market place online din România cu 0% comision. Abonamente fixe de la 11 LEI/lună. Cumpără și vinde pe cel mai mare market place românesc.
             </p>
             
             {/* Social Media Links */}
@@ -184,7 +184,7 @@ export const Footer: React.FC = () => {
       <div className="border-t border-border">
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <p>© {currentYear} <strong>Marketplace România®</strong> | Market România | Place România | Market Place România - Toate drepturile rezervate</p>
+            <p>© {currentYear} <strong>Market Place România®</strong> | Marketplace România | Market România | Place România - Primul Market Place din România construit cu AI. Toate drepturile rezervate.</p>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
               <span>Plăți securizate</span>

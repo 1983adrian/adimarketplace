@@ -10,36 +10,36 @@ import { HelpCircle } from 'lucide-react';
 
 const faqs = [
   {
-    question: "Ce este Marketplace România și de ce este un brand de încredere?",
-    answer: "Marketplace România (sau Market România, Place România, Market Place România) este BRANDUL OFICIAL al celui mai mare market online 100% românesc. Este o alternativă superioară la Facebook Marketplace, OLX, eBay și eMAG, cu 0% comision pe vânzări — funcționează pe bază de abonamente accesibile. Domeniul oficial este www.marketplaceromania.com."
+    question: "Ce este Market Place România și cum funcționează?",
+    answer: "Market Place România (marketplaceromania.com) este primul market place din România construit cu inteligență artificială. Market Place România oferă 0% comision pe vânzări și funcționează pe bază de abonamente fixe de la 11 LEI/lună. Pe Market Place România poți vinde și cumpăra produse noi sau second hand, participa la licitații online și beneficia de livrare rapidă în toată România. Market Place România este alternativa superioară la OLX, Facebook Marketplace și eBay."
   },
   {
-    question: "Cât costă să vinzi pe Marketplace România?",
-    answer: "Nu există comisioane pe vânzări (0%)! Plătești doar un abonament lunar accesibil: START (11 LEI, 10 produse), SILVER (50 LEI, 50 produse), GOLD (150 LEI, 150 produse), PLATINUM (499 LEI, 500 produse) sau VIP (999 LEI, nelimitat). Vânzătorii noi primesc 30 de zile gratuite!"
+    question: "Cât costă să vinzi pe Market Place România?",
+    answer: "Pe Market Place România vinzi cu 0% comision — nu există taxe pe vânzări! Plătești doar un abonament fix lunar: START (11 LEI, 10 produse), SILVER (50 LEI, 50 produse), GOLD (150 LEI, 150 produse), PLATINUM (499 LEI, 500 produse) sau VIP (999 LEI, nelimitat). Toți vânzătorii noi primesc 30 de zile gratuite pe Market Place România!"
   },
   {
-    question: "Cum funcționează sistemul de licitații?",
-    answer: "Poți lista produsele fie la preț fix, fie la licitație. La licitații, cumpărătorii plasează oferte, iar la finalul perioadei de licitație, cel mai mare ofertant câștigă. Poți seta și un preț de cumpărare instant."
+    question: "Cum funcționează licitațiile pe Market Place România?",
+    answer: "Pe Market Place România poți lista produse la preț fix sau la licitație online. La licitațiile de pe Market Place România, cumpărătorii plasează oferte în timp real, iar la finalul perioadei cel mai mare ofertant câștigă. Poți seta și un preț de cumpărare instant (Buy Now). Abonamentul de Licitator costă doar 11 LEI pe Market Place România."
   },
   {
-    question: "Este sigur să cumpăr de pe Marketplace România?",
-    answer: "Da! Oferim protecție cumpărător cu garanție de returnare în 14 zile conform legislației UE. Toate plățile sunt procesate securizat cu criptare SSL. Acceptăm și plata la livrare (ramburs) pentru siguranță maximă."
+    question: "Este sigur să cumpăr de pe Market Place România?",
+    answer: "Da! Market Place România oferă protecție cumpărător cu garanție de returnare în 14 zile conform legislației UE. Toate plățile pe Market Place România sunt procesate securizat cu criptare SSL. Market Place România acceptă și plata la livrare (ramburs) pentru siguranță maximă."
   },
   {
-    question: "Ce metode de plată sunt acceptate?",
-    answer: "Acceptăm plată prin card bancar (Visa, Mastercard), transfer bancar, și plată la livrare (ramburs). Toate tranzacțiile online sunt securizate cu criptare SSL."
+    question: "Ce metode de plată acceptă Market Place România?",
+    answer: "Market Place România acceptă plată prin card bancar (Visa, Mastercard), transfer bancar, PayPal și plată la livrare (ramburs). Toate tranzacțiile online pe Market Place România sunt securizate cu criptare SSL de ultimă generație."
   },
   {
-    question: "Cum primesc banii când vând un produs?",
-    answer: "După ce cumpărătorul confirmă primirea produsului, banii sunt transferați automat în contul tău PayPal. Tot ce vinzi rămâne 100% al tău — 0% comision pe vânzări!"
+    question: "Cum primesc banii când vând pe Market Place România?",
+    answer: "După ce cumpărătorul confirmă primirea produsului pe Market Place România, banii sunt transferați automat în contul tău. Tot ce vinzi pe Market Place România rămâne 100% al tău — 0% comision, doar abonament fix lunar!"
   },
   {
-    question: "Cât durează livrarea?",
-    answer: "Livrarea standard durează 1-3 zile lucrătoare în România. Colaborăm cu FAN Courier, Sameday și Cargus. Livrarea în Easybox/locker este disponibilă în majoritatea orașelor."
+    question: "Cât durează livrarea pe Market Place România?",
+    answer: "Livrarea pe Market Place România durează 1-3 zile lucrătoare în toată România. Market Place România colaborează cu FAN Courier, Sameday și Cargus. Livrarea în Easybox/locker este disponibilă pe Market Place România în majoritatea orașelor din România."
   },
   {
-    question: "Pot returna un produs?",
-    answer: "Da, ai dreptul la returnare în 14 zile de la primire, conform legislației UE pentru cumpărături online. Produsul trebuie să fie în starea originală, nefolosit."
+    question: "De ce să aleg Market Place România în loc de OLX sau Facebook Marketplace?",
+    answer: "Market Place România este singurul market place din România cu 0% comision pe vânzări, licitații online integrate, protecție cumpărător garantată și plată la livrare. Spre deosebire de OLX sau Facebook Marketplace, Market Place România este construit cu AI și oferă o experiență profesională de vânzare cu abonamente fixe accesibile de la 11 LEI/lună."
   }
 ];
 
@@ -75,7 +75,7 @@ export const FAQSchema: React.FC<{ showUI?: boolean }> = ({ showUI = true }) => 
                 <h2 className="text-2xl md:text-3xl font-bold">Întrebări Frecvente</h2>
               </div>
               <p className="text-muted-foreground">
-                Află tot ce trebuie să știi despre Marketplace România
+                Află tot ce trebuie să știi despre Market Place România
               </p>
             </div>
 
