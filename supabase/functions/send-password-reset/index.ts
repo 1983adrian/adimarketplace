@@ -120,8 +120,9 @@ serve(async (req: Request): Promise<Response> => {
           <!-- Header -->
           <tr>
             <td style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 40px 40px 30px; text-align: center;">
+              <img src="https://marketplaceromania.lovable.app/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">
-                🛍️ Marketplace Romania
+                🔐 Resetare Parolă
               </h1>
             </td>
           </tr>
