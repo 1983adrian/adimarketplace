@@ -24,9 +24,14 @@ export const useCancelOrder = () => {
       if (orderError) throw orderError;
       if (!order) throw new Error('Comanda nu a fost găsită');
 
-      // Only allow cancellation of pending or paid orders
+      // Only allow cancellation of pending or paid orders within 24 hours
       if (!['pending', 'paid'].includes(order.status)) {
         throw new Error('Această comandă nu poate fi anulată');
+      }
+
+      const hoursSinceOrder = (Date.now() - new Date(order.created_at).getTime()) / (1000 * 60 * 60);
+      if (hoursSinceOrder > 24) {
+        throw new Error('Comanda poate fi anulată doar în primele 24 de ore de la plasare.');
       }
 
       // Update order status to cancelled
