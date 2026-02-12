@@ -173,7 +173,6 @@ const EditListing = () => {
         shipping_carrier: selectedCourier || null,
         condition,
         category_id: category || null,
-        location,
         is_active: isActive,
         is_sold: isSold,
         // COD (Ramburs) settings
@@ -403,12 +402,12 @@ const EditListing = () => {
             </CardContent>
           </Card>
 
-          {/* Price, Shipping & Location */}
+          {/* Price & Shipping */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Truck className="h-5 w-5" />
-                Preț, Livrare și Locație
+                Preț și Livrare
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
