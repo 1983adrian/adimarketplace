@@ -98,7 +98,6 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
         />
       </div>
 
-      {/* Tagline - Romanian Tricolor: Albastru, Galben, Roșu */}
       {showTagline && (
         <p className={cn(
           'font-semibold tracking-wide',
@@ -116,7 +115,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
       {/* Animated Variant message - slides from right to center */}
       {variantMessages[variant] && (
-        <div className="relative w-full flex justify-center overflow-hidden mt-4">
+        <div className="relative w-full flex justify-center overflow-hidden mt-1">
           <p 
             className={cn(
               'font-bold tracking-wide',

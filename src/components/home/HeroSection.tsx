@@ -87,10 +87,10 @@ export const HeroSection: React.FC = () => {
     <section className="relative bg-white dark:bg-gray-950">
       {/* Hero Banner - Clean white background */}
       <div className="relative overflow-hidden">
-        <div className="container mx-auto px-0 sm:px-4 py-2 md:py-4 relative z-10">
+        <div className="container mx-auto px-0 sm:px-4 py-1 md:py-2 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* Compact Brand Title - Unified Component */}
-            <div className="mb-4">
+            <div className="mb-1">
               <MarketplaceBrand size="xl" showTagline linkTo={null} />
             </div>
             
@@ -100,7 +100,7 @@ export const HeroSection: React.FC = () => {
               <Link to={ctaLink}>
                 <Button size="sm" className="h-9 px-4 gap-1.5 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-primary-foreground font-semibold shadow-md text-xs md:text-sm">
                   {ctaText}
-                  <ArrowRight className="h-3.5 w-3.5" />
+                   <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               </Link>
               <Link to="/sell">
@@ -233,7 +233,7 @@ export const HeroSection: React.FC = () => {
 
 
       {/* Products Section - Clean eBay/Amazon grid */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <TrendingUp className="h-5 w-5 text-primary" />
