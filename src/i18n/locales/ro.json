@@ -298,6 +298,8 @@
   "dashboard": {
     "title": "Panou de control",
     "welcome": "Bine ai venit",
+    "sellerMarketplace": "Marketplace România",
+    "menu": "Meniu",
     "sellerMode": "Mod Vânzător",
     "purchases": "Cumpărături",
     "sales": "Vânzări",
@@ -306,7 +308,10 @@
     "settings": "Setări",
     "help": "Ajutor",
     "returns": "Returnări",
-    "analytics": "Statistici"
+    "analytics": "Statistici",
+    "logout": "Ieșire",
+    "notification": "notificare",
+    "notifications": "notificări"
   },
   "wallet": {
     "title": "Portofel",

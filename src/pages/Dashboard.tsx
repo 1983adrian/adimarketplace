@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Plus, Package, ShoppingBag, GraduationCap, MessageCircle, 
-  Wallet, BarChart3, Heart, Settings, Bell, LogOut, Store, User,
+  Wallet, BarChart3, Heart, Settings, Bell, Store, User,
   Undo2, MailOpen, Receipt, Moon, Sun, Share2, CreditCard
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -48,7 +48,7 @@ const menuItemsConfig: MenuItem[] = [
 ];
 
 const Dashboard = () => {
-  const { user, profile, loading, signOut } = useAuth();
+  const { user, profile, loading } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -103,10 +103,6 @@ const Dashboard = () => {
     );
   }
 
-  const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
-  };
 
   return (
     <Layout>
@@ -175,13 +171,6 @@ const Dashboard = () => {
                 </span>
               )}
             </Link>
-            <button 
-              onClick={handleSignOut} 
-              className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-red-500/10 hover:bg-red-500/20 transition-colors text-red-500 font-medium text-sm"
-            >
-              <LogOut className="h-4 w-4" />
-              <span>{t('dashboard.logout')}</span>
-            </button>
           </div>
         </div>
 
