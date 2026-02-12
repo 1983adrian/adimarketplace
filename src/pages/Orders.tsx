@@ -74,6 +74,7 @@ const menuItems: MenuItem[] = [
   { id: 'buying', title: 'Cumpărăturile Mele', icon: ShoppingBag, description: 'Produsele cumpărate de tine', color: 'bg-gradient-to-br from-sky-400 to-blue-500' },
   { id: 'selling', title: 'Vânzările Mele', icon: Store, description: 'Comenzi de la clienți', color: 'bg-gradient-to-br from-lime-500 to-lime-700' },
   { id: 'my-returns', title: 'Returnările Mele', icon: Undo2, description: 'Retururi solicitate de tine', color: 'bg-gradient-to-br from-orange-400 to-red-500' },
+  { id: 'received-returns', title: 'Retururi Primite', icon: Inbox, description: 'Retururi de la clienți', color: 'bg-gradient-to-br from-purple-500 to-violet-600' },
 ];
 
 // Grid navigation component - 2x2 style like reference image
