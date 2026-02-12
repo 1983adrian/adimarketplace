@@ -84,18 +84,10 @@ export const HeroSection: React.FC = () => {
 
 
   return (
-    <section className="relative bg-background">
-      {/* Hero Banner - eBay/Amazon Style with seamless image */}
+    <section className="relative bg-white dark:bg-gray-950">
+      {/* Hero Banner - Clean white background */}
       <div className="relative overflow-hidden">
-        {/* Premium Background Gradient - Professional Marketplace Style */}
-        <div 
-          className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5"
-        />
-        {/* Subtle decorative elements */}
-        <div className="absolute top-0 left-1/4 w-72 h-72 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
-        
-        <div className="container mx-auto px-4 py-4 md:py-6 relative z-10">
+        <div className="container mx-auto px-0 sm:px-4 py-2 md:py-4 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* Compact Brand Title - Unified Component */}
             <div className="mb-4">
