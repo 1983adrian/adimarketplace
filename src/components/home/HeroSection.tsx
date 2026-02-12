@@ -95,7 +95,7 @@ export const HeroSection: React.FC = () => {
             </div>
             
             {/* All Actions in One Compact Row */}
-            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mt-2">
               {/* CTA Buttons - Uses Admin settings */}
               <Link to={ctaLink}>
                 <Button size="sm" className="h-9 px-4 gap-1.5 bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-primary-foreground font-semibold shadow-md text-xs md:text-sm">
@@ -110,11 +110,11 @@ export const HeroSection: React.FC = () => {
               </Link>
               
               {/* Separator */}
-              <div className="hidden md:block h-6 w-px bg-border" />
+              <div className="w-full md:w-auto md:h-6 md:w-px md:bg-border" />
               
               {/* App Download - Compact Icons in Line */}
               {showDownloadButtons && (
-                <>
+                <div className="flex items-center justify-center gap-2 w-full md:w-auto">
                   <span className="hidden md:inline text-xs text-muted-foreground">App:</span>
                   
                   {/* iOS */}
@@ -224,7 +224,7 @@ export const HeroSection: React.FC = () => {
                       </div>
                     </DialogContent>
                   </Dialog>
-                </>
+                </div>
               )}
             </div>
           </div>
