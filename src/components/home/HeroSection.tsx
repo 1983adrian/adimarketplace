@@ -90,7 +90,7 @@ export const HeroSection: React.FC = () => {
         <div className="container mx-auto px-0 sm:px-4 py-1 md:py-2 relative z-10">
           <div className="max-w-5xl mx-auto text-center">
             {/* Compact Brand Title - Unified Component */}
-            <div className="mb-1">
+            <div className="-mb-6">
               <MarketplaceBrand size="xl" showTagline linkTo={null} />
             </div>
             
