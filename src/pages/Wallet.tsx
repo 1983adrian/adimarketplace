@@ -193,7 +193,7 @@ const Wallet = () => {
                       Retrage Fonduri
                     </DialogTitle>
                     <DialogDescription>
-                      Fondurile vor fi transferate în contul PayPal în 1-3 zile lucrătoare.
+                      ⚠️ Retragerea automată nu este disponibilă. Cererea ta va fi procesată manual de administrator.
                     </DialogDescription>
                   </DialogHeader>
                   
@@ -331,8 +331,8 @@ const Wallet = () => {
                   <TrendingUp className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="font-medium">Retragere PayPal</p>
-                  <p className="text-sm text-muted-foreground">Transfer în 1-3 zile lucrătoare</p>
+                  <p className="font-medium">Retragere Fonduri</p>
+                  <p className="text-sm text-muted-foreground">Procesată manual de administrator după cerere</p>
                 </div>
               </div>
             </CardContent>
