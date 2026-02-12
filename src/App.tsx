@@ -28,7 +28,6 @@ import CheckoutCancel from "./pages/CheckoutCancel";
 import NotFound from "./pages/NotFound";
 import Orders from "./pages/Orders";
 import Messages from "./pages/Messages";
-import SellerProfile from "./pages/SellerProfile";
 import SellerAnalytics from "./pages/SellerAnalytics";
 import Favorites from "./pages/Favorites";
 // New dedicated pages
@@ -116,7 +115,7 @@ const publicRoutes = [
   { path: "/orders", element: <Orders /> },
   { path: "/messages", element: <Messages /> },
   { path: "/favorites", element: <Favorites /> },
-  { path: "/seller/:id", element: <SellerProfile /> },
+  { path: "/seller/:id", element: <StorePage /> },
   { path: "/store/:id", element: <StorePage /> },
   { path: "/about", element: <AboutUs /> },
   { path: "/contact", element: <Contact /> },
