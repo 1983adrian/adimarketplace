@@ -354,7 +354,7 @@ const SellerPlans = () => {
                 <p className="text-xs text-muted-foreground">Plătește instant prin link-ul Wise — cel mai rapid mod!</p>
                 <Button
                   className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => window.open(`https://wise.com/pay#adrianc1425`, '_blank')}
+                  onClick={() => window.open(`https://wise.com/pay/me/adrianc1425`, '_blank')}
                 >
                   <ExternalLink className="h-4 w-4" />
                   Plătește {selectedPlan.price_ron} LEI prin Wise
