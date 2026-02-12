@@ -6,7 +6,6 @@ import { AppDownloadBar } from './AppDownloadBar';
 import { GrandOpeningBanner } from '@/components/announcements/GrandOpeningBanner';
 import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids, useGlobalMessageNotifications, useRealTimeFriendRequests, useRealTimeReturns, useRealTimeDisputes, useTrackingReminder } from '@/hooks/useRealTimeNotifications';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
-import { useWebPushNotifications } from '@/hooks/useWebPushNotifications';
 import { useAppBadge } from '@/hooks/useAppBadge';
 
 interface LayoutProps {
@@ -27,9 +26,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideFooter = false }) 
   
   // Initialize native push notifications (only active on iOS/Android)
   usePushNotifications();
-  
-  // Initialize web push notifications for browser (works on all platforms)
-  useWebPushNotifications();
   
   // Update app icon badge with unread count (native + PWA)
   useAppBadge();
