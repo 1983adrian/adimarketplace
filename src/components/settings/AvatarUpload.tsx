@@ -60,15 +60,22 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
       const fileName = `${userId}/avatar-${Date.now()}.${fileExt}`;
 
       // Șterge avatar-ul vechi dacă există
-      if (currentAvatarUrl) {
-        const oldPath = currentAvatarUrl.split('/').slice(-2).join('/');
-        await supabase.storage.from('listings').remove([`avatars/${oldPath}`]);
+      if (currentAvatarUrl && currentAvatarUrl.includes('/listings/')) {
+        try {
+          const urlParts = currentAvatarUrl.split('/listings/');
+          if (urlParts[1]) {
+            const oldPath = decodeURIComponent(urlParts[1]);
+            await supabase.storage.from('listings').remove([oldPath]);
+          }
+        } catch (e) {
+          console.warn('Could not delete old avatar:', e);
+        }
       }
 
-      // Upload fișier nou
+      // Upload fișier nou - path starts with userId so RLS policy works
       const { error: uploadError } = await supabase.storage
         .from('listings')
-        .upload(`avatars/${fileName}`, file, {
+        .upload(fileName, file, {
           cacheControl: '3600',
           upsert: true,
         });
@@ -78,7 +85,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({
       // Obține URL-ul public
       const { data: publicUrlData } = supabase.storage
         .from('listings')
-        .getPublicUrl(`avatars/${fileName}`);
+        .getPublicUrl(fileName);
 
       const newAvatarUrl = publicUrlData.publicUrl;
 

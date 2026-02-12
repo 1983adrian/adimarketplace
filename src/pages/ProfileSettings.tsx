@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   User, Save, EyeOff, Loader2, Globe
 } from 'lucide-react';
+import marketplaceBanner from '@/assets/marketplace-romania-banner.png';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -96,7 +97,12 @@ const ProfileSettings = () => {
                 currentAvatarUrl={profile?.avatar_url || null}
                 displayName={displayName || user?.email || 'User'}
                 userId={user?.id || ''}
-                onAvatarChange={(url) => {}}
+                onAvatarChange={(url) => {
+                  // Force profile refresh by updating local state
+                  if (profile) {
+                    (profile as any).avatar_url = url || null;
+                  }
+                }}
               />
               <p className="text-xs text-muted-foreground mt-2">
                 JPG, PNG sau GIF. Max 5MB.
@@ -220,6 +226,16 @@ const ProfileSettings = () => {
             </Button>
           </CardContent>
         </Card>
+
+        {/* Brand Banner */}
+        <div className="mt-8 -mx-4">
+          <img 
+            src={marketplaceBanner} 
+            alt="MarketPlace Romania — Vinde • Cumpără • Licitează" 
+            className="w-full object-cover"
+            loading="lazy"
+          />
+        </div>
       </div>
     </Layout>
   );
