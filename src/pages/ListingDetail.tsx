@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, Banknote, TrendingUp, Flag } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -470,13 +470,18 @@ const ListingDetail = () => {
               </CardContent>
             </Card>
 
-            <div className="flex items-center justify-between text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Shield className="h-4 w-4" />
                 <span>Plăți securizate prin PayPal</span>
               </div>
               {user?.id !== listing.seller_id && (
-                <ReportListingDialog listingId={listing.id} listingTitle={listing.title} />
+                <ReportListingDialog listingId={listing.id} listingTitle={listing.title}>
+                  <Button variant="outline" size="sm" className="gap-2 border-destructive/40 text-destructive hover:bg-destructive/10 hover:text-destructive font-medium">
+                    <Flag className="h-4 w-4" />
+                    Semnalează
+                  </Button>
+                </ReportListingDialog>
               )}
             </div>
           </div>
