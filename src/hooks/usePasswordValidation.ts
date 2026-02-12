@@ -142,9 +142,8 @@ export async function validatePassword(
   const { syncErrors, strength } = validatePasswordSync(password, settings);
   const errors = [...syncErrors];
   
-  // Check leaked passwords if enabled
-  const checkLeaked = settings?.leakedPasswordProtection ?? false;
-  if (checkLeaked && password.length >= 4) {
+  // Always check leaked passwords via HaveIBeenPwned (k-anonymity, no API key needed)
+  if (password.length >= 6) {
     const isLeaked = await checkLeakedPassword(password);
     if (isLeaked) {
       errors.push('Această parolă a fost expusă într-o breșă de securitate. Te rugăm să alegi alta.');

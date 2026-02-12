@@ -28,9 +28,9 @@ const Signup = () => {
   
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { validateSync } = usePasswordValidation();
+  const { validateSync, validate } = usePasswordValidation();
 
-  // Validate password on change
+  // Validate password on change (sync - no API call)
   const passwordValidation = useMemo(() => {
     if (!password) return { strength: 'weak' as const, errors: [] };
     return validateSync(password);
@@ -96,6 +96,17 @@ const Signup = () => {
       toast({
         title: 'Parolă invalidă',
         description: passwordValidation.errors[0],
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Async check: leaked password via HaveIBeenPwned
+    const fullValidation = await validate(password);
+    if (!fullValidation.isValid) {
+      toast({
+        title: 'Parolă compromisă',
+        description: fullValidation.errors[fullValidation.errors.length - 1],
         variant: 'destructive',
       });
       return;
