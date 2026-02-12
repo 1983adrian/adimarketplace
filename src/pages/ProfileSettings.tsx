@@ -58,7 +58,7 @@ const ProfileSettings = () => {
       if (!data) {
         await supabase
           .from('profiles')
-          .upsert({ user_id: user.id, display_name: user.email?.split('@')[0] || 'User' }, { onConflict: 'user_id' });
+          .insert({ user_id: user.id, display_name: user.email?.split('@')[0] || 'User' });
       }
     };
     ensureProfile();
@@ -68,7 +68,7 @@ const ProfileSettings = () => {
     setSaving(true);
     const { error } = await updateProfile({
       display_name: displayName,
-      username,
+      username: username.trim() || null,
       bio,
       phone,
     } as any);
