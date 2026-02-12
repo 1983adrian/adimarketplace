@@ -185,7 +185,7 @@ export const Header: React.FC = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-52 shadow-dropdown">
                     <div className="px-2 py-2 border-b border-border">
-                      <p className="font-medium text-sm">{profile?.display_name || 'User'}</p>
+                      <p className="font-medium text-sm">{profile?.display_name || 'Utilizator'}</p>
                       <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                     </div>
                     <DropdownMenuItem asChild className="cursor-pointer">
@@ -289,7 +289,7 @@ export const Header: React.FC = () => {
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold truncate">{profile?.display_name || 'User'}</p>
+                            <p className="font-semibold truncate">{profile?.display_name || 'Utilizator'}</p>
                             <p className="text-sm text-muted-foreground truncate">{user.email}</p>
                           </div>
                         </div>
@@ -320,7 +320,7 @@ export const Header: React.FC = () => {
                           <div className="pt-4 border-t border-border mt-4 space-y-1">
                             <p className="text-xs font-semibold text-amber-600 uppercase tracking-wide px-3 py-1 flex items-center gap-2">
                               <Crown className="h-3 w-3" />
-                              Admin / Owner
+                              Admin / Proprietar
                             </p>
                             <Button variant="ghost" className="w-full justify-start bg-gradient-to-r from-amber-500/10 to-orange-500/10" asChild onClick={() => setMobileMenuOpen(false)}>
                               <Link to="/admin/owner">

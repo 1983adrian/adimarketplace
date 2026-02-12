@@ -87,7 +87,7 @@ const ListingDetail = () => {
 
   const handleFavoriteToggle = () => {
     if (!user) {
-      toast({ title: 'Please log in', description: 'You need to be logged in to save favorites', variant: 'destructive' });
+      toast({ title: 'Autentificare necesară', description: 'Trebuie să fii autentificat pentru a salva favorite', variant: 'destructive' });
       navigate('/login');
       return;
     }
@@ -131,8 +131,8 @@ const ListingDetail = () => {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">Listing not found</h1>
-          <Button asChild><Link to="/browse">Browse Listings</Link></Button>
+          <h1 className="text-2xl font-bold mb-4">Anunțul nu a fost găsit</h1>
+          <Button asChild><Link to="/browse">Explorează Anunțuri</Link></Button>
         </div>
       </Layout>
     );
@@ -140,7 +140,7 @@ const ListingDetail = () => {
 
   const handleContact = () => {
     if (!user) {
-      toast({ title: 'Please log in', description: 'You need to be logged in to message sellers', variant: 'destructive' });
+      toast({ title: 'Autentificare necesară', description: 'Trebuie să fii autentificat pentru a contacta vânzătorii', variant: 'destructive' });
       navigate('/login');
       return;
     }
