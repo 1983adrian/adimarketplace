@@ -78,14 +78,21 @@ const SellerPlans = () => {
             to: 'adrianchirita01@gmail.com',
             subject: `💰 Cerere Plată: ${plan.plan_name} - ${plan.price_ron} LEI`,
             message: `
-              <h2>Cerere Nouă de Plată Abonament</h2>
-              <p><strong>Utilizator:</strong> ${user.email}</p>
-              <p><strong>Plan solicitat:</strong> ${plan.plan_name}</p>
-              <p><strong>Suma:</strong> ${plan.price_ron} LEI</p>
-              <p><strong>Metoda:</strong> Transfer Bancar</p>
-              <p><strong>Data:</strong> ${new Date().toLocaleString('ro-RO')}</p>
-              <hr/>
-              <p>Verifică transferul bancar și confirmă activarea din panoul de administrare.</p>
+              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; border-radius: 12px 12px 0 0; text-align: center;">
+                  <img src="https://marketplaceromania.lovable.app/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
+                  <h2 style="color: white; margin: 0;">💰 Cerere Nouă de Plată Abonament</h2>
+                </div>
+                <div style="background: #ffffff; padding: 24px; border: 1px solid #e5e7eb; border-radius: 0 0 12px 12px;">
+                  <p><strong>Utilizator:</strong> ${user.email}</p>
+                  <p><strong>Plan solicitat:</strong> ${plan.plan_name}</p>
+                  <p><strong>Suma:</strong> ${plan.price_ron} LEI</p>
+                  <p><strong>Metoda:</strong> Transfer Bancar (Wise)</p>
+                  <p><strong>Data:</strong> ${new Date().toLocaleString('ro-RO')}</p>
+                  <hr/>
+                  <p>Verifică transferul bancar și confirmă activarea din panoul de administrare.</p>
+                </div>
+              </div>
             `,
           },
         });

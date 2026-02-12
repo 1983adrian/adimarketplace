@@ -106,6 +106,7 @@ serve(async (req: Request) => {
     const emailHtml = `
       <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
         <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 30px; text-align: center;">
+          <img src="https://marketplaceromania.lovable.app/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
           <h1 style="color: #ffffff; margin: 0; font-size: 24px;">📦 Coletul tău este pe drum!</h1>
           <p style="color: #a0aec0; margin: 8px 0 0 0; font-size: 14px;">Marketplace România</p>
         </div>
@@ -210,6 +211,7 @@ serve(async (req: Request) => {
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; text-align: center;">
+                  <img src="https://marketplaceromania.lovable.app/logo-oficial.png" alt="Marketplace România" style="max-width: 150px; height: auto; margin-bottom: 10px;" />
                   <h1 style="color: #fff; margin: 0; font-size: 20px;">✅ Tracking Confirmat</h1>
                 </div>
                 <div style="padding: 24px;">
