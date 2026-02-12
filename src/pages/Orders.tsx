@@ -387,6 +387,21 @@ const BuyerPurchaseCard = ({
                 </ReviewDialog>
               )}
 
+              {/* Return Button - for delivered orders */}
+              {canReview && user && (
+                <ReturnRequestDialog
+                  orderId={order.id}
+                  buyerId={user.id}
+                  sellerId={order.seller_id}
+                  productTitle={order.listings?.title || 'Produs'}
+                >
+                  <Button size="sm" variant="outline" className="gap-1 text-orange-600 border-orange-200 hover:bg-orange-50">
+                    <RotateCcw className="h-4 w-4" />
+                    Solicită Retur
+                  </Button>
+                </ReturnRequestDialog>
+              )}
+
               {/* Open Dispute Button - for shipped/delivered orders within 14 days */}
               {canOpenDispute && user && (
                 <OpenDisputeDialog
