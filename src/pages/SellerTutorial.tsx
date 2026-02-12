@@ -63,7 +63,7 @@ const SellerTutorial: React.FC = () => {
       details: [
         "Accesează 'Planuri Vânzători' din Meniu",
         "Alege planul potrivit: START (11 LEI), SILVER (50 LEI), GOLD (150 LEI), etc.",
-        "Plătește prin link-ul Wise (instant & sigur)",
+        "Plătește prin link-ul Revolut (instant & sigur)",
         "La referința plății scrie email-ul tău + numele planului",
         "Adminul confirmă plata → Planul se activează automat"
       ]
@@ -190,7 +190,7 @@ const SellerTutorial: React.FC = () => {
 
   const menuLocations = [
     { icon: Store, title: "Mod Vânzător", description: "Activare, PayPal, tip cont", color: "from-amber-400 to-orange-500", link: "/seller-mode" },
-    { icon: Receipt, title: "Planuri", description: "Abonamente & plată Wise", color: "from-blue-400 to-indigo-500", link: "/seller-plans" },
+    { icon: Receipt, title: "Planuri", description: "Abonamente & plată Revolut", color: "from-blue-400 to-indigo-500", link: "/seller-plans" },
     { icon: Package, title: "Produsele Mele", description: "Produse active & gestiune", color: "from-violet-500 to-purple-600", link: "/my-products" },
     { icon: Wallet, title: "Portofel", description: "Sold & retrageri", color: "from-green-500 to-emerald-600", link: "/wallet" },
     { icon: ShoppingBag, title: "Comenzi", description: "Cumpărături & vânzări", color: "from-rose-400 to-pink-600", link: "/orders" },
