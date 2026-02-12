@@ -162,15 +162,18 @@ export default function AdminPaymentProcessors() {
             <div className="grid md:grid-cols-3 gap-4">
               <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
                 <p className="text-sm text-muted-foreground">Comision Vânzător</p>
-                <p className="text-2xl font-bold text-green-600">{sellerCommission?.amount || 10}%</p>
+                <p className="text-2xl font-bold text-green-600">0%</p>
+                <p className="text-xs text-muted-foreground mt-1">Fără comision la vânzare</p>
               </div>
               <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
                 <p className="text-sm text-muted-foreground">Taxă Cumpărător</p>
-                <p className="text-2xl font-bold text-blue-600">£{buyerFee?.amount?.toFixed(2) || '2.00'}</p>
+                <p className="text-2xl font-bold text-blue-600">0 RON</p>
+                <p className="text-xs text-muted-foreground mt-1">Fără taxe suplimentare</p>
               </div>
               <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                <p className="text-sm text-muted-foreground">Abonament Vânzător</p>
-                <p className="text-2xl font-bold text-purple-600">£1.00/lună</p>
+                <p className="text-sm text-muted-foreground">Venituri</p>
+                <p className="text-2xl font-bold text-purple-600">Abonamente</p>
+                <p className="text-xs text-muted-foreground mt-1">START / SILVER / GOLD / etc.</p>
               </div>
             </div>
           </CardContent>
@@ -336,10 +339,11 @@ export default function AdminPaymentProcessors() {
             <div className="space-y-3 text-sm">
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>Cont Developer Standard</strong> — nu necesită cont Business</li>
-                <li>Cumpărătorii plătesc prin PayPal sau card</li>
+                <li>Fiecare vânzător își configurează propriul email PayPal în profil</li>
                 <li>AWB-urile se sincronizează automat cu PayPal pentru protecția vânzătorului</li>
-                <li>Fondurile sunt eliberate după confirmarea livrării</li>
-                <li>Comisionul platformei se reține automat din fiecare tranzacție</li>
+                <li>Fondurile sunt eliberate după confirmarea livrării de către cumpărător</li>
+                <li><strong>0% comision platformă</strong> — venituri exclusiv din abonamente</li>
+                <li>Retrageri procesate manual de admin prin PayPal</li>
               </ul>
               <a href="https://developer.paypal.com/dashboard/applications" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                 Accesează PayPal Developer Dashboard →
