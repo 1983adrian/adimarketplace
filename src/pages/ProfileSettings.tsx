@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   User, Save, EyeOff, Loader2, Globe
 } from 'lucide-react';
-import marketplaceBanner from '@/assets/marketplace-romania-banner.png';
+import marketplaceLogo from '@/assets/marketplace-logo-new.png';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -227,14 +227,18 @@ const ProfileSettings = () => {
           </CardContent>
         </Card>
 
-        {/* Brand Banner */}
-        <div className="mt-8 -mx-4">
+        {/* Brand Logo */}
+        <div className="mt-8 flex flex-col items-center gap-3 pb-4">
           <img 
-            src={marketplaceBanner} 
-            alt="MarketPlace Romania — Vinde • Cumpără • Licitează" 
-            className="w-full object-cover"
+            src={marketplaceLogo} 
+            alt="MarketPlace Romania" 
+            className="w-20 h-20 object-contain"
             loading="lazy"
           />
+          <div className="text-center">
+            <p className="text-sm font-semibold text-foreground">MarketPlace România</p>
+            <p className="text-xs text-muted-foreground">Vinde • Cumpără • Licitează</p>
+          </div>
         </div>
       </div>
     </Layout>
