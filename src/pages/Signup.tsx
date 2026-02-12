@@ -174,7 +174,7 @@ const Signup = () => {
         <CardHeader className="text-center pb-4">
           {/* Logo - Marketplace România */}
           <div className="mb-4 flex justify-center">
-            <img src={heroLogo} alt="Marketplace România" className="h-32 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
+            <img src={heroLogo} alt="Marketplace România" className="h-32 w-auto object-contain" style={{ mixBlendMode: 'multiply', filter: 'contrast(1.3) brightness(1.15)' }} />
           </div>
           
           <div className="space-y-2">
