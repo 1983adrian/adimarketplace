@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2, Copy, User, Briefcase, Info, ExternalLink } from 'lucide-react';
+import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2, User, Briefcase, Info, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -30,27 +30,6 @@ const SellerPlans = () => {
   const [selectedPlan, setSelectedPlan] = useState<SellerPlan | typeof BIDDER_PLAN | null>(null);
   const [showPayDialog, setShowPayDialog] = useState(false);
 
-  // Fetch bank details from platform_settings
-  const { data: bankDetails } = useQuery({
-    queryKey: ['bank-details'],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('platform_settings')
-        .select('key, value')
-        .in('key', ['subscription_bank_name', 'subscription_bank_iban', 'subscription_bank_institution', 'subscription_bank_bic', 'subscription_uk_sort_code', 'subscription_uk_account_number', 'subscription_uk_account_name']);
-
-      const result: Record<string, string> = {};
-      (data || []).forEach(row => {
-        result[row.key] = typeof row.value === 'string' ? row.value : JSON.stringify(row.value).replace(/"/g, '');
-      });
-      return result;
-    },
-  });
-
-  const copyToClipboard = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    toast({ title: `${label} copiat!`, description: text });
-  };
 
   const createPaymentRequest = useMutation({
     mutationFn: async (plan: SellerPlan | typeof BIDDER_PLAN) => {
@@ -166,13 +145,6 @@ const SellerPlans = () => {
     }
   };
 
-  const ibanFormatted = bankDetails?.subscription_bank_iban || '';
-  const bankName = bankDetails?.subscription_bank_institution || '';
-  const accountName = bankDetails?.subscription_bank_name || '';
-  const bicCode = bankDetails?.subscription_bank_bic || '';
-  const ukSortCode = bankDetails?.subscription_uk_sort_code || '';
-  const ukAccountNumber = bankDetails?.subscription_uk_account_number || '';
-  const ukAccountName = bankDetails?.subscription_uk_account_name || '';
 
   return (
     <Layout>
@@ -215,9 +187,9 @@ const SellerPlans = () => {
         {/* Payment Info */}
         <Alert className="mb-6 border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20">
           <BanknoteIcon className="h-4 w-4 text-blue-600" />
-          <AlertTitle className="text-blue-800 dark:text-blue-200">Plata prin Transfer Bancar</AlertTitle>
+          <AlertTitle className="text-blue-800 dark:text-blue-200">Plata prin Wise</AlertTitle>
           <AlertDescription className="text-blue-700 dark:text-blue-300 text-sm">
-            Alege planul dorit → Transferă suma în contul afișat → Adminul confirmă plata → Abonamentul se activează automat.
+            Alege planul dorit → Plătește prin link-ul Wise → Adminul confirmă plata → Abonamentul se activează automat.
           </AlertDescription>
         </Alert>
 
@@ -354,16 +326,16 @@ const SellerPlans = () => {
         </div>
       </div>
 
-      {/* Payment Dialog with REAL bank details */}
+      {/* Payment Dialog with Wise */}
       <Dialog open={showPayDialog} onOpenChange={setShowPayDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BanknoteIcon className="h-5 w-5 text-green-600" />
-              Plătește prin Transfer Bancar
+              Plătește prin Wise
             </DialogTitle>
             <DialogDescription>
-              Transferă suma de mai jos în contul indicat. Abonamentul se activează după confirmarea plății.
+              Plătește prin link-ul Wise de mai jos. Abonamentul se activează după confirmarea plății.
             </DialogDescription>
           </DialogHeader>
 
@@ -392,117 +364,9 @@ const SellerPlans = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Separator className="flex-1" />
-                <span>sau prin transfer bancar clasic</span>
-                <Separator className="flex-1" />
-              </div>
-
-              {/* Bank Details */}
-              <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 space-y-3">
-                <h4 className="font-semibold text-sm text-center">📋 Date Transfer Bancar</h4>
-                
-                {accountName && (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Beneficiar</p>
-                      <p className="font-medium text-sm">{accountName}</p>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(accountName, 'Beneficiar')}>
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-
-                {ibanFormatted && (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">IBAN</p>
-                      <p className="font-mono font-bold text-sm">{ibanFormatted}</p>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(ibanFormatted.replace(/\s/g, ''), 'IBAN')}>
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-
-                {bankName && (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">Bancă</p>
-                      <p className="font-medium text-sm">{bankName}</p>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(bankName, 'Bancă')}>
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-
-                {bicCode && (
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-muted-foreground">BIC / SWIFT</p>
-                      <p className="font-mono font-bold text-sm">{bicCode}</p>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={() => copyToClipboard(bicCode, 'BIC')}>
-                      <Copy className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-
-                {/* UK Bank Details */}
-                {ukSortCode && (
-                  <>
-                    <Separator />
-                    <h4 className="font-semibold text-sm text-center">🇬🇧 Transfer din UK</h4>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Beneficiar</p>
-                        <p className="font-medium text-sm">{ukAccountName}</p>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(ukAccountName, 'Beneficiar UK')}>
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Sort Code</p>
-                        <p className="font-mono font-bold text-sm">{ukSortCode}</p>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(ukSortCode.replace(/[-\s]/g, ''), 'Sort Code')}>
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-muted-foreground">Account Number</p>
-                        <p className="font-mono font-bold text-sm">{ukAccountNumber}</p>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => copyToClipboard(ukAccountNumber, 'Account Number')}>
-                        <Copy className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </>
-                )}
-
-                <Separator />
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Sumă de transferat</p>
-                    <p className="font-bold text-lg text-primary">{selectedPlan.price_ron} LEI</p>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => copyToClipboard(`${selectedPlan.price_ron}`, 'Suma')}>
-                    <Copy className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-
               <Alert className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/10">
                 <AlertDescription className="text-xs">
-                  ⚠️ La descrierea transferului, menționează: <strong>{user?.email}</strong> + <strong>{selectedPlan.plan_name}</strong>
+                  ⚠️ După plată, apasă butonul de mai jos pentru a trimite cererea de activare.
                 </AlertDescription>
               </Alert>
             </div>
