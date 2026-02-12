@@ -502,6 +502,221 @@ export const useRealTimeOrders = () => {
   }, [user, queryClient, toast, playOrderSound, playPayoutSound, playShippingSound, playCancelSound, playRefundSound]);
 };
 
+// Hook for real-time RETURNS notifications (for sellers)
+export const useRealTimeReturns = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { playSound } = useNotificationSound();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`returns:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'returns',
+          filter: `seller_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const returnReq = payload.new as any;
+
+          queryClient.invalidateQueries({ queryKey: ['returns'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+
+          await supabase.from('notifications').insert({
+            user_id: user.id,
+            type: 'shipping',
+            title: '📦 Cerere de Retur Nouă!',
+            message: `Un cumpărător a solicitat returnarea unui produs. Motiv: ${returnReq.reason || 'Nespecificat'}`,
+            data: { return_id: returnReq.id, order_id: returnReq.order_id },
+          });
+
+          playSound('bell');
+          showBrowserNotification('📦 Cerere de Retur Nouă!', `Un cumpărător a solicitat returnarea unui produs.`);
+          toast({ title: '📦 Cerere de Retur Nouă!', description: `Motiv: ${returnReq.reason || 'Nespecificat'}. Verifică în Dashboard.` });
+        }
+      )
+      // Also notify BUYER when return status changes
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'returns',
+          filter: `buyer_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const returnReq = payload.new as any;
+          const oldReturn = payload.old as any;
+
+          if (returnReq.status !== oldReturn?.status) {
+            queryClient.invalidateQueries({ queryKey: ['returns'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+
+            const statusMessages: Record<string, string> = {
+              approved: '✅ Returnul tău a fost aprobat! Trimite produsul înapoi.',
+              rejected: '❌ Cererea de retur a fost respinsă.',
+              refunded_no_return: '💰 Ai primit rambursarea fără a fi necesar returnul.',
+              completed: '✅ Returnul a fost finalizat cu succes.',
+            };
+
+            const msg = statusMessages[returnReq.status] || `Statusul returului s-a schimbat: ${returnReq.status}`;
+
+            await supabase.from('notifications').insert({
+              user_id: user.id,
+              type: 'shipping',
+              title: '🔄 Actualizare Retur',
+              message: msg,
+              data: { return_id: returnReq.id, order_id: returnReq.order_id, status: returnReq.status },
+            });
+
+            playSound(returnReq.status === 'refunded_no_return' ? 'payout' : 'bell');
+            showBrowserNotification('🔄 Actualizare Retur', msg);
+            toast({ title: '🔄 Actualizare Retur', description: msg });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user, queryClient, toast, playSound]);
+};
+
+// Hook for real-time DISPUTES notifications
+export const useRealTimeDisputes = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const { playSound } = useNotificationSound();
+
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`disputes:${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'disputes',
+          filter: `reported_user_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const dispute = payload.new as any;
+
+          queryClient.invalidateQueries({ queryKey: ['disputes'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+
+          await supabase.from('notifications').insert({
+            user_id: user.id,
+            type: 'order',
+            title: '⚠️ Dispută Deschisă!',
+            message: `Un cumpărător a deschis o dispută: ${dispute.reason || 'Nespecificat'}. Plata este blocată până la rezolvare.`,
+            data: { dispute_id: dispute.id, order_id: dispute.order_id },
+          });
+
+          playSound('bell');
+          showBrowserNotification('⚠️ Dispută Deschisă!', `Un cumpărător a deschis o dispută.`);
+          toast({ title: '⚠️ Dispută Deschisă!', description: `Motiv: ${dispute.reason}. Răspunde cât mai curând.`, variant: 'destructive' });
+        }
+      )
+      // Notify REPORTER when dispute status changes
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'disputes',
+          filter: `reporter_id=eq.${user.id}`,
+        },
+        async (payload) => {
+          const dispute = payload.new as any;
+          const oldDispute = payload.old as any;
+
+          if (dispute.status !== oldDispute?.status) {
+            queryClient.invalidateQueries({ queryKey: ['disputes'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+
+            const resolved = dispute.status === 'resolved';
+            const msg = resolved
+              ? `Disputa ta a fost rezolvată: ${dispute.resolution || 'Decizie administrativă'}`
+              : `Statusul disputei s-a actualizat: ${dispute.status}`;
+
+            await supabase.from('notifications').insert({
+              user_id: user.id,
+              type: 'order',
+              title: resolved ? '✅ Dispută Rezolvată' : '🔄 Actualizare Dispută',
+              message: msg,
+              data: { dispute_id: dispute.id, order_id: dispute.order_id, status: dispute.status },
+            });
+
+            playSound(resolved ? 'payout' : 'bell');
+            showBrowserNotification(resolved ? '✅ Dispută Rezolvată' : '🔄 Actualizare Dispută', msg);
+            toast({ title: resolved ? '✅ Dispută Rezolvată' : '🔄 Actualizare Dispută', description: msg });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user, queryClient, toast, playSound]);
+};
+
+// Hook for tracking reminder - checks orders missing AWB every time orders change
+export const useTrackingReminder = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const reminderShown = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!user) return;
+
+    // Check for orders missing tracking after 24h
+    const checkMissingTracking = async () => {
+      const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('id, listing_id, created_at')
+        .eq('seller_id', user.id)
+        .in('status', ['pending', 'paid'])
+        .is('tracking_number', null)
+        .lt('created_at', cutoff)
+        .limit(5);
+
+      if (orders && orders.length > 0) {
+        for (const order of orders) {
+          if (!reminderShown.current.has(order.id)) {
+            reminderShown.current.add(order.id);
+
+            toast({
+              title: '⚠️ AWB lipsă!',
+              description: `Ai ${orders.length} comenzi fără număr de urmărire. Adaugă AWB-ul din secțiunea Comenzi.`,
+              variant: 'destructive',
+            });
+            break; // Show only one toast
+          }
+        }
+      }
+    };
+
+    checkMissingTracking();
+    const interval = setInterval(checkMissingTracking, 30 * 60 * 1000); // Check every 30 min
+
+    return () => clearInterval(interval);
+  }, [user, toast]);
+};
+
 // Hook for real-time bids (for sellers)
 export const useRealTimeBids = () => {
   const { user } = useAuth();
