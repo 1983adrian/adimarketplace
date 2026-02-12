@@ -57,9 +57,9 @@ serve(async (req) => {
       throw new Error("Only the seller can update tracking information");
     }
 
-    // Verify order is paid
-    if (order.status !== "paid") {
-      throw new Error("Order must be paid before adding tracking");
+    // Verify order is in a valid status for adding tracking (paid or pending for COD)
+    if (!["paid", "pending"].includes(order.status)) {
+      throw new Error("Comanda trebuie să fie plătită sau în așteptare pentru a adăuga tracking");
     }
 
     // Update order with tracking info and mark as shipped

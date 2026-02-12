@@ -173,6 +173,26 @@ serve(async (req) => {
       totalAmount += itemTotal;
     }
 
+    // Create notification for seller(s) - CRITICAL: must be server-side so offline sellers get it
+    const sellerIds = [...new Set(orders.map(o => o.sellerId))];
+    for (const sellerId of sellerIds) {
+      const sellerOrders = orders.filter(o => o.sellerId === sellerId);
+      const sellerTotal = sellerOrders.reduce((sum, o) => sum + o.amount, 0);
+      const itemTitles = sellerOrders.map(o => o.listingTitle).join(", ");
+
+      await supabase.from("notifications").insert({
+        user_id: sellerId,
+        type: "order",
+        title: "🎉 Comandă nouă primită!",
+        message: `Ai vândut "${itemTitles}" pentru ${sellerTotal.toFixed(2)} RON. Adaugă numărul de tracking!`,
+        data: { 
+          order_ids: sellerOrders.map(o => o.id),
+          amount: sellerTotal,
+          buyer_id: userId,
+        },
+      });
+    }
+
     // Create invoice with PENDING status
     const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
     await supabase.from("invoices").insert({
