@@ -352,13 +352,15 @@ const SellerPlans = () => {
               <div className="rounded-lg border-2 border-green-500/40 bg-green-50/50 dark:bg-green-950/20 p-4 text-center space-y-2">
                 <h4 className="font-semibold text-sm">⚡ Plată Rapidă prin Wise</h4>
                 <p className="text-xs text-muted-foreground">Plătește instant prin link-ul Wise — cel mai rapid mod!</p>
-                <Button
-                  className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => window.open(`https://wise.com/pay/me/adrianc1425`, '_blank')}
+                <a
+                  href="https://wise.com/pay/me/adrianc1425"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center w-full gap-2 bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors"
                 >
                   <ExternalLink className="h-4 w-4" />
                   Plătește {selectedPlan.price_ron} LEI prin Wise
-                </Button>
+                </a>
                 <p className="text-[10px] text-muted-foreground">
                   La mesajul plății, scrie: <strong>{user?.email}</strong> + <strong>{selectedPlan.plan_name}</strong>
                 </p>
