@@ -100,7 +100,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
 
       {showTagline && (
         <p className={cn(
-          'font-semibold tracking-wide text-center mt-1',
+          'font-semibold tracking-wide text-center -mt-8 sm:-mt-10 relative z-10',
           taglineSizes[size]
         )}>
           <span className="text-[#002B7F]">{t('brand.sell')}</span>
