@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Ban, Bomb, Leaf, Image, Clock } from 'lucide-react';
+import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Ban, Bomb, Leaf, Image, Clock, Bell } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -92,6 +92,38 @@ export default function AdminOrders() {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const handleNotifySeller = async (sellerId: string, sellerName: string) => {
+    try {
+      const { error } = await supabase.from('notifications').insert({
+        user_id: sellerId,
+        type: 'tracking_reminder',
+        title: 'Adaugă numărul de urmărire (AWB)',
+        message: 'Ai comenzi care nu au încă număr de urmărire. Te rugăm să adaugi AWB-ul cât mai curând pentru a evita întârzierile.',
+      });
+      if (error) throw error;
+      toast({ title: `Notificare trimisă către ${sellerName}` });
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handleNotifyAllMissing = async () => {
+    const sellerIds = [...new Set(missingTracking.map(o => o.seller_id))];
+    let sent = 0;
+    for (const sellerId of sellerIds) {
+      try {
+        await supabase.from('notifications').insert({
+          user_id: sellerId,
+          type: 'tracking_reminder',
+          title: 'Adaugă numărul de urmărire (AWB)',
+          message: 'Ai comenzi care nu au încă număr de urmărire. Te rugăm să adaugi AWB-ul cât mai curând.',
+        });
+        sent++;
+      } catch {}
+    }
+    toast({ title: `${sent} notificări trimise către vânzători fără AWB` });
+  };
 
   const handleUpdateStatus = async (orderId: string, status: string) => {
     try {
@@ -329,13 +361,22 @@ export default function AdminOrders() {
           <TabsContent value="missing">
             <Card className="overflow-hidden border-red-200">
               <CardHeader className="p-3 bg-red-50/50">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-red-500" />
-                  Comenzi Fără Număr de Urmărire (AWB)
-                </CardTitle>
-                <CardDescription className="text-xs">
-                  Vânzători care au vândut dar nu au adăugat încă numărul de tracking
-                </CardDescription>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-red-500" />
+                      Comenzi Fără Număr de Urmărire (AWB)
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Vânzători care au vândut dar nu au adăugat încă numărul de tracking
+                    </CardDescription>
+                  </div>
+                  {missingTracking.length > 0 && (
+                    <Button size="sm" variant="destructive" onClick={handleNotifyAllMissing} className="gap-1.5">
+                      <Bell className="h-3.5 w-3.5" /> Notifică Toți ({[...new Set(missingTracking.map(o => o.seller_id))].length})
+                    </Button>
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="p-0 sm:p-2">
                 {missingTracking.length > 0 ? (
@@ -385,6 +426,7 @@ export default function AdminOrders() {
                           <TableHead>Nr. Comenzi</TableHead>
                           <TableHead>Total Vânzări</TableHead>
                           <TableHead>Fără AWB</TableHead>
+                          <TableHead className="text-right">Acțiuni</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -405,6 +447,13 @@ export default function AdminOrders() {
                                   <Badge variant="destructive" className="text-xs">{noTracking} lipsă</Badge>
                                 ) : (
                                   <Badge variant="outline" className="text-green-600 border-green-300 text-xs">✓ OK</Badge>
+                                )}
+                              </TableCell>
+                              <TableCell className="text-right">
+                                {noTracking > 0 && (
+                                  <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={() => handleNotifySeller(seller.id, seller.name)}>
+                                    <Bell className="h-3 w-3" /> Notifică
+                                  </Button>
                                 )}
                               </TableCell>
                             </TableRow>
