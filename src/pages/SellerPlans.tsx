@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2, Copy, User, Briefcase, Info } from 'lucide-react';
+import { Check, Crown, Gavel, Loader2, ShieldCheck, Star, Camera, BanknoteIcon, CheckCircle2, Copy, User, Briefcase, Info, ExternalLink } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -374,6 +374,28 @@ const SellerPlans = () => {
                 <p className="text-sm text-muted-foreground">Plan selectat</p>
                 <p className="text-lg font-bold">{selectedPlan.plan_name}</p>
                 <p className="text-3xl font-bold text-primary mt-1">{selectedPlan.price_ron} LEI</p>
+              </div>
+
+              {/* Wise Payment Button */}
+              <div className="rounded-lg border-2 border-green-500/40 bg-green-50/50 dark:bg-green-950/20 p-4 text-center space-y-2">
+                <h4 className="font-semibold text-sm">⚡ Plată Rapidă prin Wise</h4>
+                <p className="text-xs text-muted-foreground">Plătește instant prin link-ul Wise — cel mai rapid mod!</p>
+                <Button
+                  className="w-full gap-2 bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => window.open(`https://wise.com/pay#adrianc1425`, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Plătește {selectedPlan.price_ron} LEI prin Wise
+                </Button>
+                <p className="text-[10px] text-muted-foreground">
+                  La mesajul plății, scrie: <strong>{user?.email}</strong> + <strong>{selectedPlan.plan_name}</strong>
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Separator className="flex-1" />
+                <span>sau prin transfer bancar clasic</span>
+                <Separator className="flex-1" />
               </div>
 
               {/* Bank Details */}
