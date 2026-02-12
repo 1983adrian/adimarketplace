@@ -230,13 +230,13 @@ const ListingDetail = () => {
 
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Image Gallery - eBay-style compact on mobile */}
-          <div className="space-y-3">
+          <div className="space-y-1.5 md:space-y-3">
             {/* Main Image - Compact on mobile, full on desktop */}
             <div className="relative rounded-lg overflow-hidden bg-muted md:aspect-square">
               <img 
                 src={images[selectedImage]?.image_url || primaryImage || '/placeholder.svg'} 
                 alt={listing.title} 
-                className="w-full object-contain md:object-cover max-h-[25vh] sm:max-h-[30vh] md:max-h-none" 
+                className="w-full object-contain md:object-cover h-[150px] sm:h-[200px] md:h-full" 
               />
             </div>
             {/* Thumbnail Gallery - Smaller on mobile */}
@@ -258,9 +258,9 @@ const ListingDetail = () => {
           </div>
 
           {/* Listing Info */}
-          <div className="space-y-3 md:space-y-6">
+          <div className="space-y-2 md:space-y-6">
             <div>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-1 md:mb-3">
                 <Badge>{conditionLabels[listing.condition]}</Badge>
                 {listing.categories && (
                   <Badge variant="outline">{listing.categories.name}</Badge>
