@@ -54,22 +54,51 @@ export default function AdminDisputes() {
 
   const updateDispute = useMutation({
     mutationFn: async ({ id, status, resolution, admin_notes }: { id: string; status: string; resolution?: string; admin_notes?: string }) => {
+      // Get dispute details before updating
+      const { data: dispute } = await supabase
+        .from('disputes')
+        .select('reporter_id, reported_user_id, reason, order_id')
+        .eq('id', id)
+        .single();
+
       const { error } = await supabase
         .from('disputes')
         .update({ status, resolution, admin_notes, updated_at: new Date().toISOString() })
         .eq('id', id);
       
       if (error) throw error;
+
+      // Notify BOTH buyer and seller about resolution
+      if (dispute && (status === 'resolved' || status === 'dismissed')) {
+        const statusLabel = status === 'resolved' ? 'Rezolvată' : 'Respinsă';
+        const notifications = [
+          {
+            user_id: dispute.reporter_id,
+            type: 'dispute_resolved',
+            title: `📋 Dispută ${statusLabel}`,
+            message: resolution || `Disputa ta pentru "${dispute.reason}" a fost ${statusLabel.toLowerCase()}.`,
+            data: { order_id: dispute.order_id, status, resolution },
+          },
+          {
+            user_id: dispute.reported_user_id,
+            type: 'dispute_resolved',
+            title: `📋 Dispută ${statusLabel}`,
+            message: resolution || `Disputa referitoare la "${dispute.reason}" a fost ${statusLabel.toLowerCase()}.`,
+            data: { order_id: dispute.order_id, status, resolution },
+          },
+        ];
+        await supabase.from('notifications').insert(notifications);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-disputes'] });
-      toast({ title: 'Dispute updated successfully' });
+      toast({ title: 'Dispută actualizată cu succes' });
       setSelectedDispute(null);
       setResolution('');
       setAdminNotes('');
     },
     onError: (error) => {
-      toast({ title: 'Error updating dispute', description: error.message, variant: 'destructive' });
+      toast({ title: 'Eroare la actualizarea disputei', description: error.message, variant: 'destructive' });
     },
   });
 
