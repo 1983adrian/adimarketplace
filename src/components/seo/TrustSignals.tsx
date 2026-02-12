@@ -37,7 +37,7 @@ export const TrustSignals: React.FC = () => {
             De Ce Să Alegi Marketplace România?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Platformă 100% românească cu cele mai mici comisioane din piață (doar 8%)
+            Platformă 100% românească — 0% comision pe vânzări, doar abonament lunar
           </p>
         </div>
 
@@ -68,7 +68,7 @@ export const TrustSignals: React.FC = () => {
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Award className="h-5 w-5 text-amber-600" />
-            <span>Cel mai mic comision: 8%</span>
+            <span>0% comision pe vânzări</span>
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Shield className="h-5 w-5 text-blue-600" />
@@ -85,11 +85,10 @@ export const TrustSignals: React.FC = () => {
           <p className="text-sm text-muted-foreground leading-relaxed">
             <strong>Marketplace România</strong> este prima platformă românească de cumpărături și vânzări online 
             cu sistem de licitații integrate. Fondată în 2024, oferim o alternativă locală la platformele 
-            internaționale precum OLX, eBay sau Amazon. Cu un <strong>comision de doar 8%</strong> (cel mai mic din România), 
+            internaționale precum OLX, eBay sau Amazon. Cu <strong>0% comision pe vânzări</strong> și abonamente accesibile de la 11 LEI/lună, 
             <strong>protecție cumpărător garantată</strong>, și suport pentru <strong>plata la livrare (ramburs)</strong>, 
             suntem alegerea ideală pentru românii care vor să vândă sau să cumpere online în siguranță. 
-            Acceptăm plăți prin card, transfer bancar și ramburs. Livrare în toată România prin FAN Courier, 
-            Sameday și Cargus.
+            Acceptăm plăți prin PayPal. Livrare în toată România și UK.
           </p>
         </div>
       </div>

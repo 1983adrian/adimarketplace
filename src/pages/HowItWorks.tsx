@@ -47,7 +47,7 @@ export default function HowItWorks() {
     {
       icon: UserPlus,
       title: "1. Creează cont gratuit",
-      description: "Înregistrează-te gratuit și activează modul vânzător. Nu există taxe de abonament."
+      description: "Înregistrează-te gratuit și activează modul vânzător. Primești 30 de zile gratuite!"
     },
     {
       icon: Camera,
@@ -62,7 +62,7 @@ export default function HowItWorks() {
     {
       icon: Wallet,
       title: "4. Primești banii",
-      description: "După confirmarea livrării, banii sunt transferați în portofelul tău. Comision doar 8%!"
+      description: "După confirmarea livrării, banii sunt transferați în portofelul tău. 0% comision pe vânzări!"
     }
   ];
 
@@ -93,7 +93,7 @@ export default function HowItWorks() {
     <>
       <SEOHead 
         title="Cum Funcționează | Marketplace România"
-        description="Află cum funcționează Marketplace România. Ghid complet pentru cumpărători și vânzători. Listare gratuită, comision doar 8%, plată sigură."
+        description="Află cum funcționează Marketplace România. Ghid complet pentru cumpărători și vânzători. 0% comision pe vânzări, plată sigură."
         url="https://www.marketplaceromania.com/cum-functioneaza"
         type="article"
       />
@@ -188,17 +188,42 @@ export default function HowItWorks() {
               </div>
             </section>
 
-            {/* Comisioane Quick Info */}
+            {/* Abonamente Quick Info */}
             <section className="mb-12">
               <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                 <CardContent className="pt-6 text-center">
-                  <h2 className="text-2xl font-bold mb-4">Comision Doar 8%</h2>
+                  <h2 className="text-2xl font-bold mb-4">0% Comision pe Vânzări!</h2>
                   <p className="text-muted-foreground mb-4">
-                    Cel mai mic comision din România! Listarea produselor este gratuită. 
-                    Plătești doar când vinzi.
+                    Plătești doar abonamentul lunar. Tot ce vinzi rămâne 100% al tău!
                   </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 max-w-lg mx-auto text-sm">
+                    <div className="p-2 rounded-lg bg-background border">
+                      <p className="font-bold text-primary">START</p>
+                      <p className="text-muted-foreground">11 LEI · 10 produse</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-background border">
+                      <p className="font-bold text-primary">SILVER</p>
+                      <p className="text-muted-foreground">50 LEI · 50 produse</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-background border">
+                      <p className="font-bold text-primary">GOLD</p>
+                      <p className="text-muted-foreground">150 LEI · 150 produse</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-background border">
+                      <p className="font-bold text-primary">PLATINUM</p>
+                      <p className="text-muted-foreground">499 LEI · 500 produse</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-background border border-amber-500">
+                      <p className="font-bold text-amber-600">VIP</p>
+                      <p className="text-muted-foreground">999 LEI · Nelimitat</p>
+                    </div>
+                    <div className="p-2 rounded-lg bg-background border">
+                      <p className="font-bold text-primary">LICITAȚII</p>
+                      <p className="text-muted-foreground">11 LEI · 10 licitații</p>
+                    </div>
+                  </div>
                   <Button asChild variant="outline">
-                    <Link to="/taxe-si-comisioane">Vezi Detalii Complete</Link>
+                    <Link to="/seller-plans">Vezi Toate Planurile</Link>
                   </Button>
                 </CardContent>
               </Card>

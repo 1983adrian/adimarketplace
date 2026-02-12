@@ -11,11 +11,11 @@ import { HelpCircle } from 'lucide-react';
 const faqs = [
   {
     question: "Ce este Marketplace România și de ce este un brand de încredere?",
-    answer: "Marketplace România (sau Market România, Place România, Market Place România) este BRANDUL OFICIAL al celui mai mare market online 100% românesc. Este o alternativă superioară la Facebook Marketplace, OLX, eBay și eMAG, cu comision de doar 8% - cel mai mic din România. Domeniul oficial este www.marketplaceromania.com."
+    answer: "Marketplace România (sau Market România, Place România, Market Place România) este BRANDUL OFICIAL al celui mai mare market online 100% românesc. Este o alternativă superioară la Facebook Marketplace, OLX, eBay și eMAG, cu 0% comision pe vânzări — funcționează pe bază de abonamente accesibile. Domeniul oficial este www.marketplaceromania.com."
   },
   {
     question: "Cât costă să vinzi pe Marketplace România?",
-    answer: "Listarea produselor este GRATUITĂ. Plătești doar 8% comision când vinzi cu succes - cel mai mic comision din România. Nu există taxe lunare sau costuri ascunse."
+    answer: "Nu există comisioane pe vânzări (0%)! Plătești doar un abonament lunar accesibil: START (11 LEI, 10 produse), SILVER (50 LEI, 50 produse), GOLD (150 LEI, 150 produse), PLATINUM (499 LEI, 500 produse) sau VIP (999 LEI, nelimitat). Vânzătorii noi primesc 30 de zile gratuite!"
   },
   {
     question: "Cum funcționează sistemul de licitații?",
@@ -31,7 +31,7 @@ const faqs = [
   },
   {
     question: "Cum primesc banii când vând un produs?",
-    answer: "După ce cumpărătorul confirmă primirea produsului, banii sunt transferați automat în contul tău bancar sau portofelul electronic, minus comisionul de 8%."
+    answer: "După ce cumpărătorul confirmă primirea produsului, banii sunt transferați automat în contul tău PayPal. Tot ce vinzi rămâne 100% al tău — 0% comision pe vânzări!"
   },
   {
     question: "Cât durează livrarea?",
