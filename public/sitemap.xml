@@ -5,7 +5,7 @@
   <!-- Homepage - MarketPlace Romania - Highest Priority -->
   <url>
     <loc>https://www.marketplaceromania.com/</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -13,7 +13,7 @@
   <!-- Browse Products - Core Functionality -->
   <url>
     <loc>https://www.marketplaceromania.com/browse</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -21,7 +21,7 @@
   <!-- Sell Page -->
   <url>
     <loc>https://www.marketplaceromania.com/sell</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -29,13 +29,13 @@
   <!-- Authentication Pages -->
   <url>
     <loc>https://www.marketplaceromania.com/login</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/signup</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -43,67 +43,89 @@
   <!-- Seller Tutorial -->
   <url>
     <loc>https://www.marketplaceromania.com/seller-tutorial</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   
+  <!-- How It Works -->
+  <url>
+    <loc>https://www.marketplaceromania.com/cum-functioneaza</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  
+  <!-- Fees and Commissions -->
+  <url>
+    <loc>https://www.marketplaceromania.com/taxe-si-comisioane</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
   <!-- Static Information Pages -->
   <url>
-    <loc>https://www.marketplaceromania.com/about-us</loc>
-    <lastmod>2026-01-31</lastmod>
+    <loc>https://www.marketplaceromania.com/about</loc>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/help</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/faq</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.marketplaceromania.com/contact</loc>
-    <lastmod>2026-01-31</lastmod>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.marketplaceromania.com/safety-tips</loc>
-    <lastmod>2026-01-31</lastmod>
+    <loc>https://www.marketplaceromania.com/safety</loc>
+    <lastmod>2026-02-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.marketplaceromania.com/seller-rules</loc>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   
   <!-- Legal Pages -->
   <url>
-    <loc>https://www.marketplaceromania.com/privacy-policy</loc>
-    <lastmod>2026-01-31</lastmod>
+    <loc>https://www.marketplaceromania.com/privacy</loc>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://www.marketplaceromania.com/terms-of-service</loc>
-    <lastmod>2026-01-31</lastmod>
+    <loc>https://www.marketplaceromania.com/terms</loc>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://www.marketplaceromania.com/cookie-policy</loc>
-    <lastmod>2026-01-31</lastmod>
+    <loc>https://www.marketplaceromania.com/cookies</loc>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   
   <!-- Install App -->
   <url>
-    <loc>https://www.marketplaceromania.com/install-app</loc>
-    <lastmod>2026-01-31</lastmod>
+    <loc>https://www.marketplaceromania.com/install</loc>
+    <lastmod>2026-02-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

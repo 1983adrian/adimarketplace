@@ -1,7 +1,7 @@
 {
   "name": "Marketplace România | Market România - Cumpără și Vinde Online",
   "short_name": "Market România",
-  "description": "Marketplace România - cel mai mare market online din România. Place România pentru cumpărături și vânzări sigure cu plăți securizate și livrare rapidă. Comision doar 8%!",
+  "description": "Marketplace România® - Primul Market Place din România construit cu AI. 0% comision! Cumpără și vinde online cu plăți securizate și livrare rapidă.",
   "start_url": "https://www.marketplaceromania.com/",
   "id": "marketplaceromania",
   "display": "standalone",
@@ -110,10 +110,6 @@
       "platform": "play",
       "url": "https://play.google.com/store/apps/details?id=app.lovable.e0bfe707146b4b72b4c4b072982fc18d",
       "id": "app.lovable.e0bfe707146b4b72b4c4b072982fc18d"
-    },
-    {
-      "platform": "itunes",
-      "url": "https://apps.apple.com/app/marketplace-romania/id000000000"
     }
   ],
   "prefer_related_applications": false,
