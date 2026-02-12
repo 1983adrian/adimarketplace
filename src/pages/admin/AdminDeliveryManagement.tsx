@@ -186,6 +186,35 @@ export default function AdminDeliveryManagement() {
         .eq('id', orderId);
 
       if (error) throw error;
+
+      // Get order to notify buyer and seller
+      const order = filteredOrders?.find(o => o.id === orderId);
+      if (order) {
+        const statusLabels: Record<string, string> = {
+          paid: 'plătită', shipped: 'expediată', delivered: 'livrată',
+          cancelled: 'anulată', refunded: 'rambursată',
+        };
+        const label = statusLabels[status] || status;
+        const title = order.listings?.title || 'Comandă';
+
+        // Notify buyer
+        await supabase.from('notifications').insert({
+          user_id: order.buyer_id,
+          type: 'order_update',
+          title: `Comandă ${label}`,
+          message: `Comanda ta pentru "${title}" a fost marcată ca ${label} de către admin.`,
+          data: { orderId },
+        });
+
+        // Notify seller
+        await supabase.from('notifications').insert({
+          user_id: order.seller_id,
+          type: 'order_update',
+          title: `Comandă ${label}`,
+          message: `Comanda pentru "${title}" a fost marcată ca ${label} de către admin.`,
+          data: { orderId },
+        });
+      }
       
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       toast({ title: 'Status actualizat cu succes' });
@@ -207,6 +236,30 @@ export default function AdminDeliveryManagement() {
         .eq('id', orderId);
 
       if (error) throw error;
+
+      // Notify buyer about tracking
+      const order = filteredOrders?.find(o => o.id === orderId);
+      if (order) {
+        const carrierLabel = CARRIERS.find(c => c.value === carrier)?.label || carrier;
+        const title = order.listings?.title || 'Comandă';
+
+        await supabase.from('notifications').insert({
+          user_id: order.buyer_id,
+          type: 'order_shipped',
+          title: 'Comanda ta a fost expediată! 📦',
+          message: `Produsul "${title}" a fost expediat cu ${carrierLabel}. Tracking: ${trackingNumber}`,
+          data: { orderId, trackingNumber, carrier },
+        });
+
+        // Notify seller too
+        await supabase.from('notifications').insert({
+          user_id: order.seller_id,
+          type: 'order_shipped',
+          title: 'Tracking adăugat de admin',
+          message: `Adminul a adăugat tracking ${trackingNumber} (${carrierLabel}) pentru "${title}".`,
+          data: { orderId, trackingNumber, carrier },
+        });
+      }
       
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       toast({ title: 'Tracking adăugat și comandă marcată ca expediată' });
