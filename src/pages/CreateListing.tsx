@@ -848,12 +848,12 @@ const CreateListing = () => {
             </CardContent>
           </Card>
 
-          {/* Price, Shipping & Location */}
+          {/* Price & Shipping */}
           <Card>
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <Truck className="h-5 w-5" />
-                {listingType === 'auction' ? 'Livrare și Locație' : 'Preț, Livrare și Locație'}
+                {listingType === 'auction' ? 'Livrare' : 'Preț și Livrare'}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
