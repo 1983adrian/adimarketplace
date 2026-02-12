@@ -29,7 +29,7 @@ const SellerPlans = () => {
   const { data: bidderPlan, isLoading: bidderLoading } = useActiveBidderPlan();
   const [selectedPlan, setSelectedPlan] = useState<SellerPlan | typeof BIDDER_PLAN | null>(null);
   const [showPayDialog, setShowPayDialog] = useState(false);
-  const [wiseClicked, setWiseClicked] = useState(false);
+  const [revolutClicked, setRevolutClicked] = useState(false);
 
 
   const createPaymentRequest = useMutation({
@@ -87,7 +87,7 @@ const SellerPlans = () => {
                   <p><strong>Utilizator:</strong> ${user.email}</p>
                   <p><strong>Plan solicitat:</strong> ${plan.plan_name}</p>
                   <p><strong>Suma:</strong> ${plan.price_ron} LEI</p>
-                  <p><strong>Metoda:</strong> Transfer Bancar (Wise)</p>
+                  <p><strong>Metoda:</strong> Transfer Revolut</p>
                   <p><strong>Data:</strong> ${new Date().toLocaleString('ro-RO')}</p>
                   <hr/>
                   <p>Verifică transferul bancar și confirmă activarea din panoul de administrare.</p>
@@ -117,7 +117,7 @@ const SellerPlans = () => {
 
   const handleSelectPlan = (plan: SellerPlan | typeof BIDDER_PLAN) => {
     setSelectedPlan(plan);
-    setWiseClicked(false);
+    setRevolutClicked(false);
     setShowPayDialog(true);
   };
 
@@ -209,9 +209,9 @@ const SellerPlans = () => {
         {/* Payment Info */}
         <Alert className="mb-6 border-blue-500/30 bg-blue-50/50 dark:bg-blue-950/20">
           <BanknoteIcon className="h-4 w-4 text-blue-600" />
-          <AlertTitle className="text-blue-800 dark:text-blue-200">Plata prin Wise</AlertTitle>
+          <AlertTitle className="text-blue-800 dark:text-blue-200">Plata prin Revolut</AlertTitle>
           <AlertDescription className="text-blue-700 dark:text-blue-300 text-sm">
-            Alege planul dorit → Plătește prin link-ul Wise → Adminul confirmă plata → Abonamentul se activează automat.
+            Alege planul dorit → Plătește prin link-ul Revolut → Adminul confirmă plata → Abonamentul se activează automat.
           </AlertDescription>
         </Alert>
 
@@ -343,16 +343,16 @@ const SellerPlans = () => {
         </div>
       </div>
 
-      {/* Payment Dialog with Wise */}
+      {/* Payment Dialog with Revolut */}
       <Dialog open={showPayDialog} onOpenChange={setShowPayDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <BanknoteIcon className="h-5 w-5 text-green-600" />
-              Plătește prin Wise
+              Plătește prin Revolut
             </DialogTitle>
             <DialogDescription>
-              Plătește prin link-ul Wise de mai jos. Abonamentul se activează după confirmarea plății.
+              Plătește prin link-ul Revolut de mai jos. Abonamentul se activează după confirmarea plății.
             </DialogDescription>
           </DialogHeader>
 
@@ -365,19 +365,19 @@ const SellerPlans = () => {
                 <p className="text-3xl font-bold text-primary mt-1">{selectedPlan.price_ron} LEI</p>
               </div>
 
-              {/* Wise Payment Button */}
-              <div className="rounded-lg border-2 border-green-500/40 bg-green-50/50 dark:bg-green-950/20 p-4 text-center space-y-2">
-                <h4 className="font-semibold text-sm">⚡ Plată Rapidă prin Wise</h4>
-                <p className="text-xs text-muted-foreground">Plătește instant prin link-ul Wise — cel mai rapid mod!</p>
+              {/* Revolut Payment Button */}
+              <div className="rounded-lg border-2 border-blue-500/40 bg-blue-50/50 dark:bg-blue-950/20 p-4 text-center space-y-2">
+                <h4 className="font-semibold text-sm">⚡ Plată Rapidă prin Revolut</h4>
+                <p className="text-xs text-muted-foreground">Plătește instant prin link-ul Revolut — cel mai rapid mod!</p>
                 <a
-                  href="https://wise.com/pay/me/adrianc1425"
+                  href="https://revolut.me/adrian000"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-full gap-2 bg-green-600 hover:bg-green-700 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors"
-                  onClick={() => setWiseClicked(true)}
+                  className="inline-flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-2 text-sm font-medium transition-colors"
+                  onClick={() => setRevolutClicked(true)}
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Plătește {selectedPlan.price_ron} LEI prin Wise
+                  Plătește {selectedPlan.price_ron} LEI prin Revolut
                 </a>
                 <p className="text-[10px] text-muted-foreground">
                   La mesajul plății, scrie: <strong>{user?.email}</strong> + <strong>{selectedPlan.plan_name}</strong>
@@ -395,7 +395,7 @@ const SellerPlans = () => {
           <DialogFooter className="flex flex-col gap-2 sm:flex-col">
             <Button
               className="w-full gap-2"
-              disabled={createPaymentRequest.isPending || !wiseClicked}
+              disabled={createPaymentRequest.isPending || !revolutClicked}
               onClick={() => selectedPlan && createPaymentRequest.mutate(selectedPlan)}
             >
               {createPaymentRequest.isPending ? (
