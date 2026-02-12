@@ -96,7 +96,7 @@ export default function AdminUsers() {
       user.display_name?.toLowerCase().includes(search.toLowerCase()) ||
       user.username?.toLowerCase().includes(search.toLowerCase()) ||
       user.user_id?.toLowerCase().includes(search.toLowerCase()) ||
-      
+      user.short_id?.toLowerCase().includes(search.toLowerCase()) ||
       user.store_name?.toLowerCase().includes(search.toLowerCase());
     
     // Role filter
@@ -285,7 +285,7 @@ export default function AdminUsers() {
                     <div className="relative flex-1 min-w-0">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input 
-                        placeholder="Caută după nume, username, ID, telefon..."
+                        placeholder="Caută după nume, ID (ex: ABC12)..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="pl-9 text-sm"
@@ -380,8 +380,8 @@ export default function AdminUsers() {
                               </div>
                             </TableCell>
                             <TableCell className="py-2 px-2">
-                              <code className="text-[10px] bg-muted px-1 py-0.5 rounded font-mono">
-                                #{user.user_id?.slice(0, 8)}
+                              <code className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-md font-mono font-bold tracking-wider">
+                                #{user.short_id || user.user_id?.slice(0, 8)}
                               </code>
                             </TableCell>
                             <TableCell className="py-2 px-2">
