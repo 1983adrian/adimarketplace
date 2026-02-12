@@ -209,6 +209,50 @@ export const useAdminRealTimeNotifications = () => {
           queryClient.invalidateQueries({ queryKey: ['admin-fraud-alerts'] });
         }
       )
+      // 💰 New subscription payment requests
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'subscription_payments',
+        },
+        async (payload) => {
+          const payment = payload.new as any;
+          const eventKey = `payment-${payment.id}`;
+          if (processedEvents.current.has(eventKey)) return;
+          processedEvents.current.add(eventKey);
+
+          playSound('bell');
+
+          // Get user profile for short_id
+          let shortId = 'N/A';
+          let email = '';
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('short_id, display_name')
+            .eq('user_id', payment.user_id)
+            .single();
+          if (profile) shortId = profile.short_id || 'N/A';
+
+          await supabase.from('notifications').insert({
+            user_id: user.id,
+            type: 'admin_payment',
+            title: '💰 Confirmare Plată Abonament',
+            message: `#${shortId} a confirmat plata pentru ${payment.plan_name} (${payment.amount_ron} LEI). Activează contul!`,
+            data: { payment_id: payment.id, plan_type: payment.plan_type, short_id: shortId },
+          });
+
+          toast({
+            title: '💰 Confirmare Plată Abonament',
+            description: `#${shortId} — ${payment.plan_name} (${payment.amount_ron} LEI)`,
+          });
+
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+          queryClient.invalidateQueries({ queryKey: ['notifications-unread'] });
+          queryClient.invalidateQueries({ queryKey: ['admin-pending-payments'] });
+        }
+      )
       // ⏰ Listen for tracking reminder notifications (orders without AWB)
       .on(
         'postgres_changes',

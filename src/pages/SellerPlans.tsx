@@ -69,22 +69,8 @@ const SellerPlans = () => {
 
       if (error) throw error;
 
-      // Notify admins in-app
-      const { data: adminRoles } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', 'admin');
-
-      if (adminRoles && adminRoles.length > 0) {
-        const notifications = adminRoles.map(r => ({
-          user_id: r.user_id,
-          type: 'admin_payment',
-          title: '💰 Confirmare Plată Abonament',
-          message: `Utilizatorul #${userProfile?.short_id || 'N/A'} (${user.email}) confirmă plata pentru ${plan.plan_name} (${plan.price_ron} LEI). Activează contul #${userProfile?.short_id || 'N/A'}.`,
-          data: { payment_id: data.id, plan_type: plan.plan_type, short_id: userProfile?.short_id } as any,
-        }));
-        await supabase.from('notifications').insert(notifications);
-      }
+      // Admin notifications are handled via real-time listener in useAdminRealTimeNotifications
+      // (direct insert fails due to RLS - user can't insert notifications for other users)
 
       // Send email notification to admin
       try {
