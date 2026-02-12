@@ -71,6 +71,20 @@ Deno.serve(async (req) => {
         console.error('Failed to send tracking email to', sellerId, e);
       }
 
+      // Web Push notification (phone notification bar for PWA users)
+      try {
+        await supabase.functions.invoke('send-web-push', {
+          body: {
+            user_id: sellerId,
+            title: `⚠️ ${data.count} comenzi fără AWB`,
+            body: `Adaugă numărul de urmărire pentru: ${productList}${extra}`,
+            data: { type: 'tracking_reminder', orders_count: data.count },
+          }
+        });
+      } catch (e) {
+        console.error('Failed to send web push to', sellerId, e);
+      }
+
       notified++;
     }
 
