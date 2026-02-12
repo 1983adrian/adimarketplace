@@ -91,7 +91,7 @@ export const HeroSection: React.FC = () => {
           <div className="max-w-5xl mx-auto text-center">
             {/* Compact Brand Title - Unified Component */}
             <div className="mb-4">
-              <MarketplaceBrand size="xl" showTagline linkTo={null} />
+              <MarketplaceBrand size="xl" showTagline={false} linkTo={null} />
             </div>
             
             {/* All Actions in One Compact Row */}
