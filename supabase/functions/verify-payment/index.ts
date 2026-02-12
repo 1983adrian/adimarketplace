@@ -97,6 +97,32 @@ serve(async (req) => {
       throw new Error("Authentication required");
     }
 
+    // Rate limiting: max 15 verification attempts per hour per user
+    const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+    const { count: recentAttempts } = await supabase
+      .from("financial_audit_log")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("action", "payment_verification")
+      .gte("created_at", oneHourAgo);
+
+    if (recentAttempts && recentAttempts > 15) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Prea multe încercări de verificare. Încearcă din nou mai târziu." }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
+      );
+    }
+
+    // Log verification attempt
+    await supabase.from("financial_audit_log").insert({
+      user_id: userId,
+      action: "payment_verification",
+      entity_type: "payment",
+      entity_id: paypalOrderId || orderIds?.[0],
+      ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
+      user_agent: req.headers.get("user-agent"),
+    });
+
     // Get orders
     const { data: orders, error: ordersError } = await supabase
       .from("orders")

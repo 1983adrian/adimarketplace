@@ -168,6 +168,21 @@ serve(async (req) => {
       throw new Error("Authentication required");
     }
 
+    // Rate limiting: max 10 orders per hour per user
+    const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+    const { count: recentOrders } = await supabase
+      .from("orders")
+      .select("*", { count: "exact", head: true })
+      .eq("buyer_id", userId)
+      .gte("created_at", oneHourAgo);
+
+    if (recentOrders && recentOrders > 10) {
+      return new Response(
+        JSON.stringify({ success: false, error: "Prea multe comenzi într-o oră. Încearcă din nou mai târziu." }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 429 }
+      );
+    }
+
     // No platform fees - revenue from subscriptions only
     const commissionPercent = 0;
 
