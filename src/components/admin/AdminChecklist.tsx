@@ -121,11 +121,11 @@ export const AdminChecklist = forwardRef<HTMLDivElement, React.HTMLAttributes<HT
 
         // === PAYMENTS ===
         {
-          id: 'mangopay_payments',
-          name: 'MangoPay Plăți',
-          description: 'Webhooks, KYC onboarding, Wallet',
+          id: 'paypal_payments',
+          name: 'PayPal Plăți',
+          description: 'Integrare PayPal, tracking AWB automat',
           status: 'passed',
-          details: 'mangopay-webhook ✓ | kyc-onboarding ✓',
+          details: 'paypal-add-tracking ✓ | process-payment ✓',
           category: 'payments',
         },
         {

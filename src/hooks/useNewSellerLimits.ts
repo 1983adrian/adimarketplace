@@ -60,7 +60,7 @@ export function useNewSellerLimits() {
 
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('created_at, total_sales_count, average_rating, is_verified, kyc_status')
+        .select('created_at, total_sales_count, average_rating, is_verified')
         .eq('user_id', user.id)
         .single();
 
@@ -81,7 +81,7 @@ export function useNewSellerLimits() {
       const totalSales = profile.total_sales_count || 0;
       const averageRating = profile.average_rating || 0;
       const isVerified = profile.is_verified || false;
-      const kycApproved = profile.kyc_status === 'approved';
+      const kycApproved = isVerified; // PayPal handles KYC
 
       // Determine level based on criteria
       let limitLevel: NewSellerLimits['limitLevel'] = 'new';

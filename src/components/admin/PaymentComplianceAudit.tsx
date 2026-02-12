@@ -44,7 +44,7 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     description: 'Upload document identitate pentru verificare',
     status: 'compliant',
     category: 'kyc',
-    details: 'Se procesează prin MangoPay KYC API',
+    details: 'Se procesează prin PayPal',
   },
   {
     id: 'kyc_bank',
@@ -62,7 +62,7 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     description: 'Autentificare în doi pași pentru plăți',
     status: 'compliant',
     category: 'psd2',
-    details: 'MangoPay/Adyen gestionează 3DS2',
+    details: 'PayPal gestionează verificarea',
   },
   {
     id: 'psd2_escrow',
@@ -83,9 +83,9 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
 
   // Payments Infrastructure
   {
-    id: 'pay_mangopay',
-    name: 'MangoPay Integration',
-    description: 'Wallet, PayIn, PayOut, Webhooks',
+    id: 'pay_paypal',
+    name: 'PayPal Integration',
+    description: 'Plăți directe, tracking AWB',
     status: 'compliant',
     category: 'payments',
     details: 'Webhook handlers active',
@@ -104,7 +104,7 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     description: 'Event handlers pentru toate tranzacțiile',
     status: 'compliant',
     category: 'payments',
-    details: 'mangopay-webhook active',
+    details: 'paypal-add-tracking active',
   },
 
   // AML - Anti Money Laundering
@@ -114,7 +114,7 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
     description: 'Limite zilnice/lunare per utilizator',
     status: 'compliant',
     category: 'aml',
-    details: 'Gestionat prin MangoPay based on KYC level',
+    details: 'Gestionat prin PayPal',
   },
   {
     id: 'aml_monitoring',

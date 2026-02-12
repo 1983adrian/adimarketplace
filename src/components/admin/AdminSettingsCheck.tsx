@@ -45,7 +45,7 @@ interface CheckResponse {
 }
 
 const serviceIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  'MangoPay Payments': CreditCard,
+  'PayPal Payments': CreditCard,
   'Resend Email': Mail,
   'Twilio SMS': MessageSquare,
   'Lovable AI Gateway': Brain,

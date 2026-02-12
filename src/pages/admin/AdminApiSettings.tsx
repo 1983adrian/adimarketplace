@@ -25,28 +25,20 @@ interface ApiKeyConfig {
 const API_CONFIGS: Record<string, ApiKeyConfig[]> = {
   payments: [
     {
-      key: 'MANGOPAY_CLIENT_ID',
-      name: 'MangoPay Client ID',
-      description: 'Client ID pentru integrare MangoPay',
+      key: 'PAYPAL_CLIENT_ID',
+      name: 'PayPal Client ID',
+      description: 'Client ID pentru integrare PayPal',
       required: true,
-      docUrl: 'https://mangopay.com/docs/overview',
+      docUrl: 'https://developer.paypal.com/docs/api/overview/',
       placeholder: 'your-client-id'
     },
     {
-      key: 'MANGOPAY_API_KEY',
-      name: 'MangoPay API Key',
-      description: 'API Key pentru procesare plăți MangoPay',
+      key: 'PAYPAL_SECRET',
+      name: 'PayPal Secret Key',
+      description: 'Secret Key pentru procesare plăți PayPal',
       required: true,
-      docUrl: 'https://mangopay.com/docs/overview',
-      placeholder: 'your-api-key'
-    },
-    {
-      key: 'ADYEN_API_KEY',
-      name: 'Adyen API Key',
-      description: 'API Key pentru plăți Adyen (opțional, alternativă)',
-      required: false,
-      docUrl: 'https://docs.adyen.com/development-resources/api-credentials',
-      placeholder: 'AQE...'
+      docUrl: 'https://developer.paypal.com/docs/api/overview/',
+      placeholder: 'your-secret-key'
     },
     {
       key: 'ADYEN_MERCHANT_ACCOUNT',
@@ -303,8 +295,7 @@ export default function AdminApiSettings() {
             <Alert>
               <Wallet className="h-4 w-4" />
               <AlertDescription>
-                Platforma folosește MangoPay ca procesor principal. Adyen poate fi utilizat ca alternativă. 
-                Cheile API sunt stocate securizat și criptat.
+                Platforma folosește PayPal ca procesor de plăți. Cheile API sunt stocate securizat.
               </AlertDescription>
             </Alert>
             <div className="grid gap-4 md:grid-cols-2">
@@ -335,17 +326,17 @@ export default function AdminApiSettings() {
             <div className="grid gap-4 md:grid-cols-3">
               <div className="p-4 rounded-lg bg-muted/50 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">MangoPay Plăți</span>
-                  {savedKeys['MANGOPAY_CLIENT_ID'] && savedKeys['MANGOPAY_API_KEY'] ? (
+                  <span className="font-medium">PayPal Plăți</span>
+                  {savedKeys['PAYPAL_CLIENT_ID'] && savedKeys['PAYPAL_SECRET'] ? (
                     <CheckCircle className="h-5 w-5 text-green-500" />
                   ) : (
                     <AlertTriangle className="h-5 w-5 text-yellow-500" />
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {savedKeys['MANGOPAY_CLIENT_ID'] && savedKeys['MANGOPAY_API_KEY']
+                  {savedKeys['PAYPAL_CLIENT_ID'] && savedKeys['PAYPAL_SECRET']
                     ? 'Gata pentru plăți și payouts' 
-                    : 'Configurează MangoPay pentru plăți'}
+                    : 'Configurează PayPal pentru plăți'}
                 </p>
               </div>
               

@@ -459,7 +459,7 @@ const ListingDetail = () => {
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Shield className="h-4 w-4" />
-                <span>Plăți securizate prin MangoPay</span>
+                <span>Plăți securizate prin PayPal</span>
               </div>
               {user?.id !== listing.seller_id && (
                 <ReportListingDialog listingId={listing.id} listingTitle={listing.title} />

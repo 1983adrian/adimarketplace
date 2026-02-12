@@ -28,9 +28,7 @@ const Wallet = () => {
   
   const [payoutBalance, setPayoutBalance] = useState(0);
   const [pendingBalance, setPendingBalance] = useState(0);
-  const [payoutMethod, setPayoutMethod] = useState('');
-  const [iban, setIban] = useState('');
-  const [kycStatus, setKycStatus] = useState('pending');
+  const [paypalEmail, setPaypalEmail] = useState('');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -51,7 +49,7 @@ const Wallet = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('payout_balance, pending_balance, payout_method, iban, sort_code, account_number, kyc_status')
+        .select('payout_balance, pending_balance, paypal_email')
         .eq('user_id', user.id)
         .single();
 
@@ -61,9 +59,7 @@ const Wallet = () => {
         const p = data as any;
         setPayoutBalance(p.payout_balance || 0);
         setPendingBalance(p.pending_balance || 0);
-        setPayoutMethod(p.payout_method || 'iban');
-        setIban(p.iban || p.sort_code && p.account_number ? `${p.sort_code} / ${p.account_number}` : '');
-        setKycStatus(p.kyc_status || 'pending');
+        setPaypalEmail(p.paypal_email || '');
       }
     } catch (error) {
       console.error('Error fetching wallet data:', error);
@@ -82,8 +78,8 @@ const Wallet = () => {
       toast({ title: 'Fonduri insuficiente', variant: 'destructive' });
       return;
     }
-    if (kycStatus !== 'verified' && kycStatus !== 'approved') {
-      toast({ title: 'Verificare KYC necesară', description: 'Completează verificarea identității pentru a retrage fonduri.', variant: 'destructive' });
+    if (!paypalEmail) {
+      toast({ title: 'PayPal neconfigurat', description: 'Adaugă email-ul PayPal în setări pentru a retrage fonduri.', variant: 'destructive' });
       return;
     }
 
@@ -163,7 +159,7 @@ const Wallet = () => {
                   <Button 
                     size="lg" 
                     className="w-full gap-2 h-14 text-lg shadow-lg"
-                    disabled={payoutBalance <= 0 || (kycStatus !== 'verified' && kycStatus !== 'approved')}
+                    disabled={payoutBalance <= 0 || !paypalEmail}
                   >
                     <ArrowUpRight className="h-5 w-5" />
                     Retrage Fonduri
@@ -189,17 +185,13 @@ const Wallet = () => {
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Metoda:</span>
                         <span className="font-medium flex items-center gap-1">
-                          {payoutMethod === 'iban' ? (
-                            <><Building2 className="h-4 w-4" /> IBAN</>
-                          ) : (
-                            <><CreditCard className="h-4 w-4" /> Card UK</>
-                          )}
+                          PayPal
                         </span>
                       </div>
-                      {iban && (
+                      {paypalEmail && (
                         <div className="flex justify-between text-sm">
                           <span className="text-muted-foreground">Cont:</span>
-                          <span className="font-mono text-xs">{iban.slice(0, 10)}...</span>
+                          <span className="font-mono text-xs">{paypalEmail}</span>
                         </div>
                       )}
                     </div>
@@ -272,19 +264,19 @@ const Wallet = () => {
             </CardContent>
           </Card>
 
-          {/* KYC Warning */}
-          {kycStatus !== 'verified' && kycStatus !== 'approved' && (
+          {/* PayPal Warning */}
+          {!paypalEmail && (
             <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/30">
               <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-700 dark:text-amber-300">Verificare necesară</AlertTitle>
+              <AlertTitle className="text-amber-700 dark:text-amber-300">PayPal neconfigurat</AlertTitle>
               <AlertDescription className="text-amber-600 dark:text-amber-400">
-                Pentru a retrage fonduri, completează verificarea identității în{' '}
+                Pentru a retrage fonduri, configurează email-ul PayPal în{' '}
                 <Button 
                   variant="link" 
                   className="p-0 h-auto text-amber-700 underline"
-                  onClick={() => navigate('/seller-mode')}
+                  onClick={() => navigate('/settings')}
                 >
-                  Mod Vânzător
+                  Setări
                 </Button>
                 .
               </AlertDescription>

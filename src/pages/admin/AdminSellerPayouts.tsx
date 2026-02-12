@@ -42,8 +42,7 @@ interface SellerPayout {
     display_name: string | null;
     store_name: string | null;
     avatar_url: string | null;
-    iban: string | null;
-    business_type: string | null;
+    paypal_email: string | null;
   };
 }
 
@@ -71,7 +70,7 @@ export default function AdminSellerPayouts() {
       const sellerIds = [...new Set(payoutsData?.map(p => p.seller_id) || [])];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, display_name, store_name, avatar_url, iban, business_type')
+        .select('user_id, display_name, store_name, avatar_url, paypal_email')
         .in('user_id', sellerIds);
 
       const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
@@ -307,12 +306,8 @@ export default function AdminSellerPayouts() {
                             <div>
                               <p className="font-medium">{payout.seller?.store_name || payout.seller?.display_name || 'Vânzător'}</p>
                               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                {payout.seller?.business_type === 'company' ? (
-                                  <Building2 className="h-3 w-3" />
-                                ) : (
-                                  <User className="h-3 w-3" />
-                                )}
-                                {payout.seller?.business_type === 'company' ? 'Firmă' : 'Persoană fizică'}
+                                <User className="h-3 w-3" />
+                                {payout.seller?.paypal_email ? 'PayPal' : 'Fără PayPal'}
                               </div>
                             </div>
                           </div>

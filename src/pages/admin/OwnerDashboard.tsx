@@ -23,7 +23,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-// MangoPay removed - using PayPal only
+// PayPal only payment system
 import { 
   Table, 
   TableBody, 

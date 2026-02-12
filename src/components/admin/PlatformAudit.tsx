@@ -90,7 +90,7 @@ export const PlatformAudit = forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
 
       const buyerFee = feesResult.data?.find(f => f.fee_type === 'buyer_fee');
       const sellerCommission = feesResult.data?.find(f => f.fee_type === 'seller_commission');
-      const mangopay = processorSettingsResult.data?.find(p => p.processor_name === 'mangopay');
+      const paypal = processorSettingsResult.data?.find(p => p.processor_name === 'paypal');
 
       // Build audit sections
       const sections: AuditSection[] = [
@@ -104,7 +104,7 @@ export const PlatformAudit = forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
             { id: 'buyer-listings', name: 'Vizualizare Produse', status: 'pass', details: 'Galerie, descriere, preț, variante', metric: `${activeListingsResult.count || 0} active` },
             { id: 'buyer-favorites', name: 'Favorite / Wishlist', status: 'pass', details: 'Salvare produse, notificări', metric: `${favoritesResult.count || 0} salvate` },
             { id: 'buyer-bidding', name: 'Licitații & Biduri', status: 'pass', details: 'Plasare bid, outbid alerts', metric: `${bidsResult.count || 0} biduri` },
-            { id: 'buyer-checkout', name: 'Checkout & Plată', status: 'pass', details: 'Adrese salvate, COD, card', metric: 'MangoPay' },
+            { id: 'buyer-checkout', name: 'Checkout & Plată', status: 'pass', details: 'Adrese salvate, COD, PayPal', metric: 'PayPal' },
             { id: 'buyer-orders', name: 'Comenzile Mele', status: 'pass', details: 'Tracking, status, istoric', metric: `${ordersResult.count || 0} comenzi` },
             { id: 'buyer-messaging', name: 'Chat cu Vânzătorul', status: 'pass', details: 'Mesaje text + poze', metric: `${conversationsResult.count || 0} conversații` },
             { id: 'buyer-reviews', name: 'Recenzii & Feedback', status: 'pass', details: 'Stele + comentarii', metric: `${reviewsResult.count || 0} recenzii` },
@@ -148,20 +148,18 @@ export const PlatformAudit = forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
             { id: 'admin-audit', name: 'Audit Log', status: 'pass', details: 'Logare acțiuni', metric: 'Istoric complet' },
           ],
         },
-        // PAYMENTS - MangoPay Only
+        // PAYMENTS - PayPal Only
         {
-          title: '💳 Plăți - MangoPay',
+          title: '💳 Plăți - PayPal',
           icon: <CreditCard className="h-5 w-5" />,
-          score: mangopay?.is_active ? 100 : 80,
+          score: paypal?.is_active ? 100 : 80,
           items: [
-            { id: 'pay-mangopay', name: 'MangoPay Integration', status: mangopay ? 'pass' : 'warn', details: 'Wallet, PayIn, PayOut, Escrow', metric: mangopay?.is_active ? '✅ Activ' : '⚠️ Configurare necesară' },
-            { id: 'pay-mangopay-webhook', name: 'MangoPay Webhooks', status: 'pass', details: 'Edge function mangopay-webhook', metric: 'Implementat' },
-            { id: 'pay-escrow', name: 'Sistem Escrow', status: 'pass', details: 'Fonduri blocate până la livrare', metric: 'Activ' },
+            { id: 'pay-paypal', name: 'PayPal Integration', status: paypal ? 'pass' : 'warn', details: 'Plăți directe PayPal', metric: paypal?.is_active ? '✅ Activ' : '⚠️ Configurare necesară' },
+            { id: 'pay-tracking', name: 'AWB Sync PayPal', status: 'pass', details: 'Tracking automat la PayPal', metric: 'Implementat' },
             { id: 'pay-refunds', name: 'Rambursări', status: 'pass', details: 'process-refund edge function', metric: 'Automatizat' },
-            { id: 'pay-payouts', name: 'Payouts Vânzători', status: 'pass', details: 'process-payout edge function', metric: 'IBAN + Card UK' },
-            { id: 'pay-kyc', name: 'KYC Onboarding', status: 'pass', details: 'kyc-onboarding edge function', metric: 'PF/PJ support' },
+            { id: 'pay-payouts', name: 'Payouts Vânzători', status: 'pass', details: 'Via PayPal', metric: 'Direct' },
             { id: 'pay-invoices', name: 'Facturare', status: 'pass', details: 'Generare automată facturi', metric: `${invoicesResult.count || 0} facturi` },
-            { id: 'pay-currency', name: 'Valută', status: 'pass', details: 'Multi-valutar (RON, EUR, GBP, USD)', metric: 'RON default' },
+            { id: 'pay-currency', name: 'Valută', status: 'pass', details: 'Multi-valutar (RON, EUR, GBP, USD)', metric: 'GBP default' },
           ],
         },
         // NOTIFICATIONS
@@ -207,7 +205,7 @@ export const PlatformAudit = forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
             { id: 'sec-edge', name: 'Edge Functions', status: 'pass', details: 'Server-side logic', metric: '15+ funcții' },
             { id: 'sec-secrets', name: 'Secrets Management', status: 'pass', details: 'API keys în Vault', metric: '12 secrets' },
             { id: 'sec-cors', name: 'CORS Headers', status: 'pass', details: 'Configurate pe edge functions', metric: 'Protejat' },
-            { id: 'sec-psd2', name: 'PSD2/SCA Compliant', status: 'pass', details: '3DS2 pentru plăți card', metric: 'Adyen 3DS2' },
+            { id: 'sec-psd2', name: 'PayPal Buyer Protection', status: 'pass', details: 'Protecție automată cumpărător', metric: 'PayPal' },
           ],
         },
       ];
