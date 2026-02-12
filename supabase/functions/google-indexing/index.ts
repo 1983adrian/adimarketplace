@@ -5,11 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface IndexingRequest {
-  url: string;
-  type: 'URL_UPDATED' | 'URL_DELETED';
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -18,8 +13,6 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const googleCredentials = Deno.env.get('GOOGLE_INDEXING_CREDENTIALS');
-    
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
     const { action } = await req.json();
@@ -42,20 +35,51 @@ Deno.serve(async (req) => {
         );
       }
       
+      // NOTE: Google Indexing API requires a Google Service Account with proper credentials.
+      // The GOOGLE_INDEXING_CREDENTIALS secret must contain a valid service account JSON key.
+      // Without it, URLs are queued but NOT submitted to Google.
+      const googleCredentials = Deno.env.get('GOOGLE_INDEXING_CREDENTIALS');
+      
+      if (!googleCredentials) {
+        // Mark items as queued but log that no credentials are configured
+        console.warn('GOOGLE_INDEXING_CREDENTIALS not configured - URLs queued but not submitted to Google');
+        
+        for (const item of pendingItems) {
+          await supabase
+            .from('seo_indexing_queue')
+            .update({ 
+              status: 'queued_no_credentials', 
+              error_message: 'Google Indexing API credentials not configured',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', item.id);
+        }
+
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: `${pendingItems.length} URLs queued but Google credentials not configured`,
+            processed: 0,
+            queued: pendingItems.length,
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       let processed = 0;
       let errors = 0;
       
       for (const item of pendingItems) {
         try {
-          // If Google credentials are configured, submit to Google Indexing API
-          if (googleCredentials) {
-            const credentials = JSON.parse(googleCredentials);
-            const accessToken = await getGoogleAccessToken(credentials);
-            
-            await submitToGoogleIndexing(item.url, item.action, accessToken);
+          const credentials = JSON.parse(googleCredentials);
+          const accessToken = await getGoogleAccessToken(credentials);
+          
+          if (!accessToken) {
+            throw new Error('Failed to obtain Google access token - check service account credentials');
           }
           
-          // Update status to submitted
+          await submitToGoogleIndexing(item.url, item.action, accessToken);
+          
           await supabase
             .from('seo_indexing_queue')
             .update({ 
@@ -89,7 +113,6 @@ Deno.serve(async (req) => {
         .update({ last_updated_at: new Date().toISOString() })
         .eq('content_type', 'browse');
       
-      // Refresh platform statistics
       await supabase.rpc('refresh_platform_statistics');
       
       return new Response(
@@ -104,7 +127,6 @@ Deno.serve(async (req) => {
     }
     
     if (action === 'ping_google') {
-      // Ping Google with sitemap update
       const sitemapUrl = 'https://www.marketplaceromania.com/sitemap.xml';
       
       const pingUrls = [
@@ -116,7 +138,6 @@ Deno.serve(async (req) => {
         pingUrls.map(url => fetch(url, { method: 'GET' }))
       );
       
-      // Log activity
       await supabase
         .from('platform_activity')
         .insert({
@@ -142,7 +163,6 @@ Deno.serve(async (req) => {
     }
     
     if (action === 'generate_sitemap') {
-      // Generate dynamic sitemap entries
       const { data: listings } = await supabase
         .from('listings')
         .select('id, updated_at')
@@ -158,7 +178,6 @@ Deno.serve(async (req) => {
       const baseUrl = 'https://www.marketplaceromania.com';
       const entries = [];
       
-      // Static pages
       const staticPages = [
         { url: '/', priority: 1.0, changefreq: 'hourly' },
         { url: '/browse', priority: 0.9, changefreq: 'hourly' },
@@ -183,7 +202,6 @@ Deno.serve(async (req) => {
         });
       }
       
-      // Listings
       if (listings) {
         for (const listing of listings) {
           entries.push({
@@ -197,7 +215,6 @@ Deno.serve(async (req) => {
         }
       }
       
-      // Categories
       if (categories) {
         for (const cat of categories) {
           entries.push({
@@ -210,7 +227,6 @@ Deno.serve(async (req) => {
         }
       }
       
-      // Upsert all entries
       for (const entry of entries) {
         await supabase
           .from('sitemap_entries')
@@ -242,28 +258,68 @@ Deno.serve(async (req) => {
   }
 });
 
-// Helper function to get Google OAuth2 access token
-async function getGoogleAccessToken(credentials: any): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-  const header = { alg: 'RS256', typ: 'JWT' };
-  const payload = {
-    iss: credentials.client_email,
-    scope: 'https://www.googleapis.com/auth/indexing',
-    aud: 'https://oauth2.googleapis.com/token',
-    iat: now,
-    exp: now + 3600
-  };
-  
-  // This is a simplified version - in production you'd use proper JWT signing
-  // For now, return empty to skip Google API calls if not properly configured
-  return '';
+// Helper: Get Google OAuth2 access token using service account
+async function getGoogleAccessToken(credentials: { client_email: string; private_key: string }): Promise<string> {
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    
+    // Create JWT header and payload
+    const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+    const payload = btoa(JSON.stringify({
+      iss: credentials.client_email,
+      scope: 'https://www.googleapis.com/auth/indexing',
+      aud: 'https://oauth2.googleapis.com/token',
+      iat: now,
+      exp: now + 3600,
+    }));
+
+    // Sign JWT with private key using Web Crypto API
+    const pemKey = credentials.private_key
+      .replace(/-----BEGIN PRIVATE KEY-----/, '')
+      .replace(/-----END PRIVATE KEY-----/, '')
+      .replace(/\n/g, '');
+    
+    const binaryKey = Uint8Array.from(atob(pemKey), c => c.charCodeAt(0));
+    
+    const cryptoKey = await crypto.subtle.importKey(
+      'pkcs8',
+      binaryKey,
+      { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    
+    const signatureInput = new TextEncoder().encode(`${header}.${payload}`);
+    const signature = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', cryptoKey, signatureInput);
+    const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+    const jwt = `${header}.${payload}.${signatureB64}`;
+
+    // Exchange JWT for access token
+    const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
+    });
+
+    if (!tokenResponse.ok) {
+      const errorText = await tokenResponse.text();
+      throw new Error(`Token exchange failed: ${errorText}`);
+    }
+
+    const tokenData = await tokenResponse.json();
+    return tokenData.access_token || '';
+  } catch (err) {
+    console.error('Google auth error:', err);
+    return '';
+  }
 }
 
 // Submit URL to Google Indexing API
 async function submitToGoogleIndexing(url: string, type: string, accessToken: string): Promise<void> {
   if (!accessToken) {
-    console.log(`Would submit to Google: ${url} (${type})`);
-    return;
+    throw new Error('No access token available for Google Indexing API');
   }
   
   const response = await fetch('https://indexing.googleapis.com/v3/urlNotifications:publish', {
@@ -272,10 +328,7 @@ async function submitToGoogleIndexing(url: string, type: string, accessToken: st
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      url,
-      type
-    })
+    body: JSON.stringify({ url, type })
   });
   
   if (!response.ok) {

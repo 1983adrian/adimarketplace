@@ -114,9 +114,12 @@ const Wallet = () => {
 
     setWithdrawing(true);
     try {
+      // NOTE: Retragerea automată PayPal NU este implementată încă.
+      // Această acțiune creează o cerere de retragere pe care adminul o procesează manual.
       toast({ 
-        title: 'Retragere inițiată', 
-        description: `${formatPrice(amount)} vor fi transferați în contul PayPal în 1-3 zile lucrătoare.` 
+        title: '⚠️ Funcție în dezvoltare', 
+        description: 'Retragerea automată PayPal nu este încă disponibilă. Contactează administratorul platformei pentru a solicita transferul manual.',
+        variant: 'destructive',
       });
       setWithdrawOpen(false);
       setWithdrawAmount('');

@@ -13,7 +13,6 @@ interface PaymentRequest {
   shippingCost: number;
   buyerFee: number;
   guestEmail?: string;
-  processor?: "mangopay";
   paymentMethod?: "card" | "cod";
   courier?: string;
   deliveryType?: "home" | "locker";
@@ -78,17 +77,6 @@ serve(async (req) => {
       throw new Error("Authentication required");
     }
 
-    // Get MangoPay settings
-    const { data: mangopaySettings } = await supabase
-      .from("payment_processor_settings")
-      .select("*")
-      .eq("processor_name", "mangopay")
-      .maybeSingle();
-
-    const processorName = "mangopay";
-    const processorEnv = mangopaySettings?.environment || "sandbox";
-    const hasLiveKeys = !!mangopaySettings?.api_key_encrypted;
-
     // No platform fees - revenue from subscriptions only
     const commissionPercent = 0;
 
@@ -147,7 +135,7 @@ serve(async (req) => {
           p_seller_id: listing.seller_id,
           p_amount: itemTotal,
           p_shipping_address: shippingAddress,
-          p_payment_processor: processorName,
+          p_payment_processor: "platform",
           p_transaction_id: transactionId,
           p_buyer_fee: itemBuyerFee,
           p_seller_commission: sellerCommission,
@@ -173,7 +161,7 @@ serve(async (req) => {
       totalAmount += itemTotal;
     }
 
-    // Create notification for seller(s) - CRITICAL: must be server-side so offline sellers get it
+    // Create notification for seller(s)
     const sellerIds = [...new Set(orders.map(o => o.sellerId))];
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Marketplace România <onboarding@resend.dev>";
@@ -196,7 +184,7 @@ serve(async (req) => {
         },
       });
 
-      // EMAIL to seller (so they get notified even when offline/phone in pocket)
+      // EMAIL to seller
       if (resendApiKey) {
         try {
           const { data: sellerAuth } = await supabase.auth.admin.getUserById(sellerId);
@@ -263,7 +251,7 @@ serve(async (req) => {
       buyer_fee: buyerFee,
       seller_commission: orders.reduce((sum, o) => sum + o.sellerCommission, 0),
       total: totalAmount,
-      status: "pending", // Invoice is pending until payment confirmed
+      status: "pending",
     });
 
     const origin = req.headers.get("origin") || "https://www.marketplaceromania.com";
@@ -271,7 +259,6 @@ serve(async (req) => {
 
     // Handle COD (Cash on Delivery) - confirm immediately since payment is at delivery
     if (paymentMethod === "cod") {
-      // For COD, confirm orders immediately as payment will be collected at delivery
       for (const order of orders) {
         await supabase.rpc("confirm_order_payment", {
           p_order_id: order.id,
@@ -317,8 +304,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          processor: processorName,
-          environment: processorEnv,
+          processor: "platform",
           orders: orders.map(o => ({ id: o.id, amount: o.amount, transactionId: o.transactionId })),
           total: totalAmount,
           invoiceNumber,
@@ -330,49 +316,22 @@ serve(async (req) => {
       );
     }
 
-    // For CARD payments - redirect to payment processor
-    // The orders are in PAYMENT_PENDING status
-    // Payment confirmation will happen via webhook or return URL
-
-    // Build payment URL for MangoPay (or demo mode)
+    // For CARD payments - NOT YET IMPLEMENTED
+    // Orders are in PAYMENT_PENDING status until a real payment processor is integrated
+    // Currently NO card payment processor is configured
     const successUrl = `${origin}/checkout/success?order_ids=${orderIds}&invoice=${invoiceNumber}&verify=true`;
     const cancelUrl = `${origin}/checkout/cancel?order_ids=${orderIds}&restore=true`;
 
-    // If live MangoPay keys are configured, create actual payment session
-    let paymentUrl = successUrl; // Default to success for demo mode
-    let requiresExternalPayment = false;
-
-    if (hasLiveKeys && processorEnv === "live") {
-      // TODO: Integrate actual MangoPay payment creation here
-      // For now, we'll use demo mode which goes directly to success
-      // In production, this would create a MangoPay PayIn and return the redirect URL
-      requiresExternalPayment = true;
-      paymentUrl = successUrl; // Replace with actual MangoPay redirect
-    }
-
     return new Response(
       JSON.stringify({
-        success: true,
-        processor: processorName,
-        environment: processorEnv,
-        orders: orders.map(o => ({ id: o.id, amount: o.amount, transactionId: o.transactionId })),
-        total: totalAmount,
-        invoiceNumber,
-        paymentMethod: "card",
-        // CRITICAL: Tell frontend that payment verification is needed
+        success: false,
+        error: "Plata cu cardul nu este încă disponibilă. Folosește Ramburs (COD) pentru a plasa comanda.",
         requiresPayment: true,
-        requiresExternalPayment,
-        paymentUrl,
-        successUrl,
+        paymentMethod: "card",
+        message: "Plata cu cardul nu este disponibilă momentan. Selectează Ramburs (COD) ca metodă de plată.",
         cancelUrl,
-        message: hasLiveKeys 
-          ? "Redirecționare către procesatorul de plăți..." 
-          : "Demo mode - configurează cheile MangoPay pentru plăți reale",
-        isLive: processorEnv === "live" && hasLiveKeys,
-        // Include order IDs for verification on success page
-        pendingOrderIds: orderIds,
       }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
     );
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
