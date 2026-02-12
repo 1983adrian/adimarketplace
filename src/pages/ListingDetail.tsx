@@ -446,13 +446,16 @@ const ListingDetail = () => {
                       <p className="font-semibold text-lg font-mono">{sellerName}</p>
                       <VerifiedBadge userId={listing.seller_id} size="md" />
                     </div>
-                    {sellerStats && (
+                    {sellerStats && sellerStats.total_reviews > 0 && (
                       <div className="flex items-center gap-2 text-sm">
                         <StarRating rating={sellerStats.average_rating} size="sm" />
                         <span className="text-muted-foreground">
                           ({sellerStats.total_reviews} recenzii)
                         </span>
                       </div>
+                    )}
+                    {sellerStats && sellerStats.total_reviews === 0 && (
+                      <p className="text-xs text-muted-foreground">Fără recenzii încă</p>
                     )}
                     <p className="text-sm text-muted-foreground">
                       {sellerStats?.total_sales || 0} vânzări · Membru din {
