@@ -224,29 +224,46 @@ const ListingDetail = () => {
         startingBid={listing.starting_bid}
       />
       <div className="container mx-auto px-3 md:px-4 py-2 md:py-8">
-        <Button variant="ghost" className="mb-1 md:mb-6 h-7 md:h-10 text-xs md:text-sm" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Înapoi
-        </Button>
-
         <div className="grid lg:grid-cols-2 gap-3 lg:gap-8">
-          {/* Image Gallery - eBay-style compact on mobile */}
+          {/* Image Gallery - Horizontal swipe on mobile, thumbnails on desktop */}
           <div className="space-y-1.5 md:space-y-3">
-            {/* Main Image - Compact on mobile, full on desktop */}
+            {/* Swipeable images on mobile */}
             <div className="relative rounded-lg overflow-hidden bg-muted md:aspect-square">
+              {/* Mobile: horizontal scroll */}
+              <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide md:hidden" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}>
+                {(images.length > 0 ? images : [{ id: 'placeholder', image_url: primaryImage || '/placeholder.svg' }]).map((img: any, index: number) => (
+                  <div key={img.id} className="flex-shrink-0 w-full snap-center">
+                    <img 
+                      src={img.image_url} 
+                      alt={`${listing.title} - ${index + 1}`} 
+                      className="w-full object-contain h-[200px] sm:h-[240px]" 
+                    />
+                  </div>
+                ))}
+              </div>
+              {/* Image counter dots on mobile */}
+              {images.length > 1 && (
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+                  {images.map((_: any, index: number) => (
+                    <span key={index} className="w-1.5 h-1.5 rounded-full bg-foreground/40" />
+                  ))}
+                </div>
+              )}
+              {/* Desktop: single image with thumbnails below */}
               <img 
                 src={images[selectedImage]?.image_url || primaryImage || '/placeholder.svg'} 
                 alt={listing.title} 
-                className="w-full object-contain md:object-cover h-[180px] sm:h-[220px] md:h-full" 
+                className="hidden md:block w-full object-cover h-full" 
               />
             </div>
-            {/* Thumbnail Gallery - Smaller on mobile */}
+            {/* Thumbnail Gallery - Desktop only */}
             {images.length > 1 && (
-              <div className="flex gap-1 md:gap-2 overflow-x-auto pb-1 px-1">
+              <div className="hidden md:flex gap-2 overflow-x-auto pb-1 px-1">
                 {images.map((img: any, index: number) => (
                   <button
                     key={img.id}
                     onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-10 h-10 md:w-20 md:h-20 rounded-md md:rounded-lg overflow-hidden border-2 transition-colors ${
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
                       index === selectedImage ? 'border-primary' : 'border-transparent hover:border-primary/50'
                     }`}
                   >
