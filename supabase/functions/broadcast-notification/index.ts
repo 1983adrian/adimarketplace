@@ -44,8 +44,8 @@ serve(async (req: Request) => {
       );
     }
 
-    // Check if user is admin
-    const { data: isAdmin } = await supabase.rpc('is_admin_email', { check_email: user.email });
+    // Check if user is admin (standardized has_role check)
+    const { data: isAdmin } = await supabase.rpc('has_role', { _user_id: user.id, _role: 'admin' });
     
     if (!isAdmin) {
       return new Response(
