@@ -2909,7 +2909,7 @@ export type Database = {
           reason?: string | null
           reported_user_id?: string | null
           reporter_id?: string | null
-          resolution?: string | null
+          resolution?: never
           status?: string | null
           updated_at?: string | null
         }
@@ -2922,7 +2922,7 @@ export type Database = {
           reason?: string | null
           reported_user_id?: string | null
           reporter_id?: string | null
-          resolution?: string | null
+          resolution?: never
           status?: string | null
           updated_at?: string | null
         }
