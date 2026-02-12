@@ -231,3 +231,34 @@ export const useUpdateReturnStatus = () => {
     },
   });
 };
+
+// Seller can delete finished returns
+export const useDeleteReturn = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (returnId: string) => {
+      const { error } = await supabase
+        .from('returns')
+        .delete()
+        .eq('id', returnId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['returns'] });
+      toast({
+        title: 'Retur șters',
+        description: 'Returul a fost eliminat din listă.',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Eroare',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+};

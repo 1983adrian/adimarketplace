@@ -202,8 +202,9 @@ const BuyerPurchaseCard = ({
   const status = statusConfig[order.status] || statusConfig.pending;
   const { user } = useAuth();
   
-  // Can cancel only pending or paid orders (before shipping)
-  const canCancel = ['pending', 'paid'].includes(order.status);
+  // Can cancel only pending or paid orders within 24h
+  const hoursSinceOrder = (Date.now() - new Date(order.created_at).getTime()) / (1000 * 60 * 60);
+  const canCancel = ['pending', 'paid'].includes(order.status) && hoursSinceOrder <= 24;
   // Can review only delivered orders
   const canReview = order.status === 'delivered';
   // Can confirm delivery only for shipped orders

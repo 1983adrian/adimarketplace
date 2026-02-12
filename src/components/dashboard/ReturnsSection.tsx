@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Package, RotateCcw, Truck, CheckCircle, XCircle, Clock, MapPin, DollarSign, Loader2 } from 'lucide-react';
+import { Package, RotateCcw, Truck, CheckCircle, XCircle, Clock, MapPin, DollarSign, Loader2, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { format } from 'date-fns';
-import { useMyReturns, useAddReturnTracking, useUpdateReturnStatus, useSellerReturnAddress } from '@/hooks/useReturns';
+import { useMyReturns, useAddReturnTracking, useUpdateReturnStatus, useSellerReturnAddress, useDeleteReturn } from '@/hooks/useReturns';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -71,6 +71,7 @@ const ReturnCard = React.forwardRef<HTMLDivElement, ReturnCardProps>(({ returnIt
   const { formatPrice } = useCurrency();
   const addTracking = useAddReturnTracking();
   const updateStatus = useUpdateReturnStatus();
+  const deleteReturn = useDeleteReturn();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -558,6 +559,24 @@ const ReturnCard = React.forwardRef<HTMLDivElement, ReturnCardProps>(({ returnIt
               <p className="mt-2 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded">
                 ✅ Cererea a fost rezolvată. Rambursare acordată fără returnarea produsului.
               </p>
+            )}
+
+            {/* Seller: Delete finished returns */}
+            {type === 'seller' && ['completed', 'rejected', 'refunded_no_return', 'cancelled'].includes(returnItem.status) && (
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="mt-2 gap-1 text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={() => deleteReturn.mutate(returnItem.id)}
+                disabled={deleteReturn.isPending}
+              >
+                {deleteReturn.isPending ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3 w-3" />
+                )}
+                Șterge Returul
+              </Button>
             )}
           </div>
         </div>

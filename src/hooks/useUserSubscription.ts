@@ -26,16 +26,6 @@ export const SELLER_PLANS: SellerPlan[] = [
     icon: '🟢',
   },
   {
-    id: 'licitatii',
-    plan_type: 'licitatii',
-    plan_name: 'Plan LICITAȚII',
-    price_ron: 11,
-    max_listings: 10,
-    is_auction_plan: true,
-    description: 'Maxim 10 listări/unități scoase la licitație',
-    icon: '🔨',
-  },
-  {
     id: 'silver',
     plan_type: 'silver',
     plan_name: 'Plan SILVER',
