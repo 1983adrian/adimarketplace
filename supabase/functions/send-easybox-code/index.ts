@@ -70,6 +70,7 @@ serve(async (req) => {
 <body style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; background-color: #f4f4f5;">
   <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
     <div style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border-radius: 16px 16px 0 0; padding: 30px; text-align: center;">
+      <img src="https://marketplaceromania.lovable.app/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
       <h1 style="color: white; margin: 0; font-size: 24px;">📦 Comanda ta este gata de ridicare!</h1>
     </div>
     
