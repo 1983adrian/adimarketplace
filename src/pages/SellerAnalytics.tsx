@@ -37,16 +37,10 @@ const SellerAnalytics = () => {
   const completedOrders = sellerOrders.filter(o => o.status === 'delivered');
   const pendingOrders = sellerOrders.filter(o => o.status === 'pending' || o.status === 'paid' || o.status === 'shipped');
   
-  // Real earnings from completed orders (10% platform commission)
-  const totalEarnings = completedOrders.reduce((acc, o) => {
-    const commission = o.amount * 0.10; // 10% platform commission
-    return acc + (o.amount - commission);
-  }, 0);
+  // Real earnings from completed orders (0% platform commission)
+  const totalEarnings = completedOrders.reduce((acc, o) => acc + o.amount, 0);
   
-  const pendingEarnings = pendingOrders.reduce((acc, o) => {
-    const commission = o.amount * 0.10; // 10% platform commission
-    return acc + (o.amount - commission);
-  }, 0);
+  const pendingEarnings = pendingOrders.reduce((acc, o) => acc + o.amount, 0);
   
   const avgPrice = soldListings.length > 0 
     ? soldListings.reduce((acc, l) => acc + l.price, 0) / soldListings.length 

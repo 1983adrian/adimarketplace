@@ -9,10 +9,6 @@ const corsHeaders = {
 interface VerifyPaymentRequest {
   orderIds: string[];
   invoiceNumber?: string;
-  // For demo mode - simulate payment result
-  simulatePayment?: boolean;
-  paymentSuccess?: boolean;
-  failureReason?: string;
 }
 
 serve(async (req) => {
@@ -36,7 +32,7 @@ serve(async (req) => {
     }
 
     const body: VerifyPaymentRequest = await req.json();
-    const { orderIds, invoiceNumber, simulatePayment, paymentSuccess, failureReason } = body;
+    const { orderIds, invoiceNumber } = body;
 
     if (!orderIds || orderIds.length === 0) {
       throw new Error("No order IDs provided");
@@ -57,7 +53,7 @@ serve(async (req) => {
       throw new Error("Orders not found");
     }
 
-    // Check if any orders are still pending payment
+    // Check current order status
     const pendingOrders = orders.filter(o => o.status === "payment_pending");
     
     if (pendingOrders.length === 0) {
@@ -80,97 +76,34 @@ serve(async (req) => {
       );
     }
 
-    // Get MangoPay settings to check if we're in live mode
-    const { data: mangopaySettings } = await supabase
-      .from("payment_processor_settings")
-      .select("*")
-      .eq("processor_name", "mangopay")
-      .maybeSingle();
-
-    const hasLiveKeys = !!mangopaySettings?.api_key_encrypted;
-    const isLiveMode = mangopaySettings?.environment === "live" && hasLiveKeys;
-
-    // In live mode, verify payment with MangoPay
-    // In demo mode, either simulate or auto-confirm
-    let paymentConfirmed = false;
-    let paymentError: string | null = null;
-
-    if (isLiveMode) {
-      // TODO: Actual MangoPay payment verification
-      // For now, we'll return that payment needs to be verified externally
-      return new Response(
-        JSON.stringify({
-          success: false,
-          status: "awaiting_verification",
-          message: "Așteptăm confirmarea plății de la procesatorul de plăți",
-          pendingOrders: pendingOrders.map(o => o.id),
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Demo mode - handle simulation or auto-confirm
-    if (simulatePayment) {
-      paymentConfirmed = paymentSuccess ?? true;
-      paymentError = !paymentConfirmed ? (failureReason || "Payment declined") : null;
-    } else {
-      // In demo mode without explicit simulation, auto-confirm
-      paymentConfirmed = true;
-    }
-
+    // No card payment processor is currently integrated
+    // Pending card payment orders cannot be verified
+    // Cancel them and restore stock
     const results = [];
 
     for (const order of pendingOrders) {
-      if (paymentConfirmed) {
-        // Confirm the payment
-        const { data: confirmResult, error: confirmError } = await supabase.rpc(
-          "confirm_order_payment",
-          {
-            p_order_id: order.id,
-            p_transaction_id: `DEMO-CONFIRMED-${Date.now()}`,
-            p_processor_status: "confirmed",
-          }
-        );
-
-        if (confirmError) {
-          console.error("Error confirming order:", confirmError);
-          results.push({
-            orderId: order.id,
-            success: false,
-            error: confirmError.message,
-          });
-        } else {
-          results.push({
-            orderId: order.id,
-            success: true,
-            status: "confirmed",
-          });
+      const { error: cancelError } = await supabase.rpc(
+        "cancel_pending_order",
+        {
+          p_order_id: order.id,
+          p_reason: "Procesatorul de plăți cu cardul nu este disponibil",
         }
+      );
+
+      if (cancelError) {
+        console.error("Error cancelling order:", cancelError);
+        results.push({
+          orderId: order.id,
+          success: false,
+          error: cancelError.message,
+        });
       } else {
-        // Cancel the order and restore stock
-        const { data: cancelResult, error: cancelError } = await supabase.rpc(
-          "cancel_pending_order",
-          {
-            p_order_id: order.id,
-            p_reason: paymentError || "Payment failed",
-          }
-        );
-
-        if (cancelError) {
-          console.error("Error cancelling order:", cancelError);
-          results.push({
-            orderId: order.id,
-            success: false,
-            error: cancelError.message,
-          });
-        } else {
-          results.push({
-            orderId: order.id,
-            success: true,
-            status: "cancelled",
-            stockRestored: true,
-          });
-        }
+        results.push({
+          orderId: order.id,
+          success: true,
+          status: "cancelled",
+          stockRestored: true,
+        });
       }
     }
 
@@ -178,25 +111,17 @@ serve(async (req) => {
     if (invoiceNumber) {
       await supabase
         .from("invoices")
-        .update({ 
-          status: paymentConfirmed ? "issued" : "cancelled",
-          paid_at: paymentConfirmed ? new Date().toISOString() : null,
-        })
+        .update({ status: "cancelled" })
         .eq("invoice_number", invoiceNumber);
     }
 
-    const allSuccessful = results.every(r => r.success);
-    const allConfirmed = results.every(r => r.status === "confirmed");
-
     return new Response(
       JSON.stringify({
-        success: allSuccessful,
-        paymentConfirmed,
-        status: allConfirmed ? "confirmed" : (paymentConfirmed ? "partial" : "failed"),
+        success: false,
+        paymentConfirmed: false,
+        status: "failed",
         results,
-        message: paymentConfirmed 
-          ? "Plata a fost confirmată cu succes!" 
-          : `Plata a eșuat: ${paymentError}`,
+        message: "Plata cu cardul nu este disponibilă momentan. Folosește Ramburs (COD).",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

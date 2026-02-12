@@ -65,14 +65,14 @@ serve(async (req) => {
       throw new Error("Există o dispută activă pentru această comandă. Plata este blocată până la rezolvare.");
     }
 
-    // Get seller profile for payout details
+    // Get seller profile for balance info
     const { data: sellerProfile } = await supabase
       .from("profiles")
-      .select("iban, card_number_last4, card_holder_name, payout_method, payout_balance, pending_balance")
+      .select("payout_balance, pending_balance, paypal_email")
       .eq("user_id", order.seller_id)
       .single();
 
-    const payoutAmount = order.payout_amount || (order.amount * 0.9); // 10% commission fallback
+    const payoutAmount = order.payout_amount || order.amount; // 0% commission
 
     // Update order status
     const { error: updateError } = await supabase
@@ -80,7 +80,7 @@ serve(async (req) => {
       .update({
         status: "delivered",
         delivery_confirmed_at: new Date().toISOString(),
-        payout_status: "processing",
+        payout_status: "ready",
       })
       .eq("id", order_id);
 
@@ -90,14 +90,12 @@ serve(async (req) => {
     await supabase
       .from("seller_payouts")
       .update({
-        status: "processing",
+        status: "ready",
         processed_at: new Date().toISOString(),
-        payout_method: sellerProfile?.payout_method || "iban",
       })
       .eq("order_id", order_id);
 
     // Move funds from pending to payout balance
-    // First, reduce pending balance
     const { error: pendingError } = await supabase
       .from("profiles")
       .update({
@@ -114,26 +112,17 @@ serve(async (req) => {
     await supabase.from("notifications").insert({
       user_id: order.seller_id,
       type: "payout_ready",
-      title: "Plată Disponibilă!",
-      message: `Cumpărătorul a confirmat livrarea. £${payoutAmount.toFixed(2)} au fost adăugate la soldul tău disponibil.`,
+      title: "Fonduri Disponibile!",
+      message: `Cumpărătorul a confirmat livrarea. ${payoutAmount.toFixed(2)} RON sunt disponibili pentru retragere.`,
       data: { 
         order_id: order.id, 
         amount: payoutAmount,
-        payout_method: sellerProfile?.payout_method || "iban",
       },
     });
 
-    // Create payout entry in payouts table for tracking
-    await supabase.from("payouts").insert({
-      order_id: order.id,
-      seller_id: order.seller_id,
-      gross_amount: order.amount,
-      net_amount: payoutAmount,
-      buyer_fee: order.buyer_fee || 2,
-      seller_commission: order.seller_commission || (order.amount * 0.1),
-      status: "completed",
-      processed_at: new Date().toISOString(),
-    });
+    // NOTE: Actual PayPal payout is NOT automated yet.
+    // Seller must request withdrawal manually from Wallet page.
+    // Admin processes the payout manually via PayPal.
 
     // Update invoice status
     await supabase
@@ -147,11 +136,11 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Livrare confirmată cu succes!",
+        message: "Livrare confirmată! Fondurile sunt disponibile pentru retragere.",
         payout: {
           net_amount: payoutAmount,
-          method: sellerProfile?.payout_method || "iban",
-          status: "completed",
+          status: "ready_for_withdrawal",
+          note: "Vânzătorul poate solicita retragerea din pagina Portofel.",
         },
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
