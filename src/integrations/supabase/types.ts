@@ -3217,6 +3217,7 @@ export type Database = {
           location: string | null
           store_name: string | null
           total_sales_count: number | null
+          updated_at: string | null
           user_id: string | null
           username: string | null
         }
@@ -3232,6 +3233,7 @@ export type Database = {
           location?: never
           store_name?: string | null
           total_sales_count?: number | null
+          updated_at?: string | null
           user_id?: string | null
           username?: string | null
         }
@@ -3247,6 +3249,7 @@ export type Database = {
           location?: never
           store_name?: string | null
           total_sales_count?: number | null
+          updated_at?: string | null
           user_id?: string | null
           username?: string | null
         }
