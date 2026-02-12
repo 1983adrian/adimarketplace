@@ -2,7 +2,6 @@ import {
   Users, 
   Package, 
   ShoppingCart, 
-  DollarSign, 
   TrendingUp,
   Crown,
   Eye,
@@ -19,7 +18,7 @@ import {
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { usePlatformStats, usePlatformFees, useAllOrders } from '@/hooks/useAdmin';
+import { usePlatformStats, useAllOrders } from '@/hooks/useAdmin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AdminChecklist } from '@/components/admin/AdminChecklist';
 import { PaymentComplianceAudit } from '@/components/admin/PaymentComplianceAudit';
@@ -34,12 +33,8 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 export default function AdminDashboard() {
   const { formatPriceWithRON } = useCurrency();
   const { data: stats, isLoading: statsLoading, refetch: refetchStats } = usePlatformStats();
-  const { data: fees } = usePlatformFees();
   const { data: recentOrders, refetch: refetchOrders } = useAllOrders();
   const { data: platformSettings } = usePlatformSettings();
-
-  const buyerFee = fees?.find(f => f.fee_type === 'buyer_fee');
-  const sellerCommission = fees?.find(f => f.fee_type === 'seller_commission');
 
   // Check security status
   const securitySettings = platformSettings?.security_advanced as any;
@@ -207,45 +202,27 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        {/* Revenue & Fees - Compact Design */}
-        <div className="grid gap-2 md:grid-cols-2">
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 p-3">
-              <CardTitle className="flex items-center gap-1.5 text-sm">
-                <TrendingUp className="h-4 w-4 text-primary" />
-                Venituri
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-3">
-              {statsLoading ? (
-                <Skeleton className="h-8 w-24" />
-              ) : (
+        {/* Revenue - Subscription Based */}
+        <Card className="overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 p-3">
+            <CardTitle className="flex items-center gap-1.5 text-sm">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              Venituri din Abonamente
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-3">
+            {statsLoading ? (
+              <Skeleton className="h-8 w-24" />
+            ) : (
+              <div className="flex items-center gap-4">
                 <div className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   {formatPriceWithRON(stats?.totalRevenue || 0)}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-amber-500/10 to-orange-500/5 p-3">
-              <CardTitle className="flex items-center gap-1.5 text-sm">
-                <DollarSign className="h-4 w-4 text-amber-500" />
-                Comisioane
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-3 space-y-1.5">
-              <div className="flex justify-between items-center p-2 rounded-lg bg-green-500/5 border border-green-500/20 text-xs">
-                <span>Comision Vânzător</span>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{sellerCommission?.amount || 8}%</Badge>
+                <Badge variant="secondary" className="text-xs">0% comision vânzări</Badge>
               </div>
-              <div className="flex justify-between items-center p-2 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs">
-                <span>Taxă Cumpărător</span>
-                <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{formatPriceWithRON(buyerFee?.amount || 10)}</Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Recent Activity - Compact */}
         <Card className="overflow-hidden">
