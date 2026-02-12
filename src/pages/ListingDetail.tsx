@@ -231,8 +231,8 @@ const ListingDetail = () => {
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Image Gallery - eBay-style compact on mobile */}
           <div className="space-y-3">
-            {/* Main Image - Much smaller on mobile (max 60vh), full on desktop */}
-            <div className="relative rounded-lg overflow-hidden bg-muted aspect-[4/3] md:aspect-square max-h-[40vh] md:max-h-none">
+            {/* Main Image - Compact on mobile, full on desktop */}
+            <div className="relative rounded-lg overflow-hidden bg-muted max-h-[35vh] md:max-h-none md:aspect-square">
               <img 
                 src={images[selectedImage]?.image_url || primaryImage || '/placeholder.svg'} 
                 alt={listing.title} 
