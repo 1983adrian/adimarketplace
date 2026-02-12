@@ -49,7 +49,26 @@
     "dashboard": "Panou de control",
     "settings": "Setări",
     "help": "Ajutor",
-    "menu": "Meniu"
+    "menu": "Meniu",
+    "login": "Autentificare",
+    "signup": "Înregistrare",
+    "signout": "Deconectare"
+  },
+  "nav": {
+    "home": "Acasă",
+    "browse": "Caută",
+    "sell": "Vinde",
+    "dashboard": "Panou",
+    "messages": "Mesaje",
+    "favorites": "Favorite",
+    "orders": "Comenzi",
+    "settings": "Setări",
+    "search": "Caută",
+    "products": "Magazin",
+    "menuAccount": "Contul Meu",
+    "ownerDashboard": "Panou Proprietar",
+    "adminPanel": "Panou Admin",
+    "paymentsFees": "Plăți & Taxe"
   },
   "home": {
     "shopByCategory": "Cumpără pe categorii",
@@ -154,7 +173,9 @@
     "delivered": "Livrat",
     "cancelled": "Anulat",
     "trackOrder": "Urmărește comanda",
-    "viewDetails": "Vezi detalii"
+    "viewDetails": "Vezi detalii",
+    "myPurchases": "Comenzile Mele",
+    "mypurchases": "Comenzile Mele"
   },
   "messages": {
     "title": "Mesaje",
@@ -244,20 +265,35 @@
     "saveDraft": "Salvează ciornă"
   },
   "app": {
+    "download": "Descarcă",
+    "downloadShort": "App",
+    "title": "Marketplace România",
+    "freeApp": "Aplicație gratuită",
+    "installing": "Se instalează...",
+    "installNow": "Instalează acum",
+    "oneClick": "Un singur click",
     "iosInstall": "Instalează pe iOS",
     "iosStep1": "Apasă butonul Share",
-    "iosStep2": "Selectează 'Add to Home Screen'",
-    "iosStep3": "Apasă 'Add'",
+    "iosStep2": "Selectează 'Adaugă pe ecranul principal'",
+    "iosStep3": "Apasă 'Adaugă'",
     "androidInstall": "Instalează pe Android",
     "androidStep1": "Apasă meniul (⋮)",
-    "androidStep2": "Selectează 'Install app'",
-    "androidStep3": "Apasă 'Install'",
+    "androidStep2": "Selectează 'Instalează aplicația'",
+    "androidStep3": "Apasă 'Instalează'",
     "macInstall": "Instalează pe Mac",
     "macStep1": "Deschide în Chrome/Edge",
     "macStep2": "Click pe iconița din bara de adrese",
-    "macStep3": "Selectează 'Install'",
+    "macStep3": "Selectează 'Instalează'",
+    "desktopInstall": "Instalează pe Desktop",
+    "desktopStep1": "Click pe iconița de instalare din bara de adrese",
+    "desktopStep2": "Confirmă instalarea",
     "scanForApp": "Scanează pentru aplicație",
-    "scanWithCamera": "Scanează cu camera telefonului"
+    "scanWithCamera": "Scanează cu camera telefonului",
+    "offlineSupport": "Funcționează offline",
+    "pushNotifications": "Notificări push",
+    "free": "100% gratuită",
+    "noStore": "Fără magazin de aplicații",
+    "detailedInstructions": "Instrucțiuni detaliate"
   },
   "dashboard": {
     "title": "Panou de control",

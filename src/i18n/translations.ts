@@ -16,6 +16,23 @@ type TranslationKeys = {
   'nav.login': string;
   'nav.signup': string;
   'nav.logout': string;
+  'nav.search': string;
+  'nav.products': string;
+  'nav.menuAccount': string;
+  'nav.ownerDashboard': string;
+  'nav.adminPanel': string;
+  'nav.paymentsFees': string;
+  
+  // Header
+  'header.search': string;
+  'header.login': string;
+  'header.signup': string;
+  'header.signout': string;
+  'header.sell': string;
+  
+  // Settings & Orders (used in menu)
+  'settings.title': string;
+  'orders.myPurchases': string;
   
   // Home page
   'home.hero.title': string;
@@ -147,6 +164,19 @@ export const translations: Translations = {
     'nav.login': 'Conectare',
     'nav.signup': 'Înregistrare',
     'nav.logout': 'Deconectare',
+    'nav.search': 'Caută',
+    'nav.products': 'Magazin',
+    'nav.menuAccount': 'Contul Meu',
+    'nav.ownerDashboard': 'Panou Proprietar',
+    'nav.adminPanel': 'Panou Admin',
+    'nav.paymentsFees': 'Plăți & Taxe',
+    'header.search': 'Caută produse...',
+    'header.login': 'Autentificare',
+    'header.signup': 'Înregistrare',
+    'header.signout': 'Deconectare',
+    'header.sell': 'Vinde',
+    'settings.title': 'Setări',
+    'orders.myPurchases': 'Comenzile Mele',
     
     // Home page
     'home.hero.title': 'Cumpără și Vinde în România',
@@ -275,6 +305,19 @@ export const translations: Translations = {
     'nav.login': 'Login',
     'nav.signup': 'Sign Up',
     'nav.logout': 'Logout',
+    'nav.search': 'Search',
+    'nav.products': 'Shop',
+    'nav.menuAccount': 'My Account',
+    'nav.ownerDashboard': 'Owner Dashboard',
+    'nav.adminPanel': 'Admin Panel',
+    'nav.paymentsFees': 'Payments & Fees',
+    'header.search': 'Search products...',
+    'header.login': 'Login',
+    'header.signup': 'Sign Up',
+    'header.signout': 'Sign Out',
+    'header.sell': 'Sell',
+    'settings.title': 'Settings',
+    'orders.myPurchases': 'My Orders',
     
     // Home page
     'home.hero.title': 'Buy and Sell in Romania',
@@ -403,6 +446,19 @@ export const translations: Translations = {
     'nav.login': 'Anmelden',
     'nav.signup': 'Registrieren',
     'nav.logout': 'Abmelden',
+    'nav.search': 'Suchen',
+    'nav.products': 'Shop',
+    'nav.menuAccount': 'Mein Konto',
+    'nav.ownerDashboard': 'Inhaber-Dashboard',
+    'nav.adminPanel': 'Admin-Panel',
+    'nav.paymentsFees': 'Zahlungen & Gebühren',
+    'header.search': 'Produkte suchen...',
+    'header.login': 'Anmelden',
+    'header.signup': 'Registrieren',
+    'header.signout': 'Abmelden',
+    'header.sell': 'Verkaufen',
+    'settings.title': 'Einstellungen',
+    'orders.myPurchases': 'Meine Bestellungen',
     
     // Home page
     'home.hero.title': 'Kaufen und Verkaufen in Rumänien',
@@ -531,6 +587,19 @@ export const translations: Translations = {
     'nav.login': 'Iniciar sesión',
     'nav.signup': 'Registrarse',
     'nav.logout': 'Cerrar sesión',
+    'nav.search': 'Buscar',
+    'nav.products': 'Tienda',
+    'nav.menuAccount': 'Mi Cuenta',
+    'nav.ownerDashboard': 'Panel Propietario',
+    'nav.adminPanel': 'Panel Admin',
+    'nav.paymentsFees': 'Pagos y Tarifas',
+    'header.search': 'Buscar productos...',
+    'header.login': 'Iniciar sesión',
+    'header.signup': 'Registrarse',
+    'header.signout': 'Cerrar sesión',
+    'header.sell': 'Vender',
+    'settings.title': 'Configuración',
+    'orders.myPurchases': 'Mis Pedidos',
     
     // Home page
     'home.hero.title': 'Compra y Vende en Rumania',
@@ -659,6 +728,19 @@ export const translations: Translations = {
     'nav.login': '登录',
     'nav.signup': '注册',
     'nav.logout': '退出',
+    'nav.search': '搜索',
+    'nav.products': '商店',
+    'nav.menuAccount': '我的账户',
+    'nav.ownerDashboard': '所有者仪表板',
+    'nav.adminPanel': '管理面板',
+    'nav.paymentsFees': '付款和费用',
+    'header.search': '搜索产品...',
+    'header.login': '登录',
+    'header.signup': '注册',
+    'header.signout': '退出登录',
+    'header.sell': '出售',
+    'settings.title': '设置',
+    'orders.myPurchases': '我的订单',
     
     // Home page
     'home.hero.title': '在罗马尼亚买卖',
@@ -786,6 +868,19 @@ export const translations: Translations = {
     'nav.login': 'Connexion',
     'nav.signup': "S'inscrire",
     'nav.logout': 'Déconnexion',
+    'nav.search': 'Rechercher',
+    'nav.products': 'Boutique',
+    'nav.menuAccount': 'Mon Compte',
+    'nav.ownerDashboard': 'Tableau de bord Propriétaire',
+    'nav.adminPanel': 'Panneau Admin',
+    'nav.paymentsFees': 'Paiements & Frais',
+    'header.search': 'Rechercher des produits...',
+    'header.login': 'Connexion',
+    'header.signup': "S'inscrire",
+    'header.signout': 'Déconnexion',
+    'header.sell': 'Vendre',
+    'settings.title': 'Paramètres',
+    'orders.myPurchases': 'Mes Commandes',
     'home.hero.title': 'Achetez et Vendez en Roumanie',
     'home.hero.subtitle': 'La plus grande marketplace en ligne de Roumanie',
     'home.featured': 'Produits en Vedette',
@@ -887,6 +982,19 @@ export const translations: Translations = {
     'nav.login': 'Accedi',
     'nav.signup': 'Registrati',
     'nav.logout': 'Esci',
+    'nav.search': 'Cerca',
+    'nav.products': 'Negozio',
+    'nav.menuAccount': 'Il Mio Account',
+    'nav.ownerDashboard': 'Dashboard Proprietario',
+    'nav.adminPanel': 'Pannello Admin',
+    'nav.paymentsFees': 'Pagamenti e Tariffe',
+    'header.search': 'Cerca prodotti...',
+    'header.login': 'Accedi',
+    'header.signup': 'Registrati',
+    'header.signout': 'Esci',
+    'header.sell': 'Vendi',
+    'settings.title': 'Impostazioni',
+    'orders.myPurchases': 'I Miei Ordini',
     'home.hero.title': 'Compra e Vendi in Romania',
     'home.hero.subtitle': 'Il più grande marketplace online in Romania',
     'home.featured': 'Prodotti in Evidenza',
@@ -988,6 +1096,19 @@ export const translations: Translations = {
     'nav.login': 'Entrar',
     'nav.signup': 'Registrar',
     'nav.logout': 'Sair',
+    'nav.search': 'Pesquisar',
+    'nav.products': 'Loja',
+    'nav.menuAccount': 'Minha Conta',
+    'nav.ownerDashboard': 'Painel do Proprietário',
+    'nav.adminPanel': 'Painel Admin',
+    'nav.paymentsFees': 'Pagamentos e Taxas',
+    'header.search': 'Pesquisar produtos...',
+    'header.login': 'Entrar',
+    'header.signup': 'Registrar',
+    'header.signout': 'Sair',
+    'header.sell': 'Vender',
+    'settings.title': 'Configurações',
+    'orders.myPurchases': 'Meus Pedidos',
     'home.hero.title': 'Compre e Venda na Romênia',
     'home.hero.subtitle': 'O maior marketplace online da Romênia',
     'home.featured': 'Produtos em Destaque',
@@ -1089,6 +1210,19 @@ export const translations: Translations = {
     'nav.login': 'Inloggen',
     'nav.signup': 'Registreren',
     'nav.logout': 'Uitloggen',
+    'nav.search': 'Zoeken',
+    'nav.products': 'Winkel',
+    'nav.menuAccount': 'Mijn Account',
+    'nav.ownerDashboard': 'Eigenaar Dashboard',
+    'nav.adminPanel': 'Admin Paneel',
+    'nav.paymentsFees': 'Betalingen & Kosten',
+    'header.search': 'Producten zoeken...',
+    'header.login': 'Inloggen',
+    'header.signup': 'Registreren',
+    'header.signout': 'Uitloggen',
+    'header.sell': 'Verkopen',
+    'settings.title': 'Instellingen',
+    'orders.myPurchases': 'Mijn Bestellingen',
     'home.hero.title': 'Koop en Verkoop in Roemenië',
     'home.hero.subtitle': 'De grootste online marktplaats in Roemenië',
     'home.featured': 'Uitgelichte Producten',
@@ -1190,6 +1324,19 @@ export const translations: Translations = {
     'nav.login': 'Zaloguj',
     'nav.signup': 'Zarejestruj',
     'nav.logout': 'Wyloguj',
+    'nav.search': 'Szukaj',
+    'nav.products': 'Sklep',
+    'nav.menuAccount': 'Moje Konto',
+    'nav.ownerDashboard': 'Panel Właściciela',
+    'nav.adminPanel': 'Panel Admina',
+    'nav.paymentsFees': 'Płatności i Opłaty',
+    'header.search': 'Szukaj produktów...',
+    'header.login': 'Zaloguj',
+    'header.signup': 'Zarejestruj',
+    'header.signout': 'Wyloguj',
+    'header.sell': 'Sprzedaj',
+    'settings.title': 'Ustawienia',
+    'orders.myPurchases': 'Moje Zamówienia',
     'home.hero.title': 'Kupuj i Sprzedawaj w Rumunii',
     'home.hero.subtitle': 'Największy marketplace online w Rumunii',
     'home.featured': 'Polecane Produkty',
