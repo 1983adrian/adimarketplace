@@ -127,6 +127,7 @@
     "sold": "Vândut",
     "available": "Disponibil",
     "outOfStock": "Stoc epuizat",
+    "inStock": "în stoc",
     "description": "Descriere",
     "details": "Detalii",
     "shipping": "Livrare",

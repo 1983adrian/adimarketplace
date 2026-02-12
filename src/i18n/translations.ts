@@ -60,6 +60,14 @@ type TranslationKeys = {
   'product.outOfStock': string;
   'product.inStock': string;
   
+  // Listing card
+  'listing.inStock': string;
+  'listing.lastOne': string;
+  'listing.freeShipping': string;
+  'listing.cod': string;
+  'listing.bid': string;
+  'listing.addToCart': string;
+  
   // Conditions
   'condition.new': string;
   'condition.like_new': string;
@@ -204,6 +212,14 @@ export const translations: Translations = {
     'product.outOfStock': 'Stoc Epuizat',
     'product.inStock': 'În Stoc',
     
+    // Listing card
+    'listing.inStock': 'în stoc',
+    'listing.lastOne': 'Ultimul disponibil!',
+    'listing.freeShipping': 'Livrare Gratuită',
+    'listing.cod': 'Plată la livrare',
+    'listing.bid': 'Licitează',
+    'listing.addToCart': 'Adaugă în Coș',
+    
     // Conditions
     'condition.new': 'Nou',
     'condition.like_new': 'Ca Nou',
@@ -345,6 +361,14 @@ export const translations: Translations = {
     'product.outOfStock': 'Out of Stock',
     'product.inStock': 'In Stock',
     
+    // Listing card
+    'listing.inStock': 'in stock',
+    'listing.lastOne': 'Last one!',
+    'listing.freeShipping': 'Free Shipping',
+    'listing.cod': 'Cash on Delivery',
+    'listing.bid': 'Bid',
+    'listing.addToCart': 'Add to Cart',
+
     // Conditions
     'condition.new': 'New',
     'condition.like_new': 'Like New',
@@ -486,6 +510,14 @@ export const translations: Translations = {
     'product.outOfStock': 'Nicht vorrätig',
     'product.inStock': 'Auf Lager',
     
+    // Listing card
+    'listing.inStock': 'auf Lager',
+    'listing.lastOne': 'Letztes verfügbar!',
+    'listing.freeShipping': 'Kostenloser Versand',
+    'listing.cod': 'Nachnahme',
+    'listing.bid': 'Bieten',
+    'listing.addToCart': 'In den Warenkorb',
+
     // Conditions
     'condition.new': 'Neu',
     'condition.like_new': 'Wie neu',
@@ -627,6 +659,14 @@ export const translations: Translations = {
     'product.outOfStock': 'Agotado',
     'product.inStock': 'En Stock',
     
+    // Listing card
+    'listing.inStock': 'en stock',
+    'listing.lastOne': '¡Último disponible!',
+    'listing.freeShipping': 'Envío Gratis',
+    'listing.cod': 'Contra reembolso',
+    'listing.bid': 'Pujar',
+    'listing.addToCart': 'Añadir al Carrito',
+
     // Conditions
     'condition.new': 'Nuevo',
     'condition.like_new': 'Como Nuevo',
@@ -768,6 +808,14 @@ export const translations: Translations = {
     'product.outOfStock': '缺货',
     'product.inStock': '有货',
     
+    // Listing card
+    'listing.inStock': '有货',
+    'listing.lastOne': '最后一件！',
+    'listing.freeShipping': '免费配送',
+    'listing.cod': '货到付款',
+    'listing.bid': '出价',
+    'listing.addToCart': '加入购物车',
+
     // Conditions
     'condition.new': '全新',
     'condition.like_new': '几乎全新',
@@ -901,6 +949,13 @@ export const translations: Translations = {
     'product.quantity': 'Quantité',
     'product.outOfStock': 'Rupture de Stock',
     'product.inStock': 'En Stock',
+    // Listing card
+    'listing.inStock': 'en stock',
+    'listing.lastOne': 'Dernier disponible !',
+    'listing.freeShipping': 'Livraison Gratuite',
+    'listing.cod': 'Paiement à la livraison',
+    'listing.bid': 'Enchérir',
+    'listing.addToCart': 'Ajouter au Panier',
     'condition.new': 'Neuf',
     'condition.like_new': 'Comme Neuf',
     'condition.good': 'Bon',
@@ -1015,6 +1070,13 @@ export const translations: Translations = {
     'product.quantity': 'Quantità',
     'product.outOfStock': 'Esaurito',
     'product.inStock': 'Disponibile',
+    // Listing card
+    'listing.inStock': 'disponibile',
+    'listing.lastOne': 'Ultimo disponibile!',
+    'listing.freeShipping': 'Spedizione Gratuita',
+    'listing.cod': 'Pagamento alla consegna',
+    'listing.bid': 'Offri',
+    'listing.addToCart': 'Aggiungi al Carrello',
     'condition.new': 'Nuovo',
     'condition.like_new': 'Come Nuovo',
     'condition.good': 'Buono',
@@ -1129,6 +1191,13 @@ export const translations: Translations = {
     'product.quantity': 'Quantidade',
     'product.outOfStock': 'Esgotado',
     'product.inStock': 'Em Estoque',
+    // Listing card
+    'listing.inStock': 'em estoque',
+    'listing.lastOne': 'Último disponível!',
+    'listing.freeShipping': 'Frete Grátis',
+    'listing.cod': 'Pagamento na entrega',
+    'listing.bid': 'Licitar',
+    'listing.addToCart': 'Adicionar ao Carrinho',
     'condition.new': 'Novo',
     'condition.like_new': 'Como Novo',
     'condition.good': 'Bom',
@@ -1243,6 +1312,13 @@ export const translations: Translations = {
     'product.quantity': 'Hoeveelheid',
     'product.outOfStock': 'Niet op Voorraad',
     'product.inStock': 'Op Voorraad',
+    // Listing card
+    'listing.inStock': 'op voorraad',
+    'listing.lastOne': 'Laatste beschikbaar!',
+    'listing.freeShipping': 'Gratis Verzending',
+    'listing.cod': 'Rembours',
+    'listing.bid': 'Bieden',
+    'listing.addToCart': 'Toevoegen aan Winkelwagen',
     'condition.new': 'Nieuw',
     'condition.like_new': 'Als Nieuw',
     'condition.good': 'Goed',
@@ -1357,6 +1433,13 @@ export const translations: Translations = {
     'product.quantity': 'Ilość',
     'product.outOfStock': 'Brak w magazynie',
     'product.inStock': 'Dostępny',
+    // Listing card
+    'listing.inStock': 'w magazynie',
+    'listing.lastOne': 'Ostatni dostępny!',
+    'listing.freeShipping': 'Darmowa Wysyłka',
+    'listing.cod': 'Płatność za pobraniem',
+    'listing.bid': 'Licytuj',
+    'listing.addToCart': 'Dodaj do Koszyka',
     'condition.new': 'Nowy',
     'condition.like_new': 'Jak Nowy',
     'condition.good': 'Dobry',
