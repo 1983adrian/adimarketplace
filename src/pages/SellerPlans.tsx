@@ -367,44 +367,28 @@ const SellerPlans = () => {
 
               {/* Revolut Payment Button */}
               <div className="rounded-lg border-2 border-blue-500/40 bg-blue-50/50 dark:bg-blue-950/20 p-4 text-center space-y-3">
-                <h4 className="font-semibold text-sm">⚡ Plată Rapidă prin Revolut</h4>
                 <p className="text-sm text-muted-foreground">Salut! Urmează acest link pentru a-mi trimite bani pe Revolut:</p>
                 <a
                   href="https://revolut.me/adrian000"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md px-4 py-3 text-sm font-medium transition-colors"
-                  onClick={() => setRevolutClicked(true)}
+                  className="inline-flex items-center justify-center w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-3 text-base font-semibold transition-colors shadow-md"
+                  onClick={() => {
+                    setRevolutClicked(true);
+                    selectedPlan && createPaymentRequest.mutate(selectedPlan);
+                  }}
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  Plătește {selectedPlan.price_ron} LEI prin Revolut
+                  <ExternalLink className="h-5 w-5" />
+                  Plătește abonamentul
                 </a>
                 <p className="text-[10px] text-muted-foreground">
                   La mesajul plății, scrie: <strong>{user?.email}</strong> + <strong>{selectedPlan.plan_name}</strong>
                 </p>
               </div>
-
-              <Alert className="border-amber-300 bg-amber-50/50 dark:bg-amber-950/10">
-                <AlertDescription className="text-xs">
-                  ⚠️ După plată, apasă butonul de mai jos pentru a trimite cererea de activare.
-                </AlertDescription>
-              </Alert>
             </div>
           )}
 
-          <DialogFooter className="flex flex-col gap-2 sm:flex-col">
-            <Button
-              className="w-full gap-2"
-              disabled={createPaymentRequest.isPending || !revolutClicked}
-              onClick={() => selectedPlan && createPaymentRequest.mutate(selectedPlan)}
-            >
-              {createPaymentRequest.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <CheckCircle2 className="h-4 w-4" />
-              )}
-              Am transferat — Trimite Cererea
-            </Button>
+          <DialogFooter>
             <Button variant="outline" className="w-full" onClick={() => setShowPayDialog(false)}>
               Anulează
             </Button>
