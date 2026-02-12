@@ -86,10 +86,10 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
           alt="MarketPlace România - Vinde Cumpără Licitează" 
           className={cn(
             'object-contain',
-            size === 'sm' && 'h-24 sm:h-28',
-            size === 'md' && 'h-32 sm:h-40',
-            size === 'lg' && 'h-44 sm:h-52 md:h-60',
-            size === 'xl' && 'h-56 sm:h-64 md:h-72 lg:h-80',
+            size === 'sm' && 'h-32 sm:h-36',
+            size === 'md' && 'h-40 sm:h-48',
+            size === 'lg' && 'h-52 sm:h-64 md:h-72',
+            size === 'xl' && 'h-72 sm:h-80 md:h-[22rem] lg:h-[26rem]',
           )}
         />
       </div>
