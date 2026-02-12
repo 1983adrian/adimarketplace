@@ -143,6 +143,22 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+
+        {/* PayPal Connected Confirmation for sellers */}
+        {(profile as any)?.is_seller && (profile as any)?.paypal_email && (
+          <div className="mb-4 p-3 rounded-xl border border-green-500/30 bg-green-50 dark:bg-green-950/20 flex items-center gap-3">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-500/15">
+              <Wallet className="h-4 w-4 text-green-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-green-700 dark:text-green-300">PayPal conectat ✅</p>
+              <p className="text-xs text-green-600 dark:text-green-400 truncate">{(profile as any).paypal_email}</p>
+            </div>
+            <Link to="/seller-mode" className="text-xs text-green-600 hover:text-green-700 font-medium whitespace-nowrap">
+              Modifică →
+            </Link>
+          </div>
+        )}
         {/* Header: Avatar + Name + Balance + Actions */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
