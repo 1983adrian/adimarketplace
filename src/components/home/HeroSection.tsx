@@ -96,14 +96,6 @@ export const HeroSection: React.FC = () => {
             
             {/* All Actions in One Compact Row */}
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 mt-2">
-              <Link to="/sell">
-                <Button size="sm" variant="outline" className="h-9 px-4 border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-semibold text-xs md:text-sm">
-                  {t('header.sell')}
-                </Button>
-              </Link>
-              
-              {/* Separator */}
-              <div className="w-full md:w-auto md:h-6 md:w-px md:bg-border" />
               
               {/* App Download - Compact Icons in Line */}
               {showDownloadButtons && (
