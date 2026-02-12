@@ -3489,6 +3489,25 @@ export type Database = {
           username: string
         }[]
       }
+      get_public_seller_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          average_rating: number
+          bio: string
+          country: string
+          created_at: string
+          display_name: string
+          is_seller: boolean
+          is_verified: boolean
+          location: string
+          store_name: string
+          total_sales_count: number
+          updated_at: string
+          user_id: string
+          username: string
+        }[]
+      }
       get_top_sellers: {
         Args: { limit_count?: number }
         Returns: {
