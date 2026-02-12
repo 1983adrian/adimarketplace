@@ -231,11 +231,11 @@ serve(async (req) => {
     if (action === "list") {
       // Return lockers
       if (!hasCredentials) {
-        // Return demo data when no credentials
+        // No credentials configured - return empty list with clear message
         result = {
-          lockers: getDemoLockers(courier, county, search),
-          isDemo: true,
-          message: "Demo mode - configure API credentials in admin settings for live data",
+          lockers: [],
+          isDemo: false,
+          message: "Credențialele curierului nu sunt configurate. Configurează API-ul din Admin → Curieri.",
         };
       } else {
         try {
@@ -310,9 +310,9 @@ serve(async (req) => {
         } catch (error) {
           console.error("Courier API error:", error);
           result = {
-            lockers: getDemoLockers(courier, county, search),
-            isDemo: true,
-            error: "Could not connect to courier API, showing demo data",
+            lockers: [],
+            success: false,
+            error: "Nu s-a putut conecta la API-ul curierului. Verifică credențialele.",
           };
         }
       }
@@ -320,8 +320,7 @@ serve(async (req) => {
       if (!hasCredentials) {
         result = {
           success: false,
-          error: "Configure courier API credentials to generate AWBs",
-          demoAwb: `DEMO-${Date.now()}`,
+          error: "Credențialele curierului nu sunt configurate. Nu se pot genera AWB-uri.",
         };
       } else {
         try {
@@ -342,11 +341,8 @@ serve(async (req) => {
       if (!hasCredentials) {
         result = {
           success: false,
-          tracking: [
-            { status: "Colet preluat", date: new Date().toISOString(), location: "București" },
-            { status: "În tranzit", date: new Date().toISOString(), location: "Depozit central" },
-          ],
-          isDemo: true,
+          tracking: [],
+          error: "Credențialele curierului nu sunt configurate.",
         };
       } else {
         try {
@@ -375,71 +371,3 @@ serve(async (req) => {
     );
   }
 });
-
-// Demo locker data for when no API credentials are configured
-function getDemoLockers(courier: string, county?: string, search?: string) {
-  const demoLockers = [
-    {
-      id: `${courier}-demo-1`,
-      name: courier === 'sameday' ? 'Easybox Mega Mall' : courier === 'cargus' ? 'Ship & Go Unirii' : 'FANbox Victoriei',
-      address: 'Bd. Pierre de Coubertin 3-5',
-      city: 'București',
-      county: 'București',
-      postalCode: '021901',
-      lat: 44.4268,
-      lng: 26.1025,
-      courier,
-      type: 'locker',
-      schedule: '24/7',
-      supportsCOD: true,
-      compartments: 48,
-    },
-    {
-      id: `${courier}-demo-2`,
-      name: courier === 'sameday' ? 'Easybox AFI Cotroceni' : courier === 'cargus' ? 'Ship & Go Militari' : 'FANbox Titan',
-      address: 'Bd. Vasile Milea 4',
-      city: 'București',
-      county: 'București',
-      postalCode: '061344',
-      lat: 44.4319,
-      lng: 26.0528,
-      courier,
-      type: 'locker',
-      schedule: '08:00 - 22:00',
-      supportsCOD: true,
-      compartments: 36,
-    },
-    {
-      id: `${courier}-demo-3`,
-      name: courier === 'sameday' ? 'Easybox Iulius Cluj' : courier === 'cargus' ? 'Ship & Go Cluj' : 'FANbox Cluj',
-      address: 'Str. Alexandru Vaida Voevod 53B',
-      city: 'Cluj-Napoca',
-      county: 'Cluj',
-      postalCode: '400436',
-      lat: 46.7712,
-      lng: 23.6236,
-      courier,
-      type: 'locker',
-      schedule: '10:00 - 22:00',
-      supportsCOD: true,
-      compartments: 36,
-    },
-  ];
-
-  let filtered = demoLockers;
-  
-  if (county) {
-    filtered = filtered.filter(l => l.county === county);
-  }
-  
-  if (search) {
-    const q = search.toLowerCase();
-    filtered = filtered.filter(l =>
-      l.name.toLowerCase().includes(q) ||
-      l.address.toLowerCase().includes(q) ||
-      l.city.toLowerCase().includes(q)
-    );
-  }
-
-  return filtered;
-}

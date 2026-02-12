@@ -74,11 +74,11 @@ const COMPLIANCE_REQUIREMENTS: ComplianceItem[] = [
   },
   {
     id: 'psd2_split',
-    name: 'Split Payments',
-    description: 'Comision platformă dedus automat din payout',
+    name: 'Model Venituri',
+    description: '0% comision — venituri exclusiv din abonamente',
     status: 'compliant',
     category: 'psd2',
-    details: '10% comision + £2 buyer fee',
+    details: '0% comision vânzare, 0% taxă cumpărător',
   },
 
   // Payments Infrastructure
