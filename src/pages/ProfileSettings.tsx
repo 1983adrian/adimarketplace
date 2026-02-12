@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
+import { supabase } from '@/integrations/supabase/client';
 
 const ProfileSettings = () => {
   const { user, profile, updateProfile, loading } = useAuth();
@@ -44,6 +45,24 @@ const ProfileSettings = () => {
       setPhone(profile.phone || '');
     }
   }, [user, profile, loading, navigate]);
+
+  // Ensure profile exists on mount
+  useEffect(() => {
+    const ensureProfile = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (!data) {
+        await supabase
+          .from('profiles')
+          .upsert({ user_id: user.id, display_name: user.email?.split('@')[0] || 'User' }, { onConflict: 'user_id' });
+      }
+    };
+    ensureProfile();
+  }, [user]);
 
   const handleSave = async () => {
     setSaving(true);
