@@ -3506,6 +3506,42 @@ export type Database = {
           },
         ]
       }
+      withdrawal_requests_safe: {
+        Row: {
+          admin_notes: string | null
+          amount: number | null
+          created_at: string | null
+          id: string | null
+          paypal_email_masked: string | null
+          processed_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount?: number | null
+          created_at?: string | null
+          id?: string | null
+          paypal_email_masked?: never
+          processed_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number | null
+          created_at?: string | null
+          id?: string | null
+          paypal_email_masked?: never
+          processed_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       admin_increment_pending_balance: {
