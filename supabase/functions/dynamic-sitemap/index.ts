@@ -21,10 +21,10 @@ serve(async (req) => {
     const baseUrl = "https://www.marketplaceromania.com";
     const today = new Date().toISOString().split('T')[0];
 
-    // Fetch active listings
+    // Fetch active listings with their images
     const { data: listings } = await supabase
       .from('listings')
-      .select('id, title, updated_at, created_at')
+      .select('id, title, updated_at, created_at, listing_images(image_url, is_primary, sort_order)')
       .eq('is_active', true)
       .eq('is_sold', false)
       .order('created_at', { ascending: false })
@@ -180,16 +180,38 @@ serve(async (req) => {
       }
     }
 
-    // Add listings (high priority for fresh content)
+    // Add listings with product images for Google Image indexing
     if (listings) {
       for (const listing of listings) {
         const lastmod = listing.updated_at?.split('T')[0] || listing.created_at?.split('T')[0] || today;
+        const images = (listing as any).listing_images || [];
+        // Sort: primary first, then by sort_order
+        const sortedImages = [...images].sort((a: any, b: any) => {
+          if (a.is_primary && !b.is_primary) return -1;
+          if (!a.is_primary && b.is_primary) return 1;
+          return (a.sort_order || 0) - (b.sort_order || 0);
+        });
+        
+        const escapedTitle = (listing.title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        
+        let imagesTags = '';
+        for (const img of sortedImages) {
+          if (img.image_url) {
+            imagesTags += `
+      <image:image>
+        <image:loc>${img.image_url.replace(/&/g, '&amp;')}</image:loc>
+        <image:title>${escapedTitle}</image:title>
+        <image:caption>${escapedTitle} - MarketPlace Romania</image:caption>
+      </image:image>`;
+          }
+        }
+        
         sitemap += `
   <url>
     <loc>${baseUrl}/listing/${listing.id}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <priority>0.7</priority>${imagesTags}
   </url>`;
       }
     }
