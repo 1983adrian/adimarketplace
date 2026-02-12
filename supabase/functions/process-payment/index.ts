@@ -35,6 +35,97 @@ interface OrderResult {
   paymentStatus: string;
 }
 
+// Get PayPal credentials from DB
+async function getPayPalConfig(supabase: any) {
+  const { data, error } = await supabase
+    .from("payment_processor_settings")
+    .select("*")
+    .eq("processor_name", "paypal")
+    .eq("is_active", true)
+    .single();
+
+  if (error || !data) return null;
+  if (!data.api_key_encrypted || !data.api_secret_encrypted) return null;
+
+  return {
+    clientId: data.api_key_encrypted,
+    clientSecret: data.api_secret_encrypted,
+    environment: data.environment || "sandbox",
+  };
+}
+
+// Get PayPal access token
+async function getPayPalAccessToken(config: { clientId: string; clientSecret: string; environment: string }) {
+  const baseUrl = config.environment === "live"
+    ? "https://api-m.paypal.com"
+    : "https://api-m.sandbox.paypal.com";
+
+  const response = await fetch(`${baseUrl}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Authorization": `Basic ${btoa(`${config.clientId}:${config.clientSecret}`)}`,
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error("PayPal auth failed:", error);
+    throw new Error("PayPal authentication failed");
+  }
+
+  const data = await response.json();
+  return { accessToken: data.access_token, baseUrl };
+}
+
+// Create PayPal order
+async function createPayPalOrder(
+  accessToken: string,
+  baseUrl: string,
+  totalAmount: number,
+  currency: string,
+  orderIds: string[],
+  successUrl: string,
+  cancelUrl: string,
+  itemDescriptions: string[]
+) {
+  const response = await fetch(`${baseUrl}/v2/checkout/orders`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      intent: "CAPTURE",
+      purchase_units: [{
+        amount: {
+          currency_code: currency,
+          value: totalAmount.toFixed(2),
+        },
+        description: itemDescriptions.join(", ").substring(0, 127),
+        custom_id: orderIds.join(","),
+      }],
+      application_context: {
+        return_url: successUrl,
+        cancel_url: cancelUrl,
+        brand_name: "Marketplace România",
+        landing_page: "LOGIN",
+        user_action: "PAY_NOW",
+        shipping_preference: "NO_SHIPPING",
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    console.error("PayPal create order failed:", error);
+    throw new Error("Failed to create PayPal order");
+  }
+
+  return await response.json();
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -104,18 +195,15 @@ serve(async (req) => {
         throw new Error(`Produsul "${listing.title}" a fost deja vândut`);
       }
 
-      // Check stock quantity
       const currentQuantity = listing.quantity ?? 1;
       if (currentQuantity < 1) {
         throw new Error(`Produsul "${listing.title}" nu mai este în stoc`);
       }
 
-      // Prevent self-purchase
       if (listing.seller_id === userId) {
         throw new Error("Nu poți cumpăra propriul produs");
       }
 
-      // Calculate amounts using DB price (not client price)
       const itemPrice = listing.price;
       const itemBuyerFee = buyerFee / items.length;
       const itemShippingCost = shippingCost / items.length;
@@ -123,10 +211,8 @@ serve(async (req) => {
       const sellerCommission = (itemPrice * commissionPercent) / 100;
       const payoutAmount = itemPrice - sellerCommission;
 
-      // Generate transaction ID
       const transactionId = `PENDING-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
 
-      // Use TRANSACTIONAL function for atomic order creation (PENDING status)
       const { data: orderResult, error: orderError } = await supabase.rpc(
         "process_order_transaction",
         {
@@ -135,7 +221,7 @@ serve(async (req) => {
           p_seller_id: listing.seller_id,
           p_amount: itemTotal,
           p_shipping_address: shippingAddress,
-          p_payment_processor: "platform",
+          p_payment_processor: paymentMethod === "cod" ? "platform" : "paypal",
           p_transaction_id: transactionId,
           p_buyer_fee: itemBuyerFee,
           p_seller_commission: sellerCommission,
@@ -171,7 +257,6 @@ serve(async (req) => {
       const sellerTotal = sellerOrders.reduce((sum, o) => sum + o.amount, 0);
       const itemTitles = sellerOrders.map(o => o.listingTitle).join(", ");
 
-      // In-app notification
       await supabase.from("notifications").insert({
         user_id: sellerId,
         type: "order",
@@ -184,7 +269,6 @@ serve(async (req) => {
         },
       });
 
-      // EMAIL to seller
       if (resendApiKey) {
         try {
           const { data: sellerAuth } = await supabase.auth.admin.getUserById(sellerId);
@@ -240,7 +324,7 @@ serve(async (req) => {
       }
     }
 
-    // Create invoice with PENDING status
+    // Create invoice
     const invoiceNumber = `INV-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
     await supabase.from("invoices").insert({
       order_id: orders[0].id,
@@ -254,10 +338,10 @@ serve(async (req) => {
       status: "pending",
     });
 
-    const origin = req.headers.get("origin") || "https://www.marketplaceromania.com";
+    const origin = req.headers.get("origin") || "https://marketplaceromania.lovable.app";
     const orderIds = orders.map(o => o.id).join(",");
 
-    // Handle COD (Cash on Delivery) - confirm immediately since payment is at delivery
+    // ─── COD (Cash on Delivery) ───
     if (paymentMethod === "cod") {
       for (const order of orders) {
         await supabase.rpc("confirm_order_payment", {
@@ -267,13 +351,11 @@ serve(async (req) => {
         });
       }
 
-      // Update invoice to issued
       await supabase
         .from("invoices")
         .update({ status: "issued" })
         .eq("invoice_number", invoiceNumber);
 
-      // Handle locker delivery
       if (deliveryType === "locker" && selectedLocker && userEmail) {
         const pickupCode = Math.random().toString().slice(2, 8);
         const awbNumber = `AWB-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
@@ -316,23 +398,105 @@ serve(async (req) => {
       );
     }
 
-    // For CARD payments - NOT YET IMPLEMENTED
-    // Orders are in PAYMENT_PENDING status until a real payment processor is integrated
-    // Currently NO card payment processor is configured
-    const successUrl = `${origin}/checkout/success?order_ids=${orderIds}&invoice=${invoiceNumber}&verify=true`;
-    const cancelUrl = `${origin}/checkout/cancel?order_ids=${orderIds}&restore=true`;
+    // ─── CARD / PAYPAL PAYMENT ───
+    // Read PayPal config from DB (admin panel settings)
+    const paypalConfig = await getPayPalConfig(supabase);
 
-    return new Response(
-      JSON.stringify({
-        success: false,
-        error: "Plata cu cardul nu este încă disponibilă. Folosește Ramburs (COD) pentru a plasa comanda.",
-        requiresPayment: true,
-        paymentMethod: "card",
-        message: "Plata cu cardul nu este disponibilă momentan. Selectează Ramburs (COD) ca metodă de plată.",
+    if (!paypalConfig) {
+      // PayPal not configured by admin - cancel orders and restore stock
+      for (const order of orders) {
+        await supabase.rpc("cancel_pending_order", {
+          p_order_id: order.id,
+          p_reason: "PayPal nu este configurat",
+        });
+      }
+      await supabase.from("invoices").update({ status: "cancelled" }).eq("invoice_number", invoiceNumber);
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Plata cu cardul nu este încă disponibilă. Administratorul nu a configurat PayPal. Folosește Ramburs (COD).",
+          requiresPayment: true,
+          paymentMethod: "card",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+
+    // Create PayPal order
+    try {
+      const { accessToken, baseUrl } = await getPayPalAccessToken(paypalConfig);
+
+      const successUrl = `${origin}/checkout/success?order_ids=${orderIds}&invoice=${invoiceNumber}&payment=paypal`;
+      const cancelUrl = `${origin}/checkout/cancel?order_ids=${orderIds}&restore=true`;
+
+      const paypalOrder = await createPayPalOrder(
+        accessToken,
+        baseUrl,
+        totalAmount,
+        "RON",
+        orders.map(o => o.id),
+        successUrl,
         cancelUrl,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-    );
+        orders.map(o => o.listingTitle)
+      );
+
+      // Save PayPal order ID to our orders
+      for (const order of orders) {
+        await supabase
+          .from("orders")
+          .update({ 
+            processor_transaction_id: paypalOrder.id,
+            processor_status: "paypal_created",
+          })
+          .eq("id", order.id);
+      }
+
+      // Get approval URL
+      const approvalUrl = paypalOrder.links?.find((l: any) => l.rel === "approve")?.href;
+
+      if (!approvalUrl) {
+        throw new Error("PayPal did not return an approval URL");
+      }
+
+      console.log("PayPal order created:", paypalOrder.id, "Approval URL:", approvalUrl);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          processor: "paypal",
+          paypalOrderId: paypalOrder.id,
+          approvalUrl,
+          orders: orders.map(o => ({ id: o.id, amount: o.amount })),
+          total: totalAmount,
+          invoiceNumber,
+          paymentMethod: "card",
+          requiresPayment: true,
+          message: "Redirecționare către PayPal...",
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    } catch (paypalError: any) {
+      console.error("PayPal error:", paypalError);
+      
+      // Cancel orders on PayPal failure
+      for (const order of orders) {
+        await supabase.rpc("cancel_pending_order", {
+          p_order_id: order.id,
+          p_reason: `PayPal error: ${paypalError.message}`,
+        });
+      }
+      await supabase.from("invoices").update({ status: "cancelled" }).eq("invoice_number", invoiceNumber);
+
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: `Eroare PayPal: ${paypalError.message}. Încercați din nou sau folosiți Ramburs (COD).`,
+          requiresPayment: true,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Payment processing error:", error);

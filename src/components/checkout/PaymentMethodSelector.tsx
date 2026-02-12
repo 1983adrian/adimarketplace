@@ -1,14 +1,15 @@
 import React from 'react';
-import { CreditCard, Banknote, Info, AlertTriangle } from 'lucide-react';
+import { CreditCard, Banknote, Info, AlertTriangle, Loader2 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 export type PaymentMethod = 'card' | 'cod';
 
-// CardDetails kept for type compatibility but card payment is disabled
 export interface CardDetails {
   cardNumber: string;
   expiryDate: string;
@@ -36,6 +37,23 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   codFees,
   productPrice,
 }) => {
+  // Check if PayPal is configured and active
+  const { data: paypalActive, isLoading: checkingPaypal } = useQuery({
+    queryKey: ['paypal-active-check'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('payment_processor_settings')
+        .select('is_active, api_key_encrypted')
+        .eq('processor_name', 'paypal')
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error || !data) return false;
+      return !!data.api_key_encrypted;
+    },
+    staleTime: 60000,
+  });
+
   const calculateCODExtra = () => {
     if (!codFees) return 0;
     return (productPrice * codFees.percentage) / 100 + codFees.fixed + codFees.transport;
@@ -43,12 +61,12 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 
   const codExtra = calculateCODExtra();
 
-  // Auto-select COD if card is selected (card is disabled)
+  // Auto-select COD if card is selected but PayPal not available
   React.useEffect(() => {
-    if (selected === 'card' && codAvailable) {
+    if (selected === 'card' && !paypalActive && codAvailable) {
       onSelect('cod');
     }
-  }, [selected, codAvailable, onSelect]);
+  }, [selected, paypalActive, codAvailable, onSelect]);
 
   return (
     <div className="space-y-4">
@@ -58,23 +76,44 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       </h4>
 
       <RadioGroup value={selected} onValueChange={(v) => onSelect(v as PaymentMethod)} className="space-y-3">
-        {/* Card Payment - DISABLED - no processor integrated */}
+        {/* PayPal / Card Payment */}
         <div
-          className="flex items-center justify-between p-4 rounded-xl border-2 border-border bg-muted/30 cursor-not-allowed opacity-60"
+          className={cn(
+            "flex items-center justify-between p-4 rounded-xl border-2 transition-all",
+            !paypalActive
+              ? 'border-border bg-muted/30 cursor-not-allowed opacity-60'
+              : selected === 'card'
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20 cursor-pointer shadow-lg'
+              : 'border-border hover:border-blue-500/50 cursor-pointer'
+          )}
+          onClick={() => paypalActive && onSelect('card')}
         >
           <div className="flex items-center gap-3">
-            <RadioGroupItem value="card" id="card" disabled />
+            <RadioGroupItem value="card" id="card" disabled={!paypalActive} />
             <div>
-              <Label htmlFor="card" className="font-medium flex items-center gap-2">
+              <Label 
+                htmlFor="card" 
+                className={`font-medium flex items-center gap-2 ${!paypalActive ? '' : 'cursor-pointer'}`}
+              >
                 <CreditCard className="h-4 w-4" />
-                Plată cu Cardul
-                <Badge variant="destructive" className="text-xs">
-                  <AlertTriangle className="h-3 w-3 mr-1" />
-                  Indisponibil
-                </Badge>
+                Plată cu Cardul (PayPal)
+                {checkingPaypal && <Loader2 className="h-3 w-3 animate-spin" />}
+                {!checkingPaypal && !paypalActive && (
+                  <Badge variant="destructive" className="text-xs">
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    Indisponibil
+                  </Badge>
+                )}
+                {paypalActive && (
+                  <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 text-xs">
+                    PayPal
+                  </Badge>
+                )}
               </Label>
               <p className="text-sm text-muted-foreground mt-1">
-                Plata cu cardul nu este încă disponibilă. Folosește Ramburs (COD).
+                {paypalActive
+                  ? 'Plătești securizat prin PayPal — card sau cont PayPal'
+                  : 'Plata cu cardul nu este încă disponibilă. Folosește Ramburs (COD).'}
               </p>
             </div>
           </div>
@@ -124,12 +163,21 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
       </RadioGroup>
 
       {/* Warning when NO payment method is available */}
-      {!codAvailable && (
+      {!codAvailable && !paypalActive && !checkingPaypal && (
         <Alert className="border-destructive/50 bg-destructive/10">
           <AlertTriangle className="h-4 w-4 text-destructive" />
           <AlertDescription className="text-sm text-destructive">
-            <strong>Nicio metodă de plată disponibilă.</strong> Vânzătorul nu a activat plata la livrare (Ramburs), iar plata cu cardul nu este încă integrată. 
+            <strong>Nicio metodă de plată disponibilă.</strong> Vânzătorul nu a activat plata la livrare (Ramburs), iar plata cu cardul nu este încă configurată. 
             Contactează vânzătorul pentru a activa opțiunea COD.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {selected === 'card' && paypalActive && (
+        <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/30">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+            Vei fi redirecționat către <strong>PayPal</strong> pentru a finaliza plata securizat. Poți plăti cu card sau cont PayPal.
           </AlertDescription>
         </Alert>
       )}

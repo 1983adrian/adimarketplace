@@ -245,29 +245,28 @@ const Checkout = () => {
       }
 
       if (data?.success) {
-        // Clear cart on successful order creation
         clearCart();
         
         const orderIds = data.orders.map((o: any) => o.id).join(',');
         const invoiceNum = data.invoiceNumber;
         
-        // Check if payment requires verification
-        if (data.requiresPayment && data.paymentMethod !== 'cod') {
-          // For card payments, redirect to success with verification flag
+        // PayPal redirect - open PayPal approval URL
+        if (data.approvalUrl && data.processor === 'paypal') {
           toast({
-            title: '🔄 Procesare plată...',
-            description: 'Redirecționare către confirmarea comenzii.',
+            title: '🔄 Redirecționare PayPal...',
+            description: 'Vei fi redirecționat către PayPal pentru plată.',
           });
-          navigate(`/checkout/success?order_ids=${orderIds}&invoice=${invoiceNum}&verify=true&payment=card`);
-        } else if (data.paymentMethod === 'cod' || paymentMethod === 'cod') {
-          // COD - payment at delivery
+          window.location.href = data.approvalUrl;
+          return;
+        }
+        
+        if (data.paymentMethod === 'cod' || paymentMethod === 'cod') {
           toast({
             title: '✅ Comandă plasată!',
             description: `Plătești la livrare. Factura #${invoiceNum}`,
           });
           navigate(`/checkout/success?order_ids=${orderIds}&invoice=${invoiceNum}&payment=cod`);
         } else {
-          // Fallback
           toast({
             title: '✅ Comandă plasată!',
             description: `Factura #${invoiceNum}. Total: ${formatPrice(data.total)}`,
