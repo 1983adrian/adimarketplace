@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
-import heroLogo from '@/assets/marketplace-logo-hero.jpeg';
+import heroLogo from '@/assets/marketplace-logo-hero.png';
 
 interface MarketplaceBrandProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -85,13 +85,12 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
           src={heroLogo} 
           alt="MarketPlace România - Vinde Cumpără Licitează" 
           className={cn(
-            'object-contain mix-blend-multiply dark:mix-blend-screen dark:invert',
+            'object-contain',
             size === 'sm' && 'h-12 sm:h-14',
             size === 'md' && 'h-16 sm:h-20',
             size === 'lg' && 'h-20 sm:h-28 md:h-32',
             size === 'xl' && 'h-24 sm:h-32 md:h-40 lg:h-48',
           )}
-          style={{ background: 'transparent' }}
         />
       </div>
 
