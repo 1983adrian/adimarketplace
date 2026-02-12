@@ -13,6 +13,7 @@ export interface Profile {
   store_name: string | null;
   is_seller: boolean;
   max_listings: number;
+  short_id: string;
   created_at: string;
   updated_at: string;
 }
