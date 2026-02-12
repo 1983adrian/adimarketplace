@@ -62,7 +62,7 @@ export default function HowItWorks() {
     {
       icon: Wallet,
       title: "4. Primești banii",
-      description: "După confirmarea livrării, banii sunt transferați în portofelul tău. 0% comision pe vânzări!"
+      description: "După confirmarea livrării, banii sunt transferați în portofelul tău. Pe Market Place România vinzi cu 0% comision — doar abonament fix!"
     }
   ];
 
@@ -92,8 +92,8 @@ export default function HowItWorks() {
   return (
     <>
       <SEOHead 
-        title="Cum Funcționează | Marketplace România"
-        description="Află cum funcționează Marketplace România. Ghid complet pentru cumpărători și vânzători. 0% comision pe vânzări, plată sigură."
+        title="Cum Funcționează Market Place România | Ghid Complet Cumpărători și Vânzători"
+        description="Cum funcționează Market Place România? Ghid complet pentru cumpărători și vânzători pe Market Place România. 0% comision pe vânzări, abonamente fixe de la 11 LEI/lună. Primul market place din România construit cu AI."
         url="https://www.marketplaceromania.com/cum-functioneaza"
         type="article"
       />
@@ -102,9 +102,9 @@ export default function HowItWorks() {
           <div className="max-w-4xl mx-auto">
             {/* Hero */}
             <div className="text-center mb-12">
-              <h1 className="text-4xl font-bold mb-4">Cum Funcționează Marketplace România</h1>
+              <h1 className="text-4xl font-bold mb-4">Cum Funcționează Market Place România</h1>
               <p className="text-xl text-muted-foreground">
-                Ghid complet pentru a cumpăra și vinde pe cea mai mare platformă online din România
+                Ghid complet pentru a cumpăra și vinde pe Market Place România — cel mai mare market place online din România cu 0% comision și abonamente fixe
               </p>
             </div>
 
@@ -192,9 +192,9 @@ export default function HowItWorks() {
             <section className="mb-12">
               <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
                 <CardContent className="pt-6 text-center">
-                  <h2 className="text-2xl font-bold mb-4">0% Comision pe Vânzări!</h2>
+                  <h2 className="text-2xl font-bold mb-4">Market Place România — 0% Comision pe Vânzări!</h2>
                   <p className="text-muted-foreground mb-4">
-                    Plătești doar abonamentul lunar. Tot ce vinzi rămâne 100% al tău!
+                    Pe Market Place România plătești doar abonamentul fix lunar. Tot ce vinzi rămâne 100% al tău! Fără taxe ascunse, fără comisioane.
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-4 max-w-lg mx-auto text-sm">
                     <div className="p-2 rounded-lg bg-background border">
@@ -231,9 +231,9 @@ export default function HowItWorks() {
 
             {/* CTA Final */}
             <div className="text-center bg-muted/50 rounded-2xl p-8">
-              <h2 className="text-2xl font-bold mb-4">Gata să Începi?</h2>
+              <h2 className="text-2xl font-bold mb-4">Gata să Începi pe Market Place România?</h2>
               <p className="text-muted-foreground mb-6">
-                Înregistrează-te gratuit și alătură-te comunității de peste 10.000 utilizatori activi.
+                Înregistrează-te gratuit pe Market Place România și alătură-te comunității. Primele 30 de zile sunt gratuite!
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg">
