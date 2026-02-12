@@ -94,6 +94,7 @@ export const MarketplaceBrand: React.FC<MarketplaceBrandProps> = ({
           style={{ 
             mixBlendMode: 'multiply',
             background: 'transparent',
+            filter: 'contrast(1.3) brightness(1.15)',
           }}
         />
       </div>

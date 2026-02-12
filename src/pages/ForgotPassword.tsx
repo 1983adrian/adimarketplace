@@ -93,7 +93,7 @@ export default function ForgotPassword() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex justify-center">
-            <img src={heroLogo} alt="Marketplace România" className="h-32 w-auto object-contain" style={{ mixBlendMode: 'multiply' }} />
+            <img src={heroLogo} alt="Marketplace România" className="h-32 w-auto object-contain" style={{ mixBlendMode: 'multiply', filter: 'contrast(1.3) brightness(1.15)' }} />
           </div>
           <CardTitle>Resetare parolă</CardTitle>
           <CardDescription>
