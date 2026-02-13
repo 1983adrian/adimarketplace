@@ -208,7 +208,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
         </div>
         
         {/* Content */}
-        <CardContent className="p-4 flex-1 flex flex-col gap-2">
+        <CardContent className="p-3 sm:p-4 flex-1 flex flex-col gap-1.5 overflow-hidden">
           {/* Title */}
           <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-primary transition-colors leading-tight">
             {listing.title}
@@ -241,7 +241,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             <Button 
               size="sm" 
               className={cn(
-                "w-full gap-2 font-medium",
+                "w-full gap-1.5 font-medium text-xs sm:text-sm truncate",
                 isAuction 
                   ? "bg-orange-500 hover:bg-orange-600 text-white" 
                   : "gradient-primary text-primary-foreground"
@@ -250,13 +250,13 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             >
               {isAuction ? (
                 <>
-                  <Gavel className="h-4 w-4" />
-                  {t('listing.bid')}
+                  <Gavel className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{t('listing.bid')}</span>
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="h-4 w-4" />
-                  {t('listing.addToCart')}
+                  <ShoppingCart className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{t('listing.addToCart')}</span>
                 </>
               )}
             </Button>
