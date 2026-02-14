@@ -42,14 +42,14 @@ export const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
     queryKey: ['paypal-active-check'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('payment_processor_settings_safe' as any)
-        .select('is_active, api_key_masked')
+        .from('payment_processor_settings' as any)
+        .select('is_active, api_key_encrypted')
         .eq('processor_name', 'paypal')
         .eq('is_active', true)
         .maybeSingle();
 
       if (error || !data) return false;
-      return !!(data as any).api_key_masked;
+      return !!(data as any).api_key_encrypted;
     },
     staleTime: 60000,
   });
