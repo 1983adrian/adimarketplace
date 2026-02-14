@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useListing } from '@/hooks/useListings';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { PaymentMethodSelector, PaymentMethod } from '@/components/checkout/PaymentMethodSelector';
@@ -107,22 +108,55 @@ const Checkout = () => {
       }]
     : items.map(item => ({
         ...item,
-        cod_enabled: false, // Cart items need to be checked individually
+        cod_enabled: false,
         cod_fee_percentage: 0,
         cod_fixed_fee: 0,
         cod_transport_fee: 0,
         seller_country: '',
       }));
 
+  // Fetch COD settings for cart items from DB
+  const { data: cartListingDetails } = useQuery({
+    queryKey: ['cart-listing-details', items.map(i => i.id)],
+    queryFn: async () => {
+      if (items.length === 0) return [];
+      const { data, error } = await supabase
+        .from('listings')
+        .select('id, cod_enabled, cod_fee_percentage, cod_fixed_fee, cod_transport_fee, seller_country')
+        .in('id', items.map(i => i.id));
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !listingId && items.length > 0,
+  });
+
+  // Merge cart items with DB COD settings
+  const enrichedCheckoutItems: CheckoutItem[] = listingId 
+    ? checkoutItems 
+    : checkoutItems.map(item => {
+        const dbInfo = cartListingDetails?.find((d: any) => d.id === item.id);
+        if (dbInfo) {
+          return {
+            ...item,
+            cod_enabled: (dbInfo as any).cod_enabled || false,
+            cod_fee_percentage: (dbInfo as any).cod_fee_percentage || 0,
+            cod_fixed_fee: (dbInfo as any).cod_fixed_fee || 0,
+            cod_transport_fee: (dbInfo as any).cod_transport_fee || 0,
+            seller_country: (dbInfo as any).seller_country || '',
+          };
+        }
+        return item;
+      });
+
   // Check if COD is available (all items must support COD and be from Romania)
-  const codAvailable = checkoutItems.every(item => item.cod_enabled);
-  const isRomanianSeller = checkoutItems.some(item => 
+  const codAvailable = enrichedCheckoutItems.every(item => item.cod_enabled);
+  const isRomanianSeller = enrichedCheckoutItems.some(item => 
     ['romania', 'ro', 'românia'].includes((item.seller_country || '').toLowerCase())
   );
 
   // Get COD fees from listing or use courier defaults
   const getCODFees = () => {
-    const item = checkoutItems[0];
+    const item = enrichedCheckoutItems[0];
     const courier = ROMANIAN_COURIERS.find(c => c.id === selectedCourier) || ROMANIAN_COURIERS[0];
     
     return {
@@ -187,7 +221,7 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (checkoutItems.length === 0) return;
+    if (enrichedCheckoutItems.length === 0) return;
     
     setProcessing(true);
 
@@ -228,7 +262,7 @@ const Checkout = () => {
       // Call payment processor
       const { data, error } = await supabase.functions.invoke('process-payment', {
         body: { 
-          items: checkoutItems.map(item => ({ listingId: item.id, price: item.price })),
+          items: enrichedCheckoutItems.map(item => ({ listingId: item.id, price: item.price })),
           shippingAddress,
           shippingMethod: isCOD ? 'cod' : shippingMethod,
           shippingCost: finalShippingCost,
@@ -304,7 +338,7 @@ const Checkout = () => {
   };
   
   const shippingCost = getShippingCost();
-  const subtotal = checkoutItems.reduce((sum, item) => sum + item.price, 0);
+  const subtotal = enrichedCheckoutItems.reduce((sum, item) => sum + item.price, 0);
   const buyerFee = 0; // No buyer fees - revenue from subscriptions only
 
   // Calculate COD extra fees
@@ -327,7 +361,7 @@ const Checkout = () => {
     );
   }
 
-  if (checkoutItems.length === 0) {
+  if (enrichedCheckoutItems.length === 0) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12 text-center">
@@ -736,7 +770,7 @@ const Checkout = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Products */}
-                  {checkoutItems.map((item) => (
+                  {enrichedCheckoutItems.map((item) => (
                     <div key={item.id} className="flex gap-4">
                       <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted relative">
                         <img 
