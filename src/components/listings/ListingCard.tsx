@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Star, Truck, Gavel, Banknote, Share2 } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Truck, Gavel, Share2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useNotificationSound } from '@/hooks/useNotificationSound';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
-import { CODBadge } from '@/components/listings/CODBadge';
+
 import { useSellerRating } from '@/hooks/useReviews';
 import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
 
@@ -191,12 +191,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               <div className="flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
                 <Truck className="h-3 w-3" />
                 {t('listing.freeShipping')}
-              </div>
-            )}
-            {(listing as any).cod_enabled && (
-              <div className="flex items-center gap-1 bg-amber-500 text-white px-2 py-1 rounded-md text-xs font-medium">
-                <Banknote className="h-3 w-3" />
-                {t('listing.cod')}
               </div>
             )}
           </div>

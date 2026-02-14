@@ -18,7 +18,7 @@ import { useListing, useUpdateListing, useDeleteListing } from '@/hooks/useListi
 import { useImageUpload } from '@/hooks/useImageUpload';
 import { supabase } from '@/integrations/supabase/client';
 import { ItemCondition } from '@/types/database';
-import { CODSettings } from '@/components/listings/CODSettings';
+
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 import { ShippingCostSelector, COURIER_RATES } from '@/components/listings/ShippingCostSelector';
 
@@ -51,13 +51,9 @@ const EditListing = () => {
   const [shippingCost, setShippingCost] = useState('');
   const [selectedCourier, setSelectedCourier] = useState('');
   
-  // COD (Cash on Delivery / Ramburs) - Romania only
+  // Seller country
   const { data: sellerCountry } = useSellerCountry();
   const updateSellerCountry = useUpdateSellerCountry();
-  const [codEnabled, setCodEnabled] = useState(false);
-  const [codFeePercentage, setCodFeePercentage] = useState('2.5');
-  const [codFixedFee, setCodFixedFee] = useState('5');
-  const [codTransportFee, setCodTransportFee] = useState('20');
   const [sellerCountryInput, setSellerCountryInput] = useState('');
 
   // Load listing data
@@ -74,11 +70,6 @@ const EditListing = () => {
       setIsActive(listing.is_active);
       setIsSold(listing.is_sold);
       
-      // Load COD settings
-      setCodEnabled((listing as any).cod_enabled || false);
-      setCodFeePercentage((listing as any).cod_fee_percentage?.toString() || '2.5');
-      setCodFixedFee((listing as any).cod_fixed_fee?.toString() || '5');
-      setCodTransportFee((listing as any).cod_transport_fee?.toString() || '20');
       setSellerCountryInput((listing as any).seller_country || '');
       
       // Load existing images
@@ -175,11 +166,6 @@ const EditListing = () => {
         category_id: category || null,
         is_active: isActive,
         is_sold: isSold,
-        // COD (Ramburs) settings
-        cod_enabled: codEnabled,
-        cod_fee_percentage: codEnabled ? parseFloat(codFeePercentage) : null,
-        cod_fixed_fee: codEnabled ? parseFloat(codFixedFee) : null,
-        cod_transport_fee: codEnabled ? parseFloat(codTransportFee) : null,
         seller_country: sellerCountry || sellerCountryInput || null,
       } as any);
       
@@ -474,19 +460,6 @@ const EditListing = () => {
             </CardContent>
           </Card>
 
-          {/* COD Settings - Romania Only */}
-          <CODSettings
-            enabled={codEnabled}
-            onEnabledChange={setCodEnabled}
-            feePercentage={codFeePercentage}
-            onFeePercentageChange={setCodFeePercentage}
-            fixedFee={codFixedFee}
-            onFixedFeeChange={setCodFixedFee}
-            transportFee={codTransportFee}
-            onTransportFeeChange={setCodTransportFee}
-            productPrice={parseFloat(price) || 0}
-            sellerCountry={sellerCountry || sellerCountryInput}
-          />
 
           {/* Status Settings */}
           <Card>
