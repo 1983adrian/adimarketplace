@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { z } from 'zod';
 import { 
   CreditCard, Lock, Truck, MapPin, ChevronLeft, 
-  Check, ShieldCheck, Package, Loader2, Trash2, Banknote
+  Check, ShieldCheck, Package, Loader2, Trash2
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -18,13 +18,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import { useListing } from '@/hooks/useListings';
-import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { PaymentMethodSelector, PaymentMethod } from '@/components/checkout/PaymentMethodSelector';
-import { RomanianCouriers, ROMANIAN_COURIERS, DeliveryType } from '@/components/checkout/RomanianCouriers';
-import { CODSummary } from '@/components/checkout/CODSummary';
-import { LockerSelector, LockerLocation } from '@/components/checkout/LockerSelector';
 
 // Validation schemas
 const shippingSchema = z.object({
@@ -56,11 +52,8 @@ const Checkout = () => {
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [saveAddress, setSaveAddress] = useState(!!user);
   
-  // Payment method state
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
-  const [selectedCourier, setSelectedCourier] = useState('fan_courier');
-  const [deliveryType, setDeliveryType] = useState<DeliveryType>('home');
-  const [selectedLocker, setSelectedLocker] = useState<LockerLocation | null>(null);
+  // Payment method - only PayPal now
+  const paymentMethod: PaymentMethod = 'card';
 
   // Shipping form state
   const [shipping, setShipping] = useState({
@@ -85,11 +78,6 @@ const Checkout = () => {
     seller_id: string;
     selectedSize?: string;
     selectedColor?: string;
-    cod_enabled: boolean;
-    cod_fee_percentage: number;
-    cod_fixed_fee: number;
-    cod_transport_fee: number;
-    seller_country: string;
   };
 
   // Get checkout items
@@ -100,73 +88,16 @@ const Checkout = () => {
         price: singleListing.price, 
         image_url: (singleListing as any).listing_images?.[0]?.image_url || '/placeholder.svg', 
         seller_id: singleListing.seller_id,
-        cod_enabled: (singleListing as any).cod_enabled || false,
-        cod_fee_percentage: (singleListing as any).cod_fee_percentage || 0,
-        cod_fixed_fee: (singleListing as any).cod_fixed_fee || 0,
-        cod_transport_fee: (singleListing as any).cod_transport_fee || 0,
-        seller_country: (singleListing as any).seller_country || '',
       }]
     : items.map(item => ({
-        ...item,
-        cod_enabled: false,
-        cod_fee_percentage: 0,
-        cod_fixed_fee: 0,
-        cod_transport_fee: 0,
-        seller_country: '',
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        image_url: item.image_url,
+        seller_id: item.seller_id,
+        selectedSize: item.selectedSize,
+        selectedColor: item.selectedColor,
       }));
-
-  // Fetch COD settings for cart items from DB
-  const { data: cartListingDetails } = useQuery({
-    queryKey: ['cart-listing-details', items.map(i => i.id)],
-    queryFn: async () => {
-      if (items.length === 0) return [];
-      const { data, error } = await supabase
-        .from('listings')
-        .select('id, cod_enabled, cod_fee_percentage, cod_fixed_fee, cod_transport_fee, seller_country')
-        .in('id', items.map(i => i.id));
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !listingId && items.length > 0,
-  });
-
-  // Merge cart items with DB COD settings
-  const enrichedCheckoutItems: CheckoutItem[] = listingId 
-    ? checkoutItems 
-    : checkoutItems.map(item => {
-        const dbInfo = cartListingDetails?.find((d: any) => d.id === item.id);
-        if (dbInfo) {
-          return {
-            ...item,
-            cod_enabled: (dbInfo as any).cod_enabled || false,
-            cod_fee_percentage: (dbInfo as any).cod_fee_percentage || 0,
-            cod_fixed_fee: (dbInfo as any).cod_fixed_fee || 0,
-            cod_transport_fee: (dbInfo as any).cod_transport_fee || 0,
-            seller_country: (dbInfo as any).seller_country || '',
-          };
-        }
-        return item;
-      });
-
-  // Check if COD is available (all items must support COD and be from Romania)
-  const codAvailable = enrichedCheckoutItems.every(item => item.cod_enabled);
-  const isRomanianSeller = enrichedCheckoutItems.some(item => 
-    ['romania', 'ro', 'românia'].includes((item.seller_country || '').toLowerCase())
-  );
-
-  // Get COD fees from listing or use courier defaults
-  const getCODFees = () => {
-    const item = enrichedCheckoutItems[0];
-    const courier = ROMANIAN_COURIERS.find(c => c.id === selectedCourier) || ROMANIAN_COURIERS[0];
-    
-    return {
-      percentage: item?.cod_fee_percentage || courier.codFeePercent,
-      fixed: item?.cod_fixed_fee || courier.codFixedFee,
-      transport: item?.cod_transport_fee || courier.baseShippingCost,
-    };
-  };
-
-  const codFees = getCODFees();
 
   // Redirect if no items in cart and no single listing
   useEffect(() => {
@@ -221,7 +152,7 @@ const Checkout = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (enrichedCheckoutItems.length === 0) return;
+    if (checkoutItems.length === 0) return;
     
     setProcessing(true);
 
@@ -246,31 +177,16 @@ const Checkout = () => {
         });
       }
 
-      // Calculate costs
-      const courier = ROMANIAN_COURIERS.find(c => c.id === selectedCourier);
-      const isCOD = paymentMethod === 'cod';
-      
-      let finalShippingCost = shippingCost;
-      let codFeeTotal = 0;
-      
-      if (isCOD && courier) {
-        const percentFee = (subtotal * codFees.percentage) / 100;
-        codFeeTotal = percentFee + codFees.fixed + codFees.transport;
-        finalShippingCost = codFees.transport;
-      }
-
       // Call payment processor
       const { data, error } = await supabase.functions.invoke('process-payment', {
         body: { 
-          items: enrichedCheckoutItems.map(item => ({ listingId: item.id, price: item.price })),
+          items: checkoutItems.map(item => ({ listingId: item.id, price: item.price })),
           shippingAddress,
-          shippingMethod: isCOD ? 'cod' : shippingMethod,
-          shippingCost: finalShippingCost,
-          buyerFee: isCOD ? codFeeTotal : buyerFee,
+          shippingMethod,
+          shippingCost,
+          buyerFee,
           guestEmail: !user ? shipping.email : undefined,
-          paymentMethod: paymentMethod,
-          courier: isCOD ? selectedCourier : undefined,
-          codFees: isCOD ? codFees : undefined,
+          paymentMethod: 'card',
         },
       });
 
@@ -294,19 +210,11 @@ const Checkout = () => {
           return;
         }
         
-        if (data.paymentMethod === 'cod' || paymentMethod === 'cod') {
-          toast({
-            title: '✅ Comandă plasată!',
-            description: `Plătești la livrare. Factura #${invoiceNum}`,
-          });
-          navigate(`/checkout/success?order_ids=${orderIds}&invoice=${invoiceNum}&payment=cod`);
-        } else {
-          toast({
-            title: '✅ Comandă plasată!',
-            description: `Factura #${invoiceNum}. Total: ${formatPrice(data.total)}`,
-          });
-          navigate(`/checkout/success?order_ids=${orderIds}&invoice=${invoiceNum}&verify=true&payment=${paymentMethod}`);
-        }
+        toast({
+          title: '✅ Comandă plasată!',
+          description: `Factura #${invoiceNum}. Total: ${formatPrice(data.total)}`,
+        });
+        navigate(`/checkout/success?order_ids=${orderIds}&invoice=${invoiceNum}&verify=true&payment=paypal`);
       } else {
         throw new Error(data?.error || 'Procesarea comenzii a eșuat');
       }
@@ -323,33 +231,18 @@ const Checkout = () => {
 
   // Calculate totals
   const getShippingCost = () => {
-    if (paymentMethod === 'cod' && isRomanianSeller) {
-      return codFees.transport;
-    }
-    
-    // Romanian courier-based shipping
     const baseRates: Record<string, number> = {
       standard: 15.99,
       express: 24.99,
       overnight: 39.99,
     };
-    
     return baseRates[shippingMethod] || 15.99;
   };
   
   const shippingCost = getShippingCost();
-  const subtotal = enrichedCheckoutItems.reduce((sum, item) => sum + item.price, 0);
-  const buyerFee = 0; // No buyer fees - revenue from subscriptions only
-
-  // Calculate COD extra fees
-  const getCODExtraFees = () => {
-    if (paymentMethod !== 'cod') return 0;
-    const percentFee = (subtotal * codFees.percentage) / 100;
-    return percentFee + codFees.fixed;
-  };
-  
-  const codExtraFees = getCODExtraFees();
-  const total = subtotal + shippingCost + buyerFee + codExtraFees;
+  const subtotal = checkoutItems.reduce((sum, item) => sum + item.price, 0);
+  const buyerFee = 0; // No buyer fees
+  const total = subtotal + shippingCost + buyerFee;
 
   if (listingLoading) {
     return (
@@ -361,7 +254,7 @@ const Checkout = () => {
     );
   }
 
-  if (enrichedCheckoutItems.length === 0) {
+  if (checkoutItems.length === 0) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12 text-center">
@@ -557,92 +450,62 @@ const Checkout = () => {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <CreditCard className="h-5 w-5" />
-                        Alege Metoda de Plată
+                        Plată Securizată
                       </CardTitle>
-                      <CardDescription>Selectează cum dorești să plătești</CardDescription>
+                      <CardDescription>Plata se procesează prin PayPal</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <PaymentMethodSelector
                         selected={paymentMethod}
-                        onSelect={setPaymentMethod}
-                        codAvailable={codAvailable && isRomanianSeller}
-                        codFees={codFees}
+                        onSelect={() => {}}
                         productPrice={subtotal}
                       />
                     </CardContent>
                   </Card>
 
-                  {/* Courier Selection for COD */}
-                  {paymentMethod === 'cod' && isRomanianSeller && (
-                    <Card>
-                      <CardContent className="pt-6">
-                        <RomanianCouriers
-                          selectedCourier={selectedCourier}
-                          onCourierChange={setSelectedCourier}
-                          productPrice={subtotal}
-                          isCOD={true}
-                          deliveryType={deliveryType}
-                          onDeliveryTypeChange={setDeliveryType}
-                        />
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {/* Locker Selection */}
-                  {paymentMethod === 'cod' && isRomanianSeller && deliveryType === 'locker' && (
-                    <LockerSelector
-                      selectedCourier={selectedCourier}
-                      selectedLocker={selectedLocker}
-                      onLockerSelect={setSelectedLocker}
-                      isCOD={true}
-                    />
-                  )}
-
-                  {/* Standard Shipping for Card Payment */}
-                  {paymentMethod === 'card' && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Truck className="h-5 w-5" />
-                          Metodă de Livrare
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
-                          <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('standard')}>
-                            <div className="flex items-center gap-3">
-                              <RadioGroupItem value="standard" id="standard" />
-                              <div>
-                                <Label htmlFor="standard" className="cursor-pointer font-medium">Livrare Standard</Label>
-                                <p className="text-sm text-muted-foreground">5-7 zile lucrătoare</p>
-                              </div>
+                  {/* Shipping Method */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Truck className="h-5 w-5" />
+                        Metodă de Livrare
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
+                        <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('standard')}>
+                          <div className="flex items-center gap-3">
+                            <RadioGroupItem value="standard" id="standard" />
+                            <div>
+                              <Label htmlFor="standard" className="cursor-pointer font-medium">Livrare Standard</Label>
+                              <p className="text-sm text-muted-foreground">5-7 zile lucrătoare</p>
                             </div>
-                            <span className="font-medium">{formatPrice(5.99)}</span>
                           </div>
-                          <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('express')}>
-                            <div className="flex items-center gap-3">
-                              <RadioGroupItem value="express" id="express" />
-                              <div>
-                                <Label htmlFor="express" className="cursor-pointer font-medium">Livrare Express</Label>
-                                <p className="text-sm text-muted-foreground">2-3 zile lucrătoare</p>
-                              </div>
+                          <span className="font-medium">{formatPrice(15.99)}</span>
+                        </div>
+                        <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('express')}>
+                          <div className="flex items-center gap-3">
+                            <RadioGroupItem value="express" id="express" />
+                            <div>
+                              <Label htmlFor="express" className="cursor-pointer font-medium">Livrare Express</Label>
+                              <p className="text-sm text-muted-foreground">2-3 zile lucrătoare</p>
                             </div>
-                            <span className="font-medium">{formatPrice(14.99)}</span>
                           </div>
-                          <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('overnight')}>
-                            <div className="flex items-center gap-3">
-                              <RadioGroupItem value="overnight" id="overnight" />
-                              <div>
-                                <Label htmlFor="overnight" className="cursor-pointer font-medium">Livrare în 24h</Label>
-                                <p className="text-sm text-muted-foreground">Ziua lucrătoare următoare</p>
-                              </div>
+                          <span className="font-medium">{formatPrice(24.99)}</span>
+                        </div>
+                        <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('overnight')}>
+                          <div className="flex items-center gap-3">
+                            <RadioGroupItem value="overnight" id="overnight" />
+                            <div>
+                              <Label htmlFor="overnight" className="cursor-pointer font-medium">Livrare în 24h</Label>
+                              <p className="text-sm text-muted-foreground">Ziua lucrătoare următoare</p>
                             </div>
-                            <span className="font-medium">{formatPrice(29.99)}</span>
                           </div>
-                        </RadioGroup>
-                      </CardContent>
-                    </Card>
-                  )}
+                          <span className="font-medium">{formatPrice(39.99)}</span>
+                        </div>
+                      </RadioGroup>
+                    </CardContent>
+                  </Card>
 
                   <div className="flex gap-3">
                     <Button variant="outline" onClick={() => setStep('shipping')}>Înapoi</Button>
@@ -685,21 +548,13 @@ const Checkout = () => {
                       <div className="p-4 rounded-lg bg-muted/50">
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium flex items-center gap-2">
-                            {paymentMethod === 'cod' ? <Banknote className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
+                            <CreditCard className="h-4 w-4" />
                             Metodă Plată
                           </h4>
                           <Button variant="ghost" size="sm" onClick={() => setStep('payment')}>Modifică</Button>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {paymentMethod === 'cod' ? (
-                            <>
-                              Plată la Livrare (Ramburs) - {ROMANIAN_COURIERS.find(c => c.id === selectedCourier)?.name}
-                              <br />
-                              <span className="text-amber-600">Pregătește {total.toFixed(2)} RON în numerar</span>
-                            </>
-                          ) : (
-                            'Plată cu Cardul (Securizată)'
-                          )}
+                          Plată Securizată prin PayPal (card sau cont PayPal)
                         </p>
                       </div>
 
@@ -710,25 +565,14 @@ const Checkout = () => {
                           Livrare
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {paymentMethod === 'cod' 
-                            ? `${ROMANIAN_COURIERS.find(c => c.id === selectedCourier)?.name} - ${ROMANIAN_COURIERS.find(c => c.id === selectedCourier)?.deliveryTime}`
-                            : shippingMethod === 'overnight' ? 'Livrare în 24h (Ziua următoare)' :
-                              shippingMethod === 'express' ? 'Livrare Express (2-3 zile)' :
-                              'Livrare Standard (5-7 zile)'
+                          {shippingMethod === 'overnight' ? 'Livrare în 24h (Ziua următoare)' :
+                            shippingMethod === 'express' ? 'Livrare Express (2-3 zile)' :
+                            'Livrare Standard (5-7 zile)'
                           } - {formatPrice(shippingCost)}
                         </p>
                       </div>
                     </CardContent>
                   </Card>
-
-                  {/* COD Summary Card */}
-                  {paymentMethod === 'cod' && (
-                    <CODSummary
-                      productPrice={subtotal}
-                      selectedCourier={selectedCourier}
-                      codFees={codFees}
-                    />
-                  )}
 
                   {/* Legal notice before placing order */}
                   <p className="text-xs text-muted-foreground text-center">
@@ -753,7 +597,7 @@ const Checkout = () => {
                       ) : (
                         <>
                           <ShieldCheck className="h-5 w-5" />
-                          {paymentMethod === 'cod' ? 'Plasează Comanda cu Ramburs' : 'Plasează Comanda'} - {formatPrice(total)}
+                          Plătește cu PayPal - {formatPrice(total)}
                         </>
                       )}
                     </Button>
@@ -770,7 +614,7 @@ const Checkout = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Products */}
-                  {enrichedCheckoutItems.map((item) => (
+                  {checkoutItems.map((item) => (
                     <div key={item.id} className="flex gap-4">
                       <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted relative">
                         <img 
@@ -778,11 +622,6 @@ const Checkout = () => {
                           alt={item.title}
                           className="w-full h-full object-cover"
                         />
-                        {item.cod_enabled && (
-                          <Badge className="absolute bottom-1 left-1 bg-amber-500 text-white text-[10px] px-1 py-0">
-                            COD
-                          </Badge>
-                        )}
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium line-clamp-2">{item.title}</h4>
@@ -813,18 +652,6 @@ const Checkout = () => {
                       <span className="text-muted-foreground">Livrare</span>
                       <span>{formatPrice(shippingCost)}</span>
                     </div>
-                    {paymentMethod === 'cod' && codExtraFees > 0 && (
-                      <div className="flex justify-between text-amber-600">
-                        <span>Taxe Ramburs</span>
-                        <span>+{formatPrice(codExtraFees)}</span>
-                      </div>
-                    )}
-                    {paymentMethod === 'card' && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Taxă cumpărător</span>
-                        <span>{formatPrice(buyerFee)}</span>
-                      </div>
-                    )}
                   </div>
 
                   <Separator />
@@ -834,16 +661,9 @@ const Checkout = () => {
                     <span className="text-primary">{formatPrice(total)}</span>
                   </div>
 
-                  {paymentMethod === 'cod' && (
-                    <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 p-2 rounded">
-                      <Banknote className="h-4 w-4" />
-                      <span>Plătești {formatPrice(total)} în numerar la curier</span>
-                    </div>
-                  )}
-
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <ShieldCheck className="h-4 w-4 text-green-500" />
-                    <span>Protecție Cumpărător Garantată</span>
+                    <span>Protecție Cumpărător PayPal Garantată</span>
                   </div>
                 </CardContent>
               </Card>

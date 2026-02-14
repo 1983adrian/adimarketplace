@@ -13,16 +13,7 @@ interface PaymentRequest {
   shippingCost: number;
   buyerFee: number;
   guestEmail?: string;
-  paymentMethod?: "card" | "cod";
-  courier?: string;
-  deliveryType?: "home" | "locker";
-  selectedLocker?: {
-    id: string;
-    name: string;
-    address: string;
-    city: string;
-    county: string;
-  };
+  paymentMethod?: "card";
 }
 
 interface OrderResult {
@@ -154,10 +145,6 @@ serve(async (req) => {
       shippingAddress, 
       shippingCost, 
       buyerFee, 
-      courier,
-      deliveryType,
-      selectedLocker,
-      paymentMethod,
     } = body;
 
     if (!items || items.length === 0) {
@@ -219,6 +206,17 @@ serve(async (req) => {
         throw new Error("Nu poți cumpăra propriul produs");
       }
 
+      // Verify seller has PayPal configured
+      const { data: sellerProfile } = await supabase
+        .from("profiles")
+        .select("paypal_email")
+        .eq("user_id", listing.seller_id)
+        .single();
+
+      if (!sellerProfile?.paypal_email) {
+        throw new Error(`Vânzătorul produsului "${listing.title}" nu are PayPal configurat. Contactează vânzătorul.`);
+      }
+
       const itemPrice = listing.price;
       const itemBuyerFee = buyerFee / items.length;
       const itemShippingCost = shippingCost / items.length;
@@ -236,7 +234,7 @@ serve(async (req) => {
           p_seller_id: listing.seller_id,
           p_amount: itemTotal,
           p_shipping_address: shippingAddress,
-          p_payment_processor: paymentMethod === "cod" ? "platform" : "paypal",
+          p_payment_processor: "paypal",
           p_transaction_id: transactionId,
           p_buyer_fee: itemBuyerFee,
           p_seller_commission: sellerCommission,
@@ -350,7 +348,7 @@ serve(async (req) => {
         new_value: {
           listing_title: order.listingTitle,
           seller_id: order.sellerId,
-          payment_method: paymentMethod || "card",
+          payment_method: "paypal",
           transaction_id: order.transactionId,
         },
         ip_address: req.headers.get("x-forwarded-for") || req.headers.get("cf-connecting-ip"),
@@ -375,65 +373,7 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://marketplaceromania.lovable.app";
     const orderIds = orders.map(o => o.id).join(",");
 
-    // ─── COD (Cash on Delivery) ───
-    if (paymentMethod === "cod") {
-      for (const order of orders) {
-        await supabase.rpc("confirm_order_payment", {
-          p_order_id: order.id,
-          p_transaction_id: `COD-${order.transactionId}`,
-          p_processor_status: "cod_pending_delivery",
-        });
-      }
-
-      await supabase
-        .from("invoices")
-        .update({ status: "issued" })
-        .eq("invoice_number", invoiceNumber);
-
-      if (deliveryType === "locker" && selectedLocker && userEmail) {
-        const pickupCode = Math.random().toString().slice(2, 8);
-        const awbNumber = `AWB-${Date.now()}-${Math.random().toString(36).substring(7).toUpperCase()}`;
-        
-        try {
-          await supabase.functions.invoke("send-easybox-code", {
-            body: {
-              orderId: orders[0].id,
-              buyerEmail: userEmail,
-              lockerName: selectedLocker.name,
-              lockerAddress: `${selectedLocker.address}, ${selectedLocker.city}, ${selectedLocker.county}`,
-              awbNumber,
-              pickupCode,
-              courier: courier || "sameday",
-              productTitle: orders[0].listingTitle || "Produs",
-            },
-          });
-        } catch (emailError) {
-          console.error("Failed to send easybox code email:", emailError);
-        }
-        
-        await supabase
-          .from("orders")
-          .update({ tracking_number: awbNumber, carrier: courier })
-          .eq("id", orders[0].id);
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          processor: "platform",
-          orders: orders.map(o => ({ id: o.id, amount: o.amount, transactionId: o.transactionId })),
-          total: totalAmount,
-          invoiceNumber,
-          paymentMethod: "cod",
-          message: "Comandă plasată! Plătești la livrare.",
-          requiresPayment: false,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // ─── CARD / PAYPAL PAYMENT ───
-    // Read PayPal config from DB (admin panel settings)
+    // ─── PAYPAL PAYMENT (Only method) ───
     const paypalConfig = await getPayPalConfig(supabase);
 
     if (!paypalConfig) {
@@ -449,9 +389,8 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Plata cu cardul nu este încă disponibilă. Administratorul nu a configurat PayPal. Folosește Ramburs (COD).",
+          error: "Plata nu este disponibilă momentan. Administratorul trebuie să configureze PayPal.",
           requiresPayment: true,
-          paymentMethod: "card",
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
@@ -525,7 +464,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: false,
-          error: `Eroare PayPal: ${paypalError.message}. Încercați din nou sau folosiți Ramburs (COD).`,
+          error: `Eroare PayPal: ${paypalError.message}. Verifică configurarea PayPal și încearcă din nou.`,
           requiresPayment: true,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }

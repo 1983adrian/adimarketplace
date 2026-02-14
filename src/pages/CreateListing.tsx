@@ -26,7 +26,7 @@ import { ItemCondition } from '@/types/database';
 import { addDays } from 'date-fns';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from 'react-i18next';
-import { CODSettings } from '@/components/listings/CODSettings';
+
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 import { ShippingCostSelector } from '@/components/listings/ShippingCostSelector';
 
@@ -70,13 +70,9 @@ const CreateListing = () => {
   const [shippingCost, setShippingCost] = useState('');
   const [selectedCourier, setSelectedCourier] = useState('');
   
-  // COD (Cash on Delivery / Ramburs) - Romania only
+  // Seller country
   const { data: sellerCountry } = useSellerCountry();
   const updateSellerCountry = useUpdateSellerCountry();
-  const [codEnabled, setCodEnabled] = useState(false);
-  const [codFeePercentage, setCodFeePercentage] = useState('2.5');
-  const [codFixedFee, setCodFixedFee] = useState('5');
-  const [codTransportFee, setCodTransportFee] = useState('20');
   const [sellerCountryInput, setSellerCountryInput] = useState('');
   
   // Quantity & Variants
@@ -283,11 +279,6 @@ const CreateListing = () => {
         colors: colors.length > 0 ? colors : null,
         shipping_cost: shippingCost ? parseFloat(shippingCost) : 0,
         shipping_carrier: selectedCourier || null,
-        // COD (Ramburs) settings - Romania only
-        cod_enabled: codEnabled,
-        cod_fee_percentage: codEnabled ? parseFloat(codFeePercentage) : null,
-        cod_fixed_fee: codEnabled ? parseFloat(codFixedFee) : null,
-        cod_transport_fee: codEnabled ? parseFloat(codTransportFee) : null,
         seller_country: sellerCountry || sellerCountryInput || null,
         // Seller's chosen currency for the price
         price_currency: priceCurrency,
@@ -992,19 +983,6 @@ const CreateListing = () => {
             </CardContent>
           </Card>
 
-          {/* COD Settings - Romania Only */}
-          <CODSettings
-            enabled={codEnabled}
-            onEnabledChange={setCodEnabled}
-            feePercentage={codFeePercentage}
-            onFeePercentageChange={setCodFeePercentage}
-            fixedFee={codFixedFee}
-            onFixedFeeChange={setCodFixedFee}
-            transportFee={codTransportFee}
-            onTransportFeeChange={setCodTransportFee}
-            productPrice={parseFloat(price) || 0}
-            sellerCountry={sellerCountry || sellerCountryInput}
-          />
 
 
           {/* Publish Settings */}
