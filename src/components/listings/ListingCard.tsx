@@ -133,6 +133,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             decoding="async"
             fetchPriority="low"
             className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (target.src !== '/placeholder.svg') {
+                target.src = '/placeholder.svg';
+              }
+            }}
           />
           
           {/* Favorite Button - Always visible */}
