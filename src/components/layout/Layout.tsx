@@ -1,7 +1,7 @@
 import React from 'react';
 import { Header } from './Header';
 import { Footer } from './Footer';
-import { InstallBanner } from './InstallBanner';
+
 import { AppDownloadBar } from './AppDownloadBar';
 import { GrandOpeningBanner } from '@/components/announcements/GrandOpeningBanner';
 import { useRealTimeNotifications, useRealTimeOrders, useRealTimeBids, useGlobalMessageNotifications, useRealTimeFriendRequests, useRealTimeReturns, useRealTimeDisputes, useTrackingReminder } from '@/hooks/useRealTimeNotifications';
@@ -48,9 +48,6 @@ export const Layout: React.FC<LayoutProps> = ({ children, hideFooter = false }) 
       {!hideFooter && (
         <Footer />
       )}
-      
-      {/* PWA Install Banner for mobile users */}
-      <InstallBanner />
     </div>
   );
 };
