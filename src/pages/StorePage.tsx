@@ -143,22 +143,7 @@ const StorePage = () => {
   const { data: reviews } = useSellerReviews(id);
   const { data: stats } = useSellerStats(id);
 
-  const handleSavePaypal = async () => {
-    if (!user) return;
-    setSavingPaypal(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ paypal_email: paypalEmail || null } as any)
-        .eq('user_id', user.id);
-      if (error) throw error;
-      toast({ title: 'Salvat', description: 'Email-ul PayPal a fost actualizat.' });
-    } catch (error: any) {
-      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
-    } finally {
-      setSavingPaypal(false);
-    }
-  };
+  // Old handleSavePaypal removed — using the one defined above via edge function
 
   if (sellerLoading) {
     return (
