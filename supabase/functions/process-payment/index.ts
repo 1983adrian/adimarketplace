@@ -26,22 +26,17 @@ interface OrderResult {
   paymentStatus: string;
 }
 
-// Get PayPal credentials from DB
-async function getPayPalConfig(supabase: any) {
-  const { data, error } = await supabase
-    .from("payment_processor_settings")
-    .select("*")
-    .eq("processor_name", "paypal")
-    .eq("is_active", true)
-    .single();
+// Get PayPal credentials from environment secrets
+function getPayPalConfig() {
+  const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
+  const clientSecret = Deno.env.get("PAYPAL_SECRET_KEY");
 
-  if (error || !data) return null;
-  if (!data.api_key_encrypted || !data.api_secret_encrypted) return null;
+  if (!clientId || !clientSecret) return null;
 
   return {
-    clientId: data.api_key_encrypted,
-    clientSecret: data.api_secret_encrypted,
-    environment: data.environment || "sandbox",
+    clientId,
+    clientSecret,
+    environment: "sandbox" as const, // Change to "live" for production
   };
 }
 
@@ -374,7 +369,7 @@ serve(async (req) => {
     const orderIds = orders.map(o => o.id).join(",");
 
     // ─── PAYPAL PAYMENT (Only method) ───
-    const paypalConfig = await getPayPalConfig(supabase);
+    const paypalConfig = getPayPalConfig();
 
     if (!paypalConfig) {
       // PayPal not configured by admin - cancel orders and restore stock
