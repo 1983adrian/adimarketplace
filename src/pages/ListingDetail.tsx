@@ -236,7 +236,8 @@ const ListingDetail = () => {
                     <img 
                       src={img.image_url} 
                       alt={`${listing.title} - ${index + 1}`} 
-                      className="w-full object-contain h-[200px] sm:h-[240px]" 
+                      className="w-full object-contain h-[200px] sm:h-[240px]"
+                      onError={(e) => { const t = e.currentTarget; if (t.src !== '/placeholder.svg') t.src = '/placeholder.svg'; }}
                     />
                   </div>
                 ))}
@@ -253,7 +254,8 @@ const ListingDetail = () => {
               <img 
                 src={images[selectedImage]?.image_url || primaryImage || '/placeholder.svg'} 
                 alt={listing.title} 
-                className="hidden md:block w-full object-cover h-full" 
+                className="hidden md:block w-full object-cover h-full"
+                onError={(e) => { const t = e.currentTarget; if (t.src !== '/placeholder.svg') t.src = '/placeholder.svg'; }}
               />
             </div>
             {/* Thumbnail Gallery - Desktop only */}
@@ -267,7 +269,7 @@ const ListingDetail = () => {
                       index === selectedImage ? 'border-primary' : 'border-transparent hover:border-primary/50'
                     }`}
                   >
-                    <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+                    <img src={img.image_url} alt="" className="w-full h-full object-cover" onError={(e) => { const t = e.currentTarget; if (t.src !== '/placeholder.svg') t.src = '/placeholder.svg'; }} />
                   </button>
                 ))}
               </div>
