@@ -6,22 +6,17 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Get PayPal credentials from DB
-async function getPayPalConfig(supabase: any) {
-  const { data, error } = await supabase
-    .from("payment_processor_settings")
-    .select("*")
-    .eq("processor_name", "paypal")
-    .eq("is_active", true)
-    .single();
+// Get PayPal credentials from environment secrets
+function getPayPalConfig() {
+  const clientId = Deno.env.get("PAYPAL_CLIENT_ID");
+  const clientSecret = Deno.env.get("PAYPAL_SECRET_KEY");
 
-  if (error || !data) return null;
-  if (!data.api_key_encrypted || !data.api_secret_encrypted) return null;
+  if (!clientId || !clientSecret) return null;
 
   return {
-    clientId: data.api_key_encrypted,
-    clientSecret: data.api_secret_encrypted,
-    environment: data.environment || "sandbox",
+    clientId,
+    clientSecret,
+    environment: "live" as const,
   };
 }
 
@@ -153,7 +148,7 @@ serve(async (req) => {
 
     // ─── PayPal Capture ───
     if (paypalOrderId) {
-      const paypalConfig = await getPayPalConfig(supabase);
+      const paypalConfig = getPayPalConfig();
       if (!paypalConfig) {
         throw new Error("PayPal nu este configurat");
       }
