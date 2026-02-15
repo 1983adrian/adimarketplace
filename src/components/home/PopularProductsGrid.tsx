@@ -67,7 +67,7 @@ const PopularProductsGridComponent: React.FC<PopularProductsGridProps> = ({
   const navigate = useNavigate();
 
   return (
-    <div className="grid grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
       {listings.slice(0, 15).map((listing) => {
         const primaryImage = listing.listing_images?.find((img: any) => img.is_primary) || listing.listing_images?.[0];
         const isAuction = listing.listing_type === 'auction' || listing.listing_type === 'both';
@@ -143,29 +143,29 @@ const PopularProductsGridComponent: React.FC<PopularProductsGridProps> = ({
                   {isAuction ? (
                     <Button 
                       size="sm" 
-                      className="flex-1 gap-1 text-[10px] md:text-xs h-7 md:h-8 bg-orange-500 hover:bg-orange-600"
+                      className="flex-1 gap-1 text-[10px] md:text-xs h-7 md:h-8 bg-orange-500 hover:bg-orange-600 min-w-0 overflow-hidden px-1.5"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                         navigate(`/listing/${listing.id}`);
                       }}
                     >
-                      <Gavel className="h-3 w-3" />
-                      {t('listing.placeBid')}
+                      <Gavel className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{t('listing.placeBid')}</span>
                     </Button>
                   ) : (
                     <>
                       <Button 
                         size="sm" 
-                        className="flex-1 gap-1 text-[10px] md:text-xs h-7 md:h-8"
+                        className="flex-1 gap-1 text-[10px] md:text-xs h-7 md:h-8 min-w-0 overflow-hidden px-1.5"
                         onClick={handleBuyNow}
                       >
-                        {t('listing.buyNow')}
+                        <span className="truncate">{t('listing.buyNow')}</span>
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline"
-                        className="h-7 md:h-8 px-1.5 md:px-2"
+                        className="h-7 md:h-8 px-1.5 shrink-0"
                         onClick={handleAddToCart}
                       >
                         <ShoppingCart className="h-3 w-3" />
