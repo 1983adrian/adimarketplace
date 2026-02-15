@@ -99,6 +99,12 @@ export const PromotedGrid: React.FC<PromotedGridProps> = ({
                   src={primaryImage?.image_url || '/placeholder.svg'}
                   alt={listing.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (target.src !== '/placeholder.svg') {
+                      target.src = '/placeholder.svg';
+                    }
+                  }}
                 />
                 <FavoriteButton listingId={listing.id} userId={user?.id} />
                 <Badge className="absolute bottom-2 left-2 bg-secondary text-secondary-foreground text-xs">
