@@ -20,7 +20,6 @@ export const useListings = (filters?: ListingFilters) => {
         .select(`
           *,
           listing_images (*),
-          profiles (*),
           categories (*)
         `)
         .eq('is_active', true)
@@ -69,7 +68,7 @@ export const useListing = (id: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('listings')
-        .select(`*, listing_images (*), profiles (*), categories (*)`)
+        .select(`*, listing_images (*), categories (*)`)
         .eq('id', id)
         .maybeSingle();
       if (error) throw error;
