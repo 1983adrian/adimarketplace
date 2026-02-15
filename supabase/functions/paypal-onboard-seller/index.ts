@@ -57,7 +57,8 @@ serve(async (req) => {
       });
     }
 
-    const { action, return_url } = await req.json();
+    const body = await req.json();
+    const { action, return_url, merchantId, merchantIdInPayPal } = body;
 
     // Generate PayPal Partner Referral link for seller onboarding
     if (action === "connect") {
@@ -154,7 +155,6 @@ serve(async (req) => {
 
     // Callback after PayPal onboarding - save merchant info
     if (action === "save-merchant") {
-      const { merchantId, merchantIdInPayPal } = await req.json().catch(() => ({}));
       
       const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
       const adminClient = createClient(supabaseUrl, serviceRoleKey);
