@@ -228,14 +228,14 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           
           {/* Price & Buy Button */}
           <div className="mt-auto pt-3 space-y-2">
-            <p className="text-xl md:text-2xl font-bold text-foreground">
+            <p className="text-xl md:text-2xl font-bold text-foreground text-center">
               {formatPrice(listing.price, ((listing as any).price_currency || 'RON') as any)}
             </p>
             
             <Button 
               size="sm" 
               className={cn(
-                "w-full gap-1.5 font-medium text-xs sm:text-sm truncate",
+                "w-full gap-1.5 font-medium text-xs sm:text-sm justify-center",
                 isAuction 
                   ? "bg-orange-500 hover:bg-orange-600 text-white" 
                   : "gradient-primary text-primary-foreground"
@@ -245,12 +245,12 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               {isAuction ? (
                 <>
                   <Gavel className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{t('listing.bid')}</span>
+                  <span>{t('listing.bid')}</span>
                 </>
               ) : (
                 <>
                   <ShoppingCart className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{t('listing.addToCart')}</span>
+                  <span>{t('listing.addToCart')}</span>
                 </>
               )}
             </Button>

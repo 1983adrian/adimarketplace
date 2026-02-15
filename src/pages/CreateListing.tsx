@@ -956,12 +956,45 @@ const CreateListing = () => {
                     <SelectValue placeholder="Selectează țara" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Romania">România</SelectItem>
-                    <SelectItem value="UK">Regatul Unit</SelectItem>
-                    <SelectItem value="Germany">Germania</SelectItem>
-                    <SelectItem value="France">Franța</SelectItem>
-                    <SelectItem value="Italy">Italia</SelectItem>
-                    <SelectItem value="Spain">Spania</SelectItem>
+                    <SelectItem value="Romania">🇷🇴 România</SelectItem>
+                    <SelectItem value="UK">🇬🇧 Regatul Unit</SelectItem>
+                    <SelectItem value="Germany">🇩🇪 Germania</SelectItem>
+                    <SelectItem value="France">🇫🇷 Franța</SelectItem>
+                    <SelectItem value="Italy">🇮🇹 Italia</SelectItem>
+                    <SelectItem value="Spain">🇪🇸 Spania</SelectItem>
+                    <SelectItem value="Netherlands">🇳🇱 Olanda</SelectItem>
+                    <SelectItem value="Belgium">🇧🇪 Belgia</SelectItem>
+                    <SelectItem value="Austria">🇦🇹 Austria</SelectItem>
+                    <SelectItem value="Switzerland">🇨🇭 Elveția</SelectItem>
+                    <SelectItem value="Poland">🇵🇱 Polonia</SelectItem>
+                    <SelectItem value="Czech Republic">🇨🇿 Cehia</SelectItem>
+                    <SelectItem value="Hungary">🇭🇺 Ungaria</SelectItem>
+                    <SelectItem value="Portugal">🇵🇹 Portugalia</SelectItem>
+                    <SelectItem value="Sweden">🇸🇪 Suedia</SelectItem>
+                    <SelectItem value="Norway">🇳🇴 Norvegia</SelectItem>
+                    <SelectItem value="Denmark">🇩🇰 Danemarca</SelectItem>
+                    <SelectItem value="Finland">🇫🇮 Finlanda</SelectItem>
+                    <SelectItem value="Ireland">🇮🇪 Irlanda</SelectItem>
+                    <SelectItem value="Greece">🇬🇷 Grecia</SelectItem>
+                    <SelectItem value="Bulgaria">🇧🇬 Bulgaria</SelectItem>
+                    <SelectItem value="Croatia">🇭🇷 Croația</SelectItem>
+                    <SelectItem value="Slovakia">🇸🇰 Slovacia</SelectItem>
+                    <SelectItem value="Slovenia">🇸🇮 Slovenia</SelectItem>
+                    <SelectItem value="Lithuania">🇱🇹 Lituania</SelectItem>
+                    <SelectItem value="Latvia">🇱🇻 Letonia</SelectItem>
+                    <SelectItem value="Estonia">🇪🇪 Estonia</SelectItem>
+                    <SelectItem value="Luxembourg">🇱🇺 Luxemburg</SelectItem>
+                    <SelectItem value="Malta">🇲🇹 Malta</SelectItem>
+                    <SelectItem value="Cyprus">🇨🇾 Cipru</SelectItem>
+                    <SelectItem value="Iceland">🇮🇸 Islanda</SelectItem>
+                    <SelectItem value="Serbia">🇷🇸 Serbia</SelectItem>
+                    <SelectItem value="Moldova">🇲🇩 Moldova</SelectItem>
+                    <SelectItem value="Albania">🇦🇱 Albania</SelectItem>
+                    <SelectItem value="North Macedonia">🇲🇰 Macedonia de Nord</SelectItem>
+                    <SelectItem value="Montenegro">🇲🇪 Muntenegru</SelectItem>
+                    <SelectItem value="Bosnia">🇧🇦 Bosnia și Herțegovina</SelectItem>
+                    <SelectItem value="Turkey">🇹🇷 Turcia</SelectItem>
+                    <SelectItem value="Ukraine">🇺🇦 Ucraina</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -45,14 +45,26 @@ export default function AdminPaymentProcessors() {
   const { data: paypal, isLoading } = useQuery({
     queryKey: ['paypal-settings'],
     queryFn: async () => {
+      // Read from the actual table to check if keys are set
       const { data, error } = await supabase
-        .from('payment_processor_settings_safe' as any)
-        .select('*')
+        .from('payment_processor_settings')
+        .select('id, processor_name, is_active, environment, merchant_id, webhook_url, api_key_encrypted, api_secret_encrypted')
         .eq('processor_name', 'paypal')
         .single();
       
       if (error && error.code !== 'PGRST116') throw error;
-      return data as unknown as ProcessorSettings | null;
+      
+      // Don't expose actual values, just check if they exist
+      if (data) {
+        return {
+          ...data,
+          hasClientId: !!data.api_key_encrypted,
+          hasSecret: !!data.api_secret_encrypted,
+          api_key_encrypted: undefined,
+          api_secret_encrypted: undefined,
+        } as unknown as ProcessorSettings & { hasClientId: boolean; hasSecret: boolean };
+      }
+      return null;
     },
   });
 
@@ -82,7 +94,25 @@ export default function AdminPaymentProcessors() {
   });
 
   const handleSave = () => {
-    if (Object.keys(edited).length === 0) return;
+    if (Object.keys(edited).length === 0) {
+      toast({ title: 'Nimic de salvat', description: 'Nu ai modificat nicio valoare.', variant: 'destructive' });
+      return;
+    }
+    
+    // Validate that at least Client ID and Secret are provided when activating
+    const clientId = edited.api_key_encrypted ?? '';
+    const secret = edited.api_secret_encrypted ?? '';
+    const activating = edited.is_active === true;
+    
+    if (activating && !clientId && !paypal?.api_key_encrypted) {
+      toast({ title: 'Client ID lipsă', description: 'Introdu PayPal Client ID înainte de a activa.', variant: 'destructive' });
+      return;
+    }
+    if (activating && !secret && !paypal?.api_secret_encrypted) {
+      toast({ title: 'Secret Key lipsă', description: 'Introdu PayPal Secret Key înainte de a activa.', variant: 'destructive' });
+      return;
+    }
+    
     save.mutate(edited);
   };
 
@@ -96,6 +126,7 @@ export default function AdminPaymentProcessors() {
 
   const isConfigured = !!paypal?.id;
   const isActive = getValue('is_active') as boolean || false;
+  const hasKeys = (paypal as any)?.hasClientId && (paypal as any)?.hasSecret;
 
   if (isLoading) {
     return (
@@ -121,16 +152,21 @@ export default function AdminPaymentProcessors() {
         </div>
 
         {/* Status */}
-        <div className="flex items-center gap-3">
-          {isConfigured && isActive ? (
+        <div className="flex items-center gap-3 flex-wrap">
+          {isConfigured && isActive && hasKeys ? (
             <Badge className="bg-green-500/15 text-green-700 border-green-500/30 gap-1.5 py-1 px-3 text-sm">
               <CheckCircle className="h-3.5 w-3.5" />
-              PayPal Activ
+              PayPal Activ ✅
             </Badge>
-          ) : isConfigured ? (
+          ) : isConfigured && hasKeys ? (
             <Badge variant="secondary" className="gap-1.5 py-1 px-3 text-sm">
               <AlertTriangle className="h-3.5 w-3.5" />
-              Configurat dar dezactivat
+              Chei salvate — activează switch-ul!
+            </Badge>
+          ) : isConfigured ? (
+            <Badge variant="destructive" className="gap-1.5 py-1 px-3 text-sm">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              ⚠️ CHEILE API NU SUNT SALVATE
             </Badge>
           ) : (
             <Badge variant="destructive" className="gap-1.5 py-1 px-3 text-sm">
