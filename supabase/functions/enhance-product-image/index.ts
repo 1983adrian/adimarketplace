@@ -28,7 +28,21 @@ Deno.serve(async (req) => {
 
     console.log('Enhancing product image:', imageUrl.substring(0, 80));
 
-    // Use Gemini image editing to remove background and place on white
+    // First, download the image and convert to base64
+    const imageResponse = await fetch(imageUrl);
+    if (!imageResponse.ok) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Could not download original image' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    const imageBuffer = await imageResponse.arrayBuffer();
+    const base64Image = btoa(String.fromCharCode(...new Uint8Array(imageBuffer)));
+    const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+    const dataUri = `data:${contentType};base64,${base64Image}`;
+
+    // Use supported Gemini image generation model
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -36,7 +50,7 @@ Deno.serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-image',
+        model: 'google/gemini-3-pro-image-preview',
         messages: [
           {
             role: 'user',
@@ -48,7 +62,7 @@ Deno.serve(async (req) => {
               {
                 type: 'image_url',
                 image_url: {
-                  url: imageUrl
+                  url: dataUri
                 }
               }
             ]
@@ -60,25 +74,57 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI API error:', errorText);
+      console.error('AI API error:', response.status, errorText);
       return new Response(
-        JSON.stringify({ success: false, error: 'Image enhancement failed' }),
+        JSON.stringify({ success: false, error: `Image enhancement failed (${response.status})` }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const data = await response.json();
-    const enhancedImage = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    console.log('AI response keys:', JSON.stringify(Object.keys(data)));
+    
+    // Try multiple response formats
+    let enhancedImageBase64 = null;
+    
+    // Format 1: choices[0].message.images[0].image_url.url
+    enhancedImageBase64 = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    
+    // Format 2: choices[0].message.content with base64 image
+    if (!enhancedImageBase64) {
+      const content = data.choices?.[0]?.message?.content;
+      if (typeof content === 'string' && content.startsWith('data:image')) {
+        enhancedImageBase64 = content;
+      } else if (Array.isArray(content)) {
+        const imgPart = content.find((p: any) => p.type === 'image_url' || p.type === 'image');
+        if (imgPart) {
+          enhancedImageBase64 = imgPart.image_url?.url || imgPart.url || imgPart.data;
+        }
+      }
+    }
 
-    if (!enhancedImage) {
-      console.error('No image in AI response:', JSON.stringify(data).substring(0, 200));
+    // Format 3: inline_data
+    if (!enhancedImageBase64 && data.choices?.[0]?.message?.content) {
+      const content = data.choices[0].message.content;
+      if (Array.isArray(content)) {
+        for (const part of content) {
+          if (part.inline_data?.data) {
+            enhancedImageBase64 = `data:${part.inline_data.mime_type || 'image/png'};base64,${part.inline_data.data}`;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!enhancedImageBase64) {
+      console.error('No image in AI response:', JSON.stringify(data).substring(0, 500));
       return new Response(
-        JSON.stringify({ success: false, error: 'No enhanced image generated' }),
+        JSON.stringify({ success: false, error: 'No enhanced image generated. AI response format unexpected.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Upload enhanced image to Supabase storage
+    // Upload enhanced image to storage
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
@@ -86,7 +132,7 @@ Deno.serve(async (req) => {
     );
 
     // Convert base64 to binary
-    const base64Data = enhancedImage.replace(/^data:image\/\w+;base64,/, '');
+    const base64Data = enhancedImageBase64.replace(/^data:image\/\w+;base64,/, '');
     const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
     
     const fileName = `enhanced/${Date.now()}-${Math.random().toString(36).substring(7)}.png`;
