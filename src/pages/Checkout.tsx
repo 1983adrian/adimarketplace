@@ -244,7 +244,7 @@ const Checkout = () => {
   const buyerFee = 0; // No buyer fees
   const total = subtotal + shippingCost + buyerFee;
 
-  if (listingLoading) {
+  if (listingLoading || (listingId && !singleListing)) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-12 flex items-center justify-center">
