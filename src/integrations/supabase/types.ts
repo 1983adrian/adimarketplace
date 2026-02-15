@@ -3771,37 +3771,21 @@ export type Database = {
             }
             Returns: undefined
           }
-      process_order_transaction:
-        | {
-            Args: {
-              p_amount: number
-              p_buyer_fee: number
-              p_buyer_id: string
-              p_listing_id: string
-              p_payment_processor: string
-              p_payout_amount: number
-              p_seller_commission: number
-              p_seller_id: string
-              p_shipping_address: string
-              p_transaction_id: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_amount: number
-              p_buyer_fee: number
-              p_buyer_id: string
-              p_listing_id: string
-              p_payment_processor: string
-              p_payout_amount: number
-              p_seller_commission: number
-              p_seller_id: string
-              p_shipping_address: string
-              p_transaction_id: string
-            }
-            Returns: Json
-          }
+      process_order_transaction: {
+        Args: {
+          p_amount: number
+          p_buyer_fee: number
+          p_buyer_id: string
+          p_listing_id: string
+          p_payment_processor: string
+          p_payout_amount: number
+          p_seller_commission: number
+          p_seller_id: string
+          p_shipping_address: string
+          p_transaction_id: string
+        }
+        Returns: Json
+      }
       purge_old_tokens: { Args: never; Returns: number }
       refresh_platform_statistics: { Args: never; Returns: undefined }
       rotate_push_token: {
