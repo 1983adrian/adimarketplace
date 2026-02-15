@@ -6,6 +6,29 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+async function getPayPalAccessToken(): Promise<string> {
+  const clientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
+  const secret = Deno.env.get("PAYPAL_SECRET_KEY")!;
+  const base = "https://api-m.sandbox.paypal.com"; // Change to live for production
+
+  const res = await fetch(`${base}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${btoa(`${clientId}:${secret}`)}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PayPal auth failed: ${err}`);
+  }
+
+  const data = await res.json();
+  return data.access_token;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -34,46 +57,77 @@ serve(async (req) => {
       });
     }
 
-    const { action, paypal_email } = await req.json();
+    const { action, return_url } = await req.json();
 
-    if (action === "save-email") {
-      if (!paypal_email || !paypal_email.includes("@")) {
-        return new Response(
-          JSON.stringify({ error: "Email PayPal invalid" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+    // Generate PayPal Partner Referral link for seller onboarding
+    if (action === "connect") {
+      const accessToken = await getPayPalAccessToken();
+      const base = "https://api-m.sandbox.paypal.com";
 
-      const cleanEmail = paypal_email.trim().toLowerCase();
+      const referralBody = {
+        tracking_id: user.id,
+        operations: [
+          {
+            operation: "API_INTEGRATION",
+            api_integration_preference: {
+              rest_api_integration: {
+                integration_method: "PAYPAL",
+                integration_type: "THIRD_PARTY",
+                third_party_details: {
+                  features: ["PAYMENT", "REFUND"],
+                },
+              },
+            },
+          },
+        ],
+        products: ["EXPRESS_CHECKOUT"],
+        legal_consents: [
+          {
+            type: "SHARE_DATA_CONSENT",
+            granted: true,
+          },
+        ],
+        partner_config_override: {
+          return_url: return_url || "https://marketplaceromania.lovable.app",
+        },
+      };
 
-      // Save to profile using service role for security
-      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
-      const { error } = await adminClient
-        .from("profiles")
-        .update({ paypal_email: cleanEmail })
-        .eq("user_id", user.id);
-
-      if (error) throw error;
-
-      // Log the action for audit
-      await adminClient.from("financial_audit_log").insert({
-        user_id: user.id,
-        action: "paypal_email_updated",
-        entity_type: "profile",
-        entity_id: user.id,
-        new_value: { email_domain: cleanEmail.split("@")[1] },
+      const referralRes = await fetch(`${base}/v2/customer/partner-referrals`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(referralBody),
       });
 
+      if (!referralRes.ok) {
+        const errText = await referralRes.text();
+        console.error("PayPal referral error:", errText);
+        throw new Error(`PayPal referral failed: ${referralRes.status}`);
+      }
+
+      const referralData = await referralRes.json();
+      const actionUrl = referralData.links?.find(
+        (l: any) => l.rel === "action_url"
+      )?.href;
+
+      if (!actionUrl) {
+        throw new Error("No action_url received from PayPal");
+      }
+
       return new Response(
-        JSON.stringify({ success: true, email: cleanEmail }),
+        JSON.stringify({ success: true, action_url: actionUrl }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
+    // Check seller's PayPal merchant status
     if (action === "get-status") {
-      const { data: profile } = await supabase
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+      const { data: profile } = await adminClient
         .from("profiles")
         .select("paypal_email")
         .eq("user_id", user.id)
@@ -81,11 +135,76 @@ serve(async (req) => {
 
       const email = (profile as any)?.paypal_email || null;
 
+      // If we have a stored PayPal email/merchant, check with PayPal API
+      if (email) {
+        return new Response(
+          JSON.stringify({
+            connected: true,
+            email: email,
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       return new Response(
-        JSON.stringify({
-          connected: !!email,
-          email: email,
-        }),
+        JSON.stringify({ connected: false }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Callback after PayPal onboarding - save merchant info
+    if (action === "save-merchant") {
+      const { merchantId, merchantIdInPayPal } = await req.json().catch(() => ({}));
+      
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+      // Save the merchant connection
+      const paypalRef = merchantIdInPayPal || merchantId || `paypal_connected_${Date.now()}`;
+      
+      const { error } = await adminClient
+        .from("profiles")
+        .update({ paypal_email: paypalRef })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      // Audit log
+      await adminClient.from("financial_audit_log").insert({
+        user_id: user.id,
+        action: "paypal_merchant_connected",
+        entity_type: "profile",
+        entity_id: user.id,
+        new_value: { merchant_ref: paypalRef },
+      });
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Disconnect PayPal
+    if (action === "disconnect") {
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+      const { error } = await adminClient
+        .from("profiles")
+        .update({ paypal_email: null })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      await adminClient.from("financial_audit_log").insert({
+        user_id: user.id,
+        action: "paypal_disconnected",
+        entity_type: "profile",
+        entity_id: user.id,
+      });
+
+      return new Response(
+        JSON.stringify({ success: true }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
