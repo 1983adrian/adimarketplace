@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface VerificationResult {
   isReal: boolean;
@@ -18,6 +19,7 @@ interface EnhanceResult {
 
 export function useImageUpload() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
 
   const verifyImage = async (imageUrl: string, listingId: string): Promise<VerificationResult | null> => {
@@ -41,9 +43,10 @@ export function useImageUpload() {
   // Auto-verify disabled - all images are allowed
   const uploadImage = async (file: File, listingId: string, _autoVerify = false): Promise<string | null> => {
     try {
+      if (!user) throw new Error('User not authenticated');
       const fileExt = file.name.split('.').pop();
-      const fileName = `${listingId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-      
+      // CRITICAL: First folder must be auth.uid() to match storage RLS policy
+      const fileName = `${user.id}/${listingId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
       const { error: uploadError } = await supabase.storage
         .from('listings')
         .upload(fileName, file, {
