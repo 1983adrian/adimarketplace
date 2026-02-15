@@ -30,8 +30,9 @@ const shippingSchema = z.object({
   address: z.string().trim().min(5, 'Adresa este obligatorie').max(200, 'Adresă prea lungă'),
   apartment: z.string().max(50, 'Text prea lung').optional(),
   city: z.string().trim().min(2, 'Orașul este obligatoriu').max(100, 'Oraș prea lung'),
-  state: z.string().min(2, 'Județul este obligatoriu'),
-  zipCode: z.string().min(4, 'Codul poștal este obligatoriu'),
+  country: z.string().min(2, 'Țara este obligatorie'),
+  state: z.string().min(2, 'Județul/County este obligatoriu'),
+  zipCode: z.string().min(3, 'Codul poștal este obligatoriu'),
   phone: z.string().min(10, 'Numărul de telefon este obligatoriu'),
 });
 
@@ -63,6 +64,7 @@ const Checkout = () => {
     address: '',
     apartment: '',
     city: '',
+    country: 'GB',
     state: '',
     zipCode: '',
     phone: '',
@@ -158,7 +160,8 @@ const Checkout = () => {
 
     try {
       // Build shipping address string
-      const shippingAddress = `${shipping.firstName} ${shipping.lastName}, ${shipping.address}${shipping.apartment ? `, ${shipping.apartment}` : ''}, ${shipping.city}, ${shipping.state} ${shipping.zipCode}, Tel: ${shipping.phone}`;
+      const countryName = shipping.country === 'RO' ? 'România' : shipping.country === 'GB' ? 'United Kingdom' : shipping.country;
+      const shippingAddress = `${shipping.firstName} ${shipping.lastName}, ${shipping.address}${shipping.apartment ? `, ${shipping.apartment}` : ''}, ${shipping.city}, ${shipping.state} ${shipping.zipCode}, ${countryName}, Tel: ${shipping.phone}`;
 
       // Save address if user is logged in and requested
       if (user && saveAddress) {
@@ -361,30 +364,55 @@ const Checkout = () => {
                     )}
 
                     <div className="space-y-2">
-                      <Label htmlFor="address">Adresa *</Label>
+                      <Label htmlFor="address">Adresa / Address *</Label>
                       <Input
                         id="address"
                         value={shipping.address}
                         onChange={(e) => setShipping(s => ({ ...s, address: e.target.value }))}
-                        placeholder="Strada, număr"
+                        placeholder={shipping.country === 'RO' ? 'Strada, număr' : 'Street address, house number'}
                         className={shippingErrors.address ? 'border-destructive' : ''}
                       />
                       {shippingErrors.address && <p className="text-xs text-destructive">{shippingErrors.address}</p>}
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="apartment">Apartament, Bloc, Scară</Label>
+                      <Label htmlFor="apartment">{shipping.country === 'RO' ? 'Apartament, Bloc, Scară' : 'Flat / Apartment (optional)'}</Label>
                       <Input
                         id="apartment"
                         value={shipping.apartment}
                         onChange={(e) => setShipping(s => ({ ...s, apartment: e.target.value }))}
-                        placeholder="Bloc 4, Scara B, Apt 12"
+                        placeholder={shipping.country === 'RO' ? 'Bloc 4, Scara B, Apt 12' : 'Flat 2, Building A'}
                       />
+                    </div>
+
+                    {/* Country selector */}
+                    <div className="space-y-2">
+                      <Label htmlFor="country">Țara / Country *</Label>
+                      <select
+                        id="country"
+                        value={shipping.country}
+                        onChange={(e) => setShipping(s => ({ ...s, country: e.target.value, state: '' }))}
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <option value="GB">🇬🇧 United Kingdom</option>
+                        <option value="RO">🇷🇴 România</option>
+                        <option value="DE">🇩🇪 Germany</option>
+                        <option value="FR">🇫🇷 France</option>
+                        <option value="ES">🇪🇸 Spain</option>
+                        <option value="IT">🇮🇹 Italy</option>
+                        <option value="NL">🇳🇱 Netherlands</option>
+                        <option value="BE">🇧🇪 Belgium</option>
+                        <option value="AT">🇦🇹 Austria</option>
+                        <option value="IE">🇮🇪 Ireland</option>
+                        <option value="PL">🇵🇱 Poland</option>
+                        <option value="US">🇺🇸 United States</option>
+                      </select>
+                      {shippingErrors.country && <p className="text-xs text-destructive">{shippingErrors.country}</p>}
                     </div>
 
                     <div className="grid gap-4 sm:grid-cols-3">
                       <div className="space-y-2">
-                        <Label htmlFor="city">Oraș *</Label>
+                        <Label htmlFor="city">{shipping.country === 'RO' ? 'Oraș *' : 'City / Town *'}</Label>
                         <Input
                           id="city"
                           value={shipping.city}
@@ -394,23 +422,23 @@ const Checkout = () => {
                         {shippingErrors.city && <p className="text-xs text-destructive">{shippingErrors.city}</p>}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="state">Județ *</Label>
+                        <Label htmlFor="state">{shipping.country === 'RO' ? 'Județ *' : shipping.country === 'GB' ? 'County *' : 'State / Region *'}</Label>
                         <Input
                           id="state"
                           value={shipping.state}
                           onChange={(e) => setShipping(s => ({ ...s, state: e.target.value }))}
-                          placeholder="București"
+                          placeholder={shipping.country === 'RO' ? 'București' : shipping.country === 'GB' ? 'Greater London' : ''}
                           className={shippingErrors.state ? 'border-destructive' : ''}
                         />
                         {shippingErrors.state && <p className="text-xs text-destructive">{shippingErrors.state}</p>}
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="zipCode">Cod Poștal *</Label>
+                        <Label htmlFor="zipCode">{shipping.country === 'GB' ? 'Postcode *' : 'Cod Poștal *'}</Label>
                         <Input
                           id="zipCode"
                           value={shipping.zipCode}
                           onChange={(e) => setShipping(s => ({ ...s, zipCode: e.target.value }))}
-                          placeholder="010101"
+                          placeholder={shipping.country === 'RO' ? '010101' : shipping.country === 'GB' ? 'SW1A 1AA' : ''}
                           className={shippingErrors.zipCode ? 'border-destructive' : ''}
                         />
                         {shippingErrors.zipCode && <p className="text-xs text-destructive">{shippingErrors.zipCode}</p>}
