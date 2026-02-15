@@ -110,28 +110,80 @@ const CityLandingSection: React.FC = () => {
             ))}
           </div>
 
-          {/* SEO-rich text block — visible to crawlers and users */}
-          <div className="mt-10 max-w-4xl mx-auto text-sm text-muted-foreground leading-relaxed space-y-3">
-            <p>
-              <strong>Market Place România</strong> este cel mai mare marketplace online românesc, disponibil în toate cele 42 de orașe mari: 
-              marketplace București, marketplace Cluj-Napoca, marketplace Timișoara, marketplace Iași, marketplace Constanța, 
-              marketplace Craiova, marketplace Brașov, marketplace Galați, marketplace Ploiești, marketplace Oradea, 
-              marketplace Sibiu, marketplace Bacău, marketplace Arad, marketplace Pitești, marketplace Brăila, 
-              marketplace Târgu Mureș, marketplace Baia Mare, marketplace Buzău, marketplace Botoșani și marketplace Suceava.
-            </p>
-            <p>
-              Vinde și cumpără produse noi sau second hand în marketplace Satu Mare, marketplace Râmnicu Vâlcea, 
-              marketplace Drobeta-Turnu Severin, marketplace Piatra Neamț, marketplace Târgoviște, marketplace Focșani, 
-              marketplace Bistrița, marketplace Reșița, marketplace Tulcea, marketplace Slatina, marketplace Călărași, 
-              marketplace Giurgiu, marketplace Deva, marketplace Hunedoara, marketplace Zalău, marketplace Sfântu Gheorghe, 
-              marketplace Alba Iulia, marketplace Vaslui, marketplace Mediaș, marketplace Turda, marketplace Petroșani 
-              și marketplace Alexandria — toate cu <strong>0% comision</strong> și plată securizată prin PayPal.
-            </p>
-            <p>
-              Pe MarketPlaceRomania.com găsești electronice, haine, mobilă, auto, imobiliare și mii de alte categorii. 
-              Abonamente de la <strong>11 LEI/lună</strong>. Livrare rapidă în toată România prin FAN Courier, Sameday și Cargus. 
-              Market Place România® — primul market place din România construit cu inteligență artificială.
-            </p>
+          {/* SEO competitive attack block */}
+          <div className="mt-10 max-w-4xl mx-auto space-y-6">
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-6 text-center space-y-3">
+              <h3 className="text-lg md:text-xl font-bold text-foreground">
+                🚀 Te-ai săturat de comisioanele mari? Treci pe 0% comision!
+              </h3>
+              <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
+                Pe <strong>eMAG</strong> plătești până la <strong>25% comision</strong> din fiecare vânzare. 
+                Pe <strong>OLX</strong> riști țepe fără protecție reală. Pe <strong>eBay</strong> plătești comisioane + taxe PayPal. 
+                Pe <strong>Facebook Marketplace</strong> nu ai garanții, nu ai facturi, nu ai siguranță.
+              </p>
+              <p className="text-foreground font-semibold text-base md:text-lg">
+                Pe <span className="text-primary">MarketPlaceRomania.com</span> vinzi cu <strong>0% comision</strong> — tot ce vinzi rămâne al tău!
+              </p>
+              <a href="/seller-plans" className="inline-block mt-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-lg font-semibold hover:opacity-90 transition-opacity">
+                Începe Gratuit — 30 Zile Trial
+              </a>
+            </div>
+
+            <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
+              <p>
+                <strong>Alternativă la eMAG Marketplace</strong> — MarketPlaceRomania.com este cea mai ieftină platformă de vânzare online din România. 
+                Spre deosebire de eMAG, unde comisioanele ajung la 25%, pe Market Place România plătești doar un abonament fix de la 11 LEI/lună cu 0% din vânzări. 
+                Fără taxe ascunse, fără comisioane pe tranzacții, fără surprize.
+              </p>
+              <p>
+                <strong>Alternativă la OLX</strong> — Te-ai săturat de țepe pe OLX? Pe MarketPlaceRomania.com ai plată securizată prin PayPal, 
+                protecție cumpărător cu garanție de returnare 14 zile și verificare a vânzătorilor. Nu mai riști bani trimiși în avans fără garanții.
+              </p>
+              <p>
+                <strong>Alternativă la eBay</strong> — Vinzi în toată Europa fără comisioanele uriașe de pe eBay. 
+                Market Place România oferă licitații online integrate, Buy Now instant și plată prin PayPal — la fel ca eBay, dar cu 0% comision pe vânzare!
+              </p>
+              <p>
+                <strong>Alternativă la Facebook Marketplace</strong> — Vrei mai mult decât o postare pe Facebook? Pe MarketPlaceRomania.com ai magazin propriu, 
+                facturi automate, tracking comenzi, licitații online și protecție reală pentru cumpărători și vânzători.
+              </p>
+              <p>
+                <strong>Alternativă la Lajumate, Publi24, Autovit, Storia</strong> — O singură platformă pentru toate categoriile: electronice, haine, mobilă, 
+                auto, imobiliare, jucării și mii de alte produse. Cel mai mic cost de vânzare din România și Europa.
+              </p>
+              <p>
+                <strong>De ce MarketPlaceRomania.com?</strong> Pentru că este singura platformă din România cu: ✅ 0% comision pe vânzări, 
+                ✅ Licitații online ca pe eBay, ✅ Plată securizată prin PayPal, ✅ Protecție cumpărător 14 zile, 
+                ✅ Livrare rapidă prin FAN Courier, Sameday, Cargus, ✅ Abonamente de la doar 11 LEI/lună, 
+                ✅ Construit cu inteligență artificială, ✅ 30 de zile gratuite pentru vânzători noi. 
+                Market Place România® — cea mai ieftină și sigură alternativă la eMAG, OLX, eBay și Facebook Marketplace.
+              </p>
+            </div>
+
+            {/* City SEO block */}
+            <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
+              <p>
+                <strong>Market Place România</strong> este disponibil în toate cele 42 de orașe mari: 
+                marketplace București, marketplace Cluj-Napoca, marketplace Timișoara, marketplace Iași, marketplace Constanța, 
+                marketplace Craiova, marketplace Brașov, marketplace Galați, marketplace Ploiești, marketplace Oradea, 
+                marketplace Sibiu, marketplace Bacău, marketplace Arad, marketplace Pitești, marketplace Brăila, 
+                marketplace Târgu Mureș, marketplace Baia Mare, marketplace Buzău, marketplace Botoșani și marketplace Suceava.
+              </p>
+              <p>
+                Vinde și cumpără în marketplace Satu Mare, marketplace Râmnicu Vâlcea, marketplace Drobeta-Turnu Severin, 
+                marketplace Piatra Neamț, marketplace Târgoviște, marketplace Focșani, marketplace Bistrița, marketplace Reșița, 
+                marketplace Tulcea, marketplace Slatina, marketplace Călărași, marketplace Giurgiu, marketplace Deva, 
+                marketplace Hunedoara, marketplace Zalău, marketplace Sfântu Gheorghe, marketplace Alba Iulia, marketplace Vaslui, 
+                marketplace Mediaș, marketplace Turda, marketplace Petroșani și marketplace Alexandria 
+                — toate cu <strong>0% comision</strong> și plată securizată prin PayPal.
+              </p>
+              <p>
+                Pe MarketPlaceRomania.com găsești electronice, haine, mobilă, auto, imobiliare și mii de alte categorii. 
+                Abonamente de la <strong>11 LEI/lună</strong>. Livrare rapidă în toată România prin FAN Courier, Sameday și Cargus. 
+                Market Place România® — primul market place din România construit cu inteligență artificială. 
+                Cea mai bună alternativă românească la eMAG, OLX, eBay, Amazon, Vinted și Facebook Marketplace.
+              </p>
+            </div>
           </div>
         </div>
       </section>
