@@ -8,6 +8,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { FAQSchema } from '@/components/seo/FAQSchema';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 import { MarketplaceSchema } from '@/components/seo/MarketplaceSchema';
+import CityLandingSection from '@/components/seo/CityLandingSection';
 
 const Index = () => {
   return (
@@ -26,6 +27,7 @@ const Index = () => {
         <FeaturedListings />
         <PromotedListings />
         <CategorySection />
+        <CityLandingSection />
         <FAQSchema showUI={true} />
       </Layout>
     </>
