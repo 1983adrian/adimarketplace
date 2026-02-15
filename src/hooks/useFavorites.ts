@@ -9,7 +9,7 @@ export const useFavorites = (userId?: string) => {
       if (!userId) return [];
       const { data, error } = await supabase
         .from('favorites')
-        .select(`*, listings (*, listing_images (*), profiles (*), categories (*))`)
+        .select(`*, listings (*, listing_images (*), categories (*))`)
         .eq('user_id', userId);
       if (error) throw error;
       return data as unknown as (Favorite & { listings: ListingWithImages })[];
