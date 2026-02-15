@@ -94,26 +94,37 @@ export default function AdminPaymentProcessors() {
   });
 
   const handleSave = () => {
-    if (Object.keys(edited).length === 0) {
-      toast({ title: 'Nimic de salvat', description: 'Nu ai modificat nicio valoare.', variant: 'destructive' });
+    const clientId = (edited.api_key_encrypted ?? '').trim();
+    const secret = (edited.api_secret_encrypted ?? '').trim();
+    
+    // Must provide both keys
+    if (!clientId) {
+      toast({ title: '❌ Client ID lipsă', description: 'Introdu PayPal Client ID.', variant: 'destructive' });
+      return;
+    }
+    if (!secret) {
+      toast({ title: '❌ Secret Key lipsă', description: 'Introdu PayPal Secret Key.', variant: 'destructive' });
       return;
     }
     
-    // Validate that at least Client ID and Secret are provided when activating
-    const clientId = edited.api_key_encrypted ?? '';
-    const secret = edited.api_secret_encrypted ?? '';
-    const activating = edited.is_active === true;
+    // Auto-activate when saving valid keys
+    const dataToSave = {
+      ...edited,
+      api_key_encrypted: clientId,
+      api_secret_encrypted: secret,
+      is_active: true,
+      environment: edited.environment ?? paypal?.environment ?? 'sandbox',
+    };
     
-    if (activating && !clientId && !paypal?.api_key_encrypted) {
-      toast({ title: 'Client ID lipsă', description: 'Introdu PayPal Client ID înainte de a activa.', variant: 'destructive' });
-      return;
-    }
-    if (activating && !secret && !paypal?.api_secret_encrypted) {
-      toast({ title: 'Secret Key lipsă', description: 'Introdu PayPal Secret Key înainte de a activa.', variant: 'destructive' });
-      return;
-    }
+    console.log('Saving PayPal config with keys:', { 
+      hasClientId: !!clientId, 
+      clientIdLength: clientId.length,
+      hasSecret: !!secret, 
+      secretLength: secret.length,
+      environment: dataToSave.environment,
+    });
     
-    save.mutate(edited);
+    save.mutate(dataToSave);
   };
 
   const getValue = (field: keyof ProcessorSettings) => {
