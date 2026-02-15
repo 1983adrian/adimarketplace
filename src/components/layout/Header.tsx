@@ -17,7 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SearchDialog } from './SearchDialog';
 import { NotificationBell } from './NotificationBell';
-import { SellerNotificationBell } from './SellerNotificationBell';
+
 import { CartDropdown } from './CartDropdown';
 import { AppDownloadButton } from './AppDownloadButton';
 import { LanguageSelector } from './LanguageSelector';
@@ -166,7 +166,7 @@ export const Header: React.FC = () => {
                     <span>{t('nav.products')}</span>
                   </Link>
                 </Button>
-                <SellerNotificationBell />
+                
                 <NotificationBell />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
