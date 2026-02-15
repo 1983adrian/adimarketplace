@@ -36,7 +36,7 @@ function getPayPalConfig() {
   return {
     clientId,
     clientSecret,
-    environment: "sandbox" as const, // Change to "live" for production
+    environment: "live" as const,
   };
 }
 
