@@ -28,6 +28,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ro } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 const StorePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -275,72 +276,85 @@ const StorePage = () => {
           </div>
         )}
 
-        {/* Owner PayPal Section */}
+        {/* Owner PayPal Section - Seller Info */}
         {isOwner && (
-          <Card className="mb-6 border-2 border-primary/30">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5 text-primary" />
-                Cont PayPal
-              </CardTitle>
-              <CardDescription>Conectează contul PayPal pentru a primi plăți din vânzări</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* PayPal Connect Actions */}
-              {!paypalEmail && (
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <a
-                    href="https://www.paypal.com/ro/webapps/mpp/account-selection"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#0070ba] text-white text-sm font-medium hover:bg-[#005ea6] transition-colors"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    Creează Cont PayPal
-                  </a>
-                  <p className="text-sm text-muted-foreground self-center">
-                    sau adaugă email-ul contului PayPal existent mai jos
-                  </p>
+          <Card className="mb-6 border border-border shadow-sm">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-[#0070ba] flex items-center justify-center">
+                  <Globe className="h-5 w-5 text-white" />
                 </div>
-              )}
+                <div>
+                  <CardTitle className="text-lg">Informații Vânzător</CardTitle>
+                  <CardDescription>Configurează contul PayPal pentru a primi plăți</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {/* Status indicator */}
+              <div className={cn(
+                "flex items-center gap-3 p-3.5 rounded-xl border",
+                paypalEmail 
+                  ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800" 
+                  : "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
+              )}>
+                {paypalEmail ? (
+                  <>
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">PayPal conectat</p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 truncate">{paypalEmail}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">PayPal neconfigurat</p>
+                      <p className="text-xs text-amber-600 dark:text-amber-400">Nu poți primi plăți fără un cont PayPal</p>
+                    </div>
+                  </>
+                )}
+              </div>
 
+              {/* Email input */}
               <div className="space-y-2">
-                <Label>Email PayPal</Label>
+                <Label className="text-sm font-medium">Email PayPal</Label>
                 <div className="flex gap-2">
                   <Input
                     type="email"
                     value={paypalEmail}
                     onChange={(e) => setPaypalEmail(e.target.value)}
-                    placeholder="email@paypal.com"
+                    placeholder="adresa@email.com"
                     className="flex-1"
                   />
-                  <Button onClick={handleSavePaypal} disabled={savingPaypal} size="default" className="gap-1.5">
+                  <Button onClick={handleSavePaypal} disabled={savingPaypal} className="gap-1.5 shrink-0">
                     {savingPaypal ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                     Salvează
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Tracking-ul comenzilor se sincronizează automat cu PayPal când adaugi AWB.
-                </p>
               </div>
 
-              {paypalEmail ? (
-                <Alert className="border-amber-500/50 bg-amber-500/10">
-                  <AlertCircle className="h-4 w-4 text-amber-600" />
-                  <AlertTitle className="text-amber-700 dark:text-amber-400">Email PayPal salvat</AlertTitle>
-                  <AlertDescription>
-                    📧 {paypalEmail} — ⚠️ Neverificat. Asigură-te că acest email aparține contului tău PayPal real.
-                  </AlertDescription>
-                </Alert>
-              ) : (
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>PayPal neconfigurat</AlertTitle>
-                  <AlertDescription>
-                    Fără PayPal nu poți primi banii din vânzări. Creează un cont sau adaugă email-ul existent.
-                  </AlertDescription>
-                </Alert>
+              {/* Create PayPal account link */}
+              {!paypalEmail && (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 pt-1">
+                  <span className="text-sm text-muted-foreground">Nu ai cont PayPal?</span>
+                  <a
+                    href="https://www.paypal.com/ro/webapps/mpp/account-selection"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#0070ba] text-white text-sm font-medium hover:bg-[#005ea6] transition-colors shadow-sm"
+                  >
+                    <ExternalLink className="h-4 w-4" />
+                    Creează Cont PayPal
+                  </a>
+                </div>
               )}
+
+              {/* Info note */}
+              <p className="text-xs text-muted-foreground border-t pt-3">
+                Tracking-ul comenzilor se sincronizează automat cu PayPal când adaugi AWB-ul.
+              </p>
             </CardContent>
           </Card>
         )}
