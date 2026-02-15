@@ -39,33 +39,30 @@ const StorePage = () => {
   const isOwner = user?.id === id;
   const { data: isTopSeller } = useIsTopSeller(id);
 
-  // PayPal onboarding state
+  // PayPal state
   const [paypalEmail, setPaypalEmail] = useState('');
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const [savingPaypal, setSavingPaypal] = useState(false);
-  const [connectingPaypal, setConnectingPaypal] = useState(false);
   const [paypalStatus, setPaypalStatus] = useState<{
     connected: boolean;
-    merchant_id?: string;
-    payments_receivable?: boolean;
-    email_confirmed?: boolean;
+    email?: string;
     loading: boolean;
   }>({ connected: false, loading: true });
 
-  // Check PayPal connection status
+  // Check PayPal status on load
   useEffect(() => {
-    const checkPayPalStatus = async () => {
+    const checkStatus = async () => {
       if (!isOwner || !user) {
         setPaypalStatus(prev => ({ ...prev, loading: false }));
         return;
       }
       try {
-        const { data: { session } } = await supabase.auth.getSession();
         const res = await supabase.functions.invoke('paypal-onboard-seller', {
-          body: { action: 'check-status' },
+          body: { action: 'get-status' },
         });
         if (res.data && !res.error) {
-          setPaypalStatus({ ...res.data, loading: false });
+          setPaypalStatus({ connected: res.data.connected, email: res.data.email, loading: false });
+          if (res.data.email) setPaypalEmail(res.data.email);
         } else {
           setPaypalStatus(prev => ({ ...prev, loading: false }));
         }
@@ -73,31 +70,24 @@ const StorePage = () => {
         setPaypalStatus(prev => ({ ...prev, loading: false }));
       }
     };
+    checkStatus();
+  }, [isOwner, user]);
 
-    // If returning from PayPal onboarding
-    if (searchParams.get('paypal') === 'success') {
-      toast({ title: '🎉 PayPal conectat!', description: 'Verificăm statusul contului tău...' });
-    }
-
-    checkPayPalStatus();
-  }, [isOwner, user, searchParams]);
-
-  const handleConnectPayPal = async () => {
-    if (!user) return;
-    setConnectingPaypal(true);
+  const handleSavePaypal = async () => {
+    if (!user || !paypalEmail.trim()) return;
+    setSavingPaypal(true);
     try {
       const res = await supabase.functions.invoke('paypal-onboard-seller', {
-        body: { action: 'create-referral' },
+        body: { action: 'save-email', paypal_email: paypalEmail.trim() },
       });
       if (res.error) throw new Error(res.error.message);
-      if (res.data?.action_url) {
-        window.location.href = res.data.action_url;
-      } else {
-        throw new Error('Nu s-a putut genera link-ul PayPal');
-      }
+      if (res.data?.error) throw new Error(res.data.error);
+      setPaypalStatus({ connected: true, email: res.data.email, loading: false });
+      toast({ title: '✅ PayPal salvat', description: 'Email-ul PayPal a fost configurat cu succes.' });
     } catch (error: any) {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
-      setConnectingPaypal(false);
+    } finally {
+      setSavingPaypal(false);
     }
   };
 
