@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Input } from '@/components/ui/input';
+// Input removed - not needed
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -19,7 +19,7 @@ import { useIsTopSeller } from '@/hooks/useTopSellers';
 import { 
   Calendar, ShoppingBag, Star, MessageCircle, Store, Settings, 
   Package, BarChart3, TrendingUp, Globe, CheckCircle2, AlertCircle,
-  Loader2, Save, ExternalLink, Shield, Zap, CreditCard
+  Loader2, ExternalLink, Shield, Zap, CreditCard
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -40,12 +40,10 @@ const StorePage = () => {
   const { data: isTopSeller } = useIsTopSeller(id);
 
   // PayPal state
-  const [paypalEmail, setPaypalEmail] = useState('');
   const [paypalLoaded, setPaypalLoaded] = useState(false);
-  const [savingPaypal, setSavingPaypal] = useState(false);
+  const [connectingPaypal, setConnectingPaypal] = useState(false);
   const [paypalStatus, setPaypalStatus] = useState<{
     connected: boolean;
-    email?: string;
     loading: boolean;
   }>({ connected: false, loading: true });
 
@@ -61,8 +59,7 @@ const StorePage = () => {
           body: { action: 'get-status' },
         });
         if (res.data && !res.error) {
-          setPaypalStatus({ connected: res.data.connected, email: res.data.email, loading: false });
-          if (res.data.email) setPaypalEmail(res.data.email);
+          setPaypalStatus({ connected: res.data.connected, loading: false });
         } else {
           setPaypalStatus(prev => ({ ...prev, loading: false }));
         }
@@ -73,23 +70,39 @@ const StorePage = () => {
     checkStatus();
   }, [isOwner, user]);
 
-  const handleSavePaypal = async () => {
-    if (!user || !paypalEmail.trim()) return;
-    setSavingPaypal(true);
+  // Handle PayPal OAuth redirect connect
+  const handleConnectPayPal = async () => {
+    if (!user) return;
+    setConnectingPaypal(true);
     try {
+      const returnUrl = `${window.location.origin}/store/${user.id}?paypal=connected`;
       const res = await supabase.functions.invoke('paypal-onboard-seller', {
-        body: { action: 'save-email', paypal_email: paypalEmail.trim() },
+        body: { action: 'connect', return_url: returnUrl },
       });
       if (res.error) throw new Error(res.error.message);
       if (res.data?.error) throw new Error(res.data.error);
-      setPaypalStatus({ connected: true, email: res.data.email, loading: false });
-      toast({ title: '✅ PayPal salvat', description: 'Email-ul PayPal a fost configurat cu succes.' });
+      if (res.data?.action_url) {
+        window.location.href = res.data.action_url;
+      }
     } catch (error: any) {
-      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
-    } finally {
-      setSavingPaypal(false);
+      toast({ title: 'Eroare PayPal', description: error.message, variant: 'destructive' });
+      setConnectingPaypal(false);
     }
   };
+
+  // Handle PayPal callback
+  useEffect(() => {
+    const paypalParam = searchParams.get('paypal');
+    const merchantId = searchParams.get('merchantIdInPayPal');
+    if (paypalParam === 'connected' && user) {
+      supabase.functions.invoke('paypal-onboard-seller', {
+        body: { action: 'save-merchant', merchantIdInPayPal: merchantId },
+      }).then(() => {
+        setPaypalStatus({ connected: true, loading: false });
+        toast({ title: '✅ PayPal conectat!', description: 'Contul tău PayPal a fost conectat cu succes.' });
+      });
+    }
+  }, [searchParams, user]);
 
   const { data: seller, isLoading: sellerLoading } = useQuery({
     queryKey: ['store-profile', id],
@@ -105,7 +118,6 @@ const StorePage = () => {
           .maybeSingle();
         if (error) throw error;
         if (data && !paypalLoaded) {
-          setPaypalEmail((data as any).paypal_email || '');
           setPaypalLoaded(true);
         }
         return data;
@@ -333,80 +345,46 @@ const StorePage = () => {
                 </div>
               ) : paypalStatus.connected ? (
                 <>
-                  {/* Connected State */}
                   <div className="flex items-center gap-4 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
                     <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center shrink-0">
                       <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
                       <p className="font-semibold text-emerald-800 dark:text-emerald-300">Cont PayPal Conectat ✓</p>
-                      <p className="text-sm text-emerald-600 dark:text-emerald-400">
-                        Merchant ID: {paypalStatus.merchant_id || 'Verificat'}
-                      </p>
+                      <p className="text-sm text-emerald-600 dark:text-emerald-400">Poți primi plăți de la cumpărători</p>
                     </div>
                   </div>
-
                   <div className="grid grid-cols-2 gap-3">
-                    <div className={cn(
-                      "flex items-center gap-2 p-3 rounded-lg border",
-                      paypalStatus.payments_receivable
-                        ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
-                        : "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
-                    )}>
-                      {paypalStatus.payments_receivable ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                      ) : (
-                        <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
-                      )}
-                      <span className="text-xs font-medium">
-                        {paypalStatus.payments_receivable ? 'Plăți active' : 'Plăți inactive'}
-                      </span>
+                    <div className="flex items-center gap-2 p-3 rounded-lg border bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <span className="text-xs font-medium">Plăți active</span>
                     </div>
-                    <div className={cn(
-                      "flex items-center gap-2 p-3 rounded-lg border",
-                      paypalStatus.email_confirmed
-                        ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800"
-                        : "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
-                    )}>
-                      {paypalStatus.email_confirmed ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                      ) : (
-                        <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
-                      )}
-                      <span className="text-xs font-medium">
-                        {paypalStatus.email_confirmed ? 'Email verificat' : 'Email neverificat'}
-                      </span>
+                    <div className="flex items-center gap-2 p-3 rounded-lg border bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800">
+                      <Shield className="h-4 w-4 text-emerald-600 shrink-0" />
+                      <span className="text-xs font-medium">Protecție vânzător</span>
                     </div>
                   </div>
                 </>
               ) : (
                 <>
-                  {/* Not Connected State */}
                   <div className="text-center py-4">
                     <div className="h-16 w-16 rounded-2xl bg-[#0070ba]/10 flex items-center justify-center mx-auto mb-4">
                       <Globe className="h-8 w-8 text-[#0070ba]" />
                     </div>
                     <h4 className="text-lg font-bold mb-2">Conectează PayPal</h4>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto mb-6">
-                      Conectează-ți contul PayPal Business pentru a primi plăți automat de la cumpărători.
+                      Conectează-ți contul PayPal pentru a primi plăți automat de la cumpărători.
                     </p>
-
                     <Button
                       onClick={handleConnectPayPal}
                       disabled={connectingPaypal}
                       size="lg"
                       className="gap-2.5 bg-[#0070ba] hover:bg-[#005ea6] text-white font-semibold px-8 py-3 text-base shadow-lg shadow-[#0070ba]/25"
                     >
-                      {connectingPaypal ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <ExternalLink className="h-5 w-5" />
-                      )}
+                      {connectingPaypal ? <Loader2 className="h-5 w-5 animate-spin" /> : <ExternalLink className="h-5 w-5" />}
                       {connectingPaypal ? 'Se conectează...' : 'Conectează cu PayPal'}
                     </Button>
                   </div>
-
-                  {/* Benefits */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                     <div className="flex items-start gap-2.5 p-3 rounded-lg bg-muted/50">
                       <Shield className="h-4 w-4 text-[#0070ba] mt-0.5 shrink-0" />
@@ -428,26 +406,6 @@ const StorePage = () => {
                         <p className="text-xs font-semibold">200+ Țări</p>
                         <p className="text-[10px] text-muted-foreground">Acceptă plăți global</p>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Fallback manual email */}
-                  <div className="border-t pt-4 mt-2">
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Sau adaugă manual email-ul PayPal Business:
-                    </p>
-                    <div className="flex gap-2">
-                      <Input
-                        type="email"
-                        value={paypalEmail}
-                        onChange={(e) => setPaypalEmail(e.target.value)}
-                        placeholder="adresa@paypal.com"
-                        className="flex-1 text-sm"
-                      />
-                      <Button onClick={handleSavePaypal} disabled={savingPaypal} size="sm" variant="outline" className="gap-1.5 shrink-0">
-                        {savingPaypal ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                        Salvează
-                      </Button>
                     </div>
                   </div>
                 </>
