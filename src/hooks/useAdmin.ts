@@ -228,6 +228,17 @@ export const useDeleteListing = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
+      // Delete related rows first to avoid FK constraint errors
+      await Promise.all([
+        supabase.from('listing_images').delete().eq('listing_id', id),
+        supabase.from('favorites').delete().eq('listing_id', id),
+        supabase.from('listing_promotions').delete().eq('listing_id', id),
+        supabase.from('listing_reports').delete().eq('listing_id', id),
+        supabase.from('bids').delete().eq('listing_id', id),
+        supabase.from('price_history').delete().eq('listing_id', id),
+        supabase.from('seo_indexing_queue').delete().eq('listing_id', id),
+      ]);
+
       const { error } = await supabase
         .from('listings')
         .delete()
@@ -237,6 +248,35 @@ export const useDeleteListing = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+    },
+  });
+};
+
+export const useAdminPromoteListing = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ listingId, sellerId }: { listingId: string; sellerId: string }) => {
+      const now = new Date();
+      const endsAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
+      
+      const { error } = await supabase
+        .from('listing_promotions')
+        .insert({
+          listing_id: listingId,
+          seller_id: sellerId,
+          promotion_type: 'featured',
+          starts_at: now.toISOString(),
+          ends_at: endsAt.toISOString(),
+          is_active: true,
+          amount_paid: 0,
+        });
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
+      queryClient.invalidateQueries({ queryKey: ['promoted-listings'] });
     },
   });
 };

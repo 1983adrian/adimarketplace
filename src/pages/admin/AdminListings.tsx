@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MoreHorizontal, Eye, EyeOff, Trash2, ExternalLink } from 'lucide-react';
+import { Search, MoreHorizontal, Eye, EyeOff, Trash2, ExternalLink, Crown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { AdminLayout } from '@/components/admin/AdminLayout';
-import { useAllListings, useUpdateListingStatus, useDeleteListing } from '@/hooks/useAdmin';
+import { useAllListings, useUpdateListingStatus, useDeleteListing, useAdminPromoteListing } from '@/hooks/useAdmin';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -42,6 +42,7 @@ export default function AdminListings() {
   const { data: listings, isLoading } = useAllListings();
   const updateStatus = useUpdateListingStatus();
   const deleteListing = useDeleteListing();
+  const promoteListing = useAdminPromoteListing();
   const { toast } = useToast();
 
   const filteredListings = listings?.filter(listing => 
@@ -66,6 +67,15 @@ export default function AdminListings() {
       setDeleteId(null);
     } catch (error: any) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
+  };
+
+  const handlePromote = async (listingId: string, sellerId: string) => {
+    try {
+      await promoteListing.mutateAsync({ listingId, sellerId });
+      toast({ title: '✨ Produs promovat pe prima pagină (30 zile)' });
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
     }
   };
 
@@ -196,6 +206,13 @@ export default function AdminListings() {
                                     Afișează
                                   </>
                                 )}
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handlePromote(listing.id, listing.seller_id)}
+                                className="text-xs text-primary"
+                              >
+                                <Crown className="h-3 w-3 mr-2" />
+                                Promovează
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem 
