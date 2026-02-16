@@ -294,7 +294,7 @@ serve(async (req) => {
                 html: `
                   <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 30px; text-align: center;">
-                      <img src="https://marketplaceromania.lovable.app/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
+                      <img src="https://www.marketplaceromania.com/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
                       <h1 style="color: #fff; margin: 0; font-size: 24px;">🎉 Comandă Nouă!</h1>
                       <p style="color: #a0aec0; margin: 8px 0 0 0;">Marketplace România</p>
                     </div>
@@ -311,7 +311,7 @@ serve(async (req) => {
                         </p>
                       </div>
                       <div style="text-align: center; margin: 24px 0;">
-                        <a href="https://marketplaceromania.lovable.app/orders" 
+                        <a href="https://www.marketplaceromania.com/orders" 
                            style="display: inline-block; background: #FF6B35; color: #fff; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: bold;">
                           📦 Vezi Comanda & Adaugă AWB
                         </a>
@@ -365,7 +365,7 @@ serve(async (req) => {
       status: "pending",
     });
 
-    const origin = req.headers.get("origin") || "https://marketplaceromania.lovable.app";
+    const origin = req.headers.get("origin") || "https://www.marketplaceromania.com";
     const orderIds = orders.map(o => o.id).join(",");
 
     // ─── PAYPAL PAYMENT (Only method) ───

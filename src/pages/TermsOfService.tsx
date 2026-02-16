@@ -11,7 +11,7 @@ export default function TermsOfService() {
           <div className="text-center mb-12">
             <FileText className="h-16 w-16 mx-auto mb-4 text-primary" />
             <h1 className="text-4xl font-bold mb-4">Termeni și Condiții</h1>
-            <p className="text-muted-foreground">Market Place România — marketplaceromania.lovable.app</p>
+            <p className="text-muted-foreground">Market Place România — www.marketplaceromania.com</p>
           </div>
 
           <div className="space-y-8">

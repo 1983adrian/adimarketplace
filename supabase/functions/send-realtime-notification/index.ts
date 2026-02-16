@@ -202,13 +202,13 @@ serve(async (req: Request) => {
               html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                   <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 20px; text-align: center;">
-                    <img src="https://marketplaceromania.lovable.app/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
+                    <img src="https://www.marketplaceromania.com/logo-oficial.png" alt="Marketplace România" style="max-width: 180px; height: auto; margin-bottom: 12px;" />
                     <h1 style="color: #fff; margin: 0;">Marketplace România</h1>
                   </div>
                   <div style="padding: 30px; background: #fff;">
                     <h2 style="color: #1a1a2e;">${title}</h2>
                     <p style="color: #666; line-height: 1.6;">${message}</p>
-                    <a href="https://adimarketplace.lovable.app" 
+                    <a href="https://www.marketplaceromania.com" 
                        style="display: inline-block; background: #FF6B35; color: #fff; 
                               padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 20px;">
                       Vezi Detalii
