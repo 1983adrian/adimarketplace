@@ -218,6 +218,7 @@ export const FeaturedListings: React.FC = () => {
                 price: listing.price,
                 image_url: primaryImage?.image_url || '/placeholder.svg',
                 seller_id: listing.seller_id,
+                quantity: 1,
               });
             };
 

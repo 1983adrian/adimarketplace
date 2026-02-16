@@ -6,6 +6,7 @@ export interface CartItem {
   price: number;
   image_url: string;
   seller_id: string;
+  quantity: number;
   selectedSize?: string;
   selectedColor?: string;
 }
@@ -39,14 +40,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addItem = (item: CartItem) => {
     setItems(prev => {
-      // Don't add duplicates (same id + same variant)
-      const existingItem = prev.find(i => 
+      // Check for same id + same variant
+      const existingIndex = prev.findIndex(i => 
         i.id === item.id && 
         i.selectedSize === item.selectedSize && 
         i.selectedColor === item.selectedColor
       );
-      if (existingItem) {
-        return prev;
+      if (existingIndex >= 0) {
+        // Update quantity instead of ignoring
+        const updated = [...prev];
+        updated[existingIndex] = { ...updated[existingIndex], quantity: item.quantity };
+        return updated;
       }
       return [...prev, item];
     });
@@ -60,8 +64,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setItems([]);
   };
 
-  const itemCount = items.length;
-  const total = items.reduce((sum, item) => sum + item.price, 0);
+  const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+  const total = items.reduce((sum, item) => sum + item.price * (item.quantity || 1), 0);
 
   return (
     <CartContext.Provider value={{ items, addItem, removeItem, clearCart, itemCount, total }}>
