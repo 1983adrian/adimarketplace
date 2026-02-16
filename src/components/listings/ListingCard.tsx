@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Star, Truck, Gavel, Share2 } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Gavel, Share2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -179,25 +179,6 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             {conditionLabels[listing.condition]}
           </Badge>
           
-          {/* Badges Row - Stock, shipping */}
-          <div className="absolute top-2 left-2 flex flex-col gap-0.5">
-            {listing.quantity && listing.quantity > 1 && (
-              <div className="flex items-center gap-0.5 bg-blue-600/90 text-white px-1.5 py-0.5 rounded text-[10px] font-semibold leading-tight">
-                📦 {listing.quantity} {t('listing.inStock')}
-              </div>
-            )}
-            {listing.quantity === 1 && (
-              <div className="flex items-center gap-0.5 bg-orange-600/90 text-white px-1.5 py-0.5 rounded text-[10px] font-semibold leading-tight animate-pulse">
-                🔥 {t('listing.lastOne')}
-              </div>
-            )}
-            {listing.shipping_cost === 0 && (
-              <div className="flex items-center gap-0.5 bg-success/90 text-success-foreground px-1.5 py-0.5 rounded text-[10px] font-medium leading-tight">
-                <Truck className="h-2.5 w-2.5" />
-                {t('listing.freeShipping')}
-              </div>
-            )}
-          </div>
           
           {/* Verified Badge - Bottom Left */}
           <div className="absolute bottom-2 right-2">
@@ -254,7 +235,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
               ) : (
                 <>
                   <ShoppingCart className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{t('listing.addToCart')}</span>
+                   <span className="truncate">{t('listing.buy') || 'Cumpără'}</span>
                 </>
               )}
             </Button>
