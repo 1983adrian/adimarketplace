@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, TrendingUp, Flag } from 'lucide-react';
+import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, TrendingUp, Flag, Minus, Plus } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +48,7 @@ const ListingDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState(1);
   const { data: favorites } = useFavorites(user?.id);
   const toggleFavorite = useToggleFavorite();
   
@@ -174,6 +175,7 @@ const ListingDetail = () => {
       price: listing.buy_now_price || listing.price,
       image_url: primaryImg,
       seller_id: listing.seller_id,
+      quantity: selectedQuantity,
       selectedSize: selectedSize || undefined,
       selectedColor: selectedColor || undefined,
     });
@@ -332,7 +334,35 @@ const ListingDetail = () => {
               />
             )}
 
-            {/* Auction Section */}
+            {/* Quantity Selector */}
+            {isBuyNow && listing.quantity && listing.quantity > 1 && (
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium">Cantitate:</span>
+                <div className="flex items-center border rounded-lg">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setSelectedQuantity(q => Math.max(1, q - 1))}
+                    disabled={selectedQuantity <= 1}
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="w-10 text-center font-semibold text-sm">{selectedQuantity}</span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => setSelectedQuantity(q => Math.min(listing.quantity || 1, q + 1))}
+                    disabled={selectedQuantity >= (listing.quantity || 1)}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <span className="text-xs text-muted-foreground">din {listing.quantity} disponibile</span>
+              </div>
+            )}
+
             {isAuction && listing.auction_end_date && (
               <AuctionBidding
                 listingId={listing.id}
@@ -364,6 +394,7 @@ const ListingDetail = () => {
                     const params = new URLSearchParams({ listing: listing.id });
                     if (selectedSize) params.set('size', selectedSize);
                     if (selectedColor) params.set('color', selectedColor);
+                    if (selectedQuantity > 1) params.set('qty', selectedQuantity.toString());
                     navigate(`/checkout?${params.toString()}`);
                   }}
                   disabled={listing.is_sold || !canBuy}
