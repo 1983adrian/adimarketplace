@@ -187,7 +187,7 @@ export default function AboutUs() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">
-                <Link to="/seller-mode">Începe să Vinzi</Link>
+                <Link to="/profile-settings">Începe să Vinzi</Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link to="/browse">Explorează Produse</Link>

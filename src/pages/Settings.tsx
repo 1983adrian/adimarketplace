@@ -248,16 +248,16 @@ const Settings = () => {
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Store className="h-5 w-5 text-amber-500" />
-                    Mod Vânzător
+                    Magazin & PayPal
                   </CardTitle>
                   <CardDescription>
-                    {isSeller ? 'Activ — gestionează din pagina dedicată' : 'Listează produse și câștigă bani'}
+                    {isSeller ? 'Activ — gestionează din Setări Profil' : 'Configurează PayPal pentru a vinde'}
                   </CardDescription>
                 </CardHeader>
               </div>
               <CardContent className="pt-4 space-y-3">
                 <button 
-                  onClick={() => navigate('/seller-mode')}
+                  onClick={() => navigate('/profile-settings')}
                   className="w-full flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors group"
                 >
                   <div className="flex items-center gap-3">
@@ -267,9 +267,9 @@ const Settings = () => {
                       <Store className="h-5 w-5" />
                     </div>
                     <div className="text-left">
-                      <p className="font-semibold">{isSeller ? 'Setări Vânzător' : 'Activează Mod Vânzător'}</p>
+                      <p className="font-semibold">{isSeller ? 'Setări Magazin' : 'Configurează PayPal'}</p>
                       <p className="text-sm text-muted-foreground">
-                        {isSeller ? 'PayPal, KYC, configurare' : 'Începe să vinzi acum'}
+                        {isSeller ? 'Nume magazin, PayPal' : 'Adaugă PayPal și devii vânzător'}
                       </p>
                     </div>
                   </div>

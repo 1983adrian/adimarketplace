@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
       { label: 'Vehicule', href: '/browse?category=vehicles' },
     ],
     sell: [
-      { label: 'Începe să Vinzi', href: '/seller-mode' },
+      { label: 'Începe să Vinzi', href: '/profile-settings' },
       { label: 'Postează Anunț', href: '/sell' },
       { label: 'Produsele Mele', href: '/my-products' },
       { label: 'Analitice Vânzări', href: '/seller-analytics' },

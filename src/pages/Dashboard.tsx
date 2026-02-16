@@ -31,7 +31,7 @@ interface MenuItem {
 
 const menuItemsConfig: MenuItem[] = [
   { id: 'profile', title: 'Setări Profil', description: 'Editează cont', url: '/profile-settings', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-700' },
-  { id: 'seller-mode', title: 'Mod Vânzător', description: 'Activează card', url: '/seller-mode', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
+  { id: 'seller-mode', title: 'Magazin & PayPal', description: 'Configurează', url: '/profile-settings', icon: Store, color: 'bg-gradient-to-br from-amber-400 to-amber-600' },
   { id: 'subscriptions', title: 'Abonamente', description: 'Planuri & plăți', url: '/seller-plans', icon: CreditCard, color: 'bg-gradient-to-br from-purple-500 to-purple-700' },
   { id: 'sell', title: 'Vinde Produs', description: 'Publică anunț', url: '/sell', icon: Plus, color: 'bg-gradient-to-br from-emerald-500 to-emerald-700' },
   { id: 'wallet', title: 'Portofel', description: 'Vezi sold', url: '/wallet', icon: Wallet, color: 'bg-gradient-to-br from-violet-500 to-violet-700' },
@@ -133,7 +133,7 @@ const Dashboard = () => {
                     Deschide Cont PayPal →
                   </a>
                   <Link
-                    to="/seller-mode"
+                    to="/profile-settings"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-400 text-amber-700 dark:text-amber-300 text-sm font-medium hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
                   >
                     Conectează PayPal Existent
@@ -155,7 +155,7 @@ const Dashboard = () => {
               <p className="text-xs text-amber-600 dark:text-amber-400 truncate">{(profile as any).paypal_email}</p>
               <p className="text-[10px] text-amber-500 dark:text-amber-500 mt-0.5">⚠️ Neverificat — asigură-te că email-ul corespunde contului tău PayPal real.</p>
             </div>
-            <Link to="/seller-mode" className="text-xs text-amber-600 hover:text-amber-700 font-medium whitespace-nowrap">
+            <Link to="/profile-settings" className="text-xs text-amber-600 hover:text-amber-700 font-medium whitespace-nowrap">
               Modifică →
             </Link>
           </div>
