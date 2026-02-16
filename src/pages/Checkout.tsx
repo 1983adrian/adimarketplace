@@ -69,7 +69,7 @@ const Checkout = () => {
 
   const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
   const [processing, setProcessing] = useState(false);
-  const [shippingMethod, setShippingMethod] = useState('standard');
+  const shippingMethod = 'standard';
   const [saveAddress, setSaveAddress] = useState(!!user);
   
   // Payment method - only PayPal now
@@ -267,17 +267,8 @@ const Checkout = () => {
     }
   };
 
-  // Calculate totals
-  const getShippingCost = () => {
-    const baseRates: Record<string, number> = {
-      standard: 15.99,
-      express: 24.99,
-      overnight: 39.99,
-    };
-    return baseRates[shippingMethod] || 15.99;
-  };
-  
-  const shippingCost = getShippingCost();
+  // Shipping cost is set by the seller on the listing — use it directly
+  const shippingCost = listingId && singleListing ? (singleListing.shipping_cost || 0) : 0;
   const subtotal = checkoutItems.reduce((sum, item) => sum + item.price, 0);
   const buyerFee = 0; // No buyer fees
   const total = subtotal + shippingCost + buyerFee;
@@ -522,49 +513,6 @@ const Checkout = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Shipping Method */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Truck className="h-5 w-5" />
-                        Metodă de Livrare
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
-                        <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('standard')}>
-                          <div className="flex items-center gap-3">
-                            <RadioGroupItem value="standard" id="standard" />
-                            <div>
-                              <Label htmlFor="standard" className="cursor-pointer font-medium">Livrare Standard</Label>
-                              <p className="text-sm text-muted-foreground">5-7 zile lucrătoare</p>
-                            </div>
-                          </div>
-                          <span className="font-medium">{formatPrice(15.99)}</span>
-                        </div>
-                        <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('express')}>
-                          <div className="flex items-center gap-3">
-                            <RadioGroupItem value="express" id="express" />
-                            <div>
-                              <Label htmlFor="express" className="cursor-pointer font-medium">Livrare Express</Label>
-                              <p className="text-sm text-muted-foreground">2-3 zile lucrătoare</p>
-                            </div>
-                          </div>
-                          <span className="font-medium">{formatPrice(24.99)}</span>
-                        </div>
-                        <div className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50" onClick={() => setShippingMethod('overnight')}>
-                          <div className="flex items-center gap-3">
-                            <RadioGroupItem value="overnight" id="overnight" />
-                            <div>
-                              <Label htmlFor="overnight" className="cursor-pointer font-medium">Livrare în 24h</Label>
-                              <p className="text-sm text-muted-foreground">Ziua lucrătoare următoare</p>
-                            </div>
-                          </div>
-                          <span className="font-medium">{formatPrice(39.99)}</span>
-                        </div>
-                      </RadioGroup>
-                    </CardContent>
-                  </Card>
 
                   <div className="flex gap-3">
                     <Button variant="outline" onClick={() => setStep('shipping')}>Înapoi</Button>
@@ -624,10 +572,7 @@ const Checkout = () => {
                           Livrare
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {shippingMethod === 'overnight' ? 'Livrare în 24h (Ziua următoare)' :
-                            shippingMethod === 'express' ? 'Livrare Express (2-3 zile)' :
-                            'Livrare Standard (5-7 zile)'
-                          } - {formatPrice(shippingCost)}
+                          Livrare — {shippingCost === 0 ? 'Gratuit' : formatPrice(shippingCost)}
                         </p>
                       </div>
                     </CardContent>

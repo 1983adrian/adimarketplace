@@ -134,7 +134,7 @@ const SellerMode = () => {
       const { data, error } = await supabase.functions.invoke('paypal-onboard-seller', {
         body: { 
           action: 'connect',
-          return_url: `${window.location.origin}/seller-mode`
+          return_url: 'https://www.marketplaceromania.com/seller-mode'
         }
       });
       if (error) throw error;
