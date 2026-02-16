@@ -177,7 +177,7 @@ export default function AdminOrders() {
                 message: `<div style="font-family: Arial; max-width: 600px; margin: 0 auto;">
                     <h2>Comanda ta a fost ${label}</h2>
                     <p>Produsul <strong>"${title}"</strong> - comanda a fost marcată ca <strong>${label}</strong>.</p>
-                    <a href="https://marketplaceromania.lovable.app/orders" style="display:inline-block;background:#FF6B35;color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;margin-top:16px;">Vezi Comenzile</a>
+                    <a href="https://www.marketplaceromania.com/orders" style="display:inline-block;background:#FF6B35;color:#fff;padding:12px 24px;text-decoration:none;border-radius:8px;margin-top:16px;">Vezi Comenzile</a>
                   </div>`,
               },
             });

@@ -82,7 +82,7 @@ serve(async (req) => {
       // Build the PayPal OAuth consent URL
       // The seller will log in to PayPal and authorize our app
       const redirectUri = encodeURIComponent(
-        return_url || "https://marketplaceromania.lovable.app/seller-mode"
+        return_url || "https://www.marketplaceromania.com/seller-mode"
       );
       
       // State parameter contains user ID for security verification

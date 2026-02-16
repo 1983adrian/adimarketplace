@@ -67,7 +67,7 @@ export default function FeesAndCommissions() {
       <SEOHead 
         title="Taxe și Abonamente | Market Place România — 0% Comision"
         description="Market Place România — 0% comision pe vânzări! Abonamente fixe de la 11 LEI/lună. Fără taxe ascunse. Vânzătorii noi primesc 30 de zile gratuite."
-        url="https://marketplaceromania.lovable.app/taxe-si-comisioane"
+        url="https://www.marketplaceromania.com/taxe-si-comisioane"
         type="article"
       />
       <Layout>
