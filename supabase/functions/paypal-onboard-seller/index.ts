@@ -9,7 +9,7 @@ const corsHeaders = {
 async function getPayPalAccessToken(): Promise<string> {
   const clientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
   const secret = Deno.env.get("PAYPAL_SECRET_KEY")!;
-  const base = "https://api-m.sandbox.paypal.com"; // Change to live for production
+  const base = "https://api-m.paypal.com";
 
   const res = await fetch(`${base}/v1/oauth2/token`, {
     method: "POST",
@@ -63,7 +63,7 @@ serve(async (req) => {
     // Generate PayPal Partner Referral link for seller onboarding
     if (action === "connect") {
       const accessToken = await getPayPalAccessToken();
-      const base = "https://api-m.sandbox.paypal.com";
+      const base = "https://api-m.paypal.com";
 
       const referralBody = {
         tracking_id: user.id,
