@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Store, Package, Shield, Globe, 
-  Save, CheckCircle2, AlertCircle, Loader2, User, Briefcase, Info
+  Save, CheckCircle2, AlertCircle, Loader2, User, Briefcase, Info, Link2, Unlink
 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,8 @@ const SellerMode = () => {
   const { toast } = useToast();
   
   const [saving, setSaving] = useState(false);
+  const [connectingPayPal, setConnectingPayPal] = useState(false);
+  const [disconnectingPayPal, setDisconnectingPayPal] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   
   // Seller mode
@@ -42,6 +44,26 @@ const SellerMode = () => {
       navigate('/login');
     }
   }, [user, loading, navigate]);
+
+  // Handle PayPal return callback
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const merchantId = params.get('merchantIdInPayPal') || params.get('merchantId');
+    if (params.get('paypal') === 'connected' || merchantId) {
+      // Save merchant info via edge function
+      supabase.functions.invoke('paypal-onboard-seller', {
+        body: { action: 'save-merchant', merchantId, merchantIdInPayPal: params.get('merchantIdInPayPal') }
+      }).then(({ error }) => {
+        if (!error) {
+          toast({ title: '✅ PayPal conectat cu succes!' });
+          // Clean URL
+          navigate('/seller-mode', { replace: true });
+          // Refresh profile
+          window.location.reload();
+        }
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (profile) {
@@ -274,7 +296,9 @@ const SellerMode = () => {
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Globe className="h-5 w-5 text-primary" />
                     Cont PayPal {sellerType === 'business' ? 'Business' : ''}
-                    {!paypalEmail && (
+                    {paypalEmail ? (
+                      <Badge variant="outline" className="text-green-600 border-green-400 text-xs">Conectat</Badge>
+                    ) : (
                       <Badge variant="outline" className="text-amber-600 border-amber-400 text-xs">
                         {sellerType === 'business' ? 'Obligatoriu' : 'Recomandat'}
                       </Badge>
@@ -282,94 +306,97 @@ const SellerMode = () => {
                   </CardTitle>
                   <CardDescription>
                     {sellerType === 'business' 
-                      ? 'Contul PayPal Business este obligatoriu pentru activitate comercială'
+                      ? 'Conectează contul PayPal Business pentru a primi plăți'
                       : 'Conectează contul PayPal pentru a primi plăți din vânzări'
                     }
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {!paypalEmail && (
-                    <Alert className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/30">
-                      <AlertCircle className="h-4 w-4 text-amber-600" />
-                      <AlertTitle className="text-amber-700 dark:text-amber-300">
-                        {sellerType === 'business' 
-                          ? 'Cont PayPal Business necesar'
-                          : 'Configurează PayPal pentru a primi plăți'
-                        }
-                      </AlertTitle>
-                      <AlertDescription className="space-y-3 text-amber-800 dark:text-amber-200">
-                        <p>
-                          {sellerType === 'business'
-                            ? 'Ca vânzător comercial, ai nevoie de un cont PayPal Business pentru conformitate și protecție. Contul PayPal Business este gratuit.'
-                            : 'Fără PayPal, nu vei putea primi banii din vânzări. Poți lista produse, dar configurează PayPal cât mai curând.'
+                  {paypalEmail ? (
+                    <>
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+                        <CheckCircle2 className="h-6 w-6 text-green-600 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-green-700 dark:text-green-300">PayPal Conectat</p>
+                          <p className="text-sm text-green-600 dark:text-green-400 truncate">📧 {paypalEmail}</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                          disabled={disconnectingPayPal}
+                          onClick={async () => {
+                            setDisconnectingPayPal(true);
+                            try {
+                              const { error } = await supabase.functions.invoke('paypal-onboard-seller', {
+                                body: { action: 'disconnect' }
+                              });
+                              if (error) throw error;
+                              setPaypalEmail('');
+                              toast({ title: 'PayPal deconectat' });
+                            } catch (err: any) {
+                              toast({ title: 'Eroare', description: err.message, variant: 'destructive' });
+                            } finally {
+                              setDisconnectingPayPal(false);
+                            }
+                          }}
+                        >
+                          {disconnectingPayPal ? <Loader2 className="h-4 w-4 animate-spin" /> : <Unlink className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Professional Connect Button */}
+                      <Button
+                        size="lg"
+                        className="w-full h-14 text-base gap-2 bg-[#0070ba] hover:bg-[#005ea6] text-white font-semibold shadow-lg"
+                        disabled={connectingPayPal}
+                        onClick={async () => {
+                          setConnectingPayPal(true);
+                          try {
+                            const { data, error } = await supabase.functions.invoke('paypal-onboard-seller', {
+                              body: { 
+                                action: 'connect',
+                                return_url: `${window.location.origin}/seller-mode?paypal=connected`
+                              }
+                            });
+                            if (error) throw error;
+                            if (data?.action_url) {
+                              window.location.href = data.action_url;
+                            } else {
+                              throw new Error('Nu s-a primit link-ul PayPal');
+                            }
+                          } catch (err: any) {
+                            toast({ title: 'Eroare PayPal', description: err.message, variant: 'destructive' });
+                          } finally {
+                            setConnectingPayPal(false);
                           }
-                        </p>
+                        }}
+                      >
+                        {connectingPayPal ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Link2 className="h-5 w-5" />
+                        )}
+                        {connectingPayPal ? 'Se conectează...' : `Conectează PayPal ${sellerType === 'business' ? 'Business' : ''}`}
+                      </Button>
 
-                        <div className="flex flex-wrap gap-2 pt-1">
-                          <a 
-                            href={sellerType === 'business' 
-                              ? 'https://www.paypal.com/ro/business/open-business-account'
-                              : 'https://www.paypal.com/ro/webapps/mpp/account-selection'
-                            }
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity"
-                          >
-                            <Globe className="h-4 w-4" />
-                            {sellerType === 'business' 
-                              ? 'Deschide Cont PayPal Business →'
-                              : 'Deschide Cont PayPal →'
-                            }
-                          </a>
-                        </div>
+                      <p className="text-xs text-center text-muted-foreground">
+                        Vei fi redirecționat către PayPal pentru a autoriza contul în siguranță
+                      </p>
 
-                        <div className="text-xs mt-1 space-y-1">
-                          <p><strong>Pași:</strong></p>
-                          {sellerType === 'business' ? (
-                            <>
-                              <p>1. Accesează link-ul și creează cont PayPal Business (gratuit)</p>
-                              <p>2. Adaugă datele firmei (PFA/SRL/II) sau activitate independentă</p>
-                              <p>3. Verifică identitatea și documentele în contul PayPal</p>
-                              <p>4. Revino aici și adaugă email-ul PayPal Business</p>
-                            </>
-                          ) : (
-                            <>
-                              <p>1. Accesează link-ul și creează cont PayPal Personal (gratuit)</p>
-                              <p>2. Verifică-ți identitatea (carte de identitate / pașaport)</p>
-                              <p>3. Adaugă un card bancar sau cont bancar</p>
-                              <p>4. Revino aici și adaugă email-ul PayPal</p>
-                            </>
-                          )}
-                        </div>
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="space-y-2">
-                    <Label className="text-lg font-bold">
-                      📧 Email PayPal {sellerType === 'business' ? 'Business' : ''}
-                    </Label>
-                    <Input
-                      type="email"
-                      value={paypalEmail}
-                      onChange={(e) => setPaypalEmail(e.target.value)}
-                      placeholder="email@paypal.com"
-                      className="h-14 text-lg border-2 border-primary/40 focus:border-primary bg-primary/5 font-medium shadow-sm"
-                    />
-                    <p className="text-sm text-muted-foreground font-medium">
-                      ⚡ Adresa de email asociată contului tău PayPal. Tracking-ul comenzilor se trimite automat la PayPal.
-                    </p>
-                  </div>
-
-                  {paypalEmail && (
-                    <Alert className="border-amber-500/50 bg-amber-500/10 shadow-md">
-                      <AlertCircle className="h-4 w-4 text-amber-600" />
-                      <AlertTitle className="text-amber-700 text-base">Email PayPal salvat</AlertTitle>
-                      <AlertDescription className="text-amber-800 dark:text-amber-200">
-                        <span className="font-semibold text-base block mt-1">📧 {paypalEmail}</span>
-                        <span className="text-sm block">⚠️ Emailul nu este verificat automat. Asigură-te că este corect și aparține contului tău PayPal real, altfel nu vei primi plățile.</span>
-                      </AlertDescription>
-                    </Alert>
+                      <div className="text-xs text-muted-foreground space-y-1 p-3 rounded-lg bg-muted/50">
+                        <p className="font-medium">Sau adaugă manual email-ul PayPal:</p>
+                        <Input
+                          type="email"
+                          value={paypalEmail}
+                          onChange={(e) => setPaypalEmail(e.target.value)}
+                          placeholder="email@paypal.com"
+                          className="h-10 text-sm mt-1"
+                        />
+                      </div>
+                    </>
                   )}
 
                   {/* Cum funcționează */}

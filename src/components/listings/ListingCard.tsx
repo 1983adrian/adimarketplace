@@ -141,17 +141,17 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             }}
           />
           
-          {/* Favorite Button - Always visible */}
+          {/* Favorite Button */}
           <Button
             variant="ghost"
             size="icon"
             className={cn(
-              'absolute top-2 right-2 h-9 w-9 rounded-full bg-card/90 backdrop-blur-sm shadow-sm hover:bg-card transition-all',
+              'absolute top-1.5 right-1.5 h-7 w-7 rounded-full bg-card/80 backdrop-blur-sm shadow-sm hover:bg-card transition-all',
               isFavorite && 'text-destructive'
             )}
             onClick={handleToggleFavorite}
           >
-            <Heart className={cn('h-5 w-5', isFavorite && 'fill-current')} />
+            <Heart className={cn('h-4 w-4', isFavorite && 'fill-current')} />
           </Button>
           
           {/* Share Button for seller's own listings */}
@@ -175,27 +175,25 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
           )}
           
           {/* Condition Badge */}
-          <Badge className={cn('absolute bottom-2 left-2 font-medium', conditionStyles[listing.condition])}>
+          <Badge className={cn('absolute bottom-1.5 left-1.5 text-[10px] px-1.5 py-0 h-4 font-medium', conditionStyles[listing.condition])}>
             {conditionLabels[listing.condition]}
           </Badge>
           
-          {/* Badges Row - Stock, shipping, COD */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            {/* Stock Badge - Always visible when quantity > 1 */}
+          {/* Badges Row - Stock, shipping */}
+          <div className="absolute top-2 left-2 flex flex-col gap-0.5">
             {listing.quantity && listing.quantity > 1 && (
-              <div className="flex items-center gap-1 bg-blue-600 text-white px-2 py-1 rounded-md text-xs font-bold shadow-sm">
+              <div className="flex items-center gap-0.5 bg-blue-600/90 text-white px-1.5 py-0.5 rounded text-[10px] font-semibold leading-tight">
                 📦 {listing.quantity} {t('listing.inStock')}
               </div>
             )}
-            {/* Last item warning */}
             {listing.quantity === 1 && (
-              <div className="flex items-center gap-1 bg-orange-600 text-white px-2 py-1 rounded-md text-xs font-bold shadow-sm animate-pulse">
+              <div className="flex items-center gap-0.5 bg-orange-600/90 text-white px-1.5 py-0.5 rounded text-[10px] font-semibold leading-tight animate-pulse">
                 🔥 {t('listing.lastOne')}
               </div>
             )}
             {listing.shipping_cost === 0 && (
-              <div className="flex items-center gap-1 bg-success text-success-foreground px-2 py-1 rounded-md text-xs font-medium">
-                <Truck className="h-3 w-3" />
+              <div className="flex items-center gap-0.5 bg-success/90 text-success-foreground px-1.5 py-0.5 rounded text-[10px] font-medium leading-tight">
+                <Truck className="h-2.5 w-2.5" />
                 {t('listing.freeShipping')}
               </div>
             )}
