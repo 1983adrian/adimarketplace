@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, Trash2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,6 +16,8 @@ import { Badge } from '@/components/ui/badge';
 export const CartDropdown: React.FC = () => {
   const { items, removeItem, itemCount, total } = useCart();
   const { formatPrice } = useCurrency();
+  const location = useLocation();
+  const isOnCheckout = location.pathname === '/checkout';
 
   return (
     <DropdownMenu>
@@ -61,7 +63,7 @@ export const CartDropdown: React.FC = () => {
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{item.title}</p>
-                      <p className="text-sm text-primary font-semibold">{formatPrice(item.price)}</p>
+                      <p className="text-sm text-primary font-semibold">{formatPrice(item.price, (item.price_currency || 'RON') as any)}</p>
                     </div>
                     <Button 
                       variant="ghost" 
@@ -83,11 +85,13 @@ export const CartDropdown: React.FC = () => {
                 <span className="text-sm text-muted-foreground">Total:</span>
                 <span className="font-bold text-lg">{formatPrice(total)}</span>
               </div>
-              <Button asChild className="w-full gradient-primary">
-                <Link to="/checkout">
-                  Finalizează comanda
-                </Link>
-              </Button>
+              {!isOnCheckout && (
+                <Button asChild className="w-full gradient-primary">
+                  <Link to="/checkout">
+                    Finalizează comanda
+                  </Link>
+                </Button>
+              )}
             </div>
           </>
         )}
