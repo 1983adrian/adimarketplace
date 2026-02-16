@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  User, Save, Loader2, Globe, Store, Wallet, CheckCircle2
+  User, Save, Loader2, Globe, Store
 } from 'lucide-react';
 
 import { Layout } from '@/components/layout/Layout';
@@ -10,14 +10,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLanguage, Language } from '@/contexts/LanguageContext';
 import { AvatarUpload } from '@/components/settings/AvatarUpload';
+import { PayPalConnect } from '@/components/settings/PayPalConnect';
 import { supabase } from '@/integrations/supabase/client';
 
 const ProfileSettings = () => {
@@ -31,7 +29,6 @@ const ProfileSettings = () => {
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [storeName, setStoreName] = useState('');
-  const [paypalEmail, setPaypalEmail] = useState('');
   
   const [selectedLanguage, setSelectedLanguage] = useState<string>(language);
 
@@ -45,7 +42,6 @@ const ProfileSettings = () => {
       setBio(profile.bio || '');
       const p = profile as any;
       setStoreName(p.store_name || '');
-      setPaypalEmail(p.paypal_email || '');
     }
   }, [user, profile, loading, navigate]);
 
@@ -77,13 +73,7 @@ const ProfileSettings = () => {
         username: username.trim() || null,
         bio,
         store_name: storeName.trim() || null,
-        paypal_email: paypalEmail.trim() || null,
       };
-
-      // Auto-activate seller mode when PayPal email is set
-      if (paypalEmail.trim()) {
-        updateData.is_seller = true;
-      }
 
       const { error } = await supabase
         .from('profiles')
@@ -110,7 +100,7 @@ const ProfileSettings = () => {
     );
   }
 
-  const hasPaypal = !!(profile as any)?.paypal_email;
+  
 
   return (
     <Layout>
@@ -215,79 +205,39 @@ const ProfileSettings = () => {
             </CardContent>
           </Card>
 
-          {/* Store & PayPal Card */}
-          <Card className="shadow-lg border-2 border-amber-500/30">
-            <CardHeader className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-t-lg">
+          {/* Store Name */}
+          <Card className="shadow-lg border-2">
+            <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Store className="h-5 w-5 text-amber-500" />
-                Magazin & PayPal
-                {hasPaypal && (
-                  <Badge variant="outline" className="text-green-600 border-green-400 text-xs">
-                    <CheckCircle2 className="h-3 w-3 mr-1" />
-                    Vânzător Activ
-                  </Badge>
-                )}
+                Nume Magazin
+              </CardTitle>
+              <CardDescription>Numele magazinului tău vizibil pe platformă</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Input
+                id="storeName"
+                value={storeName}
+                onChange={(e) => setStoreName(e.target.value)}
+                placeholder="Magazinul Meu"
+                className="h-12"
+              />
+            </CardContent>
+          </Card>
+
+          {/* PayPal Connect - Real OAuth */}
+          <Card className="shadow-lg border-2 border-[hsl(var(--primary))]/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Store className="h-5 w-5 text-primary" />
+                Conectare PayPal
               </CardTitle>
               <CardDescription>
-                Setează-ți numele magazinului și email-ul PayPal pentru a putea vinde
+                Conectează-ți contul PayPal prin autorizare securizată pentru a primi plăți
               </CardDescription>
             </CardHeader>
-            <CardContent className="pt-6 space-y-4">
-              <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800">
-                <Store className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-blue-800 dark:text-blue-200 text-sm">
-                  <strong>Cum devii vânzător?</strong> Completează email-ul PayPal de mai jos și salvează. 
-                  Contul tău va fi activat automat ca vânzător!
-                </AlertDescription>
-              </Alert>
-
-              <div className="space-y-2">
-                <Label htmlFor="storeName" className="text-base font-medium">
-                  Nume Magazin
-                </Label>
-                <Input
-                  id="storeName"
-                  value={storeName}
-                  onChange={(e) => setStoreName(e.target.value)}
-                  placeholder="Magazinul Meu"
-                  className="h-12"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="paypalEmail" className="text-base font-medium flex items-center gap-2">
-                  <Wallet className="h-4 w-4 text-[#0070ba]" />
-                  Email PayPal *
-                </Label>
-                <Input
-                  id="paypalEmail"
-                  type="email"
-                  value={paypalEmail}
-                  onChange={(e) => setPaypalEmail(e.target.value)}
-                  placeholder="email@paypal.com"
-                  className="h-12"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Folosește adresa de email asociată contului tău PayPal. Plățile vor fi trimise aici.
-                </p>
-              </div>
-
-              {!paypalEmail.trim() && (
-                <Alert className="border-amber-300 bg-amber-50 dark:bg-amber-950/20">
-                  <Wallet className="h-4 w-4 text-amber-600" />
-                  <AlertDescription className="text-amber-700 dark:text-amber-300 text-sm">
-                    Nu ai cont PayPal?{' '}
-                    <a
-                      href="https://www.paypal.com/ro/webapps/mpp/account-selection"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline font-semibold"
-                    >
-                      Deschide unul gratuit →
-                    </a>
-                  </AlertDescription>
-                </Alert>
-              )}
+            <CardContent>
+              <PayPalConnect />
             </CardContent>
           </Card>
 
