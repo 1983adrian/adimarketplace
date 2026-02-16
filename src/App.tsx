@@ -83,6 +83,7 @@ import AdminSellerPayouts from "./pages/admin/AdminSellerPayouts";
 import AdminFraudAlerts from "./pages/admin/AdminFraudAlerts";
 
 import AdminSellerSubscriptions from "./pages/admin/AdminSellerSubscriptions";
+import AdminPaymentAudit from "./pages/admin/AdminPaymentAudit";
 
 const queryClient = new QueryClient();
 
@@ -157,6 +158,7 @@ const adminRoutes = [
   { path: "/admin/broadcast", element: <AdminBroadcast /> },
   { path: "/admin/fraud-alerts", element: <AdminFraudAlerts /> },
   { path: "/admin/seller-subscriptions", element: <AdminSellerSubscriptions /> },
+  { path: "/admin/payment-audit", element: <AdminPaymentAudit /> },
 ];
 
 // No language prefixes needed - using geo-based auto-detection
