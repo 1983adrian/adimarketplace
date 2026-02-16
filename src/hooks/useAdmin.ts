@@ -210,12 +210,12 @@ export const useUpdateListingStatus = () => {
   
   return useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase
-        .from('listings')
-        .update({ is_active })
-        .eq('id', id);
-      
+      const { data, error } = await supabase.rpc('admin_update_listing_status', { 
+        p_listing_id: id, 
+        p_is_active: is_active 
+      });
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
@@ -228,26 +228,9 @@ export const useDeleteListing = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      // Delete related rows first (backup for tables without CASCADE)
-      const deletions = await Promise.allSettled([
-        supabase.from('listing_images').delete().eq('listing_id', id),
-        supabase.from('favorites').delete().eq('listing_id', id),
-        supabase.from('listing_promotions').delete().eq('listing_id', id),
-        supabase.from('listing_reports').delete().eq('listing_id', id),
-        supabase.from('bids').delete().eq('listing_id', id),
-        supabase.from('price_history').delete().eq('listing_id', id),
-        supabase.from('seo_indexing_queue').delete().eq('listing_id', id),
-        supabase.from('watchlist').delete().eq('listing_id', id),
-      ]);
-      
-      console.log('Pre-delete results:', deletions);
-
-      const { error } = await supabase
-        .from('listings')
-        .delete()
-        .eq('id', id);
-      
+      const { data, error } = await supabase.rpc('admin_delete_listing', { p_listing_id: id });
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-listings'] });
@@ -260,22 +243,13 @@ export const useAdminPromoteListing = () => {
   
   return useMutation({
     mutationFn: async ({ listingId, sellerId }: { listingId: string; sellerId: string }) => {
-      const now = new Date();
-      const endsAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
-      
-      const { error } = await supabase
-        .from('listing_promotions')
-        .insert({
-          listing_id: listingId,
-          seller_id: sellerId,
-          promotion_type: 'paid',
-          starts_at: now.toISOString(),
-          ends_at: endsAt.toISOString(),
-          is_active: true,
-          amount_paid: 0,
-        });
-      
+      const { data, error } = await supabase.rpc('admin_promote_listing', { 
+        p_listing_id: listingId, 
+        p_seller_id: sellerId,
+        p_days: 30
+      });
       if (error) throw error;
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-listings'] });

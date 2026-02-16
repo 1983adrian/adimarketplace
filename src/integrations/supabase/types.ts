@@ -3658,9 +3658,26 @@ export type Database = {
       }
     }
     Functions: {
+      admin_delete_listing: { Args: { p_listing_id: string }; Returns: Json }
       admin_increment_pending_balance: {
         Args: { p_amount: number; p_user_id: string }
         Returns: undefined
+      }
+      admin_promote_listing: {
+        Args: { p_days?: number; p_listing_id: string; p_seller_id: string }
+        Returns: Json
+      }
+      admin_suspend_user: {
+        Args: { p_suspend?: boolean; p_user_id: string }
+        Returns: Json
+      }
+      admin_update_listing_status: {
+        Args: { p_is_active: boolean; p_listing_id: string }
+        Returns: Json
+      }
+      admin_update_order_status: {
+        Args: { p_order_id: string; p_status: string }
+        Returns: Json
       }
       audit_sensitive_access: {
         Args: {

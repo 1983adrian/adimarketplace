@@ -45,7 +45,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const { type, to, message, subject }: NotificationRequest = await req.json();
+    const body = await req.json();
+    const type = body.type as "sms" | "email";
+    const to = String(body.to || "");
+    const message = String(body.message || "");
+    const subject = body.subject ? String(body.subject) : undefined;
+
+    if (!to || !message || !type) {
+      return new Response(
+        JSON.stringify({ error: "Missing required fields: type, to, message" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     if (type === "sms") {
       const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID");
