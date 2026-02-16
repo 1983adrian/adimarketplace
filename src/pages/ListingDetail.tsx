@@ -76,8 +76,15 @@ const ListingDetail = () => {
         .select('*')
         .eq('user_id', data.seller_id)
         .maybeSingle();
+
+      // Check if seller has PayPal configured (only check existence, not expose email)
+      const { data: sellerPaypal } = await supabase
+        .from('profiles')
+        .select('paypal_email')
+        .eq('user_id', data.seller_id)
+        .single();
         
-      return { ...data, seller_profile: profile };
+      return { ...data, seller_profile: profile, seller_has_paypal: !!sellerPaypal?.paypal_email };
     },
     enabled: !!id,
   });
@@ -191,7 +198,8 @@ const ListingDetail = () => {
   const hasSizes = listing.sizes && listing.sizes.length > 0;
   const hasColors = listing.colors && listing.colors.length > 0;
   const needsVariantSelection = hasSizes || hasColors;
-  const canBuy = !needsVariantSelection || ((!hasSizes || selectedSize) && (!hasColors || selectedColor));
+  const sellerHasPaypal = listing.seller_has_paypal !== false;
+  const canBuy = sellerHasPaypal && (!needsVariantSelection || ((!hasSizes || selectedSize) && (!hasColors || selectedColor)));
 
   const images = listing.listing_images?.sort((a: any, b: any) => a.sort_order - b.sort_order) || [];
   const primaryImage = images.find((img: any) => img.is_primary)?.image_url || images[0]?.image_url;
@@ -374,6 +382,13 @@ const ListingDetail = () => {
                 bidIncrement={listing.bid_increment || 1}
                 sellerId={listing.seller_id}
               />
+            )}
+
+            {/* Seller PayPal warning */}
+            {!sellerHasPaypal && (
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-sm text-destructive">
+                ⚠️ Vânzătorul nu are plata PayPal configurată. Contactează vânzătorul pentru a finaliza achiziția.
+              </div>
             )}
 
             {/* Buy Now Button - for buy_now or both listings */}
