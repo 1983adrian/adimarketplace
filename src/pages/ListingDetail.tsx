@@ -297,11 +297,11 @@ const ListingDetail = () => {
             {isBuyNow && (
               <div className="space-y-1">
                 <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
-                  {formatPrice(listing.buy_now_price || listing.price)}
+                  {formatPrice(listing.buy_now_price || listing.price, (listing.price_currency || 'RON') as any)}
                 </p>
                 {listing.shipping_cost > 0 && (
                   <p className="text-sm text-destructive font-medium">
-                    + {formatPrice(listing.shipping_cost)} livrare
+                    + {formatPrice(listing.shipping_cost, (listing.price_currency || 'RON') as any)} livrare
                   </p>
                 )}
               </div>
