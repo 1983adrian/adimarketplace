@@ -62,8 +62,9 @@ const subscriptionItems: MenuItem[] = [
   { title: 'Utilizatori', url: '/admin/users', icon: Users },
 ];
 
-// 🔑 Chei API — PayPal, Stripe, etc.
+// 🔑 Plăți & Chei API
 const apiKeysItems: MenuItem[] = [
+  { title: 'Audit Plăți', url: '/admin/payment-audit', icon: CreditCard },
   { title: 'Chei API (PayPal)', url: '/admin/payments', icon: KeyRound },
 ];
 

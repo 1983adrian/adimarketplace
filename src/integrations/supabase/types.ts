@@ -3807,6 +3807,7 @@ export type Database = {
       app_role: "admin" | "moderator" | "user"
       item_condition: "new" | "like_new" | "good" | "fair" | "poor"
       order_status:
+        | "payment_pending"
         | "pending"
         | "paid"
         | "shipped"
@@ -3945,6 +3946,7 @@ export const Constants = {
       app_role: ["admin", "moderator", "user"],
       item_condition: ["new", "like_new", "good", "fair", "poor"],
       order_status: [
+        "payment_pending",
         "pending",
         "paid",
         "shipped",

@@ -284,7 +284,7 @@ serve(async (req) => {
         success: false,
         paymentConfirmed: false,
         status: "failed",
-        message: "Plata nu a fost finalizată. Folosește Ramburs (COD) sau încearcă din nou.",
+        message: "Plata nu a fost finalizată. Încearcă din nou.",
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
