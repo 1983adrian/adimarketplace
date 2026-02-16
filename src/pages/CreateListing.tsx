@@ -208,7 +208,7 @@ const CreateListing = () => {
         description: kycMessage || 'Completează verificarea identității pentru a putea vinde.', 
         variant: 'destructive' 
       });
-      navigate('/seller-mode');
+      navigate('/profile-settings');
       return;
     }
 

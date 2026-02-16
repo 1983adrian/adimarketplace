@@ -40,14 +40,13 @@ const SellerTutorial: React.FC = () => {
       color: "from-amber-500 to-orange-500",
       bgColor: "bg-amber-50",
       borderColor: "border-amber-200",
-      buttonLabel: "Mergi la Mod Vânzător →",
-      buttonLink: "/seller-mode",
+      buttonLabel: "Mergi la Setări Profil →",
+      buttonLink: "/profile-settings",
       details: [
-        "Din Meniu (☰), apasă pe 'Mod Vânzător'",
-        "Activează toggle-ul 'Activează Modul Vânzător'",
+        "Din Meniu (☰), apasă pe 'Setări Profil'",
         "Completează Numele Magazinului tău",
-        "Alege tipul: Vânzător Ocazional sau Comercial",
-        "Acceptă Termenii Vânzătorului și salvează"
+        "Adaugă email-ul PayPal — devii vânzător automat!",
+        "Salvează profilul"
       ]
     },
     {
@@ -77,11 +76,11 @@ const SellerTutorial: React.FC = () => {
       bgColor: "bg-sky-50",
       borderColor: "border-sky-200",
       buttonLabel: "Configurează PayPal →",
-      buttonLink: "/seller-mode",
+      buttonLink: "/profile-settings",
       details: [
-        "Din 'Mod Vânzător', secțiunea PayPal",
-        "Ocazional? → PayPal Personal e suficient",
-        "Comercial? → PayPal Business obligatoriu (gratuit)",
+        "Din 'Setări Profil', secțiunea Magazin & PayPal",
+        "Completează email-ul contului tău PayPal",
+        "Salvează — contul tău devine automat vânzător",
         "Introdu email-ul PayPal și salvează",
         "Tracking-ul comenzilor se sincronizează automat cu PayPal"
       ]
@@ -189,7 +188,7 @@ const SellerTutorial: React.FC = () => {
   ];
 
   const menuLocations = [
-    { icon: Store, title: "Mod Vânzător", description: "Activare, PayPal, tip cont", color: "from-amber-400 to-orange-500", link: "/seller-mode" },
+    { icon: Store, title: "Setări Profil", description: "Magazin, PayPal, date personale", color: "from-amber-400 to-orange-500", link: "/profile-settings" },
     { icon: Receipt, title: "Planuri", description: "Abonamente & plată Revolut", color: "from-blue-400 to-indigo-500", link: "/seller-plans" },
     { icon: Package, title: "Produsele Mele", description: "Produse active & gestiune", color: "from-violet-500 to-purple-600", link: "/my-products" },
     { icon: Wallet, title: "Portofel", description: "Sold & retrageri", color: "from-green-500 to-emerald-600", link: "/wallet" },
@@ -225,7 +224,7 @@ const SellerTutorial: React.FC = () => {
               </Alert>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button asChild size="lg" className="gap-2 shadow-lg">
-                  <Link to="/seller-mode">
+                  <Link to="/profile-settings">
                     <Store className="h-5 w-5" />
                     Începe Acum
                   </Link>
@@ -443,9 +442,9 @@ const SellerTutorial: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button asChild size="lg" className="gap-2 shadow-lg">
-                <Link to="/seller-mode">
+                <Link to="/profile-settings">
                   <Store className="h-5 w-5" />
-                  Activează Mod Vânzător
+                  Configurează Profil & PayPal
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="gap-2">
