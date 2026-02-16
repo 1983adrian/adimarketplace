@@ -11,7 +11,7 @@ export default function SellerRules() {
           <div className="text-center mb-12">
             <Store className="h-16 w-16 mx-auto mb-4 text-primary" />
             <h1 className="text-4xl font-bold mb-4">Regulament pentru Vânzători</h1>
-            <p className="text-muted-foreground">Reguli obligatorii pentru vânzarea pe Market Place România — 0% comision, abonamente fixe</p>
+            <p className="text-muted-foreground">Reguli obligatorii pentru vânzarea pe Marketplace România — 0% comision, abonamente fixe</p>
           </div>
 
           <div className="space-y-6">
@@ -22,7 +22,7 @@ export default function SellerRules() {
                   <div>
                     <h2 className="text-lg font-semibold mb-2">Responsabilitatea produselor</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      Vânzătorii sunt <strong className="text-foreground">responsabili integral</strong> pentru produsele listate pe Market Place România, inclusiv descrieri, fotografii, stare și autenticitate. Fiecare produs poate avea maxim 3 fotografii.
+                      Vânzătorii sunt <strong className="text-foreground">responsabili integral</strong> pentru produsele listate pe Marketplace România, inclusiv descrieri, fotografii, stare și autenticitate. Fiecare produs poate avea maxim 3 fotografii.
                     </p>
                   </div>
                 </div>
@@ -50,7 +50,7 @@ export default function SellerRules() {
                   <div>
                     <h2 className="text-lg font-semibold mb-2">Prețuri transparente</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      Prețurile afișate trebuie să <strong className="text-foreground">includă toate taxele aplicabile</strong>. Prețul final plătit de cumpărător nu poate depăși prețul afișat plus costul livrării. Market Place România nu percepe comisioane pe vânzări (0%).
+                      Prețurile afișate trebuie să <strong className="text-foreground">includă toate taxele aplicabile</strong>. Prețul final plătit de cumpărător nu poate depăși prețul afișat plus costul livrării. Marketplace România nu percepe comisioane pe vânzări (0%).
                     </p>
                   </div>
                 </div>
@@ -92,7 +92,7 @@ export default function SellerRules() {
                   <div>
                     <h2 className="text-lg font-semibold mb-2">Acceptarea regulamentului</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      Este <strong className="text-foreground">obligatorie acceptarea regulamentului</strong> înainte de publicarea anunțurilor. Prin activarea modului vânzător, confirmați că ați citit și înțeles toate regulile Market Place România.
+                      Este <strong className="text-foreground">obligatorie acceptarea regulamentului</strong> înainte de publicarea anunțurilor. Prin activarea modului vânzător, confirmați că ați citit și înțeles toate regulile Marketplace România.
                     </p>
                   </div>
                 </div>
@@ -106,7 +106,7 @@ export default function SellerRules() {
                   <div>
                     <h2 className="text-lg font-semibold mb-2">Sancțiuni</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      Market Place România își rezervă dreptul de a <strong className="text-foreground">elimina anunțuri sau suspenda conturi</strong> care încalcă aceste reguli, fără notificare prealabilă în cazuri grave (arme, substanțe ilegale, contrabandă).
+                      Marketplace România își rezervă dreptul de a <strong className="text-foreground">elimina anunțuri sau suspenda conturi</strong> care încalcă aceste reguli, fără notificare prealabilă în cazuri grave (arme, substanțe ilegale, contrabandă).
                     </p>
                   </div>
                 </div>

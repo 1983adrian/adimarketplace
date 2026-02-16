@@ -11,7 +11,7 @@ export default function TermsOfService() {
           <div className="text-center mb-12">
             <FileText className="h-16 w-16 mx-auto mb-4 text-primary" />
             <h1 className="text-4xl font-bold mb-4">Termeni și Condiții</h1>
-            <p className="text-muted-foreground">Market Place România — www.marketplaceromania.com</p>
+            <p className="text-muted-foreground">Marketplace România — www.marketplaceromania.com</p>
           </div>
 
           <div className="space-y-8">
@@ -22,7 +22,7 @@ export default function TermsOfService() {
                   <div>
                     <h2 className="text-xl font-semibold mb-3">1.1. Despre platformă</h2>
                     <p className="text-muted-foreground leading-relaxed">
-                      Market Place România este o platformă online de tip marketplace care facilitează contactul dintre vânzători și cumpărători din România și din întreaga lume. Platforma nu este parte în tranzacțiile dintre utilizatori și nu vinde produse în nume propriu.
+                       Market Place România este o platformă online de tip marketplace care facilitează contactul dintre vânzători și cumpărători din România și din întreaga lume. Platforma nu este parte în tranzacțiile dintre utilizatori și nu vinde produse în nume propriu.
                     </p>
                   </div>
                 </div>
