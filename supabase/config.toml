@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.paypal-onboard-seller]
 verify_jwt = false
+
+[functions.paypal-webhook]
+verify_jwt = false

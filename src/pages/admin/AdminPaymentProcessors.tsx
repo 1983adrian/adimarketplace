@@ -8,7 +8,8 @@ import {
   CheckCircle,
   AlertTriangle,
   Globe,
-  Shield
+  Shield,
+  Info
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,8 @@ interface ProcessorSettings {
   api_key_encrypted?: string | null;
   api_secret_encrypted?: string | null;
   merchant_id: string | null;
+  partner_id: string | null;
+  bn_code: string | null;
   environment: string;
   webhook_url: string | null;
 }
@@ -45,24 +48,23 @@ export default function AdminPaymentProcessors() {
   const { data: paypal, isLoading } = useQuery({
     queryKey: ['paypal-settings'],
     queryFn: async () => {
-      // Read from the actual table to check if keys are set
       const { data, error } = await supabase
         .from('payment_processor_settings')
-        .select('id, processor_name, is_active, environment, merchant_id, webhook_url, api_key_encrypted, api_secret_encrypted')
+        .select('id, processor_name, is_active, environment, merchant_id, webhook_url, api_key_encrypted, api_secret_encrypted, partner_id, bn_code')
         .eq('processor_name', 'paypal')
         .single();
       
       if (error && error.code !== 'PGRST116') throw error;
       
-      // Don't expose actual values, just check if they exist
       if (data) {
         return {
           ...data,
           hasClientId: !!data.api_key_encrypted,
           hasSecret: !!data.api_secret_encrypted,
+          hasPartnerId: !!data.partner_id,
           api_key_encrypted: undefined,
           api_secret_encrypted: undefined,
-        } as unknown as ProcessorSettings & { hasClientId: boolean; hasSecret: boolean };
+        } as unknown as ProcessorSettings & { hasClientId: boolean; hasSecret: boolean; hasPartnerId: boolean };
       }
       return null;
     },
@@ -85,7 +87,7 @@ export default function AdminPaymentProcessors() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['paypal-settings'] });
-      toast({ title: '✅ Chei API salvate', description: 'Configurația a fost actualizată cu succes.' });
+      toast({ title: '✅ Configurație PayPal salvată', description: 'Toate cheile au fost actualizate cu succes.' });
       setEdited({});
     },
     onError: (error: any) => {
@@ -96,33 +98,29 @@ export default function AdminPaymentProcessors() {
   const handleSave = () => {
     const clientId = (edited.api_key_encrypted ?? '').trim();
     const secret = (edited.api_secret_encrypted ?? '').trim();
+    const partnerId = (edited.partner_id ?? (paypal as any)?.partner_id ?? '').trim();
     
-    // Must provide both keys
-    if (!clientId) {
+    if (!clientId && !(paypal as any)?.hasClientId) {
       toast({ title: '❌ Client ID lipsă', description: 'Introdu PayPal Client ID.', variant: 'destructive' });
       return;
     }
-    if (!secret) {
+    if (!secret && !(paypal as any)?.hasSecret) {
       toast({ title: '❌ Secret Key lipsă', description: 'Introdu PayPal Secret Key.', variant: 'destructive' });
       return;
     }
+    if (!partnerId) {
+      toast({ title: '❌ Partner ID lipsă', description: 'Partner ID (Merchant ID platforma) este obligatoriu pentru marketplace.', variant: 'destructive' });
+      return;
+    }
     
-    // Auto-activate when saving valid keys
-    const dataToSave = {
+    const dataToSave: any = {
       ...edited,
-      api_key_encrypted: clientId,
-      api_secret_encrypted: secret,
       is_active: true,
       environment: edited.environment ?? paypal?.environment ?? 'sandbox',
     };
     
-    console.log('Saving PayPal config with keys:', { 
-      hasClientId: !!clientId, 
-      clientIdLength: clientId.length,
-      hasSecret: !!secret, 
-      secretLength: secret.length,
-      environment: dataToSave.environment,
-    });
+    if (clientId) dataToSave.api_key_encrypted = clientId;
+    if (secret) dataToSave.api_secret_encrypted = secret;
     
     save.mutate(dataToSave);
   };
@@ -138,6 +136,7 @@ export default function AdminPaymentProcessors() {
   const isConfigured = !!paypal?.id;
   const isActive = getValue('is_active') as boolean || false;
   const hasKeys = (paypal as any)?.hasClientId && (paypal as any)?.hasSecret;
+  const hasPartnerId = !!(paypal as any)?.hasPartnerId || !!edited.partner_id;
 
   if (isLoading) {
     return (
@@ -157,27 +156,24 @@ export default function AdminPaymentProcessors() {
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <Key className="h-8 w-8 text-primary" />
-            Chei API
+            Chei API — PayPal Commerce Platform
           </h1>
-          <p className="text-muted-foreground">Toate cheile API ale platformei într-un singur loc</p>
+          <p className="text-muted-foreground">
+            Configurația completă PayPal pentru marketplace cu mai mulți vânzători (Partner Referrals API v2)
+          </p>
         </div>
 
         {/* Status */}
         <div className="flex items-center gap-3 flex-wrap">
-          {isConfigured && isActive && hasKeys ? (
+          {isConfigured && isActive && hasKeys && hasPartnerId ? (
             <Badge className="bg-green-500/15 text-green-700 border-green-500/30 gap-1.5 py-1 px-3 text-sm">
               <CheckCircle className="h-3.5 w-3.5" />
-              PayPal Activ ✅
+              PayPal Marketplace Activ ✅
             </Badge>
           ) : isConfigured && hasKeys ? (
             <Badge variant="secondary" className="gap-1.5 py-1 px-3 text-sm">
               <AlertTriangle className="h-3.5 w-3.5" />
-              Chei salvate — activează switch-ul!
-            </Badge>
-          ) : isConfigured ? (
-            <Badge variant="destructive" className="gap-1.5 py-1 px-3 text-sm">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              ⚠️ CHEILE API NU SUNT SALVATE
+              {!hasPartnerId ? 'Partner ID lipsă!' : 'Activează switch-ul!'}
             </Badge>
           ) : (
             <Badge variant="destructive" className="gap-1.5 py-1 px-3 text-sm">
@@ -190,13 +186,31 @@ export default function AdminPaymentProcessors() {
           </Badge>
         </div>
 
+        {/* PayPal Commerce Platform Info */}
+        <Alert className="border-blue-300 bg-blue-50 dark:bg-blue-950/20">
+          <Info className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-sm text-blue-800 dark:text-blue-200">
+            <strong>PayPal Commerce Platform (Marketplace):</strong> Această integrare folosește 
+            <strong> Partner Referrals API v2</strong> conform cerințelor PayPal pentru marketplace-uri cu mai mulți vânzători. 
+            Vânzătorii sunt onboardați ca sub-comercianți verificați de PayPal (KYC, documente, conformitate).
+            <br /><br />
+            <strong>Cerințe obligatorii:</strong>
+            <ul className="list-disc ml-4 mt-1 space-y-1">
+              <li>Cont PayPal Business aprobat ca <strong>Partner/Platform</strong></li>
+              <li><strong>Partner ID</strong> = Merchant ID-ul contului tău de platformă</li>
+              <li><strong>BN Code</strong> = Attribution ID primit de la PayPal la aprobare</li>
+              <li>Cheile API (Client ID + Secret) din aplicația REST API</li>
+            </ul>
+          </AlertDescription>
+        </Alert>
+
         {/* ===== PAYPAL KEYS - MAIN CARD ===== */}
         <Card className="border-2 border-primary/20">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-primary" />
-                PayPal — Client ID & Secret Key
+                PayPal — Configurare Completă Marketplace
               </span>
               <Switch
                 checked={isActive}
@@ -229,6 +243,40 @@ export default function AdminPaymentProcessors() {
               </Select>
             </div>
 
+            {/* Partner ID — REQUIRED for marketplace */}
+            <div className="space-y-2 p-4 rounded-lg border-2 border-amber-400/50 bg-amber-50/50 dark:bg-amber-950/20">
+              <Label className="font-bold text-base flex items-center gap-2">
+                🏪 Partner ID (Merchant ID Platformă) 
+                <Badge variant="destructive" className="text-xs">OBLIGATORIU</Badge>
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Merchant ID-ul contului PayPal Business al platformei. Îl găsești în PayPal → 
+                <a href="https://www.paypal.com/businessmanage/account/aboutBusiness" target="_blank" rel="noopener noreferrer" className="underline text-primary font-medium ml-1">
+                  Account Settings → Business Information → PayPal Merchant ID
+                </a>
+              </p>
+              <Input
+                value={(edited.partner_id ?? (paypal as any)?.partner_id) || ''}
+                onChange={(e) => updateField('partner_id', e.target.value)}
+                placeholder="Ex: ABCDEF123456789"
+                className="h-12 text-base font-mono"
+              />
+            </div>
+
+            {/* BN Code */}
+            <div className="space-y-2">
+              <Label className="font-semibold text-base">
+                BN Code (Attribution ID)
+                <span className="text-xs text-muted-foreground font-normal ml-2">Opțional — primit la aprobarea ca Partner</span>
+              </Label>
+              <Input
+                value={(edited.bn_code ?? (paypal as any)?.bn_code) || ''}
+                onChange={(e) => updateField('bn_code', e.target.value)}
+                placeholder="Ex: MarketplaceRomania_SP_PPCP"
+                className="h-12"
+              />
+            </div>
+
             {/* Client ID */}
             <div className="space-y-2">
               <Label className="font-semibold text-base">Client ID</Label>
@@ -237,7 +285,7 @@ export default function AdminPaymentProcessors() {
                   type={showClientId ? 'text' : 'password'}
                   value={edited.api_key_encrypted ?? ''}
                   onChange={(e) => updateField('api_key_encrypted', e.target.value)}
-                  placeholder={isConfigured ? '••••••••  (salvat — introdu altul pentru a schimba)' : 'Lipește PayPal Client ID aici (ex: AXx...)'}
+                  placeholder={isConfigured && hasKeys ? '••••••••  (salvat — introdu altul pentru a schimba)' : 'Lipește PayPal Client ID aici (ex: AXx...)'}
                   className="pr-10 h-12 text-base"
                 />
                 <Button
@@ -260,7 +308,7 @@ export default function AdminPaymentProcessors() {
                   type={showSecret ? 'text' : 'password'}
                   value={edited.api_secret_encrypted ?? ''}
                   onChange={(e) => updateField('api_secret_encrypted', e.target.value)}
-                  placeholder={isConfigured ? '••••••••  (salvat — introdu altul pentru a schimba)' : 'Lipește PayPal Secret Key aici (ex: ELx...)'}
+                  placeholder={isConfigured && hasKeys ? '••••••••  (salvat — introdu altul pentru a schimba)' : 'Lipește PayPal Secret Key aici (ex: ELx...)'}
                   className="pr-10 h-12 text-base"
                 />
                 <Button
@@ -275,24 +323,24 @@ export default function AdminPaymentProcessors() {
               </div>
             </div>
 
-            {/* Merchant ID (optional) */}
+            {/* Webhook URL */}
             <div className="space-y-2">
-              <Label>Merchant ID <span className="text-muted-foreground text-xs">(opțional)</span></Label>
-              <Input
-                value={(getValue('merchant_id') as string) || ''}
-                onChange={(e) => updateField('merchant_id', e.target.value)}
-                placeholder="PayPal Merchant ID"
-              />
-            </div>
-
-            {/* Webhook URL (optional) */}
-            <div className="space-y-2">
-              <Label>Webhook URL <span className="text-muted-foreground text-xs">(opțional)</span></Label>
+              <Label>
+                Webhook URL 
+                <span className="text-xs text-muted-foreground font-normal ml-2">
+                  Configurează în PayPal Developer → Webhooks
+                </span>
+              </Label>
               <Input
                 value={(getValue('webhook_url') as string) || ''}
                 onChange={(e) => updateField('webhook_url', e.target.value)}
-                placeholder="https://..."
+                placeholder={`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/paypal-webhook`}
+                className="h-10 text-sm font-mono"
               />
+              <p className="text-xs text-muted-foreground">
+                <strong>Evenimente necesare:</strong> MERCHANT.ONBOARDING.COMPLETED, MERCHANT.PARTNER-CONSENT.REVOKED, 
+                PAYMENT.CAPTURE.COMPLETED, CHECKOUT.ORDER.APPROVED
+              </p>
             </div>
 
             {/* ===== SAVE BUTTON ===== */}
@@ -307,7 +355,7 @@ export default function AdminPaymentProcessors() {
               ) : (
                 <Save className="h-5 w-5" />
               )}
-              💾 SALVEAZĂ CHEILE API
+              💾 SALVEAZĂ CONFIGURAȚIA PAYPAL
             </Button>
           </CardContent>
         </Card>
@@ -316,9 +364,10 @@ export default function AdminPaymentProcessors() {
         <Alert className="border-muted">
           <Globe className="h-4 w-4" />
           <AlertDescription className="text-sm text-muted-foreground">
-            <strong>Cum funcționează:</strong> Cheile se salvează în baza de date securizată. 
-            Doar Edge Functions (backend) le pot accesa pentru procesarea plăților.
-            AWB-urile se sincronizează automat cu PayPal. <strong>0% comision platformă</strong> — venituri doar din abonamente.
+            <strong>Cum funcționează marketplace-ul:</strong> Cheile se salvează securizat în baza de date. 
+            Edge Functions folosesc <strong>Partner Referrals API v2</strong> pentru onboarding vânzători. 
+            PayPal verifică automat identitatea vânzătorilor (KYC) și trimite notificări când sunt necesare documente suplimentare.
+            <strong> 0% comision platformă</strong> — venituri doar din abonamente.
           </AlertDescription>
         </Alert>
       </div>

@@ -1360,11 +1360,13 @@ export type Database = {
         Row: {
           api_key_encrypted: string | null
           api_secret_encrypted: string | null
+          bn_code: string | null
           created_at: string | null
           environment: string | null
           id: string
           is_active: boolean | null
           merchant_id: string | null
+          partner_id: string | null
           processor_name: string
           updated_at: string | null
           webhook_url: string | null
@@ -1372,11 +1374,13 @@ export type Database = {
         Insert: {
           api_key_encrypted?: string | null
           api_secret_encrypted?: string | null
+          bn_code?: string | null
           created_at?: string | null
           environment?: string | null
           id?: string
           is_active?: boolean | null
           merchant_id?: string | null
+          partner_id?: string | null
           processor_name: string
           updated_at?: string | null
           webhook_url?: string | null
@@ -1384,11 +1388,13 @@ export type Database = {
         Update: {
           api_key_encrypted?: string | null
           api_secret_encrypted?: string | null
+          bn_code?: string | null
           created_at?: string | null
           environment?: string | null
           id?: string
           is_active?: boolean | null
           merchant_id?: string | null
+          partner_id?: string | null
           processor_name?: string
           updated_at?: string | null
           webhook_url?: string | null
