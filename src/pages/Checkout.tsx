@@ -21,6 +21,7 @@ import { useListing } from '@/hooks/useListings';
 import { supabase } from '@/integrations/supabase/client';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { PaymentMethodSelector, PaymentMethod } from '@/components/checkout/PaymentMethodSelector';
+import { useLocation as useGeoLocation } from '@/contexts/LocationContext';
 
 // Validation schemas
 const shippingSchema = z.object({
@@ -36,6 +37,21 @@ const shippingSchema = z.object({
   phone: z.string().min(10, 'Numărul de telefon este obligatoriu'),
 });
 
+const SUPPORTED_COUNTRIES = [
+  { code: 'RO', label: '🇷🇴 România' },
+  { code: 'GB', label: '🇬🇧 United Kingdom' },
+  { code: 'DE', label: '🇩🇪 Germany' },
+  { code: 'FR', label: '🇫🇷 France' },
+  { code: 'ES', label: '🇪🇸 Spain' },
+  { code: 'IT', label: '🇮🇹 Italy' },
+  { code: 'NL', label: '🇳🇱 Netherlands' },
+  { code: 'BE', label: '🇧🇪 Belgium' },
+  { code: 'AT', label: '🇦🇹 Austria' },
+  { code: 'IE', label: '🇮🇪 Ireland' },
+  { code: 'PL', label: '🇵🇱 Poland' },
+  { code: 'US', label: '🇺🇸 United States' },
+];
+
 const Checkout = () => {
   const { user, loading: authLoading, profile } = useAuth();
   const { items, removeItem, total: cartTotal, clearCart } = useCart();
@@ -43,9 +59,12 @@ const Checkout = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { formatPrice } = useCurrency();
+  const { location: geoLocation } = useGeoLocation();
   
   // Support both cart checkout and single item checkout
   const listingId = searchParams.get('listing');
+  const urlSize = searchParams.get('size');
+  const urlColor = searchParams.get('color');
   const { data: singleListing, isLoading: listingLoading } = useListing(listingId || '');
 
   const [step, setStep] = useState<'shipping' | 'payment' | 'review'>('shipping');
@@ -56,6 +75,10 @@ const Checkout = () => {
   // Payment method - only PayPal now
   const paymentMethod: PaymentMethod = 'card';
 
+  // Auto-detect country from geolocation
+  const detectedCountry = geoLocation?.countryCode || 'RO';
+  const defaultCountry = SUPPORTED_COUNTRIES.some(c => c.code === detectedCountry) ? detectedCountry : 'RO';
+
   // Shipping form state
   const [shipping, setShipping] = useState({
     firstName: '',
@@ -64,12 +87,22 @@ const Checkout = () => {
     address: '',
     apartment: '',
     city: '',
-    country: 'GB',
+    country: defaultCountry,
     state: '',
     zipCode: '',
     phone: '',
   });
   const [shippingErrors, setShippingErrors] = useState<Record<string, string>>({});
+
+  // Update country when geo detection completes
+  useEffect(() => {
+    if (geoLocation?.countryCode) {
+      const code = geoLocation.countryCode;
+      if (SUPPORTED_COUNTRIES.some(c => c.code === code)) {
+        setShipping(prev => ({ ...prev, country: code }));
+      }
+    }
+  }, [geoLocation?.countryCode]);
 
   // Define checkout item type
   type CheckoutItem = {
@@ -82,7 +115,7 @@ const Checkout = () => {
     selectedColor?: string;
   };
 
-  // Get checkout items
+  // Get checkout items - include variant info from URL params for single listing
   const checkoutItems: CheckoutItem[] = listingId && singleListing 
     ? [{ 
         id: singleListing.id, 
@@ -90,6 +123,8 @@ const Checkout = () => {
         price: singleListing.price, 
         image_url: (singleListing as any).listing_images?.[0]?.image_url || '/placeholder.svg', 
         seller_id: singleListing.seller_id,
+        selectedSize: urlSize || undefined,
+        selectedColor: urlColor || undefined,
       }]
     : items.map(item => ({
         id: item.id,
@@ -385,7 +420,7 @@ const Checkout = () => {
                       />
                     </div>
 
-                    {/* Country selector */}
+                    {/* Country selector - auto-detected */}
                     <div className="space-y-2">
                       <Label htmlFor="country">Țara / Country *</Label>
                       <select
@@ -394,19 +429,15 @@ const Checkout = () => {
                         onChange={(e) => setShipping(s => ({ ...s, country: e.target.value, state: '' }))}
                         className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       >
-                        <option value="GB">🇬🇧 United Kingdom</option>
-                        <option value="RO">🇷🇴 România</option>
-                        <option value="DE">🇩🇪 Germany</option>
-                        <option value="FR">🇫🇷 France</option>
-                        <option value="ES">🇪🇸 Spain</option>
-                        <option value="IT">🇮🇹 Italy</option>
-                        <option value="NL">🇳🇱 Netherlands</option>
-                        <option value="BE">🇧🇪 Belgium</option>
-                        <option value="AT">🇦🇹 Austria</option>
-                        <option value="IE">🇮🇪 Ireland</option>
-                        <option value="PL">🇵🇱 Poland</option>
-                        <option value="US">🇺🇸 United States</option>
+                        {SUPPORTED_COUNTRIES.map(c => (
+                          <option key={c.code} value={c.code}>{c.label}</option>
+                        ))}
                       </select>
+                      {geoLocation && (
+                        <p className="text-xs text-muted-foreground">
+                          📍 Detectată automat: {geoLocation.countryName}
+                        </p>
+                      )}
                       {shippingErrors.country && <p className="text-xs text-destructive">{shippingErrors.country}</p>}
                     </div>
 
@@ -653,6 +684,16 @@ const Checkout = () => {
                       </div>
                       <div className="flex-1">
                         <h4 className="font-medium line-clamp-2">{item.title}</h4>
+                        {(item.selectedSize || item.selectedColor) && (
+                          <div className="flex gap-1.5 mt-0.5">
+                            {item.selectedSize && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">Mărime: {item.selectedSize}</Badge>
+                            )}
+                            {item.selectedColor && (
+                              <Badge variant="outline" className="text-[10px] px-1.5 py-0">Culoare: {item.selectedColor}</Badge>
+                            )}
+                          </div>
+                        )}
                         <p className="text-primary font-semibold">{formatPrice(item.price)}</p>
                       </div>
                       {!listingId && (
