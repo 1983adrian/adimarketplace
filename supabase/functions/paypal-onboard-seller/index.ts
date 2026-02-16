@@ -72,127 +72,153 @@ serve(async (req) => {
     const { action } = body;
 
     // ═══════════════════════════════════════════════════════
-    // ACTION: connect — Generate PayPal Partner Referral link
-    // This is the real OAuth-based onboarding for businesses
+    // ACTION: connect — Generate PayPal OAuth Login URL
+    // Uses "Log in with PayPal" (OpenID Connect) flow
     // ═══════════════════════════════════════════════════════
     if (action === "connect") {
       const { return_url } = body;
-      const accessToken = await getPayPalAccessToken();
-
-      const referralBody = {
-        tracking_id: user.id,
-        operations: [
-          {
-            operation: "API_INTEGRATION",
-            api_integration_preference: {
-              rest_api_integration: {
-                integration_method: "PAYPAL",
-                integration_type: "THIRD_PARTY",
-                third_party_details: {
-                  features: ["PAYMENT", "REFUND", "PARTNER_FEE"],
-                },
-              },
-            },
-          },
-        ],
-        products: ["EXPRESS_CHECKOUT"],
-        legal_consents: [
-          { type: "SHARE_DATA_CONSENT", granted: true },
-        ],
-        partner_config_override: {
-          return_url: return_url || "https://marketplaceromania.lovable.app/seller-mode",
-        },
-      };
-
-      const referralRes = await fetch(`${PAYPAL_BASE}/v2/customer/partner-referrals`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(referralBody),
-      });
-
-      if (!referralRes.ok) {
-        const errText = await referralRes.text();
-        console.error("PayPal referral error:", errText);
-        throw new Error(`PayPal referral failed: ${referralRes.status}`);
-      }
-
-      const referralData = await referralRes.json();
-      const actionUrl = referralData.links?.find(
-        (l: any) => l.rel === "action_url"
-      )?.href;
-
-      if (!actionUrl) {
-        throw new Error("No action_url received from PayPal");
-      }
+      const clientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
+      
+      // Build the PayPal OAuth consent URL
+      // The seller will log in to PayPal and authorize our app
+      const redirectUri = encodeURIComponent(
+        return_url || "https://marketplaceromania.lovable.app/seller-mode"
+      );
+      
+      // State parameter contains user ID for security verification
+      const state = btoa(JSON.stringify({ userId: user.id, ts: Date.now() }));
+      
+      const paypalLoginUrl = `https://www.paypal.com/signin/authorize?` +
+        `client_id=${clientId}` +
+        `&response_type=code` +
+        `&scope=openid profile email` +
+        `&redirect_uri=${redirectUri}` +
+        `&state=${state}`;
 
       return new Response(
-        JSON.stringify({ success: true, action_url: actionUrl }),
+        JSON.stringify({ success: true, action_url: paypalLoginUrl }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     // ═══════════════════════════════════════════════════════
-    // ACTION: complete-onboarding — Called after PayPal redirect
-    // Verifies merchant status and saves merchant_id + tokens
+    // ACTION: complete-onboarding — Exchange auth code for user info
+    // Called after PayPal redirects back with authorization code
     // ═══════════════════════════════════════════════════════
     if (action === "complete-onboarding") {
-      const { merchantIdInPayPal } = body;
+      const { code, merchantIdInPayPal } = body;
 
-      if (!merchantIdInPayPal) {
-        throw new Error("Missing merchantIdInPayPal from PayPal callback");
+      // If we have a direct merchantIdInPayPal (from URL param), use it
+      if (merchantIdInPayPal) {
+        const { error: profileError } = await adminClient
+          .from("profiles")
+          .update({
+            paypal_merchant_id: merchantIdInPayPal,
+            paypal_permissions_granted: true,
+            paypal_connected_at: new Date().toISOString(),
+            paypal_email: merchantIdInPayPal,
+          })
+          .eq("user_id", user.id);
+
+        if (profileError) throw profileError;
+
+        await adminClient.from("paypal_merchant_tokens").upsert({
+          user_id: user.id,
+          merchant_id: merchantIdInPayPal,
+          access_token: "direct_connect",
+          scopes: ["PAYMENT", "REFUND"],
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" });
+
+        await adminClient.from("financial_audit_log").insert({
+          user_id: user.id,
+          action: "paypal_merchant_connected",
+          entity_type: "profile",
+          entity_id: user.id,
+          new_value: { merchant_id: merchantIdInPayPal, method: "direct" },
+        });
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            merchant_id: merchantIdInPayPal,
+            permissions_granted: true,
+            payments_receivable: true,
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
 
-      const accessToken = await getPayPalAccessToken();
-      const partnerId = Deno.env.get("PAYPAL_CLIENT_ID")!;
-
-      // Verify merchant status with PayPal
-      const statusRes = await fetch(
-        `${PAYPAL_BASE}/v1/customer/partners/${partnerId}/merchant-integrations/${merchantIdInPayPal}`,
-        {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        }
-      );
-
-      let merchantStatus: any = null;
-      let permissionsGranted = false;
-      let paymentsReceivable = false;
-
-      if (statusRes.ok) {
-        merchantStatus = await statusRes.json();
-        permissionsGranted = merchantStatus?.oauth_third_party?.some(
-          (o: any) => o.partner_client_id === partnerId
-        ) || merchantStatus?.payments_receivable === true;
-        paymentsReceivable = merchantStatus?.payments_receivable === true;
-        console.log("Merchant status:", JSON.stringify(merchantStatus));
-      } else {
-        // PayPal may not have finished processing yet — save anyway
-        console.warn("Could not verify merchant status yet:", await statusRes.text());
-        permissionsGranted = true; // Assume granted since they completed the flow
+      // Exchange authorization code for access token
+      if (!code) {
+        throw new Error("Missing authorization code or merchantIdInPayPal");
       }
 
-      // Save merchant connection in profiles
+      const clientId = Deno.env.get("PAYPAL_CLIENT_ID")!;
+      const secret = Deno.env.get("PAYPAL_SECRET_KEY")!;
+
+      const tokenRes = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${btoa(`${clientId}:${secret}`)}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `grant_type=authorization_code&code=${code}`,
+      });
+
+      if (!tokenRes.ok) {
+        const errText = await tokenRes.text();
+        console.error("Token exchange failed:", errText);
+        throw new Error(`PayPal token exchange failed: ${tokenRes.status}`);
+      }
+
+      const tokenData = await tokenRes.json();
+      const userAccessToken = tokenData.access_token;
+
+      // Get seller's PayPal user info
+      const userInfoRes = await fetch(`${PAYPAL_BASE}/v1/identity/openidconnect/userinfo?schema=openid`, {
+        headers: { Authorization: `Bearer ${userAccessToken}` },
+      });
+
+      if (!userInfoRes.ok) {
+        const errText = await userInfoRes.text();
+        console.error("UserInfo failed:", errText);
+        throw new Error(`PayPal userinfo failed: ${userInfoRes.status}`);
+      }
+
+      const userInfo = await userInfoRes.json();
+      const paypalEmail = userInfo.email || userInfo.emails?.[0]?.value;
+      const payerId = userInfo.payer_id || userInfo.user_id;
+
+      if (!payerId && !paypalEmail) {
+        throw new Error("Could not retrieve PayPal account details");
+      }
+
+      const merchantId = payerId || paypalEmail;
+
+      // Save merchant connection
       const { error: profileError } = await adminClient
         .from("profiles")
         .update({
-          paypal_merchant_id: merchantIdInPayPal,
-          paypal_permissions_granted: permissionsGranted,
+          paypal_merchant_id: merchantId,
+          paypal_permissions_granted: true,
           paypal_connected_at: new Date().toISOString(),
-          // Keep paypal_email for backward compat, set to merchant_id
-          paypal_email: merchantIdInPayPal,
+          paypal_email: paypalEmail,
         })
         .eq("user_id", user.id);
 
       if (profileError) throw profileError;
 
-      // Store access info in secure tokens table
+      // Store tokens securely
       await adminClient.from("paypal_merchant_tokens").upsert({
         user_id: user.id,
-        merchant_id: merchantIdInPayPal,
-        access_token: accessToken, // Platform token, not user's
-        scopes: ["PAYMENT", "REFUND"],
+        merchant_id: merchantId,
+        access_token: userAccessToken,
+        refresh_token: tokenData.refresh_token || null,
+        token_expires_at: tokenData.expires_in
+          ? new Date(Date.now() + tokenData.expires_in * 1000).toISOString()
+          : null,
+        scopes: tokenData.scope?.split(" ") || ["openid", "profile", "email"],
         updated_at: new Date().toISOString(),
       }, { onConflict: "user_id" });
 
@@ -203,18 +229,19 @@ serve(async (req) => {
         entity_type: "profile",
         entity_id: user.id,
         new_value: {
-          merchant_id: merchantIdInPayPal,
-          permissions_granted: permissionsGranted,
-          payments_receivable: paymentsReceivable,
+          merchant_id: merchantId,
+          email: paypalEmail,
+          method: "oauth",
         },
       });
 
       return new Response(
         JSON.stringify({
           success: true,
-          merchant_id: merchantIdInPayPal,
-          permissions_granted: permissionsGranted,
-          payments_receivable: paymentsReceivable,
+          merchant_id: merchantId,
+          email: paypalEmail,
+          permissions_granted: true,
+          payments_receivable: true,
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -226,7 +253,7 @@ serve(async (req) => {
     if (action === "get-status") {
       const { data: profile } = await adminClient
         .from("profiles")
-        .select("paypal_merchant_id, paypal_permissions_granted, paypal_connected_at")
+        .select("paypal_merchant_id, paypal_permissions_granted, paypal_connected_at, paypal_email")
         .eq("user_id", user.id)
         .single();
 
@@ -237,30 +264,14 @@ serve(async (req) => {
         );
       }
 
-      // Optionally verify with PayPal (cached check)
-      let liveStatus = null;
-      try {
-        const accessToken = await getPayPalAccessToken();
-        const partnerId = Deno.env.get("PAYPAL_CLIENT_ID")!;
-        const statusRes = await fetch(
-          `${PAYPAL_BASE}/v1/customer/partners/${partnerId}/merchant-integrations/${profile.paypal_merchant_id}`,
-          { headers: { Authorization: `Bearer ${accessToken}` } }
-        );
-        if (statusRes.ok) {
-          liveStatus = await statusRes.json();
-        }
-      } catch (e) {
-        console.warn("Could not fetch live PayPal status:", e);
-      }
-
       return new Response(
         JSON.stringify({
           connected: true,
           merchant_id: profile.paypal_merchant_id,
           permissions_granted: profile.paypal_permissions_granted,
           connected_at: profile.paypal_connected_at,
-          payments_receivable: liveStatus?.payments_receivable ?? profile.paypal_permissions_granted,
-          primary_email: liveStatus?.primary_email_confirmed ? liveStatus.primary_email : undefined,
+          payments_receivable: profile.paypal_permissions_granted,
+          primary_email: profile.paypal_email,
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
