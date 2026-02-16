@@ -13,7 +13,7 @@ export default function AboutUs() {
         <div className="max-w-3xl mx-auto space-y-8">
            {/* Header */}
            <div className="text-center">
-             <h1 className="text-3xl md:text-4xl font-bold mb-4">Despre Market Place România</h1>
+             <h1 className="text-3xl md:text-4xl font-bold mb-4">Despre Marketplace România</h1>
              <p className="text-lg text-muted-foreground leading-relaxed">
                Suntem <strong className="text-primary">prima platformă marketplace din România construită cu inteligență artificială</strong> și primul marketplace din lume care oferă <strong className="text-primary">Bifă Albastră</strong> vânzătorilor de top — la fel ca la vedetele de pe rețelele sociale. Cu <strong className="text-primary">0% comision pe vânzări</strong> și abonamente fixe de la 11 LEI/lună, conectăm vânzători și cumpărători într-un mediu sigur, transparent și profesionist.
              </p>
@@ -32,7 +32,7 @@ export default function AboutUs() {
                      <Badge variant="secondary" className="text-xs">Unic în România</Badge>
                    </div>
                    <p className="text-muted-foreground">
-                     Market Place România este <strong className="text-foreground">prima platformă de tip marketplace din România dezvoltată integral cu inteligență artificială</strong>. Tehnologia AI ne permite să oferim o experiență de utilizare superioară, detectare automată a fraudelor, traducere în timp real și optimizări continue ale platformei.
+                     Marketplace România este <strong className="text-foreground">prima platformă de tip marketplace din România dezvoltată integral cu inteligență artificială</strong>. Tehnologia AI ne permite să oferim o experiență de utilizare superioară, detectare automată a fraudelor, traducere în timp real și optimizări continue ale platformei.
                    </p>
                  </div>
                </div>
@@ -48,7 +48,7 @@ export default function AboutUs() {
                <h2 className="text-2xl font-bold">Bifă Albastră — Primul Marketplace cu Verificare ca la Vedete</h2>
              </div>
              <p className="text-muted-foreground leading-relaxed">
-               Market Place România este <strong className="text-foreground">singurul marketplace din România — și primul din lume</strong> — care oferă un sistem de <strong className="text-foreground">Bifă Albastră (✓)</strong> similar cu cel de pe rețelele sociale ale vedetelor și influencerilor. Acest semn distinctiv certifică vânzătorii de elită ai platformei.
+               Marketplace România este <strong className="text-foreground">singurul marketplace din România — și primul din lume</strong> — care oferă un sistem de <strong className="text-foreground">Bifă Albastră (✓)</strong> similar cu cel de pe rețelele sociale ale vedetelor și influencerilor. Acest semn distinctiv certifică vânzătorii de elită ai platformei.
              </p>
              
              <Card className="border-[#1d9bf0]/30 bg-[#1d9bf0]/5">
@@ -88,7 +88,7 @@ export default function AboutUs() {
                  </div>
                  <div className="bg-muted/50 rounded-lg p-4 mt-2">
                    <p className="text-sm text-muted-foreground italic">
-                     💡 Vânzătorii cu Bifă Albastră beneficiază de vizibilitate sporită, numele magazinului afișat public și încrederea cumpărătorilor. Este cea mai înaltă distincție pe Market Place România.
+                     💡 Vânzătorii cu Bifă Albastră beneficiază de vizibilitate sporită, numele magazinului afișat public și încrederea cumpărătorilor. Este cea mai înaltă distincție pe Marketplace România.
                    </p>
                  </div>
                </CardContent>
@@ -99,13 +99,13 @@ export default function AboutUs() {
           <div className="space-y-4">
             <h2 className="text-2xl font-bold">Misiunea noastră</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Market Place România a fost creat cu scopul de a oferi vânzătorilor din România o platformă modernă, fără comisioane ascunse. Credem că fiecare vânzător merită să păstreze <strong className="text-foreground">100% din veniturile sale</strong>, iar cumpărătorii merită o experiență de cumpărare sigură și simplă.
+              Marketplace România a fost creat cu scopul de a oferi vânzătorilor din România o platformă modernă, fără comisioane ascunse. Credem că fiecare vânzător merită să păstreze <strong className="text-foreground">100% din veniturile sale</strong>, iar cumpărătorii merită o experiență de cumpărare sigură și simplă.
             </p>
           </div>
 
           {/* Avantaje */}
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold">De ce Market Place România?</h2>
+            <h2 className="text-2xl font-bold">De ce Marketplace România?</h2>
             <div className="grid gap-4">
               <div className="flex items-start gap-3">
                 <CreditCard className="h-5 w-5 text-primary mt-1 shrink-0" />
@@ -171,7 +171,7 @@ export default function AboutUs() {
                   <div>
                     <h3 className="font-bold text-lg mb-2">Sistem de Licitații</h3>
                     <p className="text-muted-foreground">
-                      Pe lângă vânzarea directă, Market Place România oferă un sistem complet de licitații online. Cumpărătorii pot licita pe produse, iar vânzătorii beneficiază de prețuri competitive.
+                      Pe lângă vânzarea directă, Marketplace România oferă un sistem complet de licitații online. Cumpărătorii pot licita pe produse, iar vânzătorii beneficiază de prețuri competitive.
                     </p>
                   </div>
                 </div>
@@ -183,7 +183,7 @@ export default function AboutUs() {
           <div className="text-center bg-muted/50 rounded-2xl p-8">
             <h2 className="text-2xl font-bold mb-4">Alătură-te comunității</h2>
             <p className="text-muted-foreground mb-6">
-              Începe să vinzi sau să cumperi pe Market Place România — simplu, sigur și fără comisioane.
+              Începe să vinzi sau să cumperi pe Marketplace România — simplu, sigur și fără comisioane.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg">

@@ -185,7 +185,7 @@ const SellerPlansPublic = () => {
           "url": "https://www.marketplaceromania.com/abonamente-vanzatori",
           "seller": {
             "@type": "Organization",
-            "name": "Market Place România®"
+            "name": "Marketplace România®"
           }
         }
       }))
@@ -517,7 +517,7 @@ const SellerPlansPublic = () => {
                 Licitații online, plată securizată PayPal, protecție cumpărător 14 zile, livrare prin FAN Courier, Sameday și Cargus.
               </p>
               <p>
-                <strong>Market Place România®</strong> — Primul market place din România construit cu inteligență artificială. 
+                <strong>Marketplace România®</strong> — Primul marketplace din România construit cu inteligență artificială. 
                 Cea mai bună alternativă românească la eMAG, OLX, eBay, Amazon și Facebook Marketplace în 2026-2027. 
                 Marcă Înregistrată. Abonamente de la 11 LEI. Produse nelimitate cu planul VIP (999 LEI). 
                 30 de zile gratuite pentru toți vânzătorii noi.

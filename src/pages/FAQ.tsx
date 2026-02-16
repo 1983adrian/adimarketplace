@@ -12,7 +12,7 @@ const defaultFAQs = [
     icon: ShoppingCart,
     questions: [
       {
-        q: 'Cum pot cumpăra un produs pe Market Place România?',
+        q: 'Cum pot cumpăra un produs pe Marketplace România?',
         a: 'Navighează la pagina produsului dorit și apasă butonul „Cumpără acum" sau contactează vânzătorul prin mesageria integrată pentru a discuta detalii.',
       },
       {
@@ -21,7 +21,7 @@ const defaultFAQs = [
       },
       {
         q: 'Există taxe suplimentare pentru cumpărători?',
-        a: 'Nu! Pe Market Place România cumpărătorii nu plătesc nicio taxă suplimentară. Singurele costuri sunt prețul produsului și livrarea.',
+        a: 'Nu! Pe Marketplace România cumpărătorii nu plătesc nicio taxă suplimentară. Singurele costuri sunt prețul produsului și livrarea.',
       },
     ],
   },
@@ -39,7 +39,7 @@ const defaultFAQs = [
       },
       {
         q: 'Care sunt comisioanele pe vânzări?',
-        a: 'Market Place România funcționează cu 0% comision pe vânzări! Plătești doar abonamentul lunar fix, iar tot ce vinzi rămâne 100% al tău.',
+        a: 'Marketplace România funcționează cu 0% comision pe vânzări! Plătești doar abonamentul lunar fix, iar tot ce vinzi rămâne 100% al tău.',
       },
     ],
   },
@@ -62,7 +62,7 @@ const defaultFAQs = [
     icon: Shield,
     questions: [
       {
-        q: 'Este sigur să cumpăr de pe Market Place România?',
+        q: 'Este sigur să cumpăr de pe Marketplace România?',
         a: 'Platforma oferă un sistem de recenzii, verificare a vânzătorilor și protecție prin dispute. Recomandăm să verifici profilul și recenziile vânzătorului înainte de achiziție.',
       },
       {
@@ -81,7 +81,7 @@ const defaultFAQs = [
       },
       {
         q: 'Ce metode de plată sunt acceptate?',
-        a: 'Market Place România acceptă plăți prin card bancar (procesate securizat), plată la livrare (ramburs) și transfer bancar, în funcție de preferințele vânzătorului.',
+        a: 'Marketplace România acceptă plăți prin card bancar (procesate securizat), plată la livrare (ramburs) și transfer bancar, în funcție de preferințele vânzătorului.',
       },
       {
         q: 'Cum funcționează abonamentele pentru vânzători?',
@@ -103,7 +103,7 @@ export default function FAQ() {
             <HelpCircle className="h-16 w-16 mx-auto mb-4 text-primary" />
             <h1 className="text-4xl font-bold mb-4">Întrebări Frecvente</h1>
             <p className="text-xl text-muted-foreground">
-              Găsește răspunsuri la cele mai comune întrebări despre Market Place România
+              Găsește răspunsuri la cele mai comune întrebări despre Marketplace România
             </p>
           </div>
 
