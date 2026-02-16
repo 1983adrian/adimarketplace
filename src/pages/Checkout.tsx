@@ -639,7 +639,7 @@ const Checkout = () => {
                             )}
                           </div>
                         )}
-                        <p className="text-primary font-semibold">{formatPrice(item.price)}</p>
+                        <p className="text-primary font-semibold">{formatPrice(item.price, ((item as any).price_currency || 'RON') as any)}</p>
                       </div>
                       {!listingId && (
                         <Button 

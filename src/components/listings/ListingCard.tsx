@@ -109,6 +109,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
       id: listing.id,
       title: listing.title,
       price: listing.price,
+      price_currency: (listing as any).price_currency || 'RON',
       image_url: primaryImage?.image_url || '/placeholder.svg',
       seller_id: listing.seller_id,
       quantity: 1,

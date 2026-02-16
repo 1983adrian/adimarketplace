@@ -173,6 +173,7 @@ const ListingDetail = () => {
       id: listing.id,
       title: listing.title,
       price: listing.buy_now_price || listing.price,
+      price_currency: listing.price_currency || 'RON',
       image_url: primaryImg,
       seller_id: listing.seller_id,
       quantity: selectedQuantity,
