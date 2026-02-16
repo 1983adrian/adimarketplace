@@ -1465,6 +1465,42 @@ export type Database = {
           },
         ]
       }
+      paypal_merchant_tokens: {
+        Row: {
+          access_token: string
+          created_at: string | null
+          id: string
+          merchant_id: string
+          refresh_token: string | null
+          scopes: string[] | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          created_at?: string | null
+          id?: string
+          merchant_id: string
+          refresh_token?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          created_at?: string | null
+          id?: string
+          merchant_id?: string
+          refresh_token?: string | null
+          scopes?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_activity: {
         Row: {
           activity_type: string
@@ -1705,8 +1741,11 @@ export type Database = {
           location: string | null
           max_listings: number | null
           payout_balance: number | null
+          paypal_connected_at: string | null
           paypal_email: string | null
           paypal_email_encrypted: string | null
+          paypal_merchant_id: string | null
+          paypal_permissions_granted: boolean | null
           pending_balance: number | null
           preferred_language: string | null
           return_days: number | null
@@ -1749,8 +1788,11 @@ export type Database = {
           location?: string | null
           max_listings?: number | null
           payout_balance?: number | null
+          paypal_connected_at?: string | null
           paypal_email?: string | null
           paypal_email_encrypted?: string | null
+          paypal_merchant_id?: string | null
+          paypal_permissions_granted?: boolean | null
           pending_balance?: number | null
           preferred_language?: string | null
           return_days?: number | null
@@ -1793,8 +1835,11 @@ export type Database = {
           location?: string | null
           max_listings?: number | null
           payout_balance?: number | null
+          paypal_connected_at?: string | null
           paypal_email?: string | null
           paypal_email_encrypted?: string | null
+          paypal_merchant_id?: string | null
+          paypal_permissions_granted?: boolean | null
           pending_balance?: number | null
           preferred_language?: string | null
           return_days?: number | null
