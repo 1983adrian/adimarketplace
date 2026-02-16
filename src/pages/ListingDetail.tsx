@@ -18,7 +18,7 @@ import { StarRating } from '@/components/reviews/StarRating';
 import { SimilarListings } from '@/components/listings/SimilarListings';
 import { AuctionBidding } from '@/components/listings/AuctionBidding';
 
-import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
+
 import { ReportListingDialog } from '@/components/listings/ReportListingDialog';
 import { VariantSelector } from '@/components/listings/VariantSelector';
 import { SEOHead } from '@/components/seo/SEOHead';
@@ -396,16 +396,6 @@ const ListingDetail = () => {
               >
                 <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current text-destructive' : ''}`} />
               </Button>
-              <ShareListingDialog
-                listingId={listing.id}
-                listingTitle={listing.title}
-                listingPrice={listing.buy_now_price || listing.price}
-                listingImage={primaryImage}
-              >
-                <Button variant="outline" size="sm" className="gap-1.5 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/20">
-                  <TrendingUp className="h-4 w-4 text-emerald-600" />
-                </Button>
-              </ShareListingDialog>
             </div>
 
             <Separator />
