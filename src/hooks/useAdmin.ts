@@ -228,8 +228,8 @@ export const useDeleteListing = () => {
   
   return useMutation({
     mutationFn: async (id: string) => {
-      // Delete related rows first to avoid FK constraint errors
-      await Promise.all([
+      // Delete related rows first (backup for tables without CASCADE)
+      const deletions = await Promise.allSettled([
         supabase.from('listing_images').delete().eq('listing_id', id),
         supabase.from('favorites').delete().eq('listing_id', id),
         supabase.from('listing_promotions').delete().eq('listing_id', id),
@@ -237,7 +237,10 @@ export const useDeleteListing = () => {
         supabase.from('bids').delete().eq('listing_id', id),
         supabase.from('price_history').delete().eq('listing_id', id),
         supabase.from('seo_indexing_queue').delete().eq('listing_id', id),
+        supabase.from('watchlist').delete().eq('listing_id', id),
       ]);
+      
+      console.log('Pre-delete results:', deletions);
 
       const { error } = await supabase
         .from('listings')
@@ -265,7 +268,7 @@ export const useAdminPromoteListing = () => {
         .insert({
           listing_id: listingId,
           seller_id: sellerId,
-          promotion_type: 'featured',
+          promotion_type: 'paid',
           starts_at: now.toISOString(),
           ends_at: endsAt.toISOString(),
           is_active: true,
