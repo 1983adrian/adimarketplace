@@ -51,16 +51,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-// Fetch feedback notifications for admin
-const useFeedbackNotifications = () => {
+// Fetch feedback from contact_submissions (real data, admin-visible)
+const useFeedbackSubmissions = () => {
   return useQuery({
     queryKey: ['admin-feedback'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('notifications')
+        .from('contact_submissions')
         .select('*')
-        .eq('type', 'feedback')
-        .order('created_at', { ascending: false });
+        .ilike('subject', '%FEEDBACK%')
+        .order('created_at', { ascending: false })
+        .limit(50);
       
       if (error) throw error;
       return data;
@@ -75,7 +76,7 @@ export default function AdminUsers() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all'); // 'all' | 'buyers' | 'sellers'
   const { data: users, isLoading } = useAllUsers();
-  const { data: feedbacks, isLoading: feedbackLoading } = useFeedbackNotifications();
+  const { data: feedbacks, isLoading: feedbackLoading } = useFeedbackSubmissions();
   const updateRole = useUpdateUserRole();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -244,7 +245,7 @@ export default function AdminUsers() {
   };
 
   const markFeedbackRead = async (feedbackId: string) => {
-    await supabase.from('notifications').update({ is_read: true }).eq('id', feedbackId);
+    await supabase.from('contact_submissions').update({ status: 'responded', responded_at: new Date().toISOString() }).eq('id', feedbackId);
     queryClient.invalidateQueries({ queryKey: ['admin-feedback'] });
   };
 
@@ -261,9 +262,9 @@ export default function AdminUsers() {
             <TabsTrigger value="users">Utilizatori</TabsTrigger>
             <TabsTrigger value="feedback" className="relative">
               Feedback
-              {feedbacks && feedbacks.filter(f => !f.is_read).length > 0 && (
+              {feedbacks && feedbacks.filter(f => f.status === 'pending').length > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                  {feedbacks.filter(f => !f.is_read).length}
+                  {feedbacks.filter(f => f.status === 'pending').length}
                 </span>
               )}
             </TabsTrigger>
@@ -490,7 +491,7 @@ export default function AdminUsers() {
             <Card>
               <CardHeader>
                 <CardTitle>Feedback de la Utilizatori</CardTitle>
-                <CardDescription>Recenzii, sugestii și reclamații primite</CardDescription>
+                <CardDescription>Recenzii, sugestii și reclamații primite prin formularul de feedback</CardDescription>
               </CardHeader>
               <CardContent>
                 {feedbackLoading ? (
@@ -507,46 +508,37 @@ export default function AdminUsers() {
                 ) : (
                   <div className="space-y-4">
                     {feedbacks?.map((feedback) => (
-                      <Card key={feedback.id} className={`${!feedback.is_read ? 'border-primary bg-primary/5' : ''}`}>
+                      <Card key={feedback.id} className={`${feedback.status === 'pending' ? 'border-primary bg-primary/5' : ''}`}>
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
-                                <Badge variant={!feedback.is_read ? 'default' : 'secondary'}>
-                                  {(feedback.data as any)?.feedback_type || 'general'}
+                                <Badge variant={feedback.status === 'pending' ? 'default' : 'secondary'}>
+                                  {feedback.status === 'pending' ? 'Nou' : 'Citit'}
                                 </Badge>
-                                {(feedback.data as any)?.rating && (
-                                  <Badge variant="outline">
-                                    ⭐ {(feedback.data as any).rating}/5
-                                  </Badge>
-                                )}
                                 <span className="text-xs text-muted-foreground">
                                   {new Date(feedback.created_at).toLocaleString('ro-RO')}
                                 </span>
                               </div>
-                              <h4 className="font-medium">{feedback.title}</h4>
+                              <h4 className="font-medium">{feedback.subject}</h4>
                               <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">
                                 {feedback.message}
                               </p>
-                              {(feedback.data as any)?.user_email && (
-                                <p className="text-xs text-muted-foreground mt-2">
-                                  📧 {(feedback.data as any).user_email}
-                                </p>
-                              )}
+                              <p className="text-xs text-muted-foreground mt-2">
+                                👤 {feedback.name} · 📧 {feedback.email}
+                              </p>
                             </div>
                             <div className="flex gap-2">
-                              {!feedback.is_read && (
+                              {feedback.status === 'pending' && (
                                 <Button size="sm" variant="outline" onClick={() => markFeedbackRead(feedback.id)}>
                                   <Check className="h-4 w-4" />
                                 </Button>
                               )}
-                              {(feedback.data as any)?.user_email && (
-                                <Button size="sm" variant="outline" asChild>
-                                  <a href={`mailto:${(feedback.data as any).user_email}`}>
-                                    <Mail className="h-4 w-4" />
-                                  </a>
-                                </Button>
-                              )}
+                              <Button size="sm" variant="outline" asChild>
+                                <a href={`mailto:${feedback.email}`}>
+                                  <Mail className="h-4 w-4" />
+                                </a>
+                              </Button>
                             </div>
                           </div>
                         </CardContent>
