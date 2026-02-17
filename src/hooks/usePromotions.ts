@@ -52,8 +52,7 @@ export const usePromotedListings = () => {
           condition,
           location,
           seller_id,
-          listing_images (image_url, is_primary),
-          profiles (display_name, avatar_url)
+          listing_images (image_url, is_primary)
         `)
         .in('id', listingIds)
         .eq('is_active', true)
