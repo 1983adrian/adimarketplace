@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Globe, Bell, Shield, Store, Loader2, Settings, CheckCircle2, Volume2, Share2, Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
+import { Save, Globe, Bell, Store, Loader2, Settings, CheckCircle2, Volume2, Share2, Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,14 +31,7 @@ interface PlatformSettings {
     shippingUpdates: boolean;
     adminAlerts: boolean;
   };
-  security: {
-    requireEmailVerification: boolean;
-    sessionTimeout: number;
-    maxLoginAttempts: number;
-  };
   marketplace: {
-    requireSellerVerification: boolean;
-    autoApproveListings: boolean;
     maxImagesPerListing: number;
     maxListingPrice: number;
   };
@@ -67,23 +60,16 @@ const defaultSettings: PlatformSettings = {
     shippingUpdates: true,
     adminAlerts: true,
   },
-  security: {
-    requireEmailVerification: false,
-    sessionTimeout: 60,
-    maxLoginAttempts: 5,
-  },
   marketplace: {
-    requireSellerVerification: false,
-    autoApproveListings: true,
-    maxImagesPerListing: 10,
+    maxImagesPerListing: 3,
     maxListingPrice: 100000,
   },
   social: {
-    facebook: 'https://facebook.com/marketplace.romania',
-    instagram: 'https://instagram.com/marketplace.romania',
-    twitter: 'https://twitter.com/marketplace_ro',
-    youtube: 'https://youtube.com/@marketplace-romania',
-    tiktok: 'https://tiktok.com/@marketplace.romania',
+    facebook: '',
+    instagram: '',
+    twitter: '',
+    youtube: '',
+    tiktok: '',
   },
 };
 
@@ -106,12 +92,15 @@ const AdminPlatformSettings = () => {
 
   useEffect(() => {
     if (dbSettings) {
+      const dbMarketplace = dbSettings['marketplace'] as any;
       const loadedSettings: PlatformSettings = {
         general: { ...defaultSettings.general, ...dbSettings['general'] },
         localization: { ...defaultSettings.localization, ...dbSettings['localization'] },
         notifications: { ...defaultSettings.notifications, ...dbSettings['notifications'] },
-        security: { ...defaultSettings.security, ...dbSettings['security'] },
-        marketplace: { ...defaultSettings.marketplace, ...dbSettings['marketplace'] },
+        marketplace: {
+          maxImagesPerListing: dbMarketplace?.maxImagesPerListing ?? defaultSettings.marketplace.maxImagesPerListing,
+          maxListingPrice: dbMarketplace?.maxListingPrice ?? defaultSettings.marketplace.maxListingPrice,
+        },
         social: { ...defaultSettings.social, ...dbSettings['social'] },
       };
       setSettings(loadedSettings);
@@ -125,7 +114,6 @@ const AdminPlatformSettings = () => {
         updateSetting.mutateAsync({ key: 'general', value: settings.general, category: 'platform' }),
         updateSetting.mutateAsync({ key: 'localization', value: settings.localization, category: 'platform' }),
         updateSetting.mutateAsync({ key: 'notifications', value: settings.notifications, category: 'platform' }),
-        updateSetting.mutateAsync({ key: 'security', value: settings.security, category: 'platform' }),
         updateSetting.mutateAsync({ key: 'marketplace', value: settings.marketplace, category: 'platform' }),
         updateSetting.mutateAsync({ key: 'social', value: settings.social, category: 'platform' }),
       ]);
@@ -159,10 +147,6 @@ const AdminPlatformSettings = () => {
 
   const updateNotifications = (key: keyof PlatformSettings['notifications'], value: boolean) => {
     setSettings(prev => ({ ...prev, notifications: { ...prev.notifications, [key]: value } }));
-  };
-
-  const updateSecurity = (key: keyof PlatformSettings['security'], value: any) => {
-    setSettings(prev => ({ ...prev, security: { ...prev.security, [key]: value } }));
   };
 
   const updateMarketplace = (key: keyof PlatformSettings['marketplace'], value: any) => {
@@ -220,7 +204,7 @@ const AdminPlatformSettings = () => {
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto p-1 gap-1">
+          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 gap-1">
             <TabsTrigger value="general" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Globe className="h-4 w-4" />
               <span className="hidden sm:inline">General</span>
@@ -228,10 +212,6 @@ const AdminPlatformSettings = () => {
             <TabsTrigger value="notifications" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Bell className="h-4 w-4" />
               <span className="hidden sm:inline">Notificări</span>
-            </TabsTrigger>
-            <TabsTrigger value="security" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Securitate</span>
             </TabsTrigger>
             <TabsTrigger value="marketplace" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Store className="h-4 w-4" />
@@ -261,7 +241,7 @@ const AdminPlatformSettings = () => {
                       id="siteName"
                       value={settings.general.siteName}
                       onChange={(e) => updateGeneral('siteName', e.target.value)}
-                      placeholder="C.Market"
+                      placeholder="Marketplace România"
                       className="h-11"
                     />
                   </div>
@@ -272,7 +252,7 @@ const AdminPlatformSettings = () => {
                       type="email"
                       value={settings.general.supportEmail}
                       onChange={(e) => updateGeneral('supportEmail', e.target.value)}
-                      placeholder="support@cmarket.com"
+                      placeholder="support@marketplace.ro"
                       className="h-11"
                     />
                   </div>
@@ -342,7 +322,7 @@ const AdminPlatformSettings = () => {
                   <Badge variant="outline" className="text-xs">Funcțional</Badge>
                 </div>
                 <CardDescription>
-                  Aceste setări controlează trimiterea reală a emailurilor și SMS-urilor.
+                  Aceste setări controlează trimiterea reală a emailurilor.
                   Modificările se aplică imediat după salvare.
                 </CardDescription>
               </CardHeader>
@@ -408,108 +388,35 @@ const AdminPlatformSettings = () => {
             </Card>
           </TabsContent>
 
-          {/* Security Tab */}
-          <TabsContent value="security" className="space-y-6">
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-5 w-5 text-primary" />
-                  <CardTitle>Setări Securitate</CardTitle>
-                </div>
-                <CardDescription>Configurează regulile de autentificare și securitate</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                <SettingSwitch
-                  label="Verificare Email Obligatorie"
-                  description="Utilizatorii trebuie să confirme emailul înainte de a folosi platforma"
-                  checked={settings.security.requireEmailVerification}
-                  onCheckedChange={(checked) => updateSecurity('requireEmailVerification', checked)}
-                />
-
-                <Separator />
-
-                <div className="grid gap-5 sm:grid-cols-2 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sessionTimeout">Timeout Sesiune (minute)</Label>
-                    <Input
-                      id="sessionTimeout"
-                      type="number"
-                      value={settings.security.sessionTimeout}
-                      onChange={(e) => updateSecurity('sessionTimeout', parseInt(e.target.value) || 60)}
-                      min={15}
-                      max={1440}
-                      className="h-11"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Sesiunea expiră după perioada de inactivitate (15-1440 min)
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="maxAttempts">Încercări Maxime Login</Label>
-                    <Input
-                      id="maxAttempts"
-                      type="number"
-                      value={settings.security.maxLoginAttempts}
-                      onChange={(e) => updateSecurity('maxLoginAttempts', parseInt(e.target.value) || 5)}
-                      min={3}
-                      max={10}
-                      className="h-11"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Contul se blochează temporar după încercări eșuate (3-10)
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           {/* Marketplace Tab */}
           <TabsContent value="marketplace" className="space-y-6">
             <Card className="border-0 shadow-sm">
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2">
                   <Store className="h-5 w-5 text-primary" />
-                  <CardTitle>Reguli Marketplace</CardTitle>
+                  <CardTitle>Limite Marketplace</CardTitle>
                 </div>
-                <CardDescription>Configurează comportamentul și limitele marketplace-ului</CardDescription>
+                <CardDescription>Configurează limitele pentru listări</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-1">
-                <SettingSwitch
-                  label="Verificare Vânzători Obligatorie"
-                  description="Vânzătorii trebuie verificați KYC înainte de a lista produse"
-                  checked={settings.marketplace.requireSellerVerification}
-                  onCheckedChange={(checked) => updateMarketplace('requireSellerVerification', checked)}
-                  badge={settings.marketplace.requireSellerVerification ? 'Securizat' : 'Deschis'}
-                />
-
-                <SettingSwitch
-                  label="Aprobare Automată Listări"
-                  description="Listările noi sunt publicate imediat fără revizuire manuală"
-                  checked={settings.marketplace.autoApproveListings}
-                  onCheckedChange={(checked) => updateMarketplace('autoApproveListings', checked)}
-                />
-
-                <Separator />
-
-                <div className="grid gap-5 sm:grid-cols-2 py-4">
+              <CardContent>
+                <div className="grid gap-5 sm:grid-cols-2 py-2">
                   <div className="space-y-2">
                     <Label htmlFor="maxImages">Imagini Maxime per Produs</Label>
                     <Input
                       id="maxImages"
                       type="number"
                       value={settings.marketplace.maxImagesPerListing}
-                      onChange={(e) => updateMarketplace('maxImagesPerListing', parseInt(e.target.value) || 10)}
+                      onChange={(e) => updateMarketplace('maxImagesPerListing', parseInt(e.target.value) || 3)}
                       min={1}
-                      max={20}
+                      max={10}
                       className="h-11"
                     />
                     <p className="text-xs text-muted-foreground">
-                      Numărul maxim de imagini permise per listare (1-20)
+                      Numărul maxim de imagini permise per listare (1-10)
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="maxPrice">Preț Maxim Listare (£)</Label>
+                    <Label htmlFor="maxPrice">Preț Maxim Listare (RON)</Label>
                     <Input
                       id="maxPrice"
                       type="number"
@@ -555,7 +462,6 @@ const AdminPlatformSettings = () => {
               <CardContent className="space-y-6">
                 {/* Social Media Icons Grid */}
                 <div className="grid grid-cols-5 gap-4">
-                  {/* Facebook */}
                   <SocialIconInput
                     platform="facebook"
                     icon={<Facebook className="h-6 w-6" />}
@@ -564,8 +470,6 @@ const AdminPlatformSettings = () => {
                     onChange={(value) => updateSocial('facebook', value)}
                     placeholder="https://facebook.com/pagina-ta"
                   />
-                  
-                  {/* Instagram */}
                   <SocialIconInput
                     platform="instagram"
                     icon={<Instagram className="h-6 w-6" />}
@@ -574,8 +478,6 @@ const AdminPlatformSettings = () => {
                     onChange={(value) => updateSocial('instagram', value)}
                     placeholder="https://instagram.com/contul-tau"
                   />
-                  
-                  {/* TikTok */}
                   <SocialIconInput
                     platform="tiktok"
                     icon={
@@ -588,8 +490,6 @@ const AdminPlatformSettings = () => {
                     onChange={(value) => updateSocial('tiktok', value)}
                     placeholder="https://tiktok.com/@contul-tau"
                   />
-                  
-                  {/* Twitter/X */}
                   <SocialIconInput
                     platform="twitter"
                     icon={<Twitter className="h-6 w-6" />}
@@ -598,8 +498,6 @@ const AdminPlatformSettings = () => {
                     onChange={(value) => updateSocial('twitter', value)}
                     placeholder="https://twitter.com/contul-tau"
                   />
-                  
-                  {/* YouTube */}
                   <SocialIconInput
                     platform="youtube"
                     icon={<Youtube className="h-6 w-6" />}
