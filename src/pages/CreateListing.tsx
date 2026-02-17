@@ -32,6 +32,7 @@ import { ShippingCostSelector } from '@/components/listings/ShippingCostSelector
 
 import { useRequireKYC } from '@/hooks/useKYCEnforcement';
 import { usePlatformSettings } from '@/hooks/useAdminSettings';
+import { useGenerateDescription } from '@/hooks/useGenerateDescription';
 
 
 const CreateListing = () => {
@@ -44,6 +45,7 @@ const CreateListing = () => {
   const { data: listingLimit, isLoading: limitLoading } = useListingLimit();
   const createListing = useCreateListing();
   const { uploadMultipleImages, uploading, enhanceImage, enhancing } = useImageUpload();
+  const { generateDescription, generating: generatingDesc } = useGenerateDescription();
   const { location: userLocation } = useLocation();
   const { canSell, kycStatus, message: kycMessage, isLoading: kycLoading } = useRequireKYC();
   const { data: platformSettings } = usePlatformSettings();
@@ -737,10 +739,27 @@ const CreateListing = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="description">Descriere</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label htmlFor="description">Descriere</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs h-7"
+                    disabled={generatingDesc || !title.trim()}
+                    onClick={async () => {
+                      const categoryName = categories?.find(c => c.id === category)?.name;
+                      const result = await generateDescription(title, categoryName, condition);
+                      if (result) setDescription(result);
+                    }}
+                  >
+                    {generatingDesc ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                    {generatingDesc ? 'Se generează...' : 'Generează cu AI'}
+                  </Button>
+                </div>
                 <Textarea 
                   id="description" 
-                  placeholder="Descrie produsul tău în detaliu..." 
+                  placeholder="Descrie produsul tău în detaliu sau apasă 'Generează cu AI'..." 
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)} 
                   rows={4} 

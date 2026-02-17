@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
-import { X, ImagePlus, Loader2, Truck, ArrowLeft, Trash2 } from 'lucide-react';
+import { X, ImagePlus, Loader2, Truck, ArrowLeft, Trash2, Sparkles } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ import { ItemCondition } from '@/types/database';
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 import { ShippingCostSelector, COURIER_RATES } from '@/components/listings/ShippingCostSelector';
 import { usePlatformSettings } from '@/hooks/useAdminSettings';
+import { useGenerateDescription } from '@/hooks/useGenerateDescription';
 
 
 const EditListing = () => {
@@ -34,6 +35,7 @@ const EditListing = () => {
   const updateListing = useUpdateListing();
   const deleteListing = useDeleteListing();
   const { uploadMultipleImages, deleteImage, uploading } = useImageUpload();
+  const { generateDescription, generating: generatingDesc } = useGenerateDescription();
   const { data: platformSettings } = usePlatformSettings();
   const marketplaceSettings = platformSettings?.marketplace as any;
   const MAX_IMAGES = marketplaceSettings?.maxImagesPerListing ?? 3;
@@ -354,10 +356,27 @@ const EditListing = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="description">Descriere</Label>
+                <div className="flex items-center justify-between mb-1">
+                  <Label htmlFor="description">Descriere</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1.5 text-xs h-7"
+                    disabled={generatingDesc || !title.trim()}
+                    onClick={async () => {
+                      const categoryName = categories?.find(c => c.id === category)?.name;
+                      const result = await generateDescription(title, categoryName, condition);
+                      if (result) setDescription(result);
+                    }}
+                  >
+                    {generatingDesc ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                    {generatingDesc ? 'Se generează...' : 'Generează cu AI'}
+                  </Button>
+                </div>
                 <Textarea 
                   id="description" 
-                  placeholder="Descrie produsul tău în detaliu..." 
+                  placeholder="Descrie produsul tău în detaliu sau apasă 'Generează cu AI'..." 
                   value={description} 
                   onChange={(e) => setDescription(e.target.value)} 
                   rows={4} 
