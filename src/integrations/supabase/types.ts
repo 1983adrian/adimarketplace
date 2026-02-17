@@ -2434,6 +2434,7 @@ export type Database = {
           current_period_end: string | null
           id: string
           payment_processor: string | null
+          plan_name: string | null
           status: string
           subscription_amount: number | null
           trial_end_date: string | null
@@ -2446,6 +2447,7 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           payment_processor?: string | null
+          plan_name?: string | null
           status?: string
           subscription_amount?: number | null
           trial_end_date?: string | null
@@ -2458,6 +2460,7 @@ export type Database = {
           current_period_end?: string | null
           id?: string
           payment_processor?: string | null
+          plan_name?: string | null
           status?: string
           subscription_amount?: number | null
           trial_end_date?: string | null
@@ -3781,6 +3784,7 @@ export type Database = {
           username: string
         }[]
       }
+      get_subscription_revenue: { Args: never; Returns: number }
       get_top_sellers: {
         Args: { limit_count?: number }
         Returns: {
