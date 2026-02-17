@@ -26,7 +26,33 @@ const AdminAuctions = () => {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAuction, setSelectedAuction] = useState<any>(null);
-  const [auctionsEnabled, setAuctionsEnabled] = useState(true);
+
+  // Fetch auctions_enabled setting
+  const { data: auctionsEnabledSetting } = useQuery({
+    queryKey: ['auctions-enabled-setting'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'auctions_enabled')
+        .maybeSingle();
+      return data?.value !== false;
+    },
+  });
+  const auctionsEnabled = auctionsEnabledSetting ?? true;
+
+  const toggleAuctions = useMutation({
+    mutationFn: async (enabled: boolean) => {
+      const { error } = await supabase
+        .from('platform_settings')
+        .upsert({ key: 'auctions_enabled', value: enabled as any, category: 'marketplace' }, { onConflict: 'key' });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['auctions-enabled-setting'] });
+      toast({ title: auctionsEnabled ? 'Licitații dezactivate' : 'Licitații activate' });
+    },
+  });
 
   // Fetch all auction listings
   const { data: auctions, isLoading } = useQuery({
@@ -36,17 +62,27 @@ const AdminAuctions = () => {
         .from('listings')
         .select(`
           *,
-          listing_images (image_url, is_primary),
-          profiles!listings_seller_id_fkey (display_name, username, avatar_url)
+          listing_images (image_url, is_primary)
         `)
         .eq('listing_type', 'auction')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
+      // Fetch seller profiles separately
+      const sellerIds = [...new Set((data || []).map(a => a.seller_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, username, avatar_url')
+        .in('user_id', sellerIds);
+
+      const profileMap = new Map(profiles?.map(p => [p.user_id, p]) || []);
+
+      if (error) throw error;
+
       // Fetch bid counts for each auction
       const auctionsWithBids = await Promise.all(
-        (data || []).map(async (auction) => {
+        (data || []).map(async (auction: any) => {
           const { count } = await supabase
             .from('bids')
             .select('*', { count: 'exact', head: true })
@@ -64,6 +100,7 @@ const AdminAuctions = () => {
             ...auction,
             bid_count: count || 0,
             highest_bid: highestBid?.amount || auction.starting_bid,
+            profiles: profileMap.get(auction.seller_id) || null,
           };
         })
       );
@@ -123,7 +160,8 @@ const AdminAuctions = () => {
             <Switch
               id="auctions-enabled"
               checked={auctionsEnabled}
-              onCheckedChange={setAuctionsEnabled}
+              onCheckedChange={(v) => toggleAuctions.mutate(v)}
+              disabled={toggleAuctions.isPending}
               className="scale-90"
             />
             <Label htmlFor="auctions-enabled" className="text-xs">Active Global</Label>
