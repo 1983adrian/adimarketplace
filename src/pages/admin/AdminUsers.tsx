@@ -107,13 +107,13 @@ export default function AdminUsers() {
     // Status filter
     let matchesStatus = true;
     if (statusFilter === 'blocked') {
-      matchesStatus = user.bio?.includes('[CONT BLOCAT]');
+      matchesStatus = user.is_listing_blocked === true || user.is_buying_blocked === true;
     } else if (statusFilter === 'suspended') {
-      matchesStatus = user.bio?.includes('[SUSPENDAT');
+      matchesStatus = user.is_suspended === true;
     } else if (statusFilter === 'verified') {
       matchesStatus = user.is_verified === true;
     } else if (statusFilter === 'active') {
-      matchesStatus = !user.bio?.includes('[CONT BLOCAT]') && !user.bio?.includes('[SUSPENDAT');
+      matchesStatus = !user.is_suspended && !user.is_listing_blocked;
     }
     
     // Type filter (buyers/sellers)
@@ -163,12 +163,19 @@ export default function AdminUsers() {
       });
 
       // Update profile status based on action
-      if (actionDialog.type === 'ban' || actionDialog.type === 'suspend') {
+      if (actionDialog.type === 'ban') {
         await supabase.from('profiles').update({
-          is_verified: false,
-          bio: actionDialog.type === 'ban' 
-            ? `[CONT BLOCAT] ${actionReason}` 
-            : `[SUSPENDAT până ${new Date(Date.now() + parseInt(actionDuration) * 24 * 60 * 60 * 1000).toLocaleDateString()}] ${actionReason}`,
+          is_suspended: true,
+          suspension_reason: actionReason || 'Cont blocat permanent',
+          suspended_at: new Date().toISOString(),
+          is_listing_blocked: true,
+          is_buying_blocked: true,
+        }).eq('user_id', userId);
+      } else if (actionDialog.type === 'suspend') {
+        await supabase.from('profiles').update({
+          is_suspended: true,
+          suspension_reason: actionReason || `Suspendat ${actionDuration} zile`,
+          suspended_at: new Date().toISOString(),
         }).eq('user_id', userId);
       }
 
@@ -232,11 +239,11 @@ export default function AdminUsers() {
   };
 
   const getStatusBadge = (user: any) => {
-    if (user.bio?.includes('[CONT BLOCAT]')) {
-      return <Badge variant="destructive">Blocat</Badge>;
+    if (user.is_suspended) {
+      return <Badge variant="destructive">Suspendat</Badge>;
     }
-    if (user.bio?.includes('[SUSPENDAT')) {
-      return <Badge className="bg-orange-500">Suspendat</Badge>;
+    if (user.is_listing_blocked || user.is_buying_blocked) {
+      return <Badge className="bg-orange-500">Blocat</Badge>;
     }
     if (user.is_verified) {
       return <Badge className="bg-green-500">Verificat</Badge>;

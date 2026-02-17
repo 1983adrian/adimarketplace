@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   CheckCircle, XCircle, Clock, Search, Loader2, AlertTriangle,
-  Shield, User
+  Shield, User, ShieldCheck, ShieldX
 } from 'lucide-react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 interface SellerInfo {
@@ -32,6 +34,8 @@ interface SellerInfo {
 
 const AdminSellerVerifications = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: sellers, isLoading } = useQuery({
     queryKey: ['admin-seller-verification'],
@@ -82,6 +86,35 @@ const AdminSellerVerifications = () => {
     s.short_id?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const toggleVerify = useMutation({
+    mutationFn: async ({ userId, verified }: { userId: string; verified: boolean }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          is_verified: verified, 
+          verified_at: verified ? new Date().toISOString() : null 
+        })
+        .eq('user_id', userId);
+      if (error) throw error;
+
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: 'system',
+        title: verified ? '✅ Cont Verificat' : '❌ Verificare Retrasă',
+        message: verified 
+          ? 'Contul tău de vânzător a fost verificat de un administrator.'
+          : 'Verificarea contului tău a fost retrasă.',
+      });
+    },
+    onSuccess: (_, { verified }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-seller-verification'] });
+      toast({ title: verified ? '✅ Vânzător verificat!' : '❌ Verificare retrasă' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    },
+  });
+
   const renderTable = (list: SellerInfo[]) => {
     if (isLoading) {
       return (
@@ -110,6 +143,7 @@ const AdminSellerVerifications = () => {
               <TableHead>PayPal</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Înregistrat</TableHead>
+              <TableHead className="text-right">Acțiuni</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -153,6 +187,30 @@ const AdminSellerVerifications = () => {
                 <TableCell>{getStatusBadge(seller)}</TableCell>
                 <TableCell className="text-muted-foreground text-sm">
                   {format(new Date(seller.created_at), 'dd.MM.yyyy')}
+                </TableCell>
+                <TableCell className="text-right">
+                  {seller.is_verified ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-1 text-xs h-7 text-destructive border-destructive/30"
+                      onClick={() => toggleVerify.mutate({ userId: seller.user_id, verified: false })}
+                      disabled={toggleVerify.isPending}
+                    >
+                      <ShieldX className="h-3 w-3" />
+                      Retrage
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      className="gap-1 text-xs h-7"
+                      onClick={() => toggleVerify.mutate({ userId: seller.user_id, verified: true })}
+                      disabled={toggleVerify.isPending}
+                    >
+                      <ShieldCheck className="h-3 w-3" />
+                      Verifică
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}

@@ -11,7 +11,8 @@ import {
   Building2,
   CreditCard,
   ArrowUpRight,
-  Filter
+  Filter,
+  Loader2
 } from 'lucide-react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,8 +23,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface SellerPayout {
   id: string;
@@ -49,6 +51,8 @@ interface SellerPayout {
 export default function AdminSellerPayouts() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: payouts, isLoading, refetch } = useQuery({
     queryKey: ['admin-seller-payouts', statusFilter],
@@ -141,6 +145,69 @@ export default function AdminSellerPayouts() {
     }
   };
 
+  // Process payout mutation
+  const processPayoutMutation = useMutation({
+    mutationFn: async ({ payoutId, action }: { payoutId: string; action: 'completed' | 'failed' }) => {
+      const updateData: any = { status: action };
+      if (action === 'completed') {
+        updateData.completed_at = new Date().toISOString();
+        updateData.processed_at = new Date().toISOString();
+      }
+      const { error } = await supabase
+        .from('seller_payouts')
+        .update(updateData)
+        .eq('id', payoutId);
+      if (error) throw error;
+
+      // Find the payout to notify the seller
+      const payout = payouts?.find(p => p.id === payoutId);
+      if (payout) {
+        await supabase.from('notifications').insert({
+          user_id: payout.seller_id,
+          type: 'payout_update',
+          title: action === 'completed' ? '💰 Plata Procesată' : '❌ Plata Eșuată',
+          message: action === 'completed'
+            ? `Plata de £${Number(payout.net_amount).toFixed(2)} a fost procesată cu succes.`
+            : `Plata de £${Number(payout.net_amount).toFixed(2)} nu a putut fi procesată.`,
+        });
+      }
+    },
+    onSuccess: (_, { action }) => {
+      queryClient.invalidateQueries({ queryKey: ['admin-seller-payouts'] });
+      queryClient.invalidateQueries({ queryKey: ['payout-stats'] });
+      toast({ title: action === 'completed' ? '✅ Plata marcată ca finalizată' : '❌ Plata marcată ca eșuată' });
+    },
+    onError: (error: any) => {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const handleExportCSV = () => {
+    if (!payouts || payouts.length === 0) {
+      toast({ title: 'Nu există date de exportat', variant: 'destructive' });
+      return;
+    }
+    const headers = ['ID', 'Vânzător', 'Brut', 'Comision', 'Net', 'Status', 'Data'];
+    const rows = payouts.map(p => [
+      p.id.slice(0, 8),
+      p.seller?.display_name || 'N/A',
+      Number(p.gross_amount).toFixed(2),
+      Number(p.platform_commission).toFixed(2),
+      Number(p.net_amount).toFixed(2),
+      p.status,
+      new Date(p.created_at).toLocaleDateString('ro-RO'),
+    ]);
+    const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `plati-vanzatori-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: '📥 Export CSV descărcat!' });
+  };
+
   const filteredPayouts = payouts?.filter(p => {
     if (!search) return true;
     const searchLower = search.toLowerCase();
@@ -168,7 +235,7 @@ export default function AdminSellerPayouts() {
               <RefreshCw className="h-4 w-4" />
               Actualizează
             </Button>
-            <Button size="sm" className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600">
+            <Button size="sm" className="gap-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600" onClick={handleExportCSV}>
               <Download className="h-4 w-4" />
               Export CSV
             </Button>
@@ -290,6 +357,7 @@ export default function AdminSellerPayouts() {
                       <TableHead>Metodă</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Data</TableHead>
+                      <TableHead className="text-right">Acțiuni</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -324,6 +392,37 @@ export default function AdminSellerPayouts() {
                         <TableCell>{getStatusBadge(payout.status || 'pending')}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">
                           {new Date(payout.created_at).toLocaleDateString('ro-RO')}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            {(payout.status === 'pending' || payout.status === 'processing') && (
+                              <>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs gap-1 text-green-600 border-green-300"
+                                  onClick={() => processPayoutMutation.mutate({ payoutId: payout.id, action: 'completed' })}
+                                  disabled={processPayoutMutation.isPending}
+                                >
+                                  <CheckCircle2 className="h-3 w-3" />
+                                  Finalizează
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7 text-xs gap-1 text-destructive border-destructive/30"
+                                  onClick={() => processPayoutMutation.mutate({ payoutId: payout.id, action: 'failed' })}
+                                  disabled={processPayoutMutation.isPending}
+                                >
+                                  <XCircle className="h-3 w-3" />
+                                  Eșuat
+                                </Button>
+                              </>
+                            )}
+                            {payout.status === 'completed' && (
+                              <Badge className="bg-green-100 text-green-700 text-[10px]">✅</Badge>
+                            )}
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
