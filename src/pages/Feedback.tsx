@@ -46,26 +46,25 @@ const Feedback = () => {
       return;
     }
 
+    const contactEmail = formData.email || user?.email;
+    if (!contactEmail) {
+      toast({
+        title: 'Eroare',
+        description: 'Te rugăm să introduci adresa de email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      // Insert feedback into notifications table for admin to review
-      const { error } = await supabase.from('notifications').insert({
-        user_id: user?.id || '00000000-0000-0000-0000-000000000000',
-        type: 'feedback',
-        title: `[${formData.type.toUpperCase()}] ${formData.subject || 'Feedback'}`,
-        message: `
-Rating: ${formData.rating || 'N/A'}
-Email: ${formData.email || user?.email || 'Anonim'}
----
-${formData.message}
-        `.trim(),
-        data: {
-          feedback_type: formData.type,
-          rating: formData.rating,
-          user_email: formData.email || user?.email,
-          user_name: profile?.display_name || profile?.username,
-        },
+      const { error } = await supabase.from('contact_submissions').insert({
+        name: profile?.display_name || profile?.username || 'Utilizator',
+        email: contactEmail,
+        subject: `[FEEDBACK-${formData.type.toUpperCase()}] ${formData.subject || 'Feedback'}`,
+        message: `Tip: ${formData.type}\nRating: ${formData.rating || 'N/A'}\n\n${formData.message}`,
+        status: 'pending',
       });
 
       if (error) throw error;
@@ -99,10 +98,9 @@ ${formData.message}
               <h2 className="text-2xl font-bold mb-4">Mulțumim pentru Feedback!</h2>
               <p className="text-muted-foreground mb-8">
                 Am primit mesajul tău și echipa noastră îl va analiza în cel mai scurt timp.
-                Dacă ai furnizat un email, te vom contacta pentru detalii suplimentare dacă este necesar.
               </p>
               <div className="flex gap-4 justify-center">
-                <Button variant="outline" onClick={() => setIsSubmitted(false)}>
+                <Button variant="outline" onClick={() => { setIsSubmitted(false); setFormData({ type: 'general', rating: '', subject: '', message: '', email: '' }); }}>
                   Trimite alt Feedback
                 </Button>
                 <Button onClick={() => window.location.href = '/'}>
@@ -195,17 +193,15 @@ ${formData.message}
               {/* Email */}
               {!user && (
                 <div className="space-y-2">
-                  <Label htmlFor="email">Adresa ta de Email (opțional)</Label>
+                  <Label htmlFor="email">Adresa ta de Email *</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="email@exemplu.com"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    required
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Dacă dorești un răspuns, te rugăm să ne furnizezi email-ul.
-                  </p>
                 </div>
               )}
 
