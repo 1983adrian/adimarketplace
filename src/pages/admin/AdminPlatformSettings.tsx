@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Save, Globe, Bell, Store, Loader2, Settings, CheckCircle2, Volume2, Share2, Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
+import { Save, Globe, Store, Loader2, Settings, CheckCircle2, Volume2, Share2, Facebook, Instagram, Youtube, Twitter } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,12 +25,6 @@ interface PlatformSettings {
     defaultLanguage: string;
     defaultCurrency: string;
   };
-  notifications: {
-    emailNotifications: boolean;
-    orderConfirmation: boolean;
-    shippingUpdates: boolean;
-    adminAlerts: boolean;
-  };
   marketplace: {
     maxImagesPerListing: number;
     maxListingPrice: number;
@@ -53,12 +47,6 @@ const defaultSettings: PlatformSettings = {
   localization: {
     defaultLanguage: 'ro',
     defaultCurrency: 'RON',
-  },
-  notifications: {
-    emailNotifications: true,
-    orderConfirmation: true,
-    shippingUpdates: true,
-    adminAlerts: true,
   },
   marketplace: {
     maxImagesPerListing: 3,
@@ -96,7 +84,7 @@ const AdminPlatformSettings = () => {
       const loadedSettings: PlatformSettings = {
         general: { ...defaultSettings.general, ...dbSettings['general'] },
         localization: { ...defaultSettings.localization, ...dbSettings['localization'] },
-        notifications: { ...defaultSettings.notifications, ...dbSettings['notifications'] },
+        
         marketplace: {
           maxImagesPerListing: dbMarketplace?.maxImagesPerListing ?? defaultSettings.marketplace.maxImagesPerListing,
           maxListingPrice: dbMarketplace?.maxListingPrice ?? defaultSettings.marketplace.maxListingPrice,
@@ -113,7 +101,7 @@ const AdminPlatformSettings = () => {
       await Promise.all([
         updateSetting.mutateAsync({ key: 'general', value: settings.general, category: 'platform' }),
         updateSetting.mutateAsync({ key: 'localization', value: settings.localization, category: 'platform' }),
-        updateSetting.mutateAsync({ key: 'notifications', value: settings.notifications, category: 'platform' }),
+        
         updateSetting.mutateAsync({ key: 'marketplace', value: settings.marketplace, category: 'platform' }),
         updateSetting.mutateAsync({ key: 'social', value: settings.social, category: 'platform' }),
       ]);
@@ -145,9 +133,6 @@ const AdminPlatformSettings = () => {
     setSettings(prev => ({ ...prev, localization: { ...prev.localization, [key]: value } }));
   };
 
-  const updateNotifications = (key: keyof PlatformSettings['notifications'], value: boolean) => {
-    setSettings(prev => ({ ...prev, notifications: { ...prev.notifications, [key]: value } }));
-  };
 
   const updateMarketplace = (key: keyof PlatformSettings['marketplace'], value: any) => {
     setSettings(prev => ({ ...prev, marketplace: { ...prev.marketplace, [key]: value } }));
@@ -204,14 +189,10 @@ const AdminPlatformSettings = () => {
         </div>
 
         <Tabs defaultValue="general" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 gap-1">
+          <TabsList className="grid w-full grid-cols-3 h-auto p-1 gap-1">
             <TabsTrigger value="general" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Globe className="h-4 w-4" />
               <span className="hidden sm:inline">General</span>
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <Bell className="h-4 w-4" />
-              <span className="hidden sm:inline">Notificări</span>
             </TabsTrigger>
             <TabsTrigger value="marketplace" className="gap-2 py-2.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Store className="h-4 w-4" />
@@ -312,81 +293,6 @@ const AdminPlatformSettings = () => {
             </Card>
           </TabsContent>
 
-          {/* Notifications Tab */}
-          <TabsContent value="notifications" className="space-y-6">
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-2">
-                  <Bell className="h-5 w-5 text-primary" />
-                  <CardTitle>Setări Notificări</CardTitle>
-                  <Badge variant="outline" className="text-xs">Funcțional</Badge>
-                </div>
-                <CardDescription>
-                  Aceste setări controlează trimiterea reală a emailurilor.
-                  Modificările se aplică imediat după salvare.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-1">
-                <SettingSwitch
-                  label="Notificări Email Globale"
-                  description="Activează/dezactivează toate notificările prin email"
-                  checked={settings.notifications.emailNotifications}
-                  onCheckedChange={(checked) => updateNotifications('emailNotifications', checked)}
-                  badge={settings.notifications.emailNotifications ? 'Activ' : 'Inactiv'}
-                />
-
-                <Separator />
-
-                <SettingSwitch
-                  label="Confirmări Comenzi"
-                  description="Email automat când o comandă este plasată"
-                  checked={settings.notifications.orderConfirmation}
-                  onCheckedChange={(checked) => updateNotifications('orderConfirmation', checked)}
-                  disabled={!settings.notifications.emailNotifications}
-                />
-
-                <SettingSwitch
-                  label="Actualizări Livrare"
-                  description="Notifică clienții când statusul livrării se schimbă"
-                  checked={settings.notifications.shippingUpdates}
-                  onCheckedChange={(checked) => updateNotifications('shippingUpdates', checked)}
-                  disabled={!settings.notifications.emailNotifications}
-                />
-
-                <SettingSwitch
-                  label="Alerte Admin"
-                  description="Primește alerte pentru comenzi noi, dispute și evenimente critice"
-                  checked={settings.notifications.adminAlerts}
-                  onCheckedChange={(checked) => updateNotifications('adminAlerts', checked)}
-                  disabled={!settings.notifications.emailNotifications}
-                />
-
-                <Separator />
-
-                {/* Coin Sound Test Section */}
-                <div className="flex items-center justify-between py-4">
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <Label className="text-sm font-medium">Sunet Monedă Vânzători</Label>
-                      <Badge variant="secondary" className="text-xs">🪙 Activ</Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Vânzătorii aud un sunet de monedă căzând când primesc bani
-                    </p>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={handleTestCoinSound}
-                    className="gap-2"
-                  >
-                    <Volume2 className="h-4 w-4" />
-                    Testează Sunet
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Marketplace Tab */}
           <TabsContent value="marketplace" className="space-y-6">
@@ -430,6 +336,30 @@ const AdminPlatformSettings = () => {
                       Prețul maxim permis pentru o singură listare
                     </p>
                   </div>
+                </div>
+
+                <Separator className="my-4" />
+
+                {/* Coin Sound Test */}
+                <div className="flex items-center justify-between py-3">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <Label className="text-sm font-medium">Sunet Monedă Vânzători</Label>
+                      <Badge variant="secondary" className="text-xs">🪙 Activ</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Vânzătorii aud un sunet de monedă căzând când primesc bani
+                    </p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleTestCoinSound}
+                    className="gap-2"
+                  >
+                    <Volume2 className="h-4 w-4" />
+                    Testează Sunet
+                  </Button>
                 </div>
               </CardContent>
             </Card>
