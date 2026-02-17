@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Store, Lock, Unlock, Crown, CheckCircle2, XCircle, BanknoteIcon, Clock, CreditCard, Save, Pencil } from 'lucide-react';
+import { Search, Store, Lock, Unlock, Crown, CheckCircle2, XCircle, BanknoteIcon, Clock, CreditCard, Save, Pencil, AlertTriangle, ShieldCheck, Ban, Bell, Users, Trophy } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
@@ -22,24 +21,24 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { differenceInDays, addDays, format } from 'date-fns';
 import { ro } from 'date-fns/locale';
 
-const useAllSellers = () => {
+// ─── All users (not just sellers) ───
+const useAllUsers = () => {
   return useQuery({
-    queryKey: ['admin-all-sellers'],
+    queryKey: ['admin-all-users-subs'],
     queryFn: async () => {
-      const { data: sellers, error } = await supabase
+      const { data: users, error } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username, avatar_url, store_name, is_seller, seller_trial_started_at, is_listing_blocked, is_buying_blocked, blocked_reason, blocked_at, created_at, paypal_email')
-        .eq('is_seller', true)
+        .select('user_id, display_name, username, avatar_url, store_name, is_seller, is_verified, is_suspended, seller_trial_started_at, is_listing_blocked, is_buying_blocked, blocked_reason, blocked_at, created_at, paypal_email, short_id, total_sales_count, average_rating')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const sellerIds = (sellers || []).map(s => s.user_id);
-      
+      const userIds = (users || []).map(u => u.user_id);
+
       const { data: subscriptions } = await supabase
         .from('user_subscriptions')
         .select('*')
-        .in('user_id', sellerIds)
+        .in('user_id', userIds)
         .eq('status', 'active')
         .neq('plan_type', 'bidder');
 
@@ -51,10 +50,30 @@ const useAllSellers = () => {
         }
       });
 
-      return (sellers || []).map(seller => ({
-        ...seller,
-        activeSubscription: subMap.get(seller.user_id) || null,
+      return (users || []).map(user => ({
+        ...user,
+        activeSubscription: subMap.get(user.user_id) || null,
       }));
+    },
+  });
+};
+
+// ─── Top 10 sellers ───
+const useTop10Sellers = () => {
+  return useQuery({
+    queryKey: ['admin-top10-sellers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, username, avatar_url, store_name, is_verified, total_sales_count, average_rating, short_id')
+        .eq('is_seller', true)
+        .gt('total_sales_count', 0)
+        .order('total_sales_count', { ascending: false })
+        .order('average_rating', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      return data || [];
     },
   });
 };
@@ -70,11 +89,10 @@ const usePendingPayments = () => {
 
       if (error) throw error;
 
-      // Get profile info for each payment
       const userIds = [...new Set((data || []).map(p => p.user_id))];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username, avatar_url, store_name')
+        .select('user_id, display_name, username, avatar_url, store_name, short_id')
         .in('user_id', userIds);
 
       const profileMap = new Map<string, any>();
@@ -114,10 +132,19 @@ const useBankSettings = () => {
   });
 };
 
+const PLANS_FOR_ADMIN = [
+  { type: 'start', name: 'Plan START', price: 11, max: 10 },
+  { type: 'silver', name: 'Plan SILVER', price: 50, max: 50 },
+  { type: 'gold', name: 'Plan GOLD', price: 150, max: 150 },
+  { type: 'platinum', name: 'Plan PLATINUM', price: 499, max: 500 },
+  { type: 'vip', name: 'Plan VIP', price: 999, max: null as number | null },
+];
+
 export default function AdminSellerSubscriptions() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
-  const { data: sellers, isLoading } = useAllSellers();
+  const { data: users, isLoading } = useAllUsers();
+  const { data: top10 } = useTop10Sellers();
   const { data: payments, isLoading: paymentsLoading } = usePendingPayments();
   const { data: bankSettings } = useBankSettings();
   const [bankName, setBankName] = useState('');
@@ -127,7 +154,8 @@ export default function AdminSellerSubscriptions() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Load bank settings into state once
+  const top10Ids = new Set((top10 || []).map(s => s.user_id));
+
   useEffect(() => {
     if (bankSettings && !bankLoaded) {
       setBankName(bankSettings.name);
@@ -136,6 +164,8 @@ export default function AdminSellerSubscriptions() {
       setBankLoaded(true);
     }
   }, [bankSettings, bankLoaded]);
+
+  // ─── Mutations ───
 
   const saveBankSettingsMutation = useMutation({
     mutationFn: async () => {
@@ -166,9 +196,7 @@ export default function AdminSellerSubscriptions() {
       const updateData: any = { [field]: value };
       if (value) {
         updateData.blocked_at = new Date().toISOString();
-        updateData.blocked_reason = field === 'is_listing_blocked' 
-          ? 'Blocat de admin' 
-          : 'Blocat de admin';
+        updateData.blocked_reason = 'Blocat de admin';
       } else {
         updateData.blocked_reason = null;
         updateData.blocked_at = null;
@@ -184,15 +212,64 @@ export default function AdminSellerSubscriptions() {
       await supabase.from('notifications').insert({
         user_id: userId,
         type: 'system',
-        title: value ? '🔒 Buton Blocat' : '🔓 Buton Deblocat',
+        title: value ? '🔒 Vânzare Blocată' : '🔓 Vânzare Deblocată',
         message: value
           ? `Butonul de ${field === 'is_listing_blocked' ? 'listare produse' : 'cumpărare'} a fost blocat. Contactează suportul.`
           : `Butonul de ${field === 'is_listing_blocked' ? 'listare produse' : 'cumpărare'} a fost deblocat.`,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-all-sellers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users-subs'] });
       toast({ title: 'Status actualizat!' });
+    },
+  });
+
+  const suspendMutation = useMutation({
+    mutationFn: async ({ userId, suspend }: { userId: string; suspend: boolean }) => {
+      const { error } = await supabase.rpc('admin_suspend_user', { p_user_id: userId, p_suspend: suspend });
+      if (error) throw error;
+
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: 'system',
+        title: suspend ? '⛔ Cont Suspendat' : '✅ Cont Reactivat',
+        message: suspend
+          ? 'Contul tău a fost suspendat de un administrator. Contactează suportul pentru detalii.'
+          : 'Contul tău a fost reactivat. Bine ai revenit!',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users-subs'] });
+      toast({ title: 'Status cont actualizat!' });
+    },
+  });
+
+  const warnMutation = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: 'system',
+        title: '⚠️ Avertisment de la Administrator',
+        message: 'Ai primit un avertisment. Încălcarea repetată a regulilor poate duce la suspendarea contului. Verifică regulile platformei.',
+      });
+    },
+    onSuccess: () => {
+      toast({ title: '⚠️ Avertisment trimis!' });
+    },
+  });
+
+  const verifyMutation = useMutation({
+    mutationFn: async ({ userId, verified }: { userId: string; verified: boolean }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_verified: verified })
+        .eq('user_id', userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users-subs'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-top10-sellers'] });
+      toast({ title: '✅ Verificare actualizată!' });
     },
   });
 
@@ -215,30 +292,37 @@ export default function AdminSellerSubscriptions() {
           plan_name: planName,
           price_ron: priceRon,
           max_listings: maxListings,
-          is_auction_plan: planType === 'licitatii',
+          is_auction_plan: false,
           status: 'active',
           trial_plan: false,
         });
 
       if (error) throw error;
 
-      await supabase.from('profiles').update({
+      const profileUpdate: any = {
         is_listing_blocked: false,
-        is_buying_blocked: false,
         blocked_reason: null,
         blocked_at: null,
         max_listings: maxListings,
-      }).eq('user_id', userId);
+      };
+
+      // VIP plan = auto-verify
+      if (planType === 'vip') {
+        profileUpdate.is_verified = true;
+      }
+
+      await supabase.from('profiles').update(profileUpdate).eq('user_id', userId);
 
       await supabase.from('notifications').insert({
         user_id: userId,
         type: 'system',
         title: '✅ Abonament Activat',
-        message: `Planul ${planName} a fost activat. Poți lista produse!`,
+        message: `Planul ${planName} a fost activat. Poți lista produse!${planType === 'vip' ? ' ✔️ Contul tău a fost verificat automat.' : ''}`,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-all-sellers'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-all-users-subs'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-top10-sellers'] });
       toast({ title: 'Abonament activat!' });
     },
   });
@@ -247,18 +331,12 @@ export default function AdminSellerSubscriptions() {
     mutationFn: async ({ paymentId, userId, planType, planName, priceRon, maxListings }: {
       paymentId: string; userId: string; planType: string; planName: string; priceRon: number; maxListings: number | null;
     }) => {
-      // Update payment status
       const { error: payError } = await supabase
         .from('subscription_payments')
-        .update({
-          status: 'confirmed',
-          confirmed_at: new Date().toISOString(),
-        })
+        .update({ status: 'confirmed', confirmed_at: new Date().toISOString() })
         .eq('id', paymentId);
-
       if (payError) throw payError;
 
-      // Activate subscription
       await activateSubscriptionMutation.mutateAsync({ userId, planType, planName, priceRon, maxListings });
     },
     onSuccess: () => {
@@ -271,12 +349,8 @@ export default function AdminSellerSubscriptions() {
     mutationFn: async ({ paymentId, userId }: { paymentId: string; userId: string }) => {
       const { error } = await supabase
         .from('subscription_payments')
-        .update({
-          status: 'rejected',
-          rejected_at: new Date().toISOString(),
-        })
+        .update({ status: 'rejected', rejected_at: new Date().toISOString() })
         .eq('id', paymentId);
-
       if (error) throw error;
 
       await supabase.from('notifications').insert({
@@ -292,69 +366,70 @@ export default function AdminSellerSubscriptions() {
     },
   });
 
-  const getTrialStatus = (seller: any) => {
-    if (!seller.seller_trial_started_at) return { label: 'Fără Trial', color: 'secondary' as const };
-    const trialEnd = addDays(new Date(seller.seller_trial_started_at), 30);
+  // ─── Filters ───
+  const getTrialStatus = (user: any) => {
+    if (!user.seller_trial_started_at) return { label: 'N/A', color: 'secondary' as const };
+    const trialEnd = addDays(new Date(user.seller_trial_started_at), 30);
     const daysLeft = differenceInDays(trialEnd, new Date());
-    
     if (daysLeft > 3) return { label: `${daysLeft}z`, color: 'default' as const };
     if (daysLeft > 0) return { label: `${daysLeft}z ⚠️`, color: 'destructive' as const };
     return { label: 'Expirat', color: 'destructive' as const };
   };
 
-  const filteredSellers = sellers?.filter(seller => {
-    const matchesSearch = 
-      seller.display_name?.toLowerCase().includes(search.toLowerCase()) ||
-      seller.username?.toLowerCase().includes(search.toLowerCase()) ||
-      seller.user_id?.toLowerCase().includes(search.toLowerCase()) ||
-      seller.store_name?.toLowerCase().includes(search.toLowerCase());
+  const filteredUsers = users?.filter(user => {
+    const matchesSearch =
+      user.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.username?.toLowerCase().includes(search.toLowerCase()) ||
+      user.user_id?.toLowerCase().includes(search.toLowerCase()) ||
+      user.store_name?.toLowerCase().includes(search.toLowerCase()) ||
+      user.short_id?.toLowerCase().includes(search.toLowerCase());
 
-    if (filter === 'blocked') return matchesSearch && (seller.is_listing_blocked || seller.is_buying_blocked);
-    if (filter === 'no_plan') return matchesSearch && !seller.activeSubscription;
-    if (filter === 'active') return matchesSearch && !!seller.activeSubscription && !seller.is_listing_blocked;
-    if (filter === 'trial') return matchesSearch && seller.activeSubscription?.trial_plan;
+    if (filter === 'sellers') return matchesSearch && user.is_seller;
+    if (filter === 'buyers') return matchesSearch && !user.is_seller;
+    if (filter === 'blocked') return matchesSearch && user.is_listing_blocked;
+    if (filter === 'suspended') return matchesSearch && user.is_suspended;
+    if (filter === 'verified') return matchesSearch && user.is_verified;
+    if (filter === 'active') return matchesSearch && !!user.activeSubscription && !user.is_listing_blocked;
+    if (filter === 'no_plan') return matchesSearch && user.is_seller && !user.activeSubscription;
     return matchesSearch;
   });
 
   const pendingPayments = payments?.filter(p => p.status === 'pending') || [];
   const allPayments = payments || [];
 
-  const PLANS_FOR_ADMIN = [
-    { type: 'start', name: 'Plan START', price: 11, max: 10 },
-    { type: 'licitatii', name: 'Plan LICITAȚII', price: 11, max: 10 },
-    { type: 'silver', name: 'Plan SILVER', price: 50, max: 50 },
-    { type: 'gold', name: 'Plan GOLD', price: 150, max: 150 },
-    { type: 'platinum', name: 'Plan PLATINUM', price: 499, max: 500 },
-    { type: 'vip', name: 'Plan VIP', price: 999, max: null },
-  ];
-
   return (
     <AdminLayout>
       <div className="space-y-4 w-full max-w-full overflow-hidden">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2">
-            <Store className="h-6 w-6 text-amber-500" />
-            Gestionare Vânzători
+            <Users className="h-6 w-6 text-primary" />
+            Gestionare Utilizatori & Abonamente
           </h1>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card><CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold">{sellers?.length || 0}</div>
-            <div className="text-xs text-muted-foreground">Total Vânzători</div>
+            <div className="text-2xl font-bold">{users?.length || 0}</div>
+            <div className="text-xs text-muted-foreground">Total Utilizatori</div>
+          </CardContent></Card>
+          <Card><CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-primary">
+              {users?.filter(u => u.is_seller).length || 0}
+            </div>
+            <div className="text-xs text-muted-foreground">Vânzători</div>
           </CardContent></Card>
           <Card><CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-green-600">
-              {sellers?.filter(s => s.activeSubscription && !s.activeSubscription.trial_plan).length || 0}
+              {users?.filter(u => u.activeSubscription && !u.activeSubscription.trial_plan).length || 0}
             </div>
             <div className="text-xs text-muted-foreground">Plătiți</div>
           </CardContent></Card>
           <Card><CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-red-600">
-              {sellers?.filter(s => s.is_listing_blocked).length || 0}
+            <div className="text-2xl font-bold text-destructive">
+              {users?.filter(u => u.is_listing_blocked || u.is_suspended).length || 0}
             </div>
-            <div className="text-xs text-muted-foreground">Blocați</div>
+            <div className="text-xs text-muted-foreground">Blocați / Suspendați</div>
           </CardContent></Card>
           <Card><CardContent className="p-4 text-center">
             <div className="text-2xl font-bold text-amber-600">
@@ -364,10 +439,13 @@ export default function AdminSellerSubscriptions() {
           </CardContent></Card>
         </div>
 
-        <Tabs defaultValue="sellers" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="sellers" className="gap-1">
-              <Store className="h-4 w-4" /> Vânzători
+        <Tabs defaultValue="users" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="users" className="gap-1">
+              <Users className="h-4 w-4" /> Utilizatori
+            </TabsTrigger>
+            <TabsTrigger value="top10" className="gap-1">
+              <Trophy className="h-4 w-4" /> Top 10
             </TabsTrigger>
             <TabsTrigger value="payments" className="gap-1 relative">
               <BanknoteIcon className="h-4 w-4" /> Plăți
@@ -378,29 +456,32 @@ export default function AdminSellerSubscriptions() {
               )}
             </TabsTrigger>
             <TabsTrigger value="bank-settings" className="gap-1">
-              <Pencil className="h-4 w-4" /> Cont Bancar
+              <CreditCard className="h-4 w-4" /> Cont Bancar
             </TabsTrigger>
           </TabsList>
 
-          {/* SELLERS TAB */}
-          <TabsContent value="sellers" className="space-y-4">
+          {/* USERS TAB */}
+          <TabsContent value="users" className="space-y-4">
             <Card>
               <CardContent className="p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Caută după nume, ID..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+                    <Input placeholder="Caută după nume, ID, short_id..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
                   </div>
                   <Select value={filter} onValueChange={setFilter}>
-                    <SelectTrigger className="w-[160px]">
+                    <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Filtrează" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Toți</SelectItem>
+                      <SelectItem value="sellers">Vânzători</SelectItem>
+                      <SelectItem value="buyers">Cumpărători</SelectItem>
                       <SelectItem value="active">Cu Abonament</SelectItem>
-                      <SelectItem value="trial">În Trial</SelectItem>
                       <SelectItem value="no_plan">Fără Plan</SelectItem>
+                      <SelectItem value="verified">Verificați ✔️</SelectItem>
                       <SelectItem value="blocked">Blocați</SelectItem>
+                      <SelectItem value="suspended">Suspendați</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -418,43 +499,48 @@ export default function AdminSellerSubscriptions() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="text-xs">Vânzător</TableHead>
+                          <TableHead className="text-xs">Utilizator</TableHead>
                           <TableHead className="text-xs">ID</TableHead>
-                          <TableHead className="text-xs">PayPal</TableHead>
+                          <TableHead className="text-xs">Tip</TableHead>
                           <TableHead className="text-xs">Abonament</TableHead>
-                          <TableHead className="text-xs">Trial</TableHead>
-                          <TableHead className="text-xs">Listare</TableHead>
-                          <TableHead className="text-xs">Cumpărare</TableHead>
-                          <TableHead className="text-xs">Setări</TableHead>
+                          <TableHead className="text-xs">Verificat</TableHead>
+                          <TableHead className="text-xs">Blocare</TableHead>
+                          <TableHead className="text-xs">Acțiuni</TableHead>
+                          <TableHead className="text-xs">Plan</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredSellers?.map((seller) => {
-                          const trialStatus = getTrialStatus(seller);
-                          const sub = seller.activeSubscription;
+                        {filteredUsers?.map((user) => {
+                          const sub = user.activeSubscription;
+                          const isTop10 = top10Ids.has(user.user_id);
                           return (
-                            <TableRow key={seller.user_id}>
+                            <TableRow key={user.user_id} className={user.is_suspended ? 'opacity-50 bg-destructive/5' : ''}>
                               <TableCell className="py-2">
                                 <div className="flex items-center gap-2">
                                   <Avatar className="h-7 w-7">
-                                    <AvatarImage src={seller.avatar_url || undefined} />
-                                    <AvatarFallback className="text-xs">{seller.display_name?.[0] || 'V'}</AvatarFallback>
+                                    <AvatarImage src={user.avatar_url || undefined} />
+                                    <AvatarFallback className="text-xs">{user.display_name?.[0] || '?'}</AvatarFallback>
                                   </Avatar>
-                                  <span className="text-sm font-medium truncate max-w-[100px]">{seller.display_name || 'Anonim'}</span>
+                                  <div className="min-w-0">
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-sm font-medium truncate max-w-[100px]">{user.display_name || 'Anonim'}</span>
+                                      {user.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-blue-500 flex-shrink-0" />}
+                                      {isTop10 && <Trophy className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />}
+                                    </div>
+                                    {user.store_name && (
+                                      <span className="text-[10px] text-muted-foreground truncate block">{user.store_name}</span>
+                                    )}
+                                  </div>
                                 </div>
                               </TableCell>
                               <TableCell className="py-2">
-                                <code className="text-[10px] bg-muted px-1 py-0.5 rounded">#{seller.user_id?.slice(0, 8)}</code>
+                                <code className="text-[10px] bg-muted px-1 py-0.5 rounded">#{user.short_id || user.user_id?.slice(0, 6)}</code>
                               </TableCell>
                               <TableCell className="py-2">
-                                {(seller as any).paypal_email ? (
-                                  <Badge variant="default" className="text-[10px] bg-blue-600 gap-1">
-                                    <CheckCircle2 className="h-3 w-3" /> Activ
-                                  </Badge>
+                                {user.is_seller ? (
+                                  <Badge variant="default" className="text-[10px]">Vânzător</Badge>
                                 ) : (
-                                  <Badge variant="destructive" className="text-[10px] gap-1">
-                                    <XCircle className="h-3 w-3" /> Lipsă
-                                  </Badge>
+                                  <Badge variant="secondary" className="text-[10px]">Cumpărător</Badge>
                                 )}
                               </TableCell>
                               <TableCell className="py-2">
@@ -462,63 +548,90 @@ export default function AdminSellerSubscriptions() {
                                   <Badge variant={sub.trial_plan ? 'outline' : 'default'} className="text-[10px]">
                                     {sub.plan_name}
                                   </Badge>
-                                ) : (
+                                ) : user.is_seller ? (
                                   <Badge variant="destructive" className="text-[10px]">Fără Plan</Badge>
+                                ) : (
+                                  <span className="text-[10px] text-muted-foreground">—</span>
                                 )}
                               </TableCell>
                               <TableCell className="py-2">
-                                <Badge variant={trialStatus.color} className="text-[10px]">{trialStatus.label}</Badge>
-                              </TableCell>
-                              <TableCell className="py-2">
                                 <Switch
-                                  checked={!seller.is_listing_blocked}
-                                  onCheckedChange={(checked) => toggleBlockMutation.mutate({
-                                    userId: seller.user_id, field: 'is_listing_blocked', value: !checked,
-                                  })}
+                                  checked={!!user.is_verified}
+                                  onCheckedChange={(checked) => verifyMutation.mutate({ userId: user.user_id, verified: checked })}
                                 />
                               </TableCell>
                               <TableCell className="py-2">
-                                <Switch
-                                  checked={!seller.is_buying_blocked}
-                                  onCheckedChange={(checked) => toggleBlockMutation.mutate({
-                                    userId: seller.user_id, field: 'is_buying_blocked', value: !checked,
-                                  })}
-                                />
+                                {user.is_seller && (
+                                  <Switch
+                                    checked={!user.is_listing_blocked}
+                                    onCheckedChange={(checked) => toggleBlockMutation.mutate({
+                                      userId: user.user_id, field: 'is_listing_blocked', value: !checked,
+                                    })}
+                                  />
+                                )}
                               </TableCell>
                               <TableCell className="py-2">
-                                <Select
-                                  onValueChange={(val) => {
-                                    const plan = PLANS_FOR_ADMIN.find(p => p.type === val);
-                                    if (plan) {
-                                      activateSubscriptionMutation.mutate({
-                                        userId: seller.user_id,
-                                        planType: plan.type,
-                                        planName: plan.name,
-                                        priceRon: plan.price,
-                                        maxListings: plan.max,
-                                      });
-                                    }
-                                  }}
-                                >
-                                  <SelectTrigger className="w-[130px] h-8 text-xs">
-                                    <SelectValue placeholder="Activează" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {PLANS_FOR_ADMIN.map(plan => (
-                                      <SelectItem key={plan.type} value={plan.type} className="text-xs">
-                                        {plan.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                <div className="flex gap-1">
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    className="h-7 w-7"
+                                    title="Trimite Avertisment"
+                                    onClick={() => warnMutation.mutate({ userId: user.user_id })}
+                                  >
+                                    <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                                  </Button>
+                                  <Button
+                                    size="icon"
+                                    variant={user.is_suspended ? 'default' : 'ghost'}
+                                    className="h-7 w-7"
+                                    title={user.is_suspended ? 'Reactivează Cont' : 'Suspendă Cont'}
+                                    onClick={() => suspendMutation.mutate({ userId: user.user_id, suspend: !user.is_suspended })}
+                                  >
+                                    {user.is_suspended ? (
+                                      <Unlock className="h-3.5 w-3.5 text-green-500" />
+                                    ) : (
+                                      <Ban className="h-3.5 w-3.5 text-destructive" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-2">
+                                {user.is_seller && (
+                                  <Select
+                                    onValueChange={(val) => {
+                                      const plan = PLANS_FOR_ADMIN.find(p => p.type === val);
+                                      if (plan) {
+                                        activateSubscriptionMutation.mutate({
+                                          userId: user.user_id,
+                                          planType: plan.type,
+                                          planName: plan.name,
+                                          priceRon: plan.price,
+                                          maxListings: plan.max,
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    <SelectTrigger className="w-[120px] h-7 text-[10px]">
+                                      <SelectValue placeholder="Activează" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {PLANS_FOR_ADMIN.map(plan => (
+                                        <SelectItem key={plan.type} value={plan.type} className="text-xs">
+                                          {plan.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )}
                               </TableCell>
                             </TableRow>
                           );
                         })}
-                        {filteredSellers?.length === 0 && (
+                        {filteredUsers?.length === 0 && (
                           <TableRow>
                             <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                              Niciun vânzător găsit
+                              Niciun utilizator găsit
                             </TableCell>
                           </TableRow>
                         )}
@@ -526,6 +639,87 @@ export default function AdminSellerSubscriptions() {
                     </Table>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* TOP 10 TAB */}
+          <TabsContent value="top10" className="space-y-4">
+            <Card>
+              <CardContent className="p-4">
+                <h3 className="text-lg font-bold flex items-center gap-2 mb-4">
+                  <Trophy className="h-5 w-5 text-amber-500" />
+                  Top 10 Vânzători — Bifă Automată
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Cei mai buni vânzători primesc automat bifa de verificare. Poți activa/dezactiva manual.
+                </p>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs">#</TableHead>
+                        <TableHead className="text-xs">Vânzător</TableHead>
+                        <TableHead className="text-xs">ID</TableHead>
+                        <TableHead className="text-xs">Vânzări</TableHead>
+                        <TableHead className="text-xs">Rating</TableHead>
+                        <TableHead className="text-xs">Verificat</TableHead>
+                        <TableHead className="text-xs">Acțiune</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(top10 || []).map((seller, idx) => (
+                        <TableRow key={seller.user_id}>
+                          <TableCell className="py-2 font-bold text-amber-600">#{idx + 1}</TableCell>
+                          <TableCell className="py-2">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-7 w-7">
+                                <AvatarImage src={seller.avatar_url || undefined} />
+                                <AvatarFallback className="text-xs">{seller.display_name?.[0] || '?'}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-medium">{seller.display_name || seller.username || 'Anonim'}</span>
+                                  {seller.is_verified && <ShieldCheck className="h-3.5 w-3.5 text-blue-500" />}
+                                </div>
+                                {seller.store_name && <span className="text-[10px] text-muted-foreground">{seller.store_name}</span>}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-2">
+                            <code className="text-[10px] bg-muted px-1 py-0.5 rounded">#{seller.short_id || seller.user_id?.slice(0, 6)}</code>
+                          </TableCell>
+                          <TableCell className="py-2 font-semibold">{seller.total_sales_count || 0}</TableCell>
+                          <TableCell className="py-2">⭐ {(seller.average_rating || 0).toFixed(1)}</TableCell>
+                          <TableCell className="py-2">
+                            <Switch
+                              checked={!!seller.is_verified}
+                              onCheckedChange={(checked) => verifyMutation.mutate({ userId: seller.user_id, verified: checked })}
+                            />
+                          </TableCell>
+                          <TableCell className="py-2">
+                            {!seller.is_verified && (
+                              <Button
+                                size="sm"
+                                className="h-7 text-xs gap-1"
+                                onClick={() => verifyMutation.mutate({ userId: seller.user_id, verified: true })}
+                              >
+                                <ShieldCheck className="h-3 w-3" /> Acordă Bifă
+                              </Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {(!top10 || top10.length === 0) && (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                            Niciun vânzător cu vânzări încă
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -567,7 +761,7 @@ export default function AdminSellerSubscriptions() {
                                 </Avatar>
                                 <div>
                                   <p className="text-sm font-medium">{payment.profile?.display_name || 'Anonim'}</p>
-                                  <code className="text-[9px] text-muted-foreground">#{payment.user_id?.slice(0, 8)}</code>
+                                  <code className="text-[9px] text-muted-foreground">#{payment.profile?.short_id || payment.user_id?.slice(0, 8)}</code>
                                 </div>
                               </div>
                             </TableCell>
@@ -658,32 +852,19 @@ export default function AdminSellerSubscriptions() {
                 <div className="space-y-3">
                   <div>
                     <label className="text-sm font-medium">Numele Beneficiarului</label>
-                     <Input 
-                      value={bankName} 
-                      onChange={(e) => setBankName(e.target.value)} 
-                      placeholder="ex: John Smith" 
-                    />
+                    <Input value={bankName} onChange={(e) => setBankName(e.target.value)} placeholder="ex: John Smith" />
                   </div>
                   <div>
                     <label className="text-sm font-medium">IBAN</label>
-                     <Input 
-                      value={bankIban} 
-                      onChange={(e) => setBankIban(e.target.value)} 
-                      placeholder="ex: GB29 NWBK 6016 1331 9268 19" 
-                      className="font-mono"
-                    />
+                    <Input value={bankIban} onChange={(e) => setBankIban(e.target.value)} placeholder="ex: GB29 NWBK 6016 1331 9268 19" className="font-mono" />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Bancă</label>
-                     <Input 
-                      value={bankInstitution} 
-                      onChange={(e) => setBankInstitution(e.target.value)} 
-                      placeholder="ex: NatWest / Barclays / Monzo" 
-                    />
+                    <Input value={bankInstitution} onChange={(e) => setBankInstitution(e.target.value)} placeholder="ex: NatWest / Barclays / Monzo" />
                   </div>
                 </div>
-                <Button 
-                  className="w-full gap-2" 
+                <Button
+                  className="w-full gap-2"
                   disabled={saveBankSettingsMutation.isPending}
                   onClick={() => saveBankSettingsMutation.mutate()}
                 >
