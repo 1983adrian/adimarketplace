@@ -45,7 +45,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCurrency } from '@/contexts/CurrencyContext';
 
+const TERMINAL_STATUSES = ['delivered', 'cancelled', 'refunded'];
+
 const statusOptions = [
+  { value: 'active', label: 'Comenzi Active' },
   { value: 'all', label: 'Toate Comenzile' },
   { value: 'pending', label: 'În Așteptare' },
   { value: 'payment_pending', label: 'Plată în Așteptare' },
@@ -69,7 +72,7 @@ const CARRIERS = [
 
 export default function AdminOrders() {
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('active');
   const [activeTab, setActiveTab] = useState('all');
   const [awbDialog, setAwbDialog] = useState<{ open: boolean; orderId: string; currentAwb: string; currentCarrier: string }>({
     open: false, orderId: '', currentAwb: '', currentCarrier: 'fan_courier'
@@ -113,7 +116,14 @@ export default function AdminOrders() {
       order.buyer_profile?.short_id?.toLowerCase().includes(search.toLowerCase()) ||
       order.seller_profile?.short_id?.toLowerCase().includes(search.toLowerCase()) ||
       order.tracking_number?.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    
+    let matchesStatus = true;
+    if (statusFilter === 'active') {
+      matchesStatus = !TERMINAL_STATUSES.includes(order.status);
+    } else if (statusFilter !== 'all') {
+      matchesStatus = order.status === statusFilter;
+    }
+    
     return matchesSearch && matchesStatus;
   });
 
