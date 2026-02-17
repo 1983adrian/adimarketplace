@@ -18,6 +18,8 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
+const ITEMS_PER_PAGE = 40;
+
 const Browse = () => {
   const { t } = useLanguage();
   const { formatPrice } = useCurrency();
@@ -26,14 +28,15 @@ const Browse = () => {
   const [priceRange, setPriceRange] = useState([0, 1000000]);
   const [selectedCondition, setSelectedCondition] = useState<string>('');
   const [sortBy, setSortBy] = useState('newest');
+  const [page, setPage] = useState(0);
   
   const { data: categories } = useCategories();
 
   const selectedCategory = searchParams.get('category') || '';
 
-  // Fetch real listings from database
-  const { data: listings = [], isLoading } = useQuery({
-    queryKey: ['browse-listings', selectedCategory],
+  // Fetch paginated listings from database
+  const { data: listingsData, isLoading } = useQuery({
+    queryKey: ['browse-listings', selectedCategory, searchQuery, selectedCondition, priceRange, sortBy, page],
     queryFn: async () => {
       let query = supabase
         .from('listings')
@@ -50,7 +53,7 @@ const Browse = () => {
             name,
             slug
           )
-        `)
+        `, { count: 'exact' })
         .eq('is_active', true)
         .eq('is_sold', false);
 
@@ -61,11 +64,47 @@ const Browse = () => {
         }
       }
 
-      const { data, error } = await query.order('created_at', { ascending: false });
+      if (searchQuery) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      if (selectedCondition) {
+        query = query.eq('condition', selectedCondition as any);
+      }
+
+      if (priceRange[0] > 0) {
+        query = query.gte('price', priceRange[0]);
+      }
+      if (priceRange[1] < 1000000) {
+        query = query.lte('price', priceRange[1]);
+      }
+
+      // Server-side sorting
+      switch (sortBy) {
+        case 'price_asc':
+          query = query.order('price', { ascending: true });
+          break;
+        case 'price_desc':
+          query = query.order('price', { ascending: false });
+          break;
+        default:
+          query = query.order('created_at', { ascending: false });
+      }
+
+      // Pagination
+      const from = page * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
       if (error) throw error;
-      return data || [];
+      return { listings: data || [], totalCount: count || 0 };
     },
   });
+
+  const listings = listingsData?.listings || [];
+  const totalCount = listingsData?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   // Fetch sellers/profiles for search
   const { data: sellers = [], isLoading: sellersLoading } = useQuery({
@@ -86,23 +125,10 @@ const Browse = () => {
     enabled: !!searchQuery && searchQuery.length >= 2,
   });
 
-  const filteredListings = listings.filter((listing) => {
-    const matchesSearch = !searchQuery || 
-      listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (listing.description && listing.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesPrice = listing.price >= priceRange[0] && listing.price <= priceRange[1];
-    const matchesCondition = !selectedCondition || listing.condition === selectedCondition;
-    return matchesSearch && matchesPrice && matchesCondition;
-  });
-
-  const sortedListings = [...filteredListings].sort((a, b) => {
-    switch (sortBy) {
-      case 'price_asc': return a.price - b.price;
-      case 'price_desc': return b.price - a.price;
-      case 'newest': 
-      default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    }
-  });
+  // Reset page when filters change
+  const handleFilterChange = () => {
+    setPage(0);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,7 +212,7 @@ const Browse = () => {
       );
     }
 
-    if (sortedListings.length === 0) {
+    if (listings.length === 0) {
       return (
         <div className="text-center py-12">
           <Package className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
@@ -198,7 +224,7 @@ const Browse = () => {
 
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {sortedListings.map((listing) => {
+        {listings.map((listing: any) => {
           const primaryImage = listing.listing_images?.find((img: any) => img.is_primary) || listing.listing_images?.[0];
           
           return (
@@ -293,7 +319,7 @@ const Browse = () => {
                 <TabsList className="mb-4">
                   <TabsTrigger value="listings" className="gap-2">
                     <Package className="h-4 w-4" />
-                    {t('browse.products')} ({sortedListings.length})
+                    {t('browse.products')} ({totalCount})
                   </TabsTrigger>
                   <TabsTrigger value="sellers" className="gap-2">
                     <Store className="h-4 w-4" />
@@ -365,8 +391,32 @@ const Browse = () => {
               </Tabs>
             ) : (
               <>
-                <p className="text-muted-foreground mb-4">{sortedListings.length} {t('browse.itemsFound')}</p>
+                <p className="text-muted-foreground mb-4">{totalCount.toLocaleString()} {t('browse.itemsFound')}</p>
                 {renderListingsGrid()}
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-2 mt-8">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled={page === 0}
+                      onClick={() => setPage(p => Math.max(0, p - 1))}
+                    >
+                      ← {t('common.previous') || 'Previous'}
+                    </Button>
+                    <span className="text-sm text-muted-foreground px-4">
+                      {page + 1} / {totalPages}
+                    </span>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      disabled={page >= totalPages - 1}
+                      onClick={() => setPage(p => p + 1)}
+                    >
+                      {t('common.next') || 'Next'} →
+                    </Button>
+                  </div>
+                )}
               </>
             )}
           </div>

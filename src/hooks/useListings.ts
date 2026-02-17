@@ -9,19 +9,28 @@ interface ListingFilters {
   condition?: ItemCondition;
   search?: string;
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'oldest';
+  page?: number;
+  pageSize?: number;
 }
+
+const DEFAULT_PAGE_SIZE = 40;
 
 export const useListings = (filters?: ListingFilters) => {
   return useQuery({
     queryKey: ['listings', filters],
     queryFn: async () => {
+      const pageSize = filters?.pageSize || DEFAULT_PAGE_SIZE;
+      const page = filters?.page || 0;
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+
       let query = supabase
         .from('listings')
         .select(`
           *,
           listing_images (*),
           categories (*)
-        `)
+        `, { count: 'exact' })
         .eq('is_active', true)
         .eq('is_sold', false);
 
@@ -55,12 +64,14 @@ export const useListings = (filters?: ListingFilters) => {
           query = query.order('created_at', { ascending: false });
       }
 
-      const { data, error } = await query;
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
       if (error) throw error;
 
       const listings = data as unknown as ListingWithImages[];
       
-      // Filter out listings from sellers who are blocked (expired subscription)
+      // Filter out listings from blocked sellers
       if (listings.length > 0) {
         const sellerIds = [...new Set(listings.map(l => l.seller_id))];
         const { data: blockedSellers } = await supabase
@@ -71,11 +82,16 @@ export const useListings = (filters?: ListingFilters) => {
         
         if (blockedSellers && blockedSellers.length > 0) {
           const blockedIds = new Set(blockedSellers.map(s => s.user_id));
-          return listings.filter(l => !blockedIds.has(l.seller_id));
+          return {
+            listings: listings.filter(l => !blockedIds.has(l.seller_id)),
+            totalCount: (count || 0),
+            page,
+            pageSize,
+          };
         }
       }
 
-      return listings;
+      return { listings, totalCount: count || 0, page, pageSize };
     },
   });
 };
@@ -105,7 +121,8 @@ export const useMyListings = (userId?: string) => {
         .from('listings')
         .select(`*, listing_images (*), categories (*)`)
         .eq('seller_id', userId)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(500);
       if (error) throw error;
       return data as unknown as ListingWithImages[];
     },
