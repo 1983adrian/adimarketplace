@@ -3,6 +3,118 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Template-based description generator — NO AI, zero cost, unlimited usage
+const categoryTemplates: Record<string, string[]> = {
+  'Electronice': [
+    'Dispozitiv electronic în {condition}, perfect funcțional și gata de utilizare.',
+    'Oferă performanță excelentă și fiabilitate dovedită.',
+    'Ideal pentru cei care caută tehnologie de calitate la un preț accesibil.',
+    'Toate funcționalitățile originale sunt intacte.',
+  ],
+  'Îmbrăcăminte': [
+    'Articol vestimentar în {condition}, cu un design modern și atractiv.',
+    'Material de calitate, confortabil și rezistent la purtare zilnică.',
+    'Se potrivește perfect pentru diverse ocazii și stiluri.',
+    'Culorile sunt vibrante și țesătura este în stare impecabilă.',
+  ],
+  'Casă & Grădină': [
+    'Produs pentru casă în {condition}, util și practic pentru orice locuință.',
+    'Adaugă funcționalitate și stil spațiului tău de locuit.',
+    'Fabricat din materiale durabile, construit să reziste în timp.',
+    'O alegere inteligentă pentru îmbunătățirea confortului de acasă.',
+  ],
+  'Sport & Fitness': [
+    'Echipament sportiv în {condition}, ideal pentru antrenamente eficiente.',
+    'Te ajută să-ți atingi obiectivele de fitness mai rapid.',
+    'Design ergonomic pentru confort maxim în timpul exercițiilor.',
+    'Perfect atât pentru începători cât și pentru sportivi experimentați.',
+  ],
+  'Auto & Moto': [
+    'Accesoriu auto în {condition}, compatibil și ușor de instalat.',
+    'Îmbunătățește performanța și aspectul vehiculului tău.',
+    'Fabricat conform standardelor de calitate pentru durabilitate maximă.',
+    'Investiție inteligentă pentru întreținerea mașinii tale.',
+  ],
+  'Cărți & Educație': [
+    'Material educativ în {condition}, o sursă valoroasă de cunoștințe.',
+    'Perfect pentru studiu, dezvoltare personală sau lectură de plăcere.',
+    'Conținut captivant și informativ, potrivit pentru diverse vârste.',
+    'O achiziție care își merită fiecare leu investit.',
+  ],
+  'Jucării & Copii': [
+    'Jucărie în {condition}, sigură și distractivă pentru cei mici.',
+    'Stimulează creativitatea și imaginația copiilor prin joc.',
+    'Fabricată din materiale non-toxice, conform standardelor de siguranță.',
+    'Un cadou perfect care va aduce bucurie și zâmbete.',
+  ],
+  'Animale de Companie': [
+    'Produs pentru animale de companie în {condition}, practic și util.',
+    'Ajută la confortul și bunăstarea animalului tău de suflet.',
+    'Materiale sigure și durabile, ușor de curățat și întreținut.',
+    'O alegere excelentă pentru orice iubitor de animale.',
+  ],
+};
+
+const defaultTemplates = [
+  'Produs în {condition}, gata de utilizare și în stare excelentă.',
+  'Oferă calitate și funcționalitate la un preț avantajos.',
+  'O oportunitate de neratat pentru cine caută un produs de încredere.',
+  'Ambalat cu grijă și pregătit pentru livrare rapidă.',
+];
+
+const conditionPhrases: Record<string, string> = {
+  new: 'stare nouă, sigilat',
+  like_new: 'stare ca nou, abia utilizat',
+  good: 'stare bună, complet funcțional',
+  fair: 'stare acceptabilă, cu mici semne de utilizare',
+  poor: 'stare uzată, dar funcțional',
+};
+
+const openingPhrases = [
+  'Disponibil acum pe Marketplace România!',
+  'Nu rata această ofertă!',
+  'Profită de prețul avantajos!',
+  'Oportunitate excelentă!',
+  'La un preț imbatabil!',
+];
+
+const closingPhrases = [
+  'Livrare disponibilă în toată România. Contactează-mă pentru orice întrebare! 📦',
+  'Trimite un mesaj pentru detalii suplimentare sau negociere. 🤝',
+  'Disponibil pentru ridicare personală sau livrare prin curier. 🚚',
+  'Stoc limitat — comandă acum! ⚡',
+  'Nu ezita să mă contactezi pentru mai multe fotografii sau informații. 📸',
+];
+
+function pickRandom<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateTemplateDescription(title: string, category?: string, condition?: string): string {
+  const condText = conditionPhrases[condition || ''] || 'stare bună';
+  const templates = categoryTemplates[category || ''] || defaultTemplates;
+  
+  // Pick 2-3 random template lines
+  const shuffled = [...templates].sort(() => Math.random() - 0.5);
+  const selected = shuffled.slice(0, 2 + Math.floor(Math.random() * 2));
+  
+  // Build description
+  const parts: string[] = [];
+  
+  // Opening with product name
+  parts.push(`${title} — ${pickRandom(openingPhrases)}`);
+  
+  // Template sentences with condition injected
+  for (const tpl of selected) {
+    parts.push(tpl.replace('{condition}', condText));
+  }
+  
+  // Closing
+  parts.push(pickRandom(closingPhrases));
+  
+  return parts.join(' ');
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -18,79 +130,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const apiKey = Deno.env.get('LOVABLE_API_KEY');
-    if (!apiKey) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'AI service not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const conditionMap: Record<string, string> = {
-      new: 'nou, sigilat',
-      like_new: 'ca nou, folosit foarte puțin',
-      good: 'stare bună, funcțional',
-      fair: 'stare acceptabilă, semne de uzură',
-      poor: 'uzat, dar funcțional',
-    };
-
-    const conditionText = conditionMap[condition] || condition || 'nespecificată';
-
-    const prompt = `Generează o descriere de vânzare în limba română pentru un produs listat pe un marketplace online.
-
-Produs: ${title}
-Categorie: ${category || 'Generală'}
-Stare: ${conditionText}
-
-Reguli:
-- Scrie 3-5 propoziții descriptive, atractive pentru cumpărători
-- Menționează starea produsului natural
-- Folosește un ton profesional dar prietenos
-- Nu inventa specificații tehnice pe care nu le cunoști
-- Nu pune titlul produsului la început
-- Nu folosi emoji-uri excesive (maxim 1-2)
-- Scrie direct descrierea, fără prefixe gen "Descriere:" sau "Iată descrierea:"`;
-
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 8192,
-        temperature: 0.7,
-      }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ success: false, error: 'Prea multe cereri. Încearcă din nou în câteva secunde.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      const errorText = await response.text();
-      console.error('AI error:', response.status, errorText);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Serviciul AI nu este disponibil momentan.' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const data = await response.json();
-    const description = data.choices?.[0]?.message?.content?.trim();
-
-    if (!description) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Nu s-a putut genera descrierea.' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const description = generateTemplateDescription(title, category, condition);
 
     return new Response(
       JSON.stringify({ success: true, description }),
