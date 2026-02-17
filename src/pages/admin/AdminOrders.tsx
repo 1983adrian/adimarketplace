@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Ban, Bomb, Leaf, Image, Clock, Bell, Edit3 } from 'lucide-react';
+import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Image, Clock, Bell, Edit3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -56,11 +56,6 @@ const statusOptions = [
   { value: 'refunded', label: 'Rambursate' },
 ];
 
-const PLATFORM_RULES = [
-  { icon: Ban, label: 'Armament', description: 'Arme de foc, arme albe, muniție, explozibili' },
-  { icon: Leaf, label: 'Substanțe Interzise', description: 'Droguri, medicamente fără rețetă, substanțe controlate' },
-  { icon: Bomb, label: 'Contrabandă', description: 'Bunuri furate, falsificate sau importate ilegal' },
-];
 
 const CARRIERS = [
   { value: 'fan_courier', label: 'FAN Courier' },
@@ -453,24 +448,6 @@ export default function AdminOrders() {
           <p className="text-sm text-muted-foreground">Vizualizează, gestionează statusuri și numere de urmărire (AWB)</p>
         </div>
 
-        {/* Platform Rules Alert */}
-        <Alert className="border-red-200 bg-red-50 overflow-hidden">
-          <AlertTriangle className="h-4 w-4 text-red-600 flex-shrink-0" />
-          <AlertTitle className="text-red-800 text-sm">Reguli Platformă - Produse Interzise</AlertTitle>
-          <AlertDescription className="mt-2">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-2">
-              {PLATFORM_RULES.map((rule, index) => (
-                <div key={index} className="flex items-start gap-2 p-2 bg-white rounded-lg border border-red-100">
-                  <rule.icon className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
-                  <div className="min-w-0">
-                    <p className="font-semibold text-red-700 text-xs">{rule.label}</p>
-                    <p className="text-xs text-red-600 break-words">{rule.description}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </AlertDescription>
-        </Alert>
 
         {/* Stats */}
         <div className="grid gap-2 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
