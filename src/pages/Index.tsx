@@ -8,6 +8,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { FAQSchema } from '@/components/seo/FAQSchema';
 import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 import { MarketplaceSchema } from '@/components/seo/MarketplaceSchema';
+import { BrandImagesSchema } from '@/components/seo/BrandImagesSchema';
 import CityLandingSection from '@/components/seo/CityLandingSection';
 
 const Index = () => {
@@ -22,6 +23,7 @@ const Index = () => {
       {/* Schema.org JSON-LD pentru Google Knowledge Panel */}
       <OrganizationSchema />
       <MarketplaceSchema />
+      <BrandImagesSchema />
       <Layout>
         <HeroSection />
         <FeaturedListings />
