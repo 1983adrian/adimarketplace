@@ -151,7 +151,6 @@ export const useStartSellerTrial = () => {
         .update({
           seller_trial_started_at: new Date().toISOString(),
           is_listing_blocked: false,
-          is_buying_blocked: false,
         })
         .eq('user_id', user.id);
 

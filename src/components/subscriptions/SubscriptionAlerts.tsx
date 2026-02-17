@@ -23,9 +23,9 @@ export const SubscriptionAlerts: React.FC = () => {
     alerts.push(
       <Alert key="blocked" className="border-destructive bg-destructive/10">
         <Lock className="h-4 w-4 text-destructive" />
-        <AlertTitle className="text-destructive font-bold">🔒 Cont Blocat</AlertTitle>
+        <AlertTitle className="text-destructive font-bold">🔒 Vânzare Blocată</AlertTitle>
         <AlertDescription className="text-destructive/90">
-          Butoanele de listare și cumpărare sunt blocate. Alege un abonament pentru a continua.
+          Nu poți adăuga produse noi, iar listările existente sunt ascunse temporar. Alege un abonament pentru a le reactiva.
           <Button asChild size="sm" className="mt-2 w-full" variant="destructive">
             <Link to="/seller-plans">Alege Abonament</Link>
           </Button>

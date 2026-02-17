@@ -57,7 +57,25 @@ export const useListings = (filters?: ListingFilters) => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as unknown as ListingWithImages[];
+
+      const listings = data as unknown as ListingWithImages[];
+      
+      // Filter out listings from sellers who are blocked (expired subscription)
+      if (listings.length > 0) {
+        const sellerIds = [...new Set(listings.map(l => l.seller_id))];
+        const { data: blockedSellers } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .in('user_id', sellerIds)
+          .eq('is_listing_blocked', true);
+        
+        if (blockedSellers && blockedSellers.length > 0) {
+          const blockedIds = new Set(blockedSellers.map(s => s.user_id));
+          return listings.filter(l => !blockedIds.has(l.seller_id));
+        }
+      }
+
+      return listings;
     },
   });
 };
