@@ -63,7 +63,7 @@ export const Footer: React.FC = () => {
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
           {/* Brand */}
-          <div className="col-span-2 md:col-span-1 space-y-4">
+          <div className="col-span-2 md:col-span-1 space-y-4 flex flex-col items-center text-center md:items-start md:text-left">
             <MarketplaceBrand size="sm" showTagline linkTo="/" />
             <p className="text-sm text-muted-foreground leading-relaxed">
               Marketplace România — primul marketplace online din România cu 0% comision. Abonamente fixe de la 11 LEI/lună. Cumpără și vinde pe cel mai mare marketplace românesc.
@@ -71,7 +71,7 @@ export const Footer: React.FC = () => {
             
             {/* Social Media Links */}
             {hasSocialLinks && (
-              <div className="flex items-center gap-3 pt-2">
+              <div className="flex items-center justify-center md:justify-start gap-3 pt-2 w-full">
                 {socialLinks?.facebook && (
                   <a href={socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#1877F2] text-white hover:opacity-80 transition-opacity" aria-label="Facebook">
                     <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
