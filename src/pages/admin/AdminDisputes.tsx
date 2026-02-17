@@ -48,7 +48,19 @@ export default function AdminDisputes() {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Dispute[];
+
+      // Fetch profiles with short_id for reporter/reported
+      const userIds = [...new Set(data.flatMap(d => [d.reporter_id, d.reported_user_id]))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, short_id')
+        .in('user_id', userIds);
+
+      return (data as Dispute[]).map(d => ({
+        ...d,
+        reporter_profile: profiles?.find(p => p.user_id === d.reporter_id),
+        reported_profile: profiles?.find(p => p.user_id === d.reported_user_id),
+      }));
     },
   });
 
@@ -215,8 +227,8 @@ export default function AdminDisputes() {
                         </Select>
                       </div>
                       <div className="text-[10px] text-muted-foreground flex gap-3 flex-wrap">
-                        <span>Comandă: <code>{dispute.order_id.slice(0, 8)}...</code></span>
-                        <span>Raportor: <code>{dispute.reporter_id.slice(0, 8)}...</code></span>
+                        <span>Raportor: <code className="bg-primary/10 text-primary px-1 py-0.5 rounded font-bold">#{(dispute as any).reporter_profile?.short_id || dispute.reporter_id.slice(0, 8)}</code></span>
+                        <span>Raportat: <code className="bg-destructive/10 text-destructive px-1 py-0.5 rounded font-bold">#{(dispute as any).reported_profile?.short_id || dispute.reported_user_id.slice(0, 8)}</code></span>
                       </div>
                       {dispute.resolution && (
                         <div className="p-1.5 bg-green-50 dark:bg-green-900/20 rounded text-[10px]">

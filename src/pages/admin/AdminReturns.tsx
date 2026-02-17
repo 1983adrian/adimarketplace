@@ -67,14 +67,28 @@ const AdminReturns = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+
+      // Fetch buyer/seller profiles with short_id
+      const userIds = [...new Set(data.flatMap(r => [r.buyer_id, r.seller_id]))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, short_id')
+        .in('user_id', userIds);
+
+      return data.map(r => ({
+        ...r,
+        buyer_profile: profiles?.find(p => p.user_id === r.buyer_id),
+        seller_profile: profiles?.find(p => p.user_id === r.seller_id),
+      }));
     },
   });
 
   const filteredReturns = returns?.filter(r => {
     const matchesSearch = 
       r.id.toLowerCase().includes(search.toLowerCase()) ||
-      r.reason.toLowerCase().includes(search.toLowerCase());
+      r.reason.toLowerCase().includes(search.toLowerCase()) ||
+      r.buyer_profile?.short_id?.toLowerCase().includes(search.toLowerCase()) ||
+      r.seller_profile?.short_id?.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || r.status === statusFilter;
     return matchesSearch && matchesStatus;
   }) || [];
@@ -227,8 +241,16 @@ const AdminReturns = () => {
                       const config = statusConfig[returnItem.status] || statusConfig.pending;
                       return (
                         <TableRow key={returnItem.id}>
-                          <TableCell className="font-mono text-[10px] p-2">
-                            {returnItem.id.slice(0, 6)}...
+                          <TableCell className="p-2">
+                            <div>
+                              {returnItem.buyer_profile?.short_id ? (
+                                <code className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-bold">
+                                  #{returnItem.buyer_profile.short_id}
+                                </code>
+                              ) : (
+                                <span className="font-mono text-[10px]">{returnItem.id.slice(0, 6)}...</span>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="hidden sm:table-cell text-xs p-2">
                             {returnItem.orders?.listings?.title?.slice(0, 20) || 'N/A'}...

@@ -41,6 +41,7 @@ interface SellerProfile {
   display_name: string | null;
   username: string | null;
   store_name: string | null;
+  short_id: string | null;
   is_suspended: boolean;
   suspension_reason: string | null;
   withdrawal_blocked: boolean;
@@ -78,7 +79,7 @@ export default function AdminFraudAlerts() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username, store_name, is_suspended, suspension_reason, withdrawal_blocked, withdrawal_blocked_reason, fraud_score, payout_balance, pending_balance')
+        .select('user_id, display_name, username, store_name, short_id, is_suspended, suspension_reason, withdrawal_blocked, withdrawal_blocked_reason, fraud_score, payout_balance, pending_balance')
         .or('fraud_score.gt.0,is_suspended.eq.true,withdrawal_blocked.eq.true')
         .order('fraud_score', { ascending: false });
       if (error) throw error;
@@ -381,7 +382,12 @@ export default function AdminFraudAlerts() {
                             <User className={`h-5 w-5 ${seller.is_suspended ? 'text-destructive' : seller.withdrawal_blocked ? 'text-orange-500' : 'text-muted-foreground'}`} />
                           </div>
                           <div>
-                            <p className="font-medium">{seller.display_name || seller.username || 'Anonim'}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{seller.display_name || seller.username || 'Anonim'}</p>
+                              {seller.short_id && (
+                                <code className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-bold">#{seller.short_id}</code>
+                              )}
+                            </div>
                             <p className="text-sm text-muted-foreground">{seller.store_name || 'Fără magazin'}</p>
                             <div className="flex items-center gap-2 mt-1">
                               <Badge variant="outline">Scor fraudă: {seller.fraud_score}</Badge>
