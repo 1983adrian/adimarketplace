@@ -3747,6 +3747,7 @@ export type Database = {
       }
       generate_short_id: { Args: never; Returns: string }
       get_generalized_location: { Args: { loc: string }; Returns: string }
+      get_platform_summary: { Args: never; Returns: Json }
       get_public_seller_profile: {
         Args: { seller_user_id: string }
         Returns: {
@@ -3783,6 +3784,10 @@ export type Database = {
           user_id: string
           username: string
         }[]
+      }
+      get_seller_listing_count: {
+        Args: { p_seller_id: string }
+        Returns: number
       }
       get_subscription_revenue: { Args: never; Returns: number }
       get_top_sellers: {
@@ -3869,6 +3874,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       validate_push_token: {
         Args: { p_token: string; p_user_id: string }
         Returns: boolean
