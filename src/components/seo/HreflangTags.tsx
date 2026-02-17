@@ -9,16 +9,19 @@ export const HreflangTags: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Generate hreflang URLs for main supported languages
-  const mainLanguages: SupportedLanguage[] = ['ro', 'en', 'de', 'es', 'zh'];
+  // Generate hreflang URLs for all supported languages + European country variants
+  const allHreflangCodes = [
+    'ro', 'en', 'de', 'es', 'fr', 'it', 'pt', 'nl', 'pl', 'zh',
+    // European country-specific variants for broader reach
+    'en-GB', 'en-IE', 'de-AT', 'de-CH', 'fr-BE', 'nl-BE', 'pt-PT',
+    'sv', 'da', 'fi', 'no', 'el', 'cs', 'hu', 'bg', 'hr', 'sk', 'sl',
+    'lt', 'lv', 'et', 'mt', 'cy'
+  ];
   
-  const hreflangUrls = mainLanguages.map((lang) => {
-    const config = LANGUAGE_CONFIG[lang];
-    return {
-      lang: lang, // Use language code directly
-      url: `${BASE_URL}${currentPath}`
-    };
-  });
+  const hreflangUrls = allHreflangCodes.map((lang) => ({
+    lang,
+    url: `${BASE_URL}${currentPath}`
+  }));
   
   // Default URL
   const defaultUrl = `${BASE_URL}${currentPath}`;

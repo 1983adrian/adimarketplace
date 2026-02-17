@@ -19,8 +19,8 @@ interface SEOHeadProps {
 }
 
 export const SEOHead: React.FC<SEOHeadProps> = ({
-  title = 'Marketplace România® | Marketplace România - Cumpără și Vinde Online',
-  description = 'Marketplace România® - Primul Marketplace din România construit cu AI. Marketplace România pentru vânzări online, licitații și cumpărături sigure. 0% comision!',
+  title = 'Marketplace România® | Marketplace România - Cumpără și Vinde Online | 0% Commission Europe',
+  description = 'Marketplace România® - The cheapest marketplace in Europe with 0% sales commission. Buy & sell online, auctions, secure payments. Primul Marketplace din România construit cu AI. Subscriptions from only €2/month. Ship across Europe!',
   image = 'https://www.marketplaceromania.com/og-image.png',
   url,
   type = 'website',

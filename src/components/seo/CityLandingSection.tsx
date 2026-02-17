@@ -184,6 +184,52 @@ const CityLandingSection: React.FC = () => {
                 Cea mai bună alternativă românească la eMAG, OLX, eBay, Amazon, Vinted și Facebook Marketplace.
               </p>
             </div>
+
+            {/* European SEO block - hidden, indexed by Google across all Europe */}
+            <div className="text-sm text-muted-foreground leading-relaxed space-y-3">
+              <h3>🇪🇺 The Cheapest Marketplace in Europe — 0% Sales Commission</h3>
+              <p>
+                <strong>MarketPlaceRomania.com</strong> is the cheapest online marketplace in all of Europe. 
+                While Amazon charges up to 15% commission, eBay up to 13%, and Etsy up to 6.5%, 
+                MarketPlaceRomania.com charges <strong>0% commission on all sales</strong>. 
+                You only pay a fixed subscription starting from just <strong>€2/month</strong>.
+              </p>
+              <p>
+                <strong>Sell across Europe with 0% fees:</strong> Whether you're in Germany, France, Italy, Spain, 
+                Netherlands, Belgium, Austria, Poland, Portugal, United Kingdom, Sweden, Denmark, Finland, Norway, 
+                Ireland, Greece, Czech Republic, Hungary, Bulgaria, Croatia, Slovakia, Slovenia, Switzerland, 
+                Lithuania, Latvia, Estonia, Luxembourg, Malta, or Cyprus — you can sell on MarketPlaceRomania.com 
+                with absolutely <strong>zero commission</strong>.
+              </p>
+              <p>
+                <strong>Why MarketPlaceRomania.com is the best marketplace in Europe:</strong> 
+                ✅ 0% sales commission — the lowest fees in all of Europe, 
+                ✅ Online auctions like eBay but with no selling fees, 
+                ✅ Secure payments via PayPal and credit card, 
+                ✅ Buyer protection with 14-day EU return guarantee, 
+                ✅ AI-powered platform for smart selling, 
+                ✅ Ship to all EU countries, 
+                ✅ 30 days free trial for new sellers, 
+                ✅ Subscriptions from only €2/month.
+              </p>
+              <p>
+                <strong>Best alternative to Amazon, eBay, Etsy, Vinted in Europe:</strong> 
+                Stop paying huge commissions. On MarketPlaceRomania.com everything you sell is 100% yours. 
+                The cheapest way to sell online in Europe. Available in all 27 EU countries plus UK, Norway, and Switzerland.
+              </p>
+              <p>
+                <strong>Marketplace Europe keywords:</strong> marketplace Europe, cheapest marketplace Europe, 
+                0 commission marketplace, zero fees marketplace, sell online Europe, buy online Europe, 
+                European marketplace, marketplace no commission, best marketplace Europe, 
+                marketplace Deutschland, marketplace France, marketplace Italia, marketplace España, 
+                marketplace Polska, marketplace Nederland, marketplace Österreich, marketplace Belgique, 
+                marketplace Portugal, marketplace UK, marketplace Sverige, marketplace Danmark, 
+                marketplace Suomi, marketplace Norge, marketplace Ελλάδα, marketplace Česko, 
+                marketplace Magyarország, marketplace България, marketplace Hrvatska, marketplace Slovensko, 
+                marketplace Slovenija, marketplace Schweiz, marketplace Lietuva, marketplace Latvija, 
+                marketplace Eesti, marketplace Luxembourg, marketplace Malta, marketplace Κύπρος.
+              </p>
+            </div>
           </div>
         </div>
       </section>
