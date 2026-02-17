@@ -88,7 +88,9 @@ export default function AdminOrders() {
     const matchesSearch = order.listings?.title?.toLowerCase().includes(search.toLowerCase()) ||
       order.id?.toLowerCase().includes(search.toLowerCase()) ||
       order.buyer_profile?.display_name?.toLowerCase().includes(search.toLowerCase()) ||
-      order.seller_profile?.display_name?.toLowerCase().includes(search.toLowerCase());
+      order.seller_profile?.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+      order.buyer_profile?.short_id?.toLowerCase().includes(search.toLowerCase()) ||
+      order.seller_profile?.short_id?.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -249,8 +251,22 @@ export default function AdminOrders() {
           <p className="font-medium truncate max-w-[150px]">{order.listings?.title || 'Produs Necunoscut'}</p>
           <p className="text-xs text-muted-foreground font-mono">{order.id.slice(0, 8)}...</p>
         </TableCell>
-        <TableCell className="text-sm">{order.buyer_profile?.display_name || 'Cumpărător'}</TableCell>
-        <TableCell className="text-sm">{order.seller_profile?.display_name || 'Vânzător'}</TableCell>
+        <TableCell className="text-sm">
+          <div>
+            <p>{order.buyer_profile?.display_name || 'Cumpărător'}</p>
+            {order.buyer_profile?.short_id && (
+              <code className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-bold">#{order.buyer_profile.short_id}</code>
+            )}
+          </div>
+        </TableCell>
+        <TableCell className="text-sm">
+          <div>
+            <p>{order.seller_profile?.display_name || 'Vânzător'}</p>
+            {order.seller_profile?.short_id && (
+              <code className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-bold">#{order.seller_profile.short_id}</code>
+            )}
+          </div>
+        </TableCell>
         <TableCell className="font-medium">{formatPriceWithRON(Number(order.amount))}</TableCell>
         <TableCell>
           {order.tracking_number ? (

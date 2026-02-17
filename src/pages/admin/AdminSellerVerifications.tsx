@@ -26,6 +26,7 @@ interface SellerInfo {
   is_seller: boolean | null;
   is_verified: boolean | null;
   seller_type: string | null;
+  short_id: string | null;
   created_at: string;
 }
 
@@ -37,7 +38,7 @@ const AdminSellerVerifications = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, user_id, display_name, username, avatar_url, store_name, paypal_email, is_seller, is_verified, seller_type, created_at')
+        .select('id, user_id, display_name, username, avatar_url, store_name, paypal_email, is_seller, is_verified, seller_type, short_id, created_at')
         .eq('is_seller', true)
         .order('created_at', { ascending: false });
 
@@ -77,7 +78,8 @@ const AdminSellerVerifications = () => {
   const filterSellers = (list: SellerInfo[]) => list.filter(s =>
     s.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.store_name?.toLowerCase().includes(searchQuery.toLowerCase())
+    s.store_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.short_id?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const renderTable = (list: SellerInfo[]) => {
@@ -121,7 +123,14 @@ const AdminSellerVerifications = () => {
                     </Avatar>
                     <div>
                       <p className="font-medium">{seller.display_name || 'Fără nume'}</p>
-                      <p className="text-sm text-muted-foreground">@{seller.username || 'user'}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-muted-foreground">@{seller.username || 'user'}</p>
+                        {seller.short_id && (
+                          <code className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-bold">
+                            #{seller.short_id}
+                          </code>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TableCell>

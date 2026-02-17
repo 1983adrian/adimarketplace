@@ -79,7 +79,7 @@ export const useAllListings = () => {
       const sellerIds = [...new Set(listings.map(l => l.seller_id))];
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username')
+        .select('user_id, display_name, username, short_id')
         .in('user_id', sellerIds);
       
       return listings.map(l => ({
@@ -116,7 +116,7 @@ export const useAllOrders = () => {
 
       const { data: profiles } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username')
+        .select('user_id, display_name, username, short_id')
         .in('user_id', allUserIds);
 
       return data.map(order => ({

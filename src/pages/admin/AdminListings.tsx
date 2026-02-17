@@ -47,7 +47,8 @@ export default function AdminListings() {
 
   const filteredListings = listings?.filter(listing => 
     listing.title?.toLowerCase().includes(search.toLowerCase()) ||
-    listing.profiles?.display_name?.toLowerCase().includes(search.toLowerCase())
+    listing.profiles?.display_name?.toLowerCase().includes(search.toLowerCase()) ||
+    listing.profiles?.short_id?.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleToggleActive = async (id: string, currentStatus: boolean) => {
@@ -158,7 +159,14 @@ export default function AdminListings() {
                           </div>
                         </TableCell>
                         <TableCell className="hidden sm:table-cell text-xs">
-                          {listing.profiles?.display_name || 'Necunoscut'}
+                          <div>
+                            <p>{listing.profiles?.display_name || 'Necunoscut'}</p>
+                            {listing.profiles?.short_id && (
+                              <code className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono font-bold">
+                                #{listing.profiles.short_id}
+                              </code>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="hidden md:table-cell text-xs">
                           {listing.categories?.name || '-'}
