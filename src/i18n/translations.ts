@@ -190,7 +190,7 @@ type TranslationKeys = {
   'common.search': string;
 };
 
-type Translations = Record<SupportedLanguage, TranslationKeys>;
+type Translations = Record<'ro' | 'en' | 'de' | 'es' | 'zh' | 'fr' | 'it' | 'pt' | 'nl' | 'pl', TranslationKeys> & Partial<Record<SupportedLanguage, TranslationKeys>>;
 
 export const translations: Translations = {
   ro: {

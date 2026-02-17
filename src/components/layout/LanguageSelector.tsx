@@ -13,17 +13,9 @@ import { useLocation } from '@/contexts/LocationContext';
 import { LANGUAGE_CONFIG, COUNTRY_TO_LANGUAGE, type SupportedLanguage } from '@/i18n/config';
 
 // Google Translate language codes mapping
-const GOOGLE_LANG_CODES: Record<SupportedLanguage, string> = {
-  ro: 'ro',
-  en: 'en',
-  de: 'de',
-  es: 'es',
-  zh: 'zh-CN',
-  fr: 'fr',
-  it: 'it',
-  pt: 'pt',
-  nl: 'nl',
-  pl: 'pl',
+const GOOGLE_LANG_CODES: Partial<Record<SupportedLanguage, string>> = {
+  ro: 'ro', en: 'en', de: 'de', es: 'es', zh: 'zh-CN', fr: 'fr', it: 'it', pt: 'pt', nl: 'nl', pl: 'pl',
+  sv: 'sv', da: 'da', no: 'no', fi: 'fi', cs: 'cs', hu: 'hu', bg: 'bg', hr: 'hr', el: 'el', tr: 'tr', uk: 'uk',
 };
 
 export const LanguageSelector: React.FC = () => {
@@ -46,7 +38,7 @@ export const LanguageSelector: React.FC = () => {
       try {
         new (window as any).google.translate.TranslateElement({
           pageLanguage: 'ro',
-          includedLanguages: 'en,de,es,fr,it,pt,nl,pl,zh-CN',
+          includedLanguages: 'en,de,es,fr,it,pt,nl,pl,sv,da,no,fi,cs,hu,bg,hr,el,tr,uk,zh-CN',
           layout: (window as any).google.translate.TranslateElement.InlineLayout.SIMPLE,
           autoDisplay: false,
           multilanguagePage: true,
@@ -141,7 +133,7 @@ export const LanguageSelector: React.FC = () => {
   };
 
   // Main languages to show in selector
-  const mainLanguages: SupportedLanguage[] = ['ro', 'en', 'de', 'es', 'fr', 'it', 'zh', 'pl'];
+  const mainLanguages: SupportedLanguage[] = ['ro', 'en', 'de', 'fr', 'es', 'it', 'nl', 'pl', 'sv', 'da', 'no', 'fi', 'cs', 'hu', 'bg', 'hr', 'el', 'tr', 'uk', 'zh'];
 
   return (
     <>
