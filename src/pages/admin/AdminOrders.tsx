@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Ban, Bomb, Leaf, Image, Clock, Bell } from 'lucide-react';
+import { Search, MoreHorizontal, Package, Truck, CheckCircle, XCircle, RefreshCw, AlertTriangle, Ban, Bomb, Leaf, Image, Clock, Bell, Edit3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +28,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { useAllOrders } from '@/hooks/useAdmin';
@@ -40,6 +48,7 @@ import { useCurrency } from '@/contexts/CurrencyContext';
 const statusOptions = [
   { value: 'all', label: 'Toate Comenzile' },
   { value: 'pending', label: 'În Așteptare' },
+  { value: 'payment_pending', label: 'Plată în Așteptare' },
   { value: 'paid', label: 'Plătite' },
   { value: 'shipped', label: 'Expediate' },
   { value: 'delivered', label: 'Livrate' },
@@ -53,16 +62,33 @@ const PLATFORM_RULES = [
   { icon: Bomb, label: 'Contrabandă', description: 'Bunuri furate, falsificate sau importate ilegal' },
 ];
 
+const CARRIERS = [
+  { value: 'fan_courier', label: 'FAN Courier' },
+  { value: 'sameday', label: 'Sameday' },
+  { value: 'cargus', label: 'Cargus' },
+  { value: 'dpd', label: 'DPD' },
+  { value: 'gls', label: 'GLS' },
+  { value: 'posta_romana', label: 'Poșta Română' },
+  { value: 'other', label: 'Altul' },
+];
+
 export default function AdminOrders() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [activeTab, setActiveTab] = useState('all');
+  const [awbDialog, setAwbDialog] = useState<{ open: boolean; orderId: string; currentAwb: string; currentCarrier: string }>({
+    open: false, orderId: '', currentAwb: '', currentCarrier: 'fan_courier'
+  });
+  const [awbInput, setAwbInput] = useState('');
+  const [carrierInput, setCarrierInput] = useState('fan_courier');
+  const [isUpdating, setIsUpdating] = useState<string | null>(null);
+
   const { data: orders, isLoading } = useAllOrders();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { formatPriceWithRON } = useCurrency();
 
-  // Orders missing tracking: paid but no tracking number
+  // Orders missing tracking: paid/pending but no tracking number
   const missingTracking = orders?.filter(o => 
     ['paid', 'pending'].includes(o.status) && !o.tracking_number
   ) || [];
@@ -90,7 +116,8 @@ export default function AdminOrders() {
       order.buyer_profile?.display_name?.toLowerCase().includes(search.toLowerCase()) ||
       order.seller_profile?.display_name?.toLowerCase().includes(search.toLowerCase()) ||
       order.buyer_profile?.short_id?.toLowerCase().includes(search.toLowerCase()) ||
-      order.seller_profile?.short_id?.toLowerCase().includes(search.toLowerCase());
+      order.seller_profile?.short_id?.toLowerCase().includes(search.toLowerCase()) ||
+      order.tracking_number?.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -128,21 +155,23 @@ export default function AdminOrders() {
   };
 
   const handleUpdateStatus = async (orderId: string, status: string) => {
+    setIsUpdating(orderId);
     try {
-      const updateData: any = { status: status as any, updated_at: new Date().toISOString() };
-      if (status === 'delivered') {
-        updateData.delivery_confirmed_at = new Date().toISOString();
-      }
-
-      const { error } = await supabase
-        .from('orders')
-        .update(updateData)
-        .eq('id', orderId);
+      // Use the admin RPC function for secure status update
+      const { data, error } = await supabase.rpc('admin_update_order_status', {
+        p_order_id: orderId,
+        p_status: status,
+      });
 
       if (error) throw error;
 
+      // Also update delivery_confirmed_at if delivered
+      if (status === 'delivered') {
+        await supabase.from('orders').update({ delivery_confirmed_at: new Date().toISOString() }).eq('id', orderId);
+      }
+
       // Notify buyer and seller
-      const order = filteredOrders?.find(o => o.id === orderId);
+      const order = orders?.find(o => o.id === orderId);
       if (order) {
         const statusLabels: Record<string, string> = {
           paid: 'plătită', shipped: 'expediată', delivered: 'livrată',
@@ -151,26 +180,26 @@ export default function AdminOrders() {
         const label = statusLabels[status] || status;
         const title = order.listings?.title || 'Comandă';
 
-        await supabase.from('notifications').insert({
-          user_id: order.buyer_id,
-          type: 'order_update',
-          title: `Comandă ${label}`,
-          message: `Comanda ta pentru "${title}" a fost marcată ca ${label} de către admin.`,
-          data: { orderId },
-        });
-
-        await supabase.from('notifications').insert({
-          user_id: order.seller_id,
-          type: 'order_update',
-          title: `Comandă ${label}`,
-          message: `Comanda pentru "${title}" a fost marcată ca ${label} de către admin.`,
-          data: { orderId },
-        });
+        await Promise.all([
+          supabase.from('notifications').insert({
+            user_id: order.buyer_id,
+            type: 'order_update',
+            title: `Comandă ${label}`,
+            message: `Comanda ta pentru "${title}" a fost marcată ca ${label} de către admin.`,
+            data: { orderId },
+          }),
+          supabase.from('notifications').insert({
+            user_id: order.seller_id,
+            type: 'order_update',
+            title: `Comandă ${label}`,
+            message: `Comanda pentru "${title}" a fost marcată ca ${label} de către admin.`,
+            data: { orderId },
+          }),
+        ]);
 
         // Send email for important status changes
         if (['shipped', 'delivered', 'cancelled', 'refunded'].includes(status)) {
           try {
-            // Use edge function which handles user lookup server-side (no admin API needed)
             await supabase.functions.invoke('send-notification', {
               body: {
                 userId: order.buyer_id,
@@ -187,7 +216,6 @@ export default function AdminOrders() {
             console.error('Status email failed (non-blocking):', emailErr);
           }
 
-          // If shipped with tracking, also send tracking email
           if (status === 'shipped' && order.tracking_number) {
             try {
               await supabase.functions.invoke('send-tracking-email', {
@@ -201,14 +229,94 @@ export default function AdminOrders() {
       }
       
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
-      toast({ title: 'Status comandă actualizat' });
+      toast({ title: `Status comandă actualizat: ${status}` });
+    } catch (error: any) {
+      toast({ title: 'Eroare la actualizare status', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUpdating(null);
+    }
+  };
+
+  const handleOpenAwbDialog = (order: any) => {
+    setAwbDialog({
+      open: true,
+      orderId: order.id,
+      currentAwb: order.tracking_number || '',
+      currentCarrier: order.carrier || 'fan_courier',
+    });
+    setAwbInput(order.tracking_number || '');
+    setCarrierInput(order.carrier || 'fan_courier');
+  };
+
+  const handleSaveAwb = async () => {
+    if (!awbInput.trim()) {
+      toast({ title: 'Introdu un număr AWB valid', variant: 'destructive' });
+      return;
+    }
+    setIsUpdating(awbDialog.orderId);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({
+          tracking_number: awbInput.trim(),
+          carrier: carrierInput,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', awbDialog.orderId);
+
+      if (error) throw error;
+
+      // Notify buyer about tracking
+      const order = orders?.find(o => o.id === awbDialog.orderId);
+      if (order) {
+        const title = order.listings?.title || 'Comandă';
+        await supabase.from('notifications').insert({
+          user_id: order.buyer_id,
+          type: 'tracking_update',
+          title: '📦 AWB adăugat de admin',
+          message: `Numărul de urmărire pentru "${title}" este: ${awbInput.trim()}`,
+          data: { orderId: awbDialog.orderId, tracking_number: awbInput.trim(), carrier: carrierInput },
+        });
+
+        // Send tracking email
+        try {
+          await supabase.functions.invoke('send-tracking-email', {
+            body: { order_id: awbDialog.orderId, tracking_number: awbInput.trim(), carrier: carrierInput },
+          });
+        } catch {}
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      toast({ title: 'AWB salvat cu succes!' });
+      setAwbDialog({ open: false, orderId: '', currentAwb: '', currentCarrier: 'fan_courier' });
     } catch (error: any) {
       toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUpdating(null);
+    }
+  };
+
+  const handleRemoveAwb = async () => {
+    setIsUpdating(awbDialog.orderId);
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ tracking_number: null, carrier: null, updated_at: new Date().toISOString() })
+        .eq('id', awbDialog.orderId);
+      if (error) throw error;
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      toast({ title: 'AWB șters' });
+      setAwbDialog({ open: false, orderId: '', currentAwb: '', currentCarrier: 'fan_courier' });
+    } catch (error: any) {
+      toast({ title: 'Eroare', description: error.message, variant: 'destructive' });
+    } finally {
+      setIsUpdating(null);
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'payment_pending': return <Badge variant="secondary" className="bg-orange-100 text-orange-700">Plată în Așteptare</Badge>;
       case 'pending': return <Badge variant="secondary" className="bg-yellow-100 text-yellow-700">În Așteptare</Badge>;
       case 'paid': return <Badge className="bg-green-500">Plătit</Badge>;
       case 'shipped': return <Badge className="bg-blue-500">Expediat</Badge>;
@@ -226,7 +334,7 @@ export default function AdminOrders() {
 
   const stats = {
     total: orders?.length || 0,
-    pending: orders?.filter(o => o.status === 'pending').length || 0,
+    pending: orders?.filter(o => o.status === 'pending' || o.status === 'payment_pending').length || 0,
     paid: orders?.filter(o => o.status === 'paid').length || 0,
     shipped: orders?.filter(o => o.status === 'shipped').length || 0,
     missingTracking: missingTracking.length,
@@ -234,8 +342,9 @@ export default function AdminOrders() {
 
   const renderOrderRow = (order: any) => {
     const orderImage = getOrderImage(order);
+    const isCurrentlyUpdating = isUpdating === order.id;
     return (
-      <TableRow key={order.id}>
+      <TableRow key={order.id} className={isCurrentlyUpdating ? 'opacity-50' : ''}>
         <TableCell>
           <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden">
             {orderImage ? (
@@ -248,7 +357,7 @@ export default function AdminOrders() {
           </div>
         </TableCell>
         <TableCell>
-          <p className="font-medium truncate max-w-[150px]">{order.listings?.title || 'Produs Necunoscut'}</p>
+          <p className="font-medium truncate max-w-[150px]">{order.listings?.title || 'Produs Șters'}</p>
           <p className="text-xs text-muted-foreground font-mono">{order.id.slice(0, 8)}...</p>
         </TableCell>
         <TableCell className="text-sm">
@@ -269,40 +378,68 @@ export default function AdminOrders() {
         </TableCell>
         <TableCell className="font-medium">{formatPriceWithRON(Number(order.amount))}</TableCell>
         <TableCell>
-          {order.tracking_number ? (
-            <Badge variant="outline" className="text-xs font-mono">{order.tracking_number}</Badge>
-          ) : (
-            <Badge variant="destructive" className="text-[10px]">Lipsă AWB</Badge>
-          )}
+          <div className="flex items-center gap-1">
+            {order.tracking_number ? (
+              <Badge variant="outline" className="text-xs font-mono cursor-pointer hover:bg-muted" onClick={() => handleOpenAwbDialog(order)}>
+                {order.tracking_number}
+              </Badge>
+            ) : (
+              <Button variant="outline" size="sm" className="text-[10px] h-6 gap-1 border-red-300 text-red-600 hover:bg-red-50" onClick={() => handleOpenAwbDialog(order)}>
+                <Edit3 className="h-3 w-3" /> Adaugă AWB
+              </Button>
+            )}
+          </div>
         </TableCell>
         <TableCell>{getStatusBadge(order.status)}</TableCell>
         <TableCell className="text-sm">{new Date(order.created_at).toLocaleDateString('ro-RO')}</TableCell>
         <TableCell className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon"><MoreHorizontal className="h-4 w-4" /></Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actualizează Status</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'paid')}>
-                <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> Plătit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'shipped')}>
-                <Truck className="h-4 w-4 mr-2 text-blue-500" /> Expediat
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'delivered')}>
-                <Package className="h-4 w-4 mr-2 text-purple-500" /> Livrat
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'cancelled')}>
-                <XCircle className="h-4 w-4 mr-2 text-red-500" /> Anulează
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'refunded')}>
-                <RefreshCw className="h-4 w-4 mr-2" /> Rambursat
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center justify-end gap-1">
+            {/* Quick action buttons */}
+            {order.status === 'pending' && (
+              <Button size="sm" variant="outline" className="h-7 text-xs gap-1 text-green-600 border-green-300" 
+                onClick={() => handleUpdateStatus(order.id, 'paid')} disabled={isCurrentlyUpdating}>
+                <CheckCircle className="h-3 w-3" /> Aprobă
+              </Button>
+            )}
+            {(order.status === 'pending' || order.status === 'payment_pending') && (
+              <Button size="sm" variant="outline" className="h-7 text-xs gap-1 text-red-600 border-red-300" 
+                onClick={() => handleUpdateStatus(order.id, 'cancelled')} disabled={isCurrentlyUpdating}>
+                <XCircle className="h-3 w-3" /> Anulează
+              </Button>
+            )}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7" disabled={isCurrentlyUpdating}>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actualizează Status</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'paid')} disabled={order.status === 'paid'}>
+                  <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> Marchează Plătit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'shipped')} disabled={order.status === 'shipped'}>
+                  <Truck className="h-4 w-4 mr-2 text-blue-500" /> Marchează Expediat
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'delivered')} disabled={order.status === 'delivered'}>
+                  <Package className="h-4 w-4 mr-2 text-purple-500" /> Marchează Livrat
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleOpenAwbDialog(order)}>
+                  <Edit3 className="h-4 w-4 mr-2 text-orange-500" /> {order.tracking_number ? 'Editează AWB' : 'Adaugă AWB'}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'cancelled')} disabled={order.status === 'cancelled'} className="text-red-600">
+                  <XCircle className="h-4 w-4 mr-2" /> Anulează Comanda
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleUpdateStatus(order.id, 'refunded')} disabled={order.status === 'refunded'} className="text-red-600">
+                  <RefreshCw className="h-4 w-4 mr-2" /> Marchează Rambursat
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </TableCell>
       </TableRow>
     );
@@ -312,8 +449,8 @@ export default function AdminOrders() {
     <AdminLayout>
       <div className="space-y-4 w-full min-w-0 overflow-hidden">
         <div>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Gestionare Comenzi</h1>
-          <p className="text-sm text-muted-foreground">Vizualizează și gestionează toate comenzile platformei</p>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Gestionare Comenzi & AWB</h1>
+          <p className="text-sm text-muted-foreground">Vizualizează, gestionează statusuri și numere de urmărire (AWB)</p>
         </div>
 
         {/* Platform Rules Alert */}
@@ -369,7 +506,7 @@ export default function AdminOrders() {
           </Card>
         </div>
 
-        {/* Tabs: All Orders / Missing Tracking / Sales by Seller */}
+        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 h-auto p-0.5">
             <TabsTrigger value="all" className="text-xs py-2 gap-1">
@@ -395,10 +532,10 @@ export default function AdminOrders() {
                   <div className="flex flex-col sm:flex-row gap-2">
                     <div className="relative flex-1 min-w-0">
                       <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="Caută comenzi..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 text-sm" />
+                      <Input placeholder="Caută comenzi, AWB..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 text-sm" />
                     </div>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-full sm:w-[140px] text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="w-full sm:w-[160px] text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {statusOptions.map(opt => (
                           <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
@@ -550,6 +687,53 @@ export default function AdminOrders() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* AWB Dialog */}
+      <Dialog open={awbDialog.open} onOpenChange={(open) => !open && setAwbDialog({ open: false, orderId: '', currentAwb: '', currentCarrier: 'fan_courier' })}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Truck className="h-5 w-5 text-primary" />
+              {awbDialog.currentAwb ? 'Editează AWB' : 'Adaugă AWB'}
+            </DialogTitle>
+            <DialogDescription>
+              Introdu numărul de urmărire (AWB) și selectează curierul.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Curier</label>
+              <Select value={carrierInput} onValueChange={setCarrierInput}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {CARRIERS.map(c => (
+                    <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Număr AWB</label>
+              <Input
+                placeholder="Ex: RO123456789"
+                value={awbInput}
+                onChange={(e) => setAwbInput(e.target.value)}
+                className="font-mono"
+              />
+            </div>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            {awbDialog.currentAwb && (
+              <Button variant="outline" className="text-red-600 border-red-300" onClick={handleRemoveAwb} disabled={!!isUpdating}>
+                <XCircle className="h-4 w-4 mr-1" /> Șterge AWB
+              </Button>
+            )}
+            <Button onClick={handleSaveAwb} disabled={!!isUpdating || !awbInput.trim()} className="gap-1">
+              <CheckCircle className="h-4 w-4" /> Salvează AWB
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }
