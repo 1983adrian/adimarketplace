@@ -275,7 +275,7 @@ export const usePlatformStats = () => {
         supabase.from('listings').select('*', { count: 'exact', head: true }).eq('is_active', true),
         supabase.from('orders').select('*', { count: 'exact', head: true }),
         supabase.from('orders').select('amount').eq('status', 'paid'),
-        supabase.from('seller_subscriptions').select('*').eq('status', 'active'),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_seller', true),
       ]);
       
       const totalRevenue = paidOrders?.reduce((sum, o) => sum + Number(o.amount), 0) || 0;
@@ -286,7 +286,7 @@ export const usePlatformStats = () => {
         activeListings: activeListings || 0,
         totalOrders: totalOrders || 0,
         totalRevenue,
-        activeSellers: sellerSubs?.length || 0,
+        activeSellers: sellerSubs || 0,
       };
     },
     refetchInterval: 30000,
