@@ -230,6 +230,42 @@ serve(async (req) => {
       }
     }
 
+    // Add brand images as static URLs with image extensions
+    const brandImages = [
+      {
+        loc: `${baseUrl}/images/brand/marketplace-romania-logo-dark.png`,
+        title: "Logo Marketplace România® pe Fundal Închis - Marketplace Online România",
+        caption: "Logo oficial Marketplace România® - Primul marketplace din România construit cu AI. Vinde, Cumpără, Licitează cu 0% comision."
+      },
+      {
+        loc: `${baseUrl}/images/brand/marketplace-romania-logo-light.png`,
+        title: "Logo Marketplace România® pe Fundal Deschis - Market Place România Online",
+        caption: "Logo oficial Marketplace România® varianta light - Marketplace românesc pentru vânzări online, licitații și cumpărături sigure."
+      },
+      {
+        loc: `${baseUrl}/images/brand/marketplace-romania-logo-banner-light.jpeg`,
+        title: "Banner Marketplace România® Light - Marketplace Online România cu 0% Comision",
+        caption: "Banner oficial Marketplace România® - Primul market place din România construit cu inteligență artificială. Abonamente de la 11 LEI/lună."
+      },
+      {
+        loc: `${baseUrl}/images/brand/marketplace-romania-logo-banner-dark.jpeg`,
+        title: "Banner Marketplace România® Dark - Market Place România | Vinde Cumpără Licitează",
+        caption: "Banner oficial Marketplace România® varianta dark - Platformă de e-commerce românească pentru vânzări online și licitații."
+      }
+    ];
+
+    for (const img of brandImages) {
+      sitemap += `
+  <url>
+    <loc>${baseUrl}/</loc>
+    <image:image>
+      <image:loc>${img.loc}</image:loc>
+      <image:title>${img.title}</image:title>
+      <image:caption>${img.caption}</image:caption>
+    </image:image>
+  </url>`;
+    }
+
     sitemap += `
 </urlset>`;
 
