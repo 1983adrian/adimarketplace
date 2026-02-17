@@ -91,7 +91,7 @@ export default function AdminDashboard() {
           {[
             { label: 'Utilizatori', value: stats?.totalUsers, icon: Users, color: 'blue' },
             { label: 'Vânzători', value: stats?.activeSellers, icon: Crown, color: 'amber' },
-            { label: 'Produse Active', value: stats?.activeListings, icon: Package, color: 'green' },
+            { label: 'Produse (Total)', value: stats?.totalListings, icon: Package, color: 'green' },
             { label: 'Comenzi', value: stats?.totalOrders, icon: ShoppingCart, color: 'purple' },
           ].map(({ label, value, icon: Icon, color }) => (
             <Card key={label}>
@@ -105,30 +105,61 @@ export default function AdminDashboard() {
                 ) : (
                   <div className="text-2xl font-bold">{value?.toLocaleString() || 0}</div>
                 )}
+                {label === 'Produse (Total)' && !statsLoading && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {stats?.activeListings || 0} active
+                  </p>
+                )}
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Revenue */}
-        <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              Venituri din Abonamente
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 pt-1">
-            {statsLoading ? (
-              <Skeleton className="h-8 w-24" />
-            ) : (
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-bold">{formatPriceWithRON(stats?.totalRevenue || 0)}</span>
-                <Badge variant="secondary" className="text-xs">0% comision vânzări</Badge>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Revenue + Subscriptions */}
+        <div className="grid gap-3 grid-cols-1 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                Venituri din Abonamente
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-1">
+              {statsLoading ? (
+                <Skeleton className="h-8 w-24" />
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-bold">{formatPriceWithRON(stats?.totalRevenue || 0)}</span>
+                  <Badge variant="secondary" className="text-xs">0% comision vânzări</Badge>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Crown className="h-4 w-4 text-amber-500" />
+                Abonamente Active per Plan
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-4 pt-1">
+              {statsLoading ? (
+                <Skeleton className="h-8 w-full" />
+              ) : stats?.planCounts && Object.keys(stats.planCounts).length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(stats.planCounts).map(([plan, count]) => (
+                    <Badge key={plan} variant="outline" className="text-xs gap-1">
+                      {plan}: <span className="font-bold">{String(count)}</span>
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">Niciun abonament activ</p>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Recent Orders */}
         <Card>

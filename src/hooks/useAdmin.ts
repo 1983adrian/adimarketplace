@@ -267,26 +267,35 @@ export const usePlatformStats = () => {
         { count: totalListings },
         { count: activeListings },
         { count: totalOrders },
-        { data: paidOrders },
-        { data: sellerSubs },
+        { count: activeSellers },
+        { data: revenueData },
+        { data: subsData },
       ] = await Promise.all([
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
         supabase.from('listings').select('*', { count: 'exact', head: true }),
         supabase.from('listings').select('*', { count: 'exact', head: true }).eq('is_active', true),
         supabase.from('orders').select('*', { count: 'exact', head: true }),
-        supabase.from('orders').select('amount').eq('status', 'paid'),
         supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_seller', true),
+        supabase.rpc('get_subscription_revenue'),
+        supabase.from('seller_subscriptions').select('plan_name, status'),
       ]);
       
-      const totalRevenue = paidOrders?.reduce((sum, o) => sum + Number(o.amount), 0) || 0;
+      const planCounts: Record<string, number> = {};
+      subsData?.forEach((s: any) => {
+        if (s.status === 'active') {
+          const plan = s.plan_name || 'START';
+          planCounts[plan] = (planCounts[plan] || 0) + 1;
+        }
+      });
       
       return {
         totalUsers: totalUsers || 0,
         totalListings: totalListings || 0,
         activeListings: activeListings || 0,
         totalOrders: totalOrders || 0,
-        totalRevenue,
-        activeSellers: sellerSubs || 0,
+        totalRevenue: Number(revenueData) || 0,
+        activeSellers: activeSellers || 0,
+        planCounts,
       };
     },
     refetchInterval: 30000,
