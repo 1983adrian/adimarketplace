@@ -1,14 +1,14 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Content-Type": "application/xml; charset=utf-8",
-  "Cache-Control": "public, max-age=3600, s-maxage=3600" // Cache for 1 hour
 };
 
-serve(async (req) => {
+const BASE_URL = "https://www.marketplaceromania.com";
+const MAX_URLS_PER_SITEMAP = 45000; // Google limit is 50k, stay under
+
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -18,266 +18,263 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const baseUrl = "https://www.marketplaceromania.com";
-    const today = new Date().toISOString().split('T')[0];
+    const url = new URL(req.url);
+    const type = url.searchParams.get("type") || "index";
+    const page = parseInt(url.searchParams.get("page") || "0", 10);
 
-    // Fetch active listings with their images
-    const { data: listings } = await supabase
-      .from('listings')
-      .select('id, title, updated_at, created_at, listing_images(image_url, is_primary, sort_order)')
-      .eq('is_active', true)
-      .eq('is_sold', false)
-      .order('created_at', { ascending: false })
-      .limit(1000);
+    // SITEMAP INDEX — returns links to all sub-sitemaps
+    if (type === "index") {
+      // Count total active listings
+      const { count: listingCount } = await supabase
+        .from("listings")
+        .select("id", { count: "exact", head: true })
+        .eq("is_active", true)
+        .eq("is_sold", false);
 
-    // Fetch categories
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('slug, name');
+      const totalListings = listingCount || 0;
+      const listingPages = Math.ceil(totalListings / MAX_URLS_PER_SITEMAP);
+      const today = new Date().toISOString().split("T")[0];
 
-    // Fetch seller profiles (public stores)
-    const { data: sellers } = await supabase
-      .from('profiles')
-      .select('user_id, store_name, updated_at')
-      .eq('is_seller', true)
-      .not('store_name', 'is', null)
-      .limit(500);
+      // Build function URL base for sub-sitemaps
+      const fnBase = `${supabaseUrl}/functions/v1/dynamic-sitemap`;
 
-    // Build sitemap - ALL routes must match App.tsx router exactly
-    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>${fnBase}?type=static</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${fnBase}?type=categories</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${fnBase}?type=sellers</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>`;
+
+      for (let i = 0; i < Math.max(1, listingPages); i++) {
+        xml += `
+  <sitemap>
+    <loc>${fnBase}?type=listings&amp;page=${i}</loc>
+    <lastmod>${today}</lastmod>
+  </sitemap>`;
+      }
+
+      xml += `
+</sitemapindex>`;
+
+      return new Response(xml, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/xml; charset=utf-8",
+          "Cache-Control": "public, max-age=3600, s-maxage=3600",
+        },
+      });
+    }
+
+    // STATIC PAGES SITEMAP
+    if (type === "static") {
+      const today = new Date().toISOString().split("T")[0];
+      const staticPages = [
+        { url: "/", priority: "1.0", changefreq: "hourly" },
+        { url: "/browse", priority: "0.95", changefreq: "hourly" },
+        { url: "/sell", priority: "0.85", changefreq: "weekly" },
+        { url: "/login", priority: "0.7", changefreq: "monthly" },
+        { url: "/signup", priority: "0.7", changefreq: "monthly" },
+        { url: "/seller-tutorial", priority: "0.8", changefreq: "weekly" },
+        { url: "/cum-functioneaza", priority: "0.75", changefreq: "monthly" },
+        { url: "/taxe-si-comisioane", priority: "0.7", changefreq: "monthly" },
+        { url: "/about", priority: "0.6", changefreq: "monthly" },
+        { url: "/help", priority: "0.6", changefreq: "monthly" },
+        { url: "/faq", priority: "0.7", changefreq: "weekly" },
+        { url: "/contact", priority: "0.5", changefreq: "monthly" },
+        { url: "/safety", priority: "0.5", changefreq: "monthly" },
+        { url: "/seller-rules", priority: "0.5", changefreq: "monthly" },
+        { url: "/privacy", priority: "0.4", changefreq: "yearly" },
+        { url: "/terms", priority: "0.4", changefreq: "yearly" },
+        { url: "/cookies", priority: "0.3", changefreq: "yearly" },
+        { url: "/install", priority: "0.5", changefreq: "monthly" },
+      ];
+
+      // Brand images
+      const brandImages = [
+        { loc: `${BASE_URL}/images/brand/marketplace-romania-logo-dark.png`, title: "Logo Marketplace România® pe Fundal Închis" },
+        { loc: `${BASE_URL}/images/brand/marketplace-romania-logo-light.png`, title: "Logo Marketplace România® pe Fundal Deschis" },
+        { loc: `${BASE_URL}/images/brand/marketplace-romania-logo-banner-light.jpeg`, title: "Banner Marketplace România® Light" },
+        { loc: `${BASE_URL}/images/brand/marketplace-romania-logo-banner-dark.jpeg`, title: "Banner Marketplace România® Dark" },
+      ];
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  
-  <!-- Homepage - Highest Priority -->
-  <url>
-    <loc>${baseUrl}/</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  
-  <!-- Browse - Core Functionality -->
-  <url>
-    <loc>${baseUrl}/browse</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.95</priority>
-  </url>
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">`;
 
-  <!-- Sell -->
+      for (const p of staticPages) {
+        xml += `
   <url>
-    <loc>${baseUrl}/sell</loc>
+    <loc>${BASE_URL}${p.url}</loc>
     <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.85</priority>
-  </url>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`;
+      }
 
-  <!-- Auth pages -->
+      // Brand images on homepage
+      for (const img of brandImages) {
+        xml += `
   <url>
-    <loc>${baseUrl}/login</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/signup</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
+    <loc>${BASE_URL}/</loc>
+    <image:image>
+      <image:loc>${img.loc}</image:loc>
+      <image:title>${escapeXml(img.title)}</image:title>
+    </image:image>
+  </url>`;
+      }
 
-  <!-- Informational pages - MUST match App.tsx routes -->
-  <url>
-    <loc>${baseUrl}/seller-tutorial</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/cum-functioneaza</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.75</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/taxe-si-comisioane</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/about</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/help</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/faq</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/contact</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/safety</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/seller-rules</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/privacy</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/terms</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/cookies</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>${baseUrl}/install</loc>
-    <lastmod>${today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-`;
+      xml += `
+</urlset>`;
 
-    // Add categories
-    if (categories) {
-      for (const category of categories) {
-        sitemap += `
+      return respond(xml);
+    }
+
+    // CATEGORIES SITEMAP
+    if (type === "categories") {
+      const today = new Date().toISOString().split("T")[0];
+      const { data: categories } = await supabase
+        .from("categories")
+        .select("slug, name");
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+
+      if (categories) {
+        for (const cat of categories) {
+          xml += `
   <url>
-    <loc>${baseUrl}/browse?category=${encodeURIComponent(category.slug)}</loc>
+    <loc>${BASE_URL}/browse?category=${encodeURIComponent(cat.slug)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>`;
+        }
       }
+
+      xml += `
+</urlset>`;
+      return respond(xml);
     }
 
-    // Add listings with product images for Google Image indexing
-    if (listings) {
-      for (const listing of listings) {
-        const lastmod = listing.updated_at?.split('T')[0] || listing.created_at?.split('T')[0] || today;
-        const images = (listing as any).listing_images || [];
-        // Sort: primary first, then by sort_order
-        const sortedImages = [...images].sort((a: any, b: any) => {
-          if (a.is_primary && !b.is_primary) return -1;
-          if (!a.is_primary && b.is_primary) return 1;
-          return (a.sort_order || 0) - (b.sort_order || 0);
-        });
-        
-        const escapedTitle = (listing.title || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        
-        let imagesTags = '';
-        for (const img of sortedImages) {
-          if (img.image_url) {
-            imagesTags += `
+    // SELLERS SITEMAP
+    if (type === "sellers") {
+      const today = new Date().toISOString().split("T")[0];
+      const { data: sellers } = await supabase
+        .from("profiles")
+        .select("user_id, store_name, updated_at")
+        .eq("is_seller", true)
+        .not("store_name", "is", null)
+        .limit(45000);
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+
+      if (sellers) {
+        for (const s of sellers) {
+          const lastmod = s.updated_at?.split("T")[0] || today;
+          xml += `
+  <url>
+    <loc>${BASE_URL}/seller/${s.user_id}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`;
+        }
+      }
+
+      xml += `
+</urlset>`;
+      return respond(xml);
+    }
+
+    // LISTINGS SITEMAP (paginated — up to 45k per page)
+    if (type === "listings") {
+      const from = page * MAX_URLS_PER_SITEMAP;
+      const to = from + MAX_URLS_PER_SITEMAP - 1;
+
+      const { data: listings } = await supabase
+        .from("listings")
+        .select("id, title, updated_at, created_at, listing_images(image_url, is_primary, sort_order)")
+        .eq("is_active", true)
+        .eq("is_sold", false)
+        .order("created_at", { ascending: false })
+        .range(from, to);
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">`;
+
+      if (listings) {
+        for (const listing of listings) {
+          const lastmod = listing.updated_at?.split("T")[0] || listing.created_at?.split("T")[0];
+          const images = (listing as any).listing_images || [];
+          const sortedImages = [...images].sort((a: any, b: any) => {
+            if (a.is_primary && !b.is_primary) return -1;
+            if (!a.is_primary && b.is_primary) return 1;
+            return (a.sort_order || 0) - (b.sort_order || 0);
+          });
+
+          const escapedTitle = escapeXml(listing.title || "");
+
+          let imagesTags = "";
+          for (const img of sortedImages) {
+            if (img.image_url) {
+              imagesTags += `
       <image:image>
-        <image:loc>${img.image_url.replace(/&/g, '&amp;')}</image:loc>
+        <image:loc>${escapeXml(img.image_url)}</image:loc>
         <image:title>${escapedTitle}</image:title>
         <image:caption>${escapedTitle} - MarketPlace Romania</image:caption>
       </image:image>`;
+            }
           }
-        }
-        
-        sitemap += `
+
+          xml += `
   <url>
-    <loc>${baseUrl}/listing/${listing.id}</loc>
+    <loc>${BASE_URL}/listing/${listing.id}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>${imagesTags}
   </url>`;
+        }
       }
-    }
 
-    // Add seller stores
-    if (sellers) {
-      for (const seller of sellers) {
-        const lastmod = seller.updated_at?.split('T')[0] || today;
-        sitemap += `
-  <url>
-    <loc>${baseUrl}/seller/${seller.user_id}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>`;
-      }
-    }
-
-    // Add brand images as static URLs with image extensions
-    const brandImages = [
-      {
-        loc: `${baseUrl}/images/brand/marketplace-romania-logo-dark.png`,
-        title: "Logo Marketplace România® pe Fundal Închis - Marketplace Online România",
-        caption: "Logo oficial Marketplace România® - Primul marketplace din România construit cu AI. Vinde, Cumpără, Licitează cu 0% comision."
-      },
-      {
-        loc: `${baseUrl}/images/brand/marketplace-romania-logo-light.png`,
-        title: "Logo Marketplace România® pe Fundal Deschis - Market Place România Online",
-        caption: "Logo oficial Marketplace România® varianta light - Marketplace românesc pentru vânzări online, licitații și cumpărături sigure."
-      },
-      {
-        loc: `${baseUrl}/images/brand/marketplace-romania-logo-banner-light.jpeg`,
-        title: "Banner Marketplace România® Light - Marketplace Online România cu 0% Comision",
-        caption: "Banner oficial Marketplace România® - Primul market place din România construit cu inteligență artificială. Abonamente de la 11 LEI/lună."
-      },
-      {
-        loc: `${baseUrl}/images/brand/marketplace-romania-logo-banner-dark.jpeg`,
-        title: "Banner Marketplace România® Dark - Market Place România | Vinde Cumpără Licitează",
-        caption: "Banner oficial Marketplace România® varianta dark - Platformă de e-commerce românească pentru vânzări online și licitații."
-      }
-    ];
-
-    for (const img of brandImages) {
-      sitemap += `
-  <url>
-    <loc>${baseUrl}/</loc>
-    <image:image>
-      <image:loc>${img.loc}</image:loc>
-      <image:title>${img.title}</image:title>
-      <image:caption>${img.caption}</image:caption>
-    </image:image>
-  </url>`;
-    }
-
-    sitemap += `
+      xml += `
 </urlset>`;
 
-    console.log(`Dynamic sitemap generated: ${listings?.length || 0} listings, ${categories?.length || 0} categories, ${sellers?.length || 0} sellers`);
+      console.log(`Sitemap listings page ${page}: ${listings?.length || 0} entries`);
+      return respond(xml);
+    }
 
-    return new Response(sitemap, { headers: corsHeaders });
+    return new Response("Invalid type", { status: 400, headers: corsHeaders });
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("Sitemap generation error:", error);
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    console.error("Sitemap error:", msg);
     return new Response(
       `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>`,
-      { headers: corsHeaders, status: 500 }
+      { headers: { ...corsHeaders, "Content-Type": "application/xml; charset=utf-8" }, status: 500 }
     );
   }
 });
+
+function escapeXml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+function respond(xml: string) {
+  return new Response(xml, {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=3600, s-maxage=3600",
+    },
+  });
+}
