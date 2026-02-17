@@ -185,291 +185,402 @@ const CityLandingSection: React.FC = () => {
               </p>
             </div>
 
-            {/* European SEO block - ENGLISH */}
+            {/* ENGLISH - UK / Scotland focused */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="en">
-              <h3>🇪🇺 The Cheapest Marketplace in Europe — 0% Sales Commission</h3>
+              <h3>🇬🇧 The Cheapest Marketplace in Europe — 0% Sales Commission | Sell from UK, Scotland, England, Wales</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> is the cheapest online marketplace in all of Europe. 
+                <strong>MarketPlaceRomania.com</strong> is the cheapest online marketplace in all of Europe — and it's open to sellers from the 
+                <strong>United Kingdom, Scotland, England, Wales, Northern Ireland</strong> and every country in Europe. 
                 While Amazon charges up to 15% commission, eBay up to 13%, and Etsy up to 6.5%, 
-                MarketPlaceRomania.com charges <strong>0% commission on all sales</strong>. 
-                You only pay a fixed subscription starting from just <strong>€2/month</strong>.
+                MarketPlaceRomania.com charges <strong>0% commission on all sales</strong>. You keep 100% of what you earn.
               </p>
               <p>
-                <strong>Start your online business today!</strong> Whether you're a small business owner, 
-                a handmade creator, or someone who wants to sell from home — MarketPlaceRomania.com is the perfect 
-                platform to start selling across Europe with zero fees. Create your store in minutes, list unlimited 
-                products, and reach millions of buyers. No experience needed. 30 days free trial!
+                <strong>🚀 Start your online business for FREE — here's how it works:</strong> 
+                Sign up and get <strong>30 days completely free</strong>. During your free trial, you can list up to 
+                <strong>10 products</strong> — at fixed price or auction — and start making your first sales with zero risk. 
+                Once you've earned your first money, upgrade to a <strong>€10/month plan for 50 listings</strong>, 
+                then grow to <strong>150 listings for €30/month</strong>, or go unlimited with <strong>€200/month VIP</strong>. 
+                Start small, grow big — all with <strong>0% commission forever</strong>.
               </p>
               <p>
-                <strong>Sell across Europe with 0% fees:</strong> Germany, France, Italy, Spain, 
-                Netherlands, Belgium, Austria, Poland, Portugal, United Kingdom, Sweden, Denmark, Finland, Norway, 
-                Ireland, Greece, Czech Republic, Hungary, Bulgaria, Croatia, Slovakia, Slovenia, Switzerland, 
-                Lithuania, Latvia, Estonia, Luxembourg, Malta, Cyprus — sell with <strong>zero commission</strong>.
+                <strong>Perfect for UK sellers:</strong> Whether you're in London, Edinburgh, Glasgow, Manchester, Birmingham, 
+                Leeds, Liverpool, Bristol, Cardiff, Belfast, Aberdeen, Dundee, Inverness, or anywhere in the UK — 
+                you can sell across all of Europe from day one. Handmade crafts, vintage items, electronics, fashion, 
+                collectibles, art — whatever you make or sell, this is the cheapest way to reach European buyers.
               </p>
               <p>
-                ✅ 0% sales commission, ✅ Online auctions, ✅ Secure PayPal payments, 
-                ✅ 14-day EU return guarantee, ✅ AI-powered, ✅ Ship to all EU countries, 
-                ✅ 30 days free trial, ✅ From €2/month. Best alternative to Amazon, eBay, Etsy, Vinted.
+                <strong>Why choose MarketPlaceRomania.com over eBay UK, Amazon UK, Etsy, or Vinted?</strong> 
+                ✅ 0% sales commission — everything you sell is 100% yours, 
+                ✅ 30 days free trial with 10 product listings, 
+                ✅ Online auctions AND fixed price — you choose, 
+                ✅ Secure payments via PayPal and credit card, 
+                ✅ 14-day buyer protection (EU consumer law), 
+                ✅ AI-powered platform for smart selling, 
+                ✅ Sell to all 27 EU countries + UK + Norway + Switzerland, 
+                ✅ Plans from just €2/month after trial.
+              </p>
+              <p>
+                <strong>Start a business from home:</strong> No experience needed. No stock required for dropshipping. 
+                No upfront costs. Just sign up, list your first 10 products for free, make your first sale, 
+                and reinvest to grow. Thousands of sellers across Europe are already building their businesses here. 
+                Join them today at <strong>MarketPlaceRomania.com</strong>.
               </p>
             </div>
 
             {/* GERMAN / Deutsch */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="de">
-              <h3>🇩🇪 Der günstigste Marktplatz in Europa — 0% Verkaufsprovision</h3>
+              <h3>🇩🇪 Der günstigste Marktplatz Europas — 0% Verkaufsprovision | Verkaufe aus Deutschland, Österreich, Schweiz</h3>
               <p>
                 <strong>MarketPlaceRomania.com</strong> ist der günstigste Online-Marktplatz in ganz Europa. 
-                Amazon verlangt bis zu 15% Provision, eBay bis zu 13%, Etsy bis zu 6,5% — 
-                MarketPlaceRomania.com berechnet <strong>0% Provision auf alle Verkäufe</strong>. 
-                Nur ein festes Abo ab <strong>2€/Monat</strong>.
+                Amazon verlangt bis zu 15%, eBay bis zu 13%, Kleinanzeigen bietet keinen Käuferschutz — 
+                bei uns zahlen Sie <strong>0% Provision auf alle Verkäufe</strong>.
               </p>
               <p>
-                <strong>Starten Sie Ihr Online-Geschäft noch heute!</strong> Ob kleiner Unternehmer, Handwerker oder 
-                Heimverkäufer — erstellen Sie Ihren Shop in Minuten, verkaufen Sie europaweit ohne Gebühren. 
-                30 Tage kostenlos testen! Beste Alternative zu Amazon, eBay, Kleinanzeigen, Vinted.
+                <strong>🚀 Starten Sie Ihr Online-Geschäft kostenlos:</strong> 
+                Registrieren Sie sich und erhalten Sie <strong>30 Tage gratis</strong>. Listen Sie bis zu 
+                <strong>10 Produkte</strong> — Festpreis oder Auktion — und verdienen Sie Ihr erstes Geld ohne Risiko. 
+                Danach upgraden Sie auf <strong>50 Produkte für 10€/Monat</strong>, dann <strong>150 für 30€/Monat</strong>, 
+                bis hin zu unbegrenzten Listings. Klein anfangen, groß werden — immer mit <strong>0% Provision</strong>.
+              </p>
+              <p>
+                Ob Sie in Berlin, München, Hamburg, Frankfurt, Köln, Stuttgart, Wien, Zürich oder irgendwo in 
+                Deutschland, Österreich oder der Schweiz sind — verkaufen Sie europaweit ab dem ersten Tag. 
+                Beste Alternative zu Amazon, eBay Kleinanzeigen, Vinted und Etsy.
               </p>
             </div>
 
             {/* FRENCH / Français */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="fr">
-              <h3>🇫🇷 Le marketplace le moins cher d'Europe — 0% de commission</h3>
+              <h3>🇫🇷 Le marketplace le moins cher d'Europe — 0% de commission | Vendez depuis la France, Belgique, Suisse</h3>
               <p>
                 <strong>MarketPlaceRomania.com</strong> est le marketplace le moins cher de toute l'Europe. 
-                Amazon facture jusqu'à 15%, eBay 13%, Etsy 6,5% — MarketPlaceRomania.com prend 
-                <strong>0% de commission sur toutes les ventes</strong>. Abonnement fixe dès <strong>2€/mois</strong>.
+                Amazon prend jusqu'à 15%, eBay 13%, Etsy 6,5% — chez nous : <strong>0% de commission sur toutes les ventes</strong>.
               </p>
               <p>
-                <strong>Lancez votre activité en ligne dès aujourd'hui !</strong> Créez votre boutique en minutes, 
-                vendez dans toute l'Europe sans frais. 30 jours d'essai gratuit ! 
-                Meilleure alternative à Amazon, eBay, Leboncoin, Vinted.
+                <strong>🚀 Lancez votre business en ligne gratuitement :</strong> 
+                Inscrivez-vous et profitez de <strong>30 jours entièrement gratuits</strong>. Publiez jusqu'à 
+                <strong>10 produits</strong> — prix fixe ou enchère — et gagnez vos premiers euros sans aucun risque. 
+                Ensuite, passez à <strong>50 produits pour 10€/mois</strong>, puis <strong>150 pour 30€/mois</strong>. 
+                Commencez petit, grandissez — toujours avec <strong>0% de commission</strong>.
+              </p>
+              <p>
+                Que vous soyez à Paris, Lyon, Marseille, Toulouse, Bruxelles, Genève ou n'importe où en France, 
+                Belgique ou Suisse — vendez dans toute l'Europe dès le premier jour. 
+                Meilleure alternative à Leboncoin, Amazon, eBay, Vinted et Etsy.
               </p>
             </div>
 
             {/* ITALIAN / Italiano */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="it">
-              <h3>🇮🇹 Il marketplace più economico d'Europa — 0% di commissione</h3>
+              <h3>🇮🇹 Il marketplace più economico d'Europa — 0% di commissione | Vendi dall'Italia</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> è il marketplace più economico di tutta Europa. 
-                Amazon addebita fino al 15%, eBay 13%, Etsy 6,5% — MarketPlaceRomania.com: 
-                <strong>0% commissione su tutte le vendite</strong>. Abbonamento da soli <strong>2€/mese</strong>.
+                <strong>MarketPlaceRomania.com</strong> è il marketplace più economico di tutta Europa: 
+                <strong>0% di commissione su tutte le vendite</strong>. Amazon prende fino al 15%, eBay il 13%.
               </p>
               <p>
-                <strong>Avvia la tua attività online oggi!</strong> Crea il tuo negozio in minuti, vendi in tutta Europa 
-                senza commissioni. 30 giorni di prova gratuita! Migliore alternativa ad Amazon, eBay, Subito, Vinted.
+                <strong>🚀 Avvia il tuo business online gratis:</strong> 
+                Registrati e ottieni <strong>30 giorni completamente gratuiti</strong>. Pubblica fino a 
+                <strong>10 prodotti</strong> — prezzo fisso o asta — e guadagna i tuoi primi soldi senza rischi. 
+                Poi passa a <strong>50 prodotti per 10€/mese</strong>, poi <strong>150 per 30€/mese</strong>. 
+                Inizia in piccolo, cresci alla grande — sempre con <strong>0% commissione</strong>.
+              </p>
+              <p>
+                Da Roma, Milano, Napoli, Torino, Firenze o qualsiasi città italiana — vendi in tutta Europa dal primo giorno. 
+                Migliore alternativa a Subito.it, Amazon, eBay, Vinted ed Etsy.
               </p>
             </div>
 
             {/* SPANISH / Español */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="es">
-              <h3>🇪🇸 El marketplace más barato de Europa — 0% de comisión</h3>
+              <h3>🇪🇸 El marketplace más barato de Europa — 0% de comisión | Vende desde España</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> es el marketplace más barato de toda Europa. 
-                Amazon cobra hasta 15%, eBay 13%, Etsy 6,5% — MarketPlaceRomania.com cobra 
-                <strong>0% de comisión en todas las ventas</strong>. Suscripción desde solo <strong>2€/mes</strong>.
+                <strong>MarketPlaceRomania.com</strong> es el marketplace más barato de toda Europa: 
+                <strong>0% de comisión en todas las ventas</strong>.
               </p>
               <p>
-                <strong>¡Empieza tu negocio online hoy!</strong> Crea tu tienda en minutos, vende en toda Europa 
-                sin comisiones. ¡30 días de prueba gratis! Mejor alternativa a Amazon, eBay, Wallapop, Vinted.
+                <strong>🚀 Empieza tu negocio online gratis:</strong> 
+                Regístrate y obtén <strong>30 días completamente gratis</strong>. Publica hasta 
+                <strong>10 productos</strong> — precio fijo o subasta — y gana tu primer dinero sin riesgo. 
+                Luego pasa a <strong>50 productos por 10€/mes</strong>, después <strong>150 por 30€/mes</strong>. 
+                Empieza pequeño, crece grande — siempre con <strong>0% comisión</strong>.
+              </p>
+              <p>
+                Desde Madrid, Barcelona, Valencia, Sevilla o cualquier ciudad española — vende en toda Europa desde el primer día. 
+                Mejor alternativa a Wallapop, Amazon, eBay, Vinted y Etsy.
               </p>
             </div>
 
             {/* DUTCH / Nederlands */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="nl">
-              <h3>🇳🇱 De goedkoopste marktplaats van Europa — 0% verkoopcommissie</h3>
+              <h3>🇳🇱 De goedkoopste marktplaats van Europa — 0% verkoopcommissie | Verkoop vanuit Nederland, België</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> is de goedkoopste online marktplaats van heel Europa met 
-                <strong>0% commissie op alle verkopen</strong>. Vast abonnement vanaf slechts <strong>€2/maand</strong>.
+                <strong>MarketPlaceRomania.com</strong> is de goedkoopste online marktplaats van heel Europa: 
+                <strong>0% commissie op alle verkopen</strong>.
               </p>
               <p>
-                <strong>Start vandaag uw online bedrijf!</strong> Maak uw winkel aan in minuten, verkoop in heel Europa 
-                zonder kosten. 30 dagen gratis proberen! Beste alternatief voor Marktplaats.nl, Amazon, eBay, Vinted.
+                <strong>🚀 Start uw online bedrijf gratis:</strong> 
+                Meld u aan en krijg <strong>30 dagen volledig gratis</strong>. Plaats tot 
+                <strong>10 producten</strong> — vaste prijs of veiling — en verdien uw eerste geld zonder risico. 
+                Upgrade daarna naar <strong>50 producten voor €10/maand</strong>, dan <strong>150 voor €30/maand</strong>. 
+                Begin klein, groei groot — altijd met <strong>0% commissie</strong>.
+              </p>
+              <p>
+                Vanuit Amsterdam, Rotterdam, Utrecht, Antwerpen of waar dan ook in Nederland en België — 
+                verkoop in heel Europa vanaf dag één. Beste alternatief voor Marktplaats.nl, Bol.com, Amazon, eBay, Vinted.
               </p>
             </div>
 
             {/* POLISH / Polski */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="pl">
-              <h3>🇵🇱 Najtańszy marketplace w Europie — 0% prowizji od sprzedaży</h3>
+              <h3>🇵🇱 Najtańszy marketplace w Europie — 0% prowizji | Sprzedawaj z Polski</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> to najtańszy marketplace w całej Europie z 
-                <strong>0% prowizji od wszystkich sprzedaży</strong>. Stały abonament od zaledwie <strong>2€/miesiąc</strong>.
+                <strong>MarketPlaceRomania.com</strong> to najtańszy marketplace w całej Europie: 
+                <strong>0% prowizji od wszystkich sprzedaży</strong>.
               </p>
               <p>
-                <strong>Rozpocznij swój biznes online już dziś!</strong> Utwórz sklep w kilka minut, sprzedawaj w całej Europie 
-                bez prowizji. 30 dni za darmo! Najlepsza alternatywa dla Allegro, OLX, Amazon, Vinted.
+                <strong>🚀 Rozpocznij swój biznes online za darmo:</strong> 
+                Zarejestruj się i otrzymaj <strong>30 dni całkowicie za darmo</strong>. Wystaw do 
+                <strong>10 produktów</strong> — cena stała lub licytacja — i zarób swoje pierwsze pieniądze bez ryzyka. 
+                Potem przejdź na <strong>50 produktów za 10€/miesiąc</strong>, następnie <strong>150 za 30€/miesiąc</strong>. 
+                Zacznij od małego, rozwijaj się — zawsze z <strong>0% prowizji</strong>.
+              </p>
+              <p>
+                Z Warszawy, Krakowa, Wrocławia, Gdańska czy dowolnego miasta w Polsce — 
+                sprzedawaj w całej Europie od pierwszego dnia. Najlepsza alternatywa dla Allegro, OLX, Amazon, Vinted.
               </p>
             </div>
 
             {/* PORTUGUESE / Português */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="pt">
-              <h3>🇵🇹 O marketplace mais barato da Europa — 0% de comissão</h3>
+              <h3>🇵🇹 O marketplace mais barato da Europa — 0% de comissão | Venda a partir de Portugal</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> é o marketplace mais barato da Europa com 
-                <strong>0% de comissão em todas as vendas</strong>. Assinatura fixa desde <strong>2€/mês</strong>.
+                <strong>🚀 Comece o seu negócio online grátis:</strong> 
+                Registe-se e tenha <strong>30 dias completamente grátis</strong>. Publique até 
+                <strong>10 produtos</strong> — preço fixo ou leilão — e ganhe o seu primeiro dinheiro sem risco. 
+                Depois passe para <strong>50 produtos por 10€/mês</strong>, depois <strong>150 por 30€/mês</strong>. 
+                Comece pequeno, cresça — sempre com <strong>0% de comissão</strong>.
               </p>
               <p>
-                <strong>Comece o seu negócio online hoje!</strong> Crie a sua loja em minutos, venda em toda a Europa 
-                sem comissões. 30 dias grátis! Melhor alternativa ao OLX, Amazon, eBay, Vinted.
+                De Lisboa, Porto ou qualquer cidade em Portugal — venda em toda a Europa desde o primeiro dia. 
+                Melhor alternativa ao OLX, Amazon, eBay, Vinted.
               </p>
             </div>
 
             {/* SWEDISH / Svenska */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="sv">
-              <h3>🇸🇪 Europas billigaste marknadsplats — 0% försäljningsprovision</h3>
+              <h3>🇸🇪 Europas billigaste marknadsplats — 0% försäljningsprovision | Sälj från Sverige</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> är den billigaste marknadsplatsen i hela Europa med 
-                <strong>0% provision på all försäljning</strong>. Fast prenumeration från bara <strong>2€/månad</strong>.
-                Starta ditt onlineföretag idag! 30 dagars gratis provperiod!
+                <strong>🚀 Starta gratis:</strong> Registrera dig och få <strong>30 dagar helt gratis</strong>. 
+                Lägg upp <strong>10 produkter</strong> — fast pris eller auktion — och tjäna dina första pengar utan risk. 
+                Uppgradera sedan till <strong>50 produkter för 10€/månad</strong>, sedan <strong>150 för 30€/månad</strong>. 
+                Börja smått, väx stort — alltid med <strong>0% provision</strong>. 
+                Från Stockholm, Göteborg, Malmö — sälj i hela Europa. Bästa alternativet till Blocket, Tradera, Amazon.
               </p>
             </div>
 
             {/* DANISH / Dansk */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="da">
-              <h3>🇩🇰 Europas billigste markedsplads — 0% salgskommission</h3>
+              <h3>🇩🇰 Europas billigste markedsplads — 0% salgskommission | Sælg fra Danmark</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> er den billigste markedsplads i hele Europa med 
-                <strong>0% kommission på alle salg</strong>. Fast abonnement fra kun <strong>2€/måned</strong>.
-                Start din online-forretning i dag! 30 dages gratis prøveperiode!
+                <strong>🚀 Start gratis:</strong> Tilmeld dig og få <strong>30 dage helt gratis</strong>. 
+                List <strong>10 produkter</strong> — fast pris eller auktion — og tjen dine første penge uden risiko. 
+                Opgrader derefter til <strong>50 produkter for 10€/måned</strong>. 
+                Start småt, voks stort — altid med <strong>0% kommission</strong>. 
+                Fra København, Aarhus, Odense — sælg i hele Europa. Bedste alternativ til DBA, Amazon.
               </p>
             </div>
 
             {/* FINNISH / Suomi */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="fi">
-              <h3>🇫🇮 Euroopan halvin markkinapaikka — 0% myyntiprovisio</h3>
+              <h3>🇫🇮 Euroopan halvin markkinapaikka — 0% myyntiprovisio | Myy Suomesta</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> on halvin verkkokauppapaikka koko Euroopassa: 
-                <strong>0% provisiota kaikista myynneistä</strong>. Kiinteä tilaus alkaen <strong>2€/kuukausi</strong>.
-                Aloita verkkoliiketoimintasi tänään! 30 päivän ilmainen kokeilu!
+                <strong>🚀 Aloita ilmaiseksi:</strong> Rekisteröidy ja saat <strong>30 päivää täysin ilmaiseksi</strong>. 
+                Listaa <strong>10 tuotetta</strong> — kiinteä hinta tai huutokauppa — ja ansaitse ensimmäiset rahasi ilman riskiä. 
+                Päivitä sitten <strong>50 tuotteeseen 10€/kk</strong>. Aloita pienestä, kasva suureksi — aina <strong>0% provisio</strong>. 
+                Helsingistä, Tampereelta, Turusta — myy koko Eurooppaan. Paras vaihtoehto Tori.fi:lle, Amazonille.
               </p>
             </div>
 
             {/* NORWEGIAN / Norsk */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="no">
-              <h3>🇳🇴 Europas billigste markedsplass — 0% salgsprovisjon</h3>
+              <h3>🇳🇴 Europas billigste markedsplass — 0% salgsprovisjon | Selg fra Norge</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> er den billigste nettmarkedsplassen i hele Europa med 
-                <strong>0% provisjon på alt salg</strong>. Fast abonnement fra kun <strong>2€/måned</strong>.
-                Start din nettbutikk i dag! 30 dagers gratis prøveperiode!
+                <strong>🚀 Start gratis:</strong> Registrer deg og få <strong>30 dager helt gratis</strong>. 
+                List <strong>10 produkter</strong> — fast pris eller auksjon — og tjen dine første penger uten risiko. 
+                Oppgrader til <strong>50 produkter for 10€/måned</strong>. 
+                Start smått, voks stort — alltid med <strong>0% provisjon</strong>. 
+                Fra Oslo, Bergen, Trondheim — selg i hele Europa. Beste alternativ til Finn.no, Amazon.
               </p>
             </div>
 
             {/* GREEK / Ελληνικά */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="el">
-              <h3>🇬🇷 Η φθηνότερη αγορά στην Ευρώπη — 0% προμήθεια πωλήσεων</h3>
+              <h3>🇬🇷 Η φθηνότερη αγορά στην Ευρώπη — 0% προμήθεια | Πουλήστε από την Ελλάδα</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> είναι η φθηνότερη ηλεκτρονική αγορά σε ολόκληρη την Ευρώπη: 
-                <strong>0% προμήθεια σε όλες τις πωλήσεις</strong>. Σταθερή συνδρομή από μόλις <strong>2€/μήνα</strong>.
-                Ξεκινήστε την επιχείρησή σας σήμερα! 30 ημέρες δωρεάν δοκιμή!
+                <strong>🚀 Ξεκινήστε δωρεάν:</strong> Εγγραφείτε και πάρτε <strong>30 ημέρες εντελώς δωρεάν</strong>. 
+                Καταχωρίστε <strong>10 προϊόντα</strong> — σταθερή τιμή ή δημοπρασία — και κερδίστε τα πρώτα σας χρήματα χωρίς ρίσκο. 
+                Αναβαθμίστε σε <strong>50 προϊόντα με 10€/μήνα</strong>. Ξεκινήστε μικρά, μεγαλώστε — πάντα με <strong>0% προμήθεια</strong>. 
+                Από Αθήνα, Θεσσαλονίκη — πουλήστε σε όλη την Ευρώπη.
               </p>
             </div>
 
             {/* CZECH / Čeština */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="cs">
-              <h3>🇨🇿 Nejlevnější marketplace v Evropě — 0% provize z prodeje</h3>
+              <h3>🇨🇿 Nejlevnější marketplace v Evropě — 0% provize | Prodávejte z Česka</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> je nejlevnější online tržiště v celé Evropě: 
-                <strong>0% provize ze všech prodejů</strong>. Fixní předplatné od <strong>2€/měsíc</strong>.
-                Začněte svůj online byznys ještě dnes! 30 dní zdarma!
+                <strong>🚀 Začněte zdarma:</strong> Zaregistrujte se a získejte <strong>30 dní zcela zdarma</strong>. 
+                Vystavte <strong>10 produktů</strong> — pevná cena nebo aukce — a vydělejte své první peníze bez rizika. 
+                Poté přejděte na <strong>50 produktů za 10€/měsíc</strong>. Začněte v malém, rostěte — vždy s <strong>0% provizí</strong>. 
+                Z Prahy, Brna — prodávejte po celé Evropě. Nejlepší alternativa k Bazos, Amazon.
               </p>
             </div>
 
             {/* HUNGARIAN / Magyar */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="hu">
-              <h3>🇭🇺 Európa legolcsóbb piactere — 0% eladási jutalék</h3>
+              <h3>🇭🇺 Európa legolcsóbb piactere — 0% jutalék | Adj el Magyarországról</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> a legolcsóbb online piactér egész Európában: 
-                <strong>0% jutalék minden eladásra</strong>. Fix előfizetés mindössze <strong>2€/hó</strong>-tól.
-                Indítsa el online vállalkozását még ma! 30 napos ingyenes próbaidőszak!
+                <strong>🚀 Kezdje ingyen:</strong> Regisztráljon és kapjon <strong>30 napot teljesen ingyen</strong>. 
+                Tegyen ki <strong>10 terméket</strong> — fix áron vagy aukción — és keresse meg első pénzét kockázat nélkül. 
+                Váltson <strong>50 termékre 10€/hó</strong>-ért. Kezdje kicsiben, nőjön nagyra — mindig <strong>0% jutalékkal</strong>. 
+                Budapestről, Debrecenből — adjon el egész Európában. Legjobb alternatíva a Jófogáshoz, Amazonhoz.
               </p>
             </div>
 
             {/* BULGARIAN / Български */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="bg">
-              <h3>🇧🇬 Най-евтиният маркетплейс в Европа — 0% комисиона</h3>
+              <h3>🇧🇬 Най-евтиният маркетплейс в Европа — 0% комисиона | Продавайте от България</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> е най-евтиният онлайн маркетплейс в цяла Европа: 
-                <strong>0% комисиона от всички продажби</strong>. Фиксиран абонамент от <strong>2€/месец</strong>.
-                Започнете своя онлайн бизнес днес! 30 дни безплатен пробен период!
+                <strong>🚀 Започнете безплатно:</strong> Регистрирайте се и получете <strong>30 дни напълно безплатно</strong>. 
+                Публикувайте <strong>10 продукта</strong> — фиксирана цена или търг — и спечелете първите си пари без риск. 
+                След това преминете на <strong>50 продукта за 10€/месец</strong>. Започнете малко, растете — винаги с <strong>0% комисиона</strong>. 
+                От София, Пловдив — продавайте в цяла Европа. Най-добра алтернатива на OLX, Amazon.
               </p>
             </div>
 
             {/* CROATIAN / Hrvatski */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="hr">
-              <h3>🇭🇷 Najjeftiniji marketplace u Europi — 0% provizije</h3>
+              <h3>🇭🇷 Najjeftiniji marketplace u Europi — 0% provizije | Prodajte iz Hrvatske</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> je najjeftiniji online marketplace u cijeloj Europi: 
-                <strong>0% provizije na sve prodaje</strong>. Fiksna pretplata od samo <strong>2€/mjesec</strong>.
-                Pokrenite svoj online posao danas! 30 dana besplatno!
+                <strong>🚀 Započnite besplatno:</strong> Registrirajte se i dobijte <strong>30 dana potpuno besplatno</strong>. 
+                Objavite <strong>10 proizvoda</strong> — fiksna cijena ili aukcija — i zaradite prvi novac bez rizika. 
+                Nadogradite na <strong>50 proizvoda za 10€/mjesec</strong>. Počnite malo, rastite — uvijek s <strong>0% provizije</strong>. 
+                Iz Zagreba, Splita — prodajte u cijeloj Europi. Najbolja alternativa Njuškalu, Amazonu.
               </p>
             </div>
 
             {/* SLOVAK / Slovenčina */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="sk">
-              <h3>🇸🇰 Najlacnejší marketplace v Európe — 0% provízia</h3>
+              <h3>🇸🇰 Najlacnejší marketplace v Európe — 0% provízia | Predávajte zo Slovenska</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> — <strong>0% provízia</strong>, predplatné od <strong>2€/mesiac</strong>. 
-                Začnite predávať ešte dnes! 30 dní zadarmo!
+                <strong>🚀 Začnite zadarmo:</strong> <strong>30 dní zadarmo</strong>, <strong>10 produktov</strong> — 
+                fixná cena alebo aukcia. Zarobte prvé peniaze, potom prejdite na <strong>50 produktov za 10€/mesiac</strong>. 
+                Vždy <strong>0% provízia</strong>. Z Bratislavy, Košíc — predávajte po celej Európe.
               </p>
             </div>
 
             {/* SLOVENIAN / Slovenščina */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="sl">
-              <h3>🇸🇮 Najcenejša tržnica v Evropi — 0% provizije</h3>
+              <h3>🇸🇮 Najcenejša tržnica v Evropi — 0% provizije | Prodajajte iz Slovenije</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> — <strong>0% provizijo</strong>, naročnina od <strong>2€/mesec</strong>. 
-                Začnite prodajati danes! 30 dni brezplačno!
+                <strong>🚀 Začnite brezplačno:</strong> <strong>30 dni brezplačno</strong>, <strong>10 izdelkov</strong> — 
+                fiksna cena ali dražba. Zaslužite prvi denar, nato nadgradite na <strong>50 izdelkov za 10€/mesec</strong>. 
+                Vedno <strong>0% provizije</strong>. Iz Ljubljane, Maribora — prodajajte po vsej Evropi.
               </p>
             </div>
 
             {/* LITHUANIAN / Lietuvių */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="lt">
-              <h3>🇱🇹 Pigiausia prekyvietė Europoje — 0% komisinio</h3>
+              <h3>🇱🇹 Pigiausia prekyvietė Europoje — 0% komisinio | Pardavinėkite iš Lietuvos</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> — <strong>0% komisiniu</strong>, prenumerata nuo <strong>2€/mėn</strong>. 
-                Pradėkite pardavinėti šiandien! 30 dienų nemokamas bandymas!
+                <strong>🚀 Pradėkite nemokamai:</strong> <strong>30 dienų nemokamai</strong>, <strong>10 produktų</strong> — 
+                fiksuota kaina arba aukcionas. Užsidirbkite pirmuosius pinigus, tada pereikite prie <strong>50 produktų už 10€/mėn</strong>. 
+                Visada <strong>0% komisinio</strong>. Iš Vilniaus, Kauno — pardavinėkite visoje Europoje.
               </p>
             </div>
 
             {/* LATVIAN / Latviešu */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="lv">
-              <h3>🇱🇻 Lētākais tirgus Eiropā — 0% komisija</h3>
+              <h3>🇱🇻 Lētākais tirgus Eiropā — 0% komisija | Pārdodiet no Latvijas</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> — <strong>0% komisiju</strong>, abonements no <strong>2€/mēnesī</strong>. 
-                Sāciet pārdot šodien! 30 dienu bezmaksas izmēģinājums!
+                <strong>🚀 Sāciet bez maksas:</strong> <strong>30 dienas bez maksas</strong>, <strong>10 produkti</strong> — 
+                fiksēta cena vai izsole. Nopelniet pirmo naudu, tad pārejiet uz <strong>50 produktiem par 10€/mēnesī</strong>. 
+                Vienmēr <strong>0% komisija</strong>. No Rīgas, Daugavpils — pārdodiet visā Eiropā.
               </p>
             </div>
 
             {/* ESTONIAN / Eesti */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="et">
-              <h3>🇪🇪 Euroopa odavaim turg — 0% vahendustasu</h3>
+              <h3>🇪🇪 Euroopa odavaim turg — 0% vahendustasu | Müüge Eestist</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> — <strong>0% vahendustasuga</strong>, tellimus alates <strong>2€/kuus</strong>. 
-                Alustage müüki juba täna! 30 päeva tasuta!
+                <strong>🚀 Alustage tasuta:</strong> <strong>30 päeva tasuta</strong>, <strong>10 toodet</strong> — 
+                fikseeritud hind või oksjon. Teenige esimene raha, siis uuendage <strong>50 tootele 10€/kuus</strong>. 
+                Alati <strong>0% vahendustasu</strong>. Tallinnast, Tartust — müüge kogu Euroopas.
               </p>
             </div>
 
             {/* UKRAINIAN / Українська */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="uk">
-              <h3>🇺🇦 Найдешевший маркетплейс в Європі — 0% комісії</h3>
+              <h3>🇺🇦 Найдешевший маркетплейс в Європі — 0% комісії | Продавайте з України</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> — <strong>0% комісії з продажів</strong>, підписка від <strong>2€/місяць</strong>. 
-                Розпочніть свій онлайн-бізнес сьогодні! 30 днів безкоштовно!
+                <strong>🚀 Починайте безкоштовно:</strong> <strong>30 днів безкоштовно</strong>, <strong>10 товарів</strong> — 
+                фіксована ціна або аукціон. Заробіть перші гроші, потім перейдіть на <strong>50 товарів за 10€/місяць</strong>. 
+                Завжди <strong>0% комісії</strong>. З Києва, Львова, Одеси — продавайте по всій Європі. 
+                Найкраща альтернатива OLX, Prom.ua, Amazon.
               </p>
             </div>
 
             {/* TURKISH / Türkçe */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="tr">
-              <h3>🇹🇷 Avrupa'nın en ucuz pazaryeri — %0 komisyon</h3>
+              <h3>🇹🇷 Avrupa'nın en ucuz pazaryeri — %0 komisyon | Türkiye'den satış yapın</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> — <strong>%0 satış komisyonu</strong>, abonelik sadece <strong>2€/ay</strong>'dan. 
-                Online işinizi bugün başlatın! 30 gün ücretsiz deneme!
+                <strong>🚀 Ücretsiz başlayın:</strong> <strong>30 gün tamamen ücretsiz</strong>, <strong>10 ürün</strong> — 
+                sabit fiyat veya açık artırma. İlk paranızı kazanın, sonra <strong>50 ürüne 10€/ay</strong> ile yükseltin. 
+                Her zaman <strong>%0 komisyon</strong>. İstanbul, Ankara, İzmir'den — tüm Avrupa'ya satış yapın. 
+                Trendyol, Hepsiburada, Amazon'a en iyi alternatif.
               </p>
             </div>
 
             {/* CHINESE / 中文 */}
             <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="zh">
-              <h3>🇨🇳 欧洲最便宜的在线市场 — 0%销售佣金</h3>
+              <h3>🇨🇳 欧洲最便宜的在线市场 — 0%销售佣金 | 面向全欧洲销售</h3>
               <p>
-                <strong>MarketPlaceRomania.com</strong> 是全欧洲最便宜的在线市场，<strong>所有销售0%佣金</strong>。
-                固定订阅费仅需<strong>2欧元/月</strong>起。今天就开始您的在线业务！30天免费试用！
+                <strong>🚀 免费开始：</strong><strong>30天完全免费</strong>，发布<strong>10件商品</strong>——
+                固定价格或拍卖——零风险赚取第一笔收入。然后升级到<strong>50件商品10€/月</strong>，
+                再到<strong>150件30€/月</strong>。从小做起，不断成长——始终<strong>0%佣金</strong>。
+                在MarketPlaceRomania.com向整个欧洲销售。亚马逊、eBay、Etsy的最佳替代品。
+              </p>
+            </div>
+
+            {/* SCOTTISH GAELIC / Gàidhlig */}
+            <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="gd">
+              <h3>🏴󠁧󠁢󠁳󠁣󠁴󠁿 Am margadh as saoire san Roinn Eòrpa — 0% coimisean | Reic à Alba</h3>
+              <p>
+                <strong>MarketPlaceRomania.com</strong> — am margadh air-loidhne as saoire san Roinn Eòrpa le 
+                <strong>0% coimisean air a h-uile reic</strong>. <strong>30 latha an-asgaidh</strong>, 
+                <strong>10 toraidhean</strong>. Tòisich beag, fàs mòr. À Dùn Èideann, Glaschu, Obar Dheathain, 
+                Inbhir Nis — reic air feadh na Roinn Eòrpa.
+              </p>
+            </div>
+
+            {/* WELSH / Cymraeg */}
+            <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="cy">
+              <h3>🏴󠁧󠁢󠁷󠁬󠁳󠁿 Y farchnad rataf yn Ewrop — 0% comisiwn | Gwerthwch o Gymru</h3>
+              <p>
+                <strong>MarketPlaceRomania.com</strong> — y farchnad ar-lein rataf yn Ewrop gyfan gyda 
+                <strong>0% comisiwn ar bob gwerthiant</strong>. <strong>30 diwrnod am ddim</strong>, 
+                <strong>10 cynnyrch</strong>. Dechreuwch yn fach, tyfwch yn fawr. O Gaerdydd, Abertawe, Casnewydd — 
+                gwerthwch ledled Ewrop.
+              </p>
+            </div>
+
+            {/* IRISH / Gaeilge */}
+            <div className="text-sm text-muted-foreground leading-relaxed space-y-3" lang="ga">
+              <h3>🇮🇪 An margadh is saoire san Eoraip — 0% coimisiún | Díol ó Éirinn</h3>
+              <p>
+                <strong>MarketPlaceRomania.com</strong> — an margadh ar líne is saoire san Eoraip ar fad le 
+                <strong>0% coimisiún ar gach díolachán</strong>. <strong>30 lá saor in aisce</strong>, 
+                <strong>10 táirge</strong>. Tosaigh beag, fás mór. Ó Bhaile Átha Cliath, Corcaigh, Gaillimh — 
+                díol ar fud na hEorpa.
               </p>
             </div>
 
@@ -478,6 +589,8 @@ const CityLandingSection: React.FC = () => {
               <p>
                 marketplace Europe, cheapest marketplace Europe, 0 commission marketplace, zero fees marketplace, 
                 sell online Europe, buy online Europe, start online business Europe, sell from home Europe,
+                start a business from home UK, sell online UK no fees, marketplace Scotland, marketplace England, 
+                marketplace Wales, marketplace Northern Ireland, sell from Edinburgh, sell from Glasgow, sell from London,
                 marketplace Deutschland, marketplace Frankreich, marketplace Italien, marketplace Spanien, 
                 marketplace France, marketplace Italie, marketplace Espagne, marketplace Pays-Bas,
                 marketplace Italia, marketplace Spagna, marketplace Germania, marketplace España,
@@ -485,7 +598,11 @@ const CityLandingSection: React.FC = () => {
                 marketplace Sverige, marketplace Danmark, marketplace Suomi, marketplace Norge, 
                 marketplace Ελλάδα, marketplace Česko, marketplace Magyarország, marketplace България, 
                 marketplace Hrvatska, marketplace Slovensko, marketplace Slovenija, marketplace Schweiz, 
-                marketplace Lietuva, marketplace Latvija, marketplace Eesti, marketplace Україна, marketplace Türkiye.
+                marketplace Lietuva, marketplace Latvija, marketplace Eesti, marketplace Україна, marketplace Türkiye,
+                sell online Scotland, marketplace Edinburgh, marketplace Glasgow, marketplace Aberdeen,
+                start business Scotland free, sell online Wales, sell from Cardiff, sell from Belfast,
+                free marketplace trial, 30 days free marketplace, sell 10 products free, earn money online Europe,
+                start selling online free Europe, no commission marketplace, best free marketplace.
               </p>
             </div>
           </div>
