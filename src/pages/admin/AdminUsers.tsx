@@ -267,7 +267,7 @@ export default function AdminUsers() {
                 </span>
               )}
             </TabsTrigger>
-            <TabsTrigger value="actions">Jurnal Acțiuni</TabsTrigger>
+            
           </TabsList>
 
           {/* Users Tab */}
@@ -558,18 +558,6 @@ export default function AdminUsers() {
             </Card>
           </TabsContent>
 
-          {/* Actions Log Tab */}
-          <TabsContent value="actions">
-            <Card>
-              <CardHeader>
-                <CardTitle>Jurnal Acțiuni Administrative</CardTitle>
-                <CardDescription>Istoric complet al acțiunilor asupra conturilor</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AuditLogTable />
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
 
         {/* Action Dialog */}
@@ -646,73 +634,5 @@ export default function AdminUsers() {
         </Dialog>
       </div>
     </AdminLayout>
-  );
-}
-
-// Audit Log Component
-function AuditLogTable() {
-  const { data: logs, isLoading } = useQuery({
-    queryKey: ['audit-logs-users'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('audit_logs')
-        .select('*')
-        .eq('entity_type', 'user')
-        .order('created_at', { ascending: false })
-        .limit(50);
-      
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  if (isLoading) {
-    return <Skeleton className="h-48 w-full" />;
-  }
-
-  if (!logs?.length) {
-    return (
-      <div className="text-center py-12 text-muted-foreground">
-        <Shield className="h-12 w-12 mx-auto mb-4 opacity-50" />
-        <p>Nu există acțiuni înregistrate.</p>
-      </div>
-    );
-  }
-
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Acțiune</TableHead>
-          <TableHead>Utilizator Afectat</TableHead>
-          <TableHead>Motiv</TableHead>
-          <TableHead>Data</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {logs.map((log) => (
-          <TableRow key={log.id}>
-            <TableCell>
-              <Badge variant={
-                log.action === 'ban' ? 'destructive' : 
-                log.action === 'suspend' ? 'secondary' : 
-                'outline'
-              }>
-                {log.action}
-              </Badge>
-            </TableCell>
-            <TableCell className="font-mono text-xs">
-              {log.entity_id?.slice(0, 8)}...
-            </TableCell>
-            <TableCell className="max-w-xs truncate">
-              {(log.new_values as any)?.reason || '-'}
-            </TableCell>
-            <TableCell>
-              {new Date(log.created_at).toLocaleString('ro-RO')}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   );
 }
