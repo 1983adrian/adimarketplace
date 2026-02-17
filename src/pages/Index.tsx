@@ -10,6 +10,7 @@ import { OrganizationSchema } from '@/components/seo/OrganizationSchema';
 import { MarketplaceSchema } from '@/components/seo/MarketplaceSchema';
 import { BrandImagesSchema } from '@/components/seo/BrandImagesSchema';
 import CityLandingSection from '@/components/seo/CityLandingSection';
+import { SellCTASection } from '@/components/home/SellCTASection';
 
 const Index = () => {
   return (
@@ -29,6 +30,7 @@ const Index = () => {
         <FeaturedListings />
         <PromotedListings />
         <CategorySection />
+        <SellCTASection />
         <CityLandingSection />
         <FAQSchema showUI={true} />
       </Layout>
