@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, ShoppingCart, Star, Gavel, Share2 } from 'lucide-react';
+import { Heart, ShoppingCart, Star, Gavel } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { VerifiedBadge } from '@/components/VerifiedBadge';
 
 import { useSellerRating } from '@/hooks/useReviews';
-import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
+
 
 interface ListingCardProps {
   listing: ListingWithImages;
@@ -156,25 +156,7 @@ export const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
             <Heart className={cn('h-4 w-4', isFavorite && 'fill-current')} />
           </Button>
           
-          {/* Share Button for seller's own listings */}
-          {user?.id === listing.seller_id && (
-            <div onClick={(e) => e.preventDefault()}>
-              <ShareListingDialog
-                listingId={listing.id}
-                listingTitle={listing.title}
-                listingPrice={listing.price}
-                listingImage={imageUrl}
-              >
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute top-12 right-2 h-8 w-8 rounded-full bg-emerald-500/90 backdrop-blur-sm shadow-sm hover:bg-emerald-600 text-white transition-all"
-                >
-                  <Share2 className="h-4 w-4" />
-                </Button>
-              </ShareListingDialog>
-            </div>
-          )}
+          {/* Share button removed from card grid — available only on listing detail page */}
           
           {/* Condition Badge */}
           <Badge className={cn('absolute bottom-1.5 left-1.5 text-[10px] px-1.5 py-0 h-4 font-medium', conditionStyles[listing.condition])}>
