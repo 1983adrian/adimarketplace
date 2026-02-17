@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { X, ImagePlus, Crown, AlertCircle, Package, Loader2, Truck, Gavel, Tag, Ban, Leaf, Bomb, Store, Sparkles } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
@@ -65,6 +65,10 @@ const CreateListing = () => {
   const [enhancingIndex, setEnhancingIndex] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [isActive, setIsActive] = useState(true);
+  const [hasDraft, setHasDraft] = useState(false);
+  
+  // Submit guard - prevent double clicks and rapid submissions
+  const isSubmittingRef = useRef(false);
   
   // Shipping cost (required with price) - now using courier selection
   const [shippingCost, setShippingCost] = useState('');
@@ -92,6 +96,88 @@ const CreateListing = () => {
   
   // Seller currency selection - default to RON for Romanian sellers
   const [priceCurrency, setPriceCurrency] = useState<'RON' | 'GBP' | 'EUR' | 'USD'>('RON');
+
+  // ========== DRAFT AUTO-SAVE ==========
+  const DRAFT_KEY = 'marketplace_listing_draft';
+
+  // Restore draft on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (!saved) return;
+      const draft = JSON.parse(saved);
+      if (draft.title) setTitle(draft.title);
+      if (draft.description) setDescription(draft.description);
+      if (draft.price) setPrice(draft.price);
+      if (draft.condition) setCondition(draft.condition);
+      if (draft.category) setCategory(draft.category);
+      if (draft.shippingCost) setShippingCost(draft.shippingCost);
+      if (draft.selectedCourier) setSelectedCourier(draft.selectedCourier);
+      if (draft.quantity) setQuantity(draft.quantity);
+      if (draft.sizes) setSizes(draft.sizes);
+      if (draft.colors) setColors(draft.colors);
+      if (draft.listingType) setListingType(draft.listingType);
+      if (draft.startingBid) setStartingBid(draft.startingBid);
+      if (draft.reservePrice) setReservePrice(draft.reservePrice);
+      if (draft.bidIncrement) setBidIncrement(draft.bidIncrement);
+      if (draft.auctionDuration) setAuctionDuration(draft.auctionDuration);
+      if (draft.priceCurrency) setPriceCurrency(draft.priceCurrency);
+      if (draft.imagePreviews?.length) {
+        setImagePreviews(draft.imagePreviews);
+      }
+      setHasDraft(true);
+      toast({ title: '📝 Ciornă restaurată', description: 'Am restaurat produsul la care lucrai.' });
+    } catch {
+      // Invalid draft, ignore
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-save draft every 3 seconds when form has content
+  const saveDraft = useCallback(() => {
+    if (!title && !description && !price && imagePreviews.length === 0) {
+      return; // Nothing to save
+    }
+    try {
+      const draft = {
+        title, description, price, condition, category,
+        shippingCost, selectedCourier, quantity,
+        sizes, colors, listingType, startingBid,
+        reservePrice, bidIncrement, auctionDuration,
+        priceCurrency,
+        imagePreviews: imagePreviews.slice(0, 3), // Save base64 previews (max 3)
+        savedAt: Date.now(),
+      };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    } catch {
+      // localStorage full or unavailable
+    }
+  }, [title, description, price, condition, category, shippingCost, selectedCourier, quantity, sizes, colors, listingType, startingBid, reservePrice, bidIncrement, auctionDuration, priceCurrency, imagePreviews]);
+
+  useEffect(() => {
+    const timer = setInterval(saveDraft, 3000);
+    return () => clearInterval(timer);
+  }, [saveDraft]);
+
+  // Clear draft after successful submission
+  const clearDraft = useCallback(() => {
+    localStorage.removeItem(DRAFT_KEY);
+    setHasDraft(false);
+  }, []);
+
+  const handleClearDraft = () => {
+    clearDraft();
+    setTitle(''); setDescription(''); setPrice('');
+    setCondition('good'); setCategory('');
+    setImageFiles([]); setImagePreviews([]);
+    setShippingCost(''); setSelectedCourier('');
+    setQuantity('1'); setSizes([]); setColors([]);
+    setListingType('buy_now'); setStartingBid('');
+    setReservePrice(''); setBidIncrement('1');
+    setAuctionDuration('7'); setPriceCurrency('RON');
+    toast({ title: '🗑️ Ciornă ștearsă', description: 'Formularul a fost resetat.' });
+  };
+  // ========== END DRAFT AUTO-SAVE ==========
 
   // Predefined sizes and colors
   const SHOE_SIZES = ['36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46'];
@@ -195,6 +281,13 @@ const CreateListing = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Prevent double-clicks and rapid submissions
+    if (isSubmittingRef.current || loading) {
+      toast({ title: '⏳ Se procesează...', description: 'O acțiune este deja în curs. Te rugăm să aștepți.' });
+      return;
+    }
+    isSubmittingRef.current = true;
+
     if (!user) {
       toast({ title: t('createListing.loginRequired'), description: t('createListing.loginRequiredDesc'), variant: 'destructive' });
       navigate('/login');
@@ -318,6 +411,9 @@ const CreateListing = () => {
         });
       }
 
+      // 5. Clear draft after successful save
+      clearDraft();
+
       toast({ 
           title: t('createListing.success'), 
           description: isActive ? t('createListing.successDesc') : t('createListing.draftDesc')
@@ -333,6 +429,7 @@ const CreateListing = () => {
       });
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -487,6 +584,20 @@ const CreateListing = () => {
             )}
           </div>
         </div>
+
+        {/* Draft restored banner */}
+        {hasDraft && (
+          <Alert className="mb-4 border-primary/30 bg-primary/5">
+            <AlertCircle className="h-4 w-4 text-primary" />
+            <AlertTitle className="text-primary">📝 Ciornă restaurată</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              <span className="text-muted-foreground">Am restaurat datele produsului la care lucrai anterior.</span>
+              <Button variant="ghost" size="sm" onClick={handleClearDraft} className="shrink-0 ml-2">
+                Șterge ciorna
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Trial Expiry Warning */}
         {trialStatus?.shouldWarnExpiry && (
