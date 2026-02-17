@@ -37,12 +37,7 @@ export default function AdminPaymentAudit() {
     queryFn: async () => {
       let query = supabase
         .from('orders')
-        .select(`
-          *,
-          listings (title, price, price_currency),
-          buyer:profiles!orders_buyer_id_fkey1 (user_id, display_name, username, paypal_email),
-          seller:profiles!orders_seller_id_fkey1 (user_id, display_name, username, store_name, paypal_email)
-        `)
+        .select(`*, listings:listing_id (title, price, price_currency)`)
         .order('created_at', { ascending: false })
         .limit(100);
 
@@ -52,7 +47,22 @@ export default function AdminPaymentAudit() {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+
+      // Fetch buyer/seller profiles separately
+      const buyerIds = [...new Set(data.map(o => o.buyer_id))];
+      const sellerIds = [...new Set(data.map(o => o.seller_id))];
+      const allIds = [...new Set([...buyerIds, ...sellerIds])];
+
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, username, store_name, paypal_email')
+        .in('user_id', allIds);
+
+      return data.map(order => ({
+        ...order,
+        buyer: profiles?.find(p => p.user_id === order.buyer_id),
+        seller: profiles?.find(p => p.user_id === order.seller_id),
+      }));
     },
   });
 
