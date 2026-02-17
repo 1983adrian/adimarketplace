@@ -3746,6 +3746,13 @@ export type Database = {
         Returns: boolean
       }
       generate_short_id: { Args: never; Returns: string }
+      get_category_counts: {
+        Args: never
+        Returns: {
+          category_id: string
+          listing_count: number
+        }[]
+      }
       get_generalized_location: { Args: { loc: string }; Returns: string }
       get_platform_summary: { Args: never; Returns: Json }
       get_public_seller_profile: {
