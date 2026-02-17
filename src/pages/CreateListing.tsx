@@ -31,6 +31,7 @@ import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCount
 import { ShippingCostSelector } from '@/components/listings/ShippingCostSelector';
 
 import { useRequireKYC } from '@/hooks/useKYCEnforcement';
+import { usePlatformSettings } from '@/hooks/useAdminSettings';
 
 
 const CreateListing = () => {
@@ -45,9 +46,15 @@ const CreateListing = () => {
   const { uploadMultipleImages, uploading, enhanceImage, enhancing } = useImageUpload();
   const { location: userLocation } = useLocation();
   const { canSell, kycStatus, message: kycMessage, isLoading: kycLoading } = useRequireKYC();
+  const { data: platformSettings } = usePlatformSettings();
   
   const { data: trialStatus, isLoading: trialLoading } = useSellerTrial();
   const startTrial = useStartSellerTrial();
+  
+  // Read marketplace limits from admin settings (fallback to defaults)
+  const marketplaceSettings = platformSettings?.marketplace as any;
+  const MAX_IMAGES = marketplaceSettings?.maxImagesPerListing ?? 3;
+  const MAX_LISTING_PRICE = marketplaceSettings?.maxListingPrice ?? 100000;
   
   const hasActivePlan = !!activePlan || trialStatus?.isInTrial;
   const canCreateMore = listingLimit?.canCreateMore ?? false;
@@ -210,14 +217,13 @@ const CreateListing = () => {
     const files = e.target.files;
     if (!files) return;
     
-    // Maximum 3 images allowed
-    const MAX_IMAGES = 3;
+    // Maximum images from admin settings
     const remainingSlots = MAX_IMAGES - imageFiles.length;
     
     if (remainingSlots <= 0) {
       toast({ 
         title: t('createListing.limitReached'), 
-        description: t('createListing.imageLimit'), 
+        description: `Poți adăuga maxim ${MAX_IMAGES} imagini per produs.`, 
         variant: 'destructive' 
       });
       return;
@@ -329,6 +335,15 @@ const CreateListing = () => {
     if (listingType !== 'auction') {
       if (!price) {
         toast({ title: t('createListing.missingPrice'), description: t('createListing.missingPriceDesc'), variant: 'destructive' });
+        return;
+      }
+      // Enforce max listing price from admin settings
+      if (parseFloat(price) > MAX_LISTING_PRICE) {
+        toast({ 
+          title: 'Preț prea mare', 
+          description: `Prețul maxim permis este ${MAX_LISTING_PRICE.toLocaleString()} RON.`, 
+          variant: 'destructive' 
+        });
         return;
       }
       // Shipping cost is now set by courier selection - no manual validation needed

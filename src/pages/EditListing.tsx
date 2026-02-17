@@ -21,6 +21,7 @@ import { ItemCondition } from '@/types/database';
 
 import { useSellerCountry, useUpdateSellerCountry } from '@/hooks/useSellerCountry';
 import { ShippingCostSelector, COURIER_RATES } from '@/components/listings/ShippingCostSelector';
+import { usePlatformSettings } from '@/hooks/useAdminSettings';
 
 
 const EditListing = () => {
@@ -33,6 +34,9 @@ const EditListing = () => {
   const updateListing = useUpdateListing();
   const deleteListing = useDeleteListing();
   const { uploadMultipleImages, deleteImage, uploading } = useImageUpload();
+  const { data: platformSettings } = usePlatformSettings();
+  const marketplaceSettings = platformSettings?.marketplace as any;
+  const MAX_IMAGES = marketplaceSettings?.maxImagesPerListing ?? 3;
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -96,8 +100,8 @@ const EditListing = () => {
     if (!files) return;
     
     const totalImages = existingImages.length + newImageFiles.length + files.length;
-    if (totalImages > 8) {
-      toast({ title: 'Prea multe imagini', description: 'Poți avea maximum 8 imagini', variant: 'destructive' });
+    if (totalImages > MAX_IMAGES) {
+      toast({ title: 'Prea multe imagini', description: `Poți avea maximum ${MAX_IMAGES} imagini`, variant: 'destructive' });
       return;
     }
     
