@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, TrendingUp, Flag, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, Heart, Shield, Star, Gavel, CheckCircle, ShoppingCart, TrendingUp, Flag, Minus, Plus, Share2 } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +20,7 @@ import { AuctionBidding } from '@/components/listings/AuctionBidding';
 
 
 import { ReportListingDialog } from '@/components/listings/ReportListingDialog';
+import { ShareListingDialog } from '@/components/listings/ShareListingDialog';
 import { VariantSelector } from '@/components/listings/VariantSelector';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useQuery } from '@tanstack/react-query';
@@ -443,6 +444,17 @@ const ListingDetail = () => {
               >
                 <Heart className={`h-5 w-5 ${isFavorite ? 'fill-current text-destructive' : ''}`} />
               </Button>
+              {/* Share button — visible to all buyers on detail page */}
+              <ShareListingDialog
+                listingId={listing.id}
+                listingTitle={listing.title}
+                listingPrice={listing.price}
+                listingImage={listing.listing_images?.[0]?.image_url || '/placeholder.svg'}
+              >
+                <Button variant="outline" size="sm">
+                  <Share2 className="h-5 w-5" />
+                </Button>
+              </ShareListingDialog>
             </div>
 
             <Separator />
