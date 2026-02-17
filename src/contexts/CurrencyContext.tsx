@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { LANGUAGE_CONFIG, EXCHANGE_RATES, type SupportedLanguage } from '@/i18n/config';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-export type Currency = 'GBP' | 'EUR' | 'USD' | 'RON' | 'CNY' | 'PLN';
+export type Currency = 'GBP' | 'EUR' | 'USD' | 'RON' | 'CNY' | 'PLN' | 'SEK' | 'DKK' | 'NOK' | 'CZK' | 'HUF' | 'BGN' | 'TRY' | 'UAH' | 'CHF';
 
 interface CurrencyInfo {
   code: Currency;
@@ -18,6 +18,15 @@ const CURRENCIES: Record<Currency, CurrencyInfo> = {
   RON: { code: 'RON', symbol: 'lei', name: 'Romanian Leu', locale: 'ro-RO' },
   CNY: { code: 'CNY', symbol: '¥', name: 'Chinese Yuan', locale: 'zh-CN' },
   PLN: { code: 'PLN', symbol: 'zł', name: 'Polish Zloty', locale: 'pl-PL' },
+  SEK: { code: 'SEK', symbol: 'kr', name: 'Swedish Krona', locale: 'sv-SE' },
+  DKK: { code: 'DKK', symbol: 'kr', name: 'Danish Krone', locale: 'da-DK' },
+  NOK: { code: 'NOK', symbol: 'kr', name: 'Norwegian Krone', locale: 'nb-NO' },
+  CZK: { code: 'CZK', symbol: 'Kč', name: 'Czech Koruna', locale: 'cs-CZ' },
+  HUF: { code: 'HUF', symbol: 'Ft', name: 'Hungarian Forint', locale: 'hu-HU' },
+  BGN: { code: 'BGN', symbol: 'лв', name: 'Bulgarian Lev', locale: 'bg-BG' },
+  TRY: { code: 'TRY', symbol: '₺', name: 'Turkish Lira', locale: 'tr-TR' },
+  UAH: { code: 'UAH', symbol: '₴', name: 'Ukrainian Hryvnia', locale: 'uk-UA' },
+  CHF: { code: 'CHF', symbol: 'CHF', name: 'Swiss Franc', locale: 'de-CH' },
 };
 
 interface CurrencyContextType {
