@@ -6,7 +6,7 @@ import {
   Settings,
   Shield,
   LucideIcon,
-  Truck,
+  
   RotateCcw,
   Gavel,
   MessageSquare,
@@ -47,7 +47,7 @@ interface MenuItem {
 const monitoringItems: MenuItem[] = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
   { title: 'Comenzi', url: '/admin/orders', icon: ShoppingCart },
-  { title: 'Livrări', url: '/admin/deliveries', icon: Truck },
+  
   { title: 'Retururi', url: '/admin/returns', icon: RotateCcw },
   { title: 'Dispute', url: '/admin/disputes', icon: AlertTriangle },
   { title: 'Licitații', url: '/admin/auctions', icon: Gavel },

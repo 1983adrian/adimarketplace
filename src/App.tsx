@@ -72,7 +72,7 @@ import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminSEO from "./pages/admin/AdminSEO";
 import AdminMaintenance from "./pages/admin/AdminMaintenance";
 import AdminAuditLog from "./pages/admin/AdminAuditLog";
-import AdminDeliveryManagement from "./pages/admin/AdminDeliveryManagement";
+
 import AdminReturns from "./pages/admin/AdminReturns";
 import AdminSellerVerifications from "./pages/admin/AdminSellerVerifications";
 import AdminAuctions from "./pages/admin/AdminAuctions";
@@ -140,7 +140,7 @@ const adminRoutes = [
   { path: "/admin/users", element: <AdminUsers /> },
   { path: "/admin/listings", element: <AdminListings /> },
   { path: "/admin/orders", element: <AdminOrders /> },
-  { path: "/admin/deliveries", element: <AdminDeliveryManagement /> },
+  
   { path: "/admin/payments", element: <AdminPaymentProcessors /> },
   { path: "/admin/messages", element: <AdminMessages /> },
   { path: "/admin/disputes", element: <AdminDisputes /> },
