@@ -16,8 +16,8 @@ const Index = () => {
   return (
     <>
       <SEOHead 
-        title="Market Place România® | Marketplace România - Cumpără și Vinde Online | Primul Market Place construit cu AI"
-        description="Market Place România® - Primul Market Place din România construit cu AI. Marketplace România pentru vânzări online, licitații online, cumpără online. 0% comision! Market Place România - cel mai mare market place online românesc. Abonamente de la 11 LEI/lună. Marcă Înregistrată."
+        title="Marketplace România® | Cheapest Marketplace in Europe — 0% Commission | Cumpără și Vinde Online"
+        description="Marketplace România® - The cheapest marketplace in Europe with 0% sales commission. Primul Marketplace din România construit cu AI. Buy & sell online, auctions, secure payments. Subscriptions from €2/month. Ship across all EU countries! Marcă Înregistrată."
         url="https://www.marketplaceromania.com"
         type="website"
       />
