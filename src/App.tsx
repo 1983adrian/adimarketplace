@@ -53,6 +53,7 @@ import Notifications from "./pages/Notifications";
 import HowItWorks from "./pages/HowItWorks";
 import FeesAndCommissions from "./pages/FeesAndCommissions";
 import SellerPlansPublic from "./pages/SellerPlansPublic";
+import SellOnMarketplace from "./pages/SellOnMarketplace";
 // Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -130,6 +131,7 @@ const publicRoutes = [
   { path: "/cum-functioneaza", element: <HowItWorks /> },
   { path: "/taxe-si-comisioane", element: <FeesAndCommissions /> },
   { path: "/abonamente-vanzatori", element: <SellerPlansPublic /> },
+  { path: "/vinde-pe-marketplace", element: <SellOnMarketplace /> },
 ];
 
 // Admin routes (no language prefix needed)
