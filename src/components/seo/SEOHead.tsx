@@ -167,13 +167,41 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={image} />
-      <meta property="og:site_name" content="Marketplace România" />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content="Marketplace România® — 0% Commission, The Cheapest Marketplace in Europe" />
+      <meta property="og:site_name" content="Marketplace România® — 0% Commission Europe" />
       <meta property="og:locale" content="ro_RO" />
+      <meta property="og:locale:alternate" content="en_GB" />
+      <meta property="og:locale:alternate" content="en_US" />
+      <meta property="og:locale:alternate" content="de_DE" />
+      <meta property="og:locale:alternate" content="fr_FR" />
+      <meta property="og:locale:alternate" content="it_IT" />
+      <meta property="og:locale:alternate" content="es_ES" />
+      <meta property="og:locale:alternate" content="nl_NL" />
+      <meta property="og:locale:alternate" content="pl_PL" />
+      <meta property="og:locale:alternate" content="pt_PT" />
+      <meta property="og:locale:alternate" content="sv_SE" />
+      <meta property="og:locale:alternate" content="da_DK" />
+      <meta property="og:locale:alternate" content="fi_FI" />
+      <meta property="og:locale:alternate" content="nb_NO" />
+      <meta property="og:locale:alternate" content="el_GR" />
+      <meta property="og:locale:alternate" content="cs_CZ" />
+      <meta property="og:locale:alternate" content="hu_HU" />
+      <meta property="og:locale:alternate" content="bg_BG" />
+      <meta property="og:locale:alternate" content="hr_HR" />
+      <meta property="og:locale:alternate" content="sk_SK" />
+      <meta property="og:locale:alternate" content="uk_UA" />
+      <meta property="og:locale:alternate" content="tr_TR" />
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:url" content={canonicalUrl} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
+      <meta name="twitter:label1" content="Commission" />
+      <meta name="twitter:data1" content="0% — FREE forever" />
+      <meta name="twitter:label2" content="Free Trial" />
+      <meta name="twitter:data2" content="30 days + 10 products FREE" />
       {type === 'product' && price && (
         <>
           <meta property="product:price:amount" content={String(price)} />

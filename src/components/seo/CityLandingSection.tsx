@@ -118,7 +118,7 @@ const CityLandingSection: React.FC = () => {
               </h3>
               <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
                 Pe <strong>eMAG</strong> plătești până la <strong>25% comision</strong> din fiecare vânzare. 
-                Pe <strong>OLX</strong> riști țepe fără protecție reală. Pe <strong>eBay</strong> plătești comisioane + taxe PayPal. 
+                Pe <strong>OLX</strong> riști țepe fără protecție reală. Pe <strong>eBay</strong> plătești comisioane de până la 13% din vânzare. 
                 Pe <strong>Facebook Marketplace</strong> nu ai garanții, nu ai facturi, nu ai siguranță.
               </p>
               <p className="text-foreground font-semibold text-base md:text-lg">
